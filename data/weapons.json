@@ -1,0 +1,914 @@
+[
+  {
+    "key": "52gal",
+    "name": ".52ガロン",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Gravity_00.png"
+  },
+  {
+    "key": "52gal_deco",
+    "name": ".52ガロンデコ",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Gravity_01.png"
+  },
+  {
+    "key": "96gal",
+    "name": ".96ガロン",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Heavy_00.png"
+  },
+  {
+    "key": "96gal_deco",
+    "name": ".96ガロンデコ",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Heavy_01.png"
+  },
+  {
+    "key": "96gal_sou",
+    "name": ".96ガロン爪",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Heavy_02.png"
+  },
+  {
+    "key": "bold",
+    "name": "ボールドマーカー",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Short_00.png"
+  },
+  {
+    "key": "bold_neo",
+    "name": "ボールドマーカーネオ",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Short_01.png"
+  },
+  {
+    "key": "bottlegeyser",
+    "name": "ボトルガイザー",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Flash_00.png"
+  },
+  {
+    "key": "bottlegeyser_foil",
+    "name": "ボトルガイザーフォイル",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Flash_01.png"
+  },
+  {
+    "key": "heroshooter_replica",
+    "name": "ヒーローシューター レプリカ",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Normal_H.png"
+  },
+  {
+    "key": "jetsweeper",
+    "name": "ジェットスイーパー",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Long_00.png"
+  },
+  {
+    "key": "jetsweeper_cobr",
+    "name": "ジェットスイーパーCOBR",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Long_02.png"
+  },
+  {
+    "key": "jetsweeper_custom",
+    "name": "ジェットスイーパーカスタム",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Long_01.png"
+  },
+  {
+    "key": "momiji",
+    "name": "もみじシューター",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_First_01.png"
+  },
+  {
+    "key": "nzap85",
+    "name": "N-ZAP85",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_QuickMiddle_00.png"
+  },
+  {
+    "key": "nzap89",
+    "name": "N-ZAP89",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_QuickMiddle_01.png"
+  },
+  {
+    "key": "octoshooter_replica",
+    "name": "オクタシューター レプリカ",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Normal_Oct.png"
+  },
+  {
+    "key": "order_shooter_replica",
+    "name": "オーダーシューター レプリカ",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Normal_O.png"
+  },
+  {
+    "key": "prime",
+    "name": "プライムシューター",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Expert_00.png"
+  },
+  {
+    "key": "prime_collabo",
+    "name": "プライムシューターコラボ",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Expert_01.png"
+  },
+  {
+    "key": "prime_frzn",
+    "name": "プライムシューターFRZN",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Expert_02.png"
+  },
+  {
+    "key": "promodeler_mg",
+    "name": "プロモデラーMG",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Blaze_00.png"
+  },
+  {
+    "key": "promodeler_rg",
+    "name": "プロモデラーRG",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Blaze_01.png"
+  },
+  {
+    "key": "promodeler_sai",
+    "name": "プロモデラー彩",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Blaze_02.png"
+  },
+  {
+    "key": "sharp",
+    "name": "シャープマーカー",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Precision_00.png"
+  },
+  {
+    "key": "sharp_geck",
+    "name": "シャープマーカーGECK",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Precision_02.png"
+  },
+  {
+    "key": "sharp_neo",
+    "name": "シャープマーカーネオ",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Precision_01.png"
+  },
+  {
+    "key": "spaceshooter",
+    "name": "スペースシューター",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_QuickLong_00.png"
+  },
+  {
+    "key": "spaceshooter_collabo",
+    "name": "スペースシューターコラボ",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_QuickLong_01.png"
+  },
+  {
+    "key": "sshooter",
+    "name": "スプラシューター",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Normal_00.png"
+  },
+  {
+    "key": "sshooter_collabo",
+    "name": "スプラシューターコラボ",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Normal_01.png"
+  },
+  {
+    "key": "sshooter_kou",
+    "name": "スプラシューター煌",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Normal_02.png"
+  },
+  {
+    "key": "wakaba",
+    "name": "わかばシューター",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_First_00.png"
+  },
+  {
+    "key": "clashblaster",
+    "name": "クラッシュブラスター",
+    "cat": "ブラスター",
+    "imgFile": "Path_Wst_Blaster_LightShort_00.png"
+  },
+  {
+    "key": "clashblaster_neo",
+    "name": "クラッシュブラスターネオ",
+    "cat": "ブラスター",
+    "imgFile": "Path_Wst_Blaster_LightShort_01.png"
+  },
+  {
+    "key": "hotblaster",
+    "name": "ホットブラスター",
+    "cat": "ブラスター",
+    "imgFile": "Path_Wst_Blaster_Middle_00.png"
+  },
+  {
+    "key": "hotblaster_custom",
+    "name": "ホットブラスターカスタム",
+    "cat": "ブラスター",
+    "imgFile": "Path_Wst_Blaster_Middle_01.png"
+  },
+  {
+    "key": "hotblaster_en",
+    "name": "ホットブラスター艶",
+    "cat": "ブラスター",
+    "imgFile": "Path_Wst_Blaster_Middle_02.png"
+  },
+  {
+    "key": "longblaster",
+    "name": "ロングブラスター",
+    "cat": "ブラスター",
+    "imgFile": "Path_Wst_Blaster_Long_00.png"
+  },
+  {
+    "key": "longblaster_custom",
+    "name": "ロングブラスターカスタム",
+    "cat": "ブラスター",
+    "imgFile": "Path_Wst_Blaster_Long_01.png"
+  },
+  {
+    "key": "nova",
+    "name": "ノヴァブラスター",
+    "cat": "ブラスター",
+    "imgFile": "Path_Wst_Blaster_Short_00.png"
+  },
+  {
+    "key": "nova_neo",
+    "name": "ノヴァブラスターネオ",
+    "cat": "ブラスター",
+    "imgFile": "Path_Wst_Blaster_Short_01.png"
+  },
+  {
+    "key": "order_blaster_replica",
+    "name": "オーダーブラスター レプリカ",
+    "cat": "ブラスター",
+    "imgFile": "Path_Wst_Blaster_Short_O.png"
+  },
+  {
+    "key": "rapid",
+    "name": "ラピッドブラスター",
+    "cat": "ブラスター",
+    "imgFile": "Path_Wst_Blaster_Light_00.png"
+  },
+  {
+    "key": "rapid_deco",
+    "name": "ラピッドブラスターデコ",
+    "cat": "ブラスター",
+    "imgFile": "Path_Wst_Blaster_Light_01.png"
+  },
+  {
+    "key": "rapid_elite",
+    "name": "Rブラスターエリート",
+    "cat": "ブラスター",
+    "imgFile": "Path_Wst_Blaster_LightLong_00.png"
+  },
+  {
+    "key": "rapid_elite_deco",
+    "name": "Rブラスターエリートデコ",
+    "cat": "ブラスター",
+    "imgFile": "Path_Wst_Blaster_LightLong_01.png"
+  },
+  {
+    "key": "rapid_elite_wntr",
+    "name": "RブラスターエリートWNTR",
+    "cat": "ブラスター",
+    "imgFile": "Path_Wst_Blaster_LightLong_02.png"
+  },
+  {
+    "key": "sblast91",
+    "name": "S-BLAST91",
+    "cat": "ブラスター",
+    "imgFile": "Path_Wst_Blaster_Precision_01.png"
+  },
+  {
+    "key": "sblast92",
+    "name": "S-BLAST92",
+    "cat": "ブラスター",
+    "imgFile": "Path_Wst_Blaster_Precision_00.png"
+  },
+  {
+    "key": "dualsweeper",
+    "name": "デュアルスイーパー",
+    "cat": "マニューバー",
+    "imgFile": "Path_Wst_Maneuver_Dual_00.png"
+  },
+  {
+    "key": "dualsweeper_custom",
+    "name": "デュアルスイーパーカスタム",
+    "cat": "マニューバー",
+    "imgFile": "Path_Wst_Maneuver_Dual_01.png"
+  },
+  {
+    "key": "dualsweeper_tei",
+    "name": "デュアルスイーパー蹄",
+    "cat": "マニューバー",
+    "imgFile": "Path_Wst_Maneuver_Dual_02.png"
+  },
+  {
+    "key": "gaen_ff",
+    "name": "ガエンFF",
+    "cat": "マニューバー",
+    "imgFile": "Path_Wst_Maneuver_Long_00.png"
+  },
+  {
+    "key": "gaen_ff_custom",
+    "name": "ガエンFFカスタム",
+    "cat": "マニューバー",
+    "imgFile": "Path_Wst_Maneuver_Long_01.png"
+  },
+  {
+    "key": "kelvin525",
+    "name": "ケルビン525",
+    "cat": "マニューバー",
+    "imgFile": "Path_Wst_Maneuver_Gallon_00.png"
+  },
+  {
+    "key": "kelvin525_deco",
+    "name": "ケルビン525デコ",
+    "cat": "マニューバー",
+    "imgFile": "Path_Wst_Maneuver_Gallon_01.png"
+  },
+  {
+    "key": "maneuver",
+    "name": "スプラマニューバー",
+    "cat": "マニューバー",
+    "imgFile": "Path_Wst_Maneuver_Normal_00.png"
+  },
+  {
+    "key": "maneuver_collabo",
+    "name": "スプラマニューバーコラボ",
+    "cat": "マニューバー",
+    "imgFile": "Path_Wst_Maneuver_Normal_01.png"
+  },
+  {
+    "key": "maneuver_you",
+    "name": "スプラマニューバー耀",
+    "cat": "マニューバー",
+    "imgFile": "Path_Wst_Maneuver_Normal_02.png"
+  },
+  {
+    "key": "order_maneuver_replica",
+    "name": "オーダーマニューバー レプリカ",
+    "cat": "マニューバー",
+    "imgFile": "Path_Wst_Maneuver_Normal_O.png"
+  },
+  {
+    "key": "quadhopper_black",
+    "name": "クアッドホッパーブラック",
+    "cat": "マニューバー",
+    "imgFile": "Path_Wst_Maneuver_Stepper_00.png"
+  },
+  {
+    "key": "quadhopper_white",
+    "name": "クアッドホッパーホワイト",
+    "cat": "マニューバー",
+    "imgFile": "Path_Wst_Maneuver_Stepper_01.png"
+  },
+  {
+    "key": "sputtery",
+    "name": "スパッタリー",
+    "cat": "マニューバー",
+    "imgFile": "Path_Wst_Maneuver_Short_00.png"
+  },
+  {
+    "key": "sputtery_hue",
+    "name": "スパッタリー・ヒュー",
+    "cat": "マニューバー",
+    "imgFile": "Path_Wst_Maneuver_Short_01.png"
+  },
+  {
+    "key": "sputtery_owl",
+    "name": "スパッタリーOWL",
+    "cat": "マニューバー",
+    "imgFile": "Path_Wst_Maneuver_Short_02.png"
+  },
+  {
+    "key": "carbon",
+    "name": "カーボンローラー",
+    "cat": "ローラー",
+    "imgFile": "Path_Wst_Roller_Compact_00.png"
+  },
+  {
+    "key": "carbon_angl",
+    "name": "カーボンローラーANGL",
+    "cat": "ローラー",
+    "imgFile": "Path_Wst_Roller_Compact_02.png"
+  },
+  {
+    "key": "carbon_deco",
+    "name": "カーボンローラーデコ",
+    "cat": "ローラー",
+    "imgFile": "Path_Wst_Roller_Compact_01.png"
+  },
+  {
+    "key": "dynamo",
+    "name": "ダイナモローラー",
+    "cat": "ローラー",
+    "imgFile": "Path_Wst_Roller_Heavy_00.png"
+  },
+  {
+    "key": "dynamo_mei",
+    "name": "ダイナモローラー冥",
+    "cat": "ローラー",
+    "imgFile": "Path_Wst_Roller_Heavy_02.png"
+  },
+  {
+    "key": "dynamo_tesla",
+    "name": "ダイナモローラーテスラ",
+    "cat": "ローラー",
+    "imgFile": "Path_Wst_Roller_Heavy_01.png"
+  },
+  {
+    "key": "order_roller_replica",
+    "name": "オーダーローラー レプリカ",
+    "cat": "ローラー",
+    "imgFile": "Path_Wst_Roller_Normal_O.png"
+  },
+  {
+    "key": "splatroller",
+    "name": "スプラローラー",
+    "cat": "ローラー",
+    "imgFile": "Path_Wst_Roller_Normal_00.png"
+  },
+  {
+    "key": "splatroller_collabo",
+    "name": "スプラローラーコラボ",
+    "cat": "ローラー",
+    "imgFile": "Path_Wst_Roller_Normal_01.png"
+  },
+  {
+    "key": "variableroller",
+    "name": "ヴァリアブルローラー",
+    "cat": "ローラー",
+    "imgFile": "Path_Wst_Roller_Hunter_00.png"
+  },
+  {
+    "key": "variableroller_foil",
+    "name": "ヴァリアブルローラーフォイル",
+    "cat": "ローラー",
+    "imgFile": "Path_Wst_Roller_Hunter_01.png"
+  },
+  {
+    "key": "wideroller",
+    "name": "ワイドローラー",
+    "cat": "ローラー",
+    "imgFile": "Path_Wst_Roller_Wide_00.png"
+  },
+  {
+    "key": "wideroller_collabo",
+    "name": "ワイドローラーコラボ",
+    "cat": "ローラー",
+    "imgFile": "Path_Wst_Roller_Wide_01.png"
+  },
+  {
+    "key": "wideroller_waku",
+    "name": "ワイドローラー惑",
+    "cat": "ローラー",
+    "imgFile": "Path_Wst_Roller_Wide_02.png"
+  },
+  {
+    "key": "fincent",
+    "name": "フィンセント",
+    "cat": "フデ",
+    "imgFile": "Path_Wst_Brush_Heavy_00.png"
+  },
+  {
+    "key": "fincent_brnz",
+    "name": "フィンセントBRNZ",
+    "cat": "フデ",
+    "imgFile": "Path_Wst_Brush_Heavy_02.png"
+  },
+  {
+    "key": "fincent_hue",
+    "name": "フィンセント・ヒュー",
+    "cat": "フデ",
+    "imgFile": "Path_Wst_Brush_Heavy_01.png"
+  },
+  {
+    "key": "hokusai",
+    "name": "ホクサイ",
+    "cat": "フデ",
+    "imgFile": "Path_Wst_Brush_Normal_00.png"
+  },
+  {
+    "key": "hokusai_hue",
+    "name": "ホクサイ・ヒュー",
+    "cat": "フデ",
+    "imgFile": "Path_Wst_Brush_Normal_01.png"
+  },
+  {
+    "key": "hokusai_sui",
+    "name": "ホクサイ彗",
+    "cat": "フデ",
+    "imgFile": "Path_Wst_Brush_Normal_02.png"
+  },
+  {
+    "key": "order_brush_replica",
+    "name": "オーダーブラシ レプリカ",
+    "cat": "フデ",
+    "imgFile": "Path_Wst_Brush_Normal_O.png"
+  },
+  {
+    "key": "pablo",
+    "name": "パブロ",
+    "cat": "フデ",
+    "imgFile": "Path_Wst_Brush_Mini_00.png"
+  },
+  {
+    "key": "pablo_hue",
+    "name": "パブロ・ヒュー",
+    "cat": "フデ",
+    "imgFile": "Path_Wst_Brush_Mini_01.png"
+  },
+  {
+    "key": "dentalwiper_mint",
+    "name": "デンタルワイパーミント",
+    "cat": "ワイパー",
+    "imgFile": "Path_Wst_Saber_Heavy_00.png"
+  },
+  {
+    "key": "dentalwiper_sumi",
+    "name": "デンタルワイパースミ",
+    "cat": "ワイパー",
+    "imgFile": "Path_Wst_Saber_Heavy_01.png"
+  },
+  {
+    "key": "drivewiper",
+    "name": "ドライブワイパー",
+    "cat": "ワイパー",
+    "imgFile": "Path_Wst_Saber_Lite_00.png"
+  },
+  {
+    "key": "drivewiper_deco",
+    "name": "ドライブワイパーデコ",
+    "cat": "ワイパー",
+    "imgFile": "Path_Wst_Saber_Lite_01.png"
+  },
+  {
+    "key": "drivewiper_rust",
+    "name": "ドライブワイパーRUST",
+    "cat": "ワイパー",
+    "imgFile": "Path_Wst_Saber_Lite_02.png"
+  },
+  {
+    "key": "jimuwiper",
+    "name": "ジムワイパー",
+    "cat": "ワイパー",
+    "imgFile": "Path_Wst_Saber_Normal_00.png"
+  },
+  {
+    "key": "jimuwiper_fuu",
+    "name": "ジムワイパー封",
+    "cat": "ワイパー",
+    "imgFile": "Path_Wst_Saber_Normal_02.png"
+  },
+  {
+    "key": "jimuwiper_hue",
+    "name": "ジムワイパー・ヒュー",
+    "cat": "ワイパー",
+    "imgFile": "Path_Wst_Saber_Normal_01.png"
+  },
+  {
+    "key": "order_wiper_replica",
+    "name": "オーダーワイパー レプリカ",
+    "cat": "ワイパー",
+    "imgFile": "Path_Wst_Saber_Normal_O.png"
+  },
+  {
+    "key": "bamboo14mk1",
+    "name": "14式竹筒銃・甲",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_Light_00.png"
+  },
+  {
+    "key": "bamboo14mk2",
+    "name": "14式竹筒銃・乙",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_Light_01.png"
+  },
+  {
+    "key": "liter4k",
+    "name": "リッター4K",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_Long_00.png"
+  },
+  {
+    "key": "liter4k_custom",
+    "name": "リッター4Kカスタム",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_Long_01.png"
+  },
+  {
+    "key": "liter4k_scope",
+    "name": "4Kスコープ",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_LongScope_00.png"
+  },
+  {
+    "key": "liter4k_scope_custom",
+    "name": "4Kスコープカスタム",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_LongScope_01.png"
+  },
+  {
+    "key": "order_charger_replica",
+    "name": "オーダーチャージャー レプリカ",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_Normal_O.png"
+  },
+  {
+    "key": "rpen_5b",
+    "name": "R-PEN/5B",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_Pencil_01.png"
+  },
+  {
+    "key": "rpen_5h",
+    "name": "R-PEN/5H",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_Pencil_00.png"
+  },
+  {
+    "key": "soytuber",
+    "name": "ソイチューバー",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_Keeper_00.png"
+  },
+  {
+    "key": "soytuber_custom",
+    "name": "ソイチューバーカスタム",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_Keeper_01.png"
+  },
+  {
+    "key": "splatcharger",
+    "name": "スプラチャージャー",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_Normal_00.png"
+  },
+  {
+    "key": "splatcharger_collabo",
+    "name": "スプラチャージャーコラボ",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_Normal_01.png"
+  },
+  {
+    "key": "splatcharger_frst",
+    "name": "スプラチャージャーFRST",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_Normal_02.png"
+  },
+  {
+    "key": "splatscope",
+    "name": "スプラスコープ",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_NormalScope_00.png"
+  },
+  {
+    "key": "splatscope_collabo",
+    "name": "スプラスコープコラボ",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_NormalScope_01.png"
+  },
+  {
+    "key": "splatscope_frst",
+    "name": "スプラスコープFRST",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_NormalScope_02.png"
+  },
+  {
+    "key": "squiclean_a",
+    "name": "スクイックリンα",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_Quick_00.png"
+  },
+  {
+    "key": "squiclean_b",
+    "name": "スクイックリンβ",
+    "cat": "チャージャー",
+    "imgFile": "Path_Wst_Charger_Quick_01.png"
+  },
+  {
+    "key": "bucketslosher",
+    "name": "バケットスロッシャー",
+    "cat": "スロッシャー",
+    "imgFile": "Path_Wst_Slosher_Strong_00.png"
+  },
+  {
+    "key": "bucketslosher_deco",
+    "name": "バケットスロッシャーデコ",
+    "cat": "スロッシャー",
+    "imgFile": "Path_Wst_Slosher_Strong_01.png"
+  },
+  {
+    "key": "explosher",
+    "name": "エクスプロッシャー",
+    "cat": "スロッシャー",
+    "imgFile": "Path_Wst_Slosher_Washtub_00.png"
+  },
+  {
+    "key": "explosher_custom",
+    "name": "エクスプロッシャーカスタム",
+    "cat": "スロッシャー",
+    "imgFile": "Path_Wst_Slosher_Washtub_01.png"
+  },
+  {
+    "key": "furo",
+    "name": "オーバーフロッシャー",
+    "cat": "スロッシャー",
+    "imgFile": "Path_Wst_Slosher_Bathtub_00.png"
+  },
+  {
+    "key": "furo_deco",
+    "name": "オーバーフロッシャーデコ",
+    "cat": "スロッシャー",
+    "imgFile": "Path_Wst_Slosher_Bathtub_01.png"
+  },
+  {
+    "key": "hissen",
+    "name": "ヒッセン",
+    "cat": "スロッシャー",
+    "imgFile": "Path_Wst_Slosher_Diffusion_00.png"
+  },
+  {
+    "key": "hissen_ash",
+    "name": "ヒッセンASH",
+    "cat": "スロッシャー",
+    "imgFile": "Path_Wst_Slosher_Diffusion_02.png"
+  },
+  {
+    "key": "hissen_hue",
+    "name": "ヒッセン・ヒュー",
+    "cat": "スロッシャー",
+    "imgFile": "Path_Wst_Slosher_Diffusion_01.png"
+  },
+  {
+    "key": "moprin",
+    "name": "モップリン",
+    "cat": "スロッシャー",
+    "imgFile": "Path_Wst_Slosher_Double_00.png"
+  },
+  {
+    "key": "moprin_d",
+    "name": "モップリンD",
+    "cat": "スロッシャー",
+    "imgFile": "Path_Wst_Slosher_Double_01.png"
+  },
+  {
+    "key": "moprin_kaku",
+    "name": "モップリン角",
+    "cat": "スロッシャー",
+    "imgFile": "Path_Wst_Slosher_Double_02.png"
+  },
+  {
+    "key": "order_slosher_replica",
+    "name": "オーダースロッシャー レプリカ",
+    "cat": "スロッシャー",
+    "imgFile": "Path_Wst_Slosher_Strong_O.png"
+  },
+  {
+    "key": "screwslosher",
+    "name": "スクリュースロッシャー",
+    "cat": "スロッシャー",
+    "imgFile": "Path_Wst_Slosher_Launcher_00.png"
+  },
+  {
+    "key": "screwslosher_neo",
+    "name": "スクリュースロッシャーネオ",
+    "cat": "スロッシャー",
+    "imgFile": "Path_Wst_Slosher_Launcher_01.png"
+  },
+  {
+    "key": "brella24mk1",
+    "name": "24式張替傘・甲",
+    "cat": "シェルター",
+    "imgFile": "Path_Wst_Shelter_Focus_00.png"
+  },
+  {
+    "key": "brella24mk2",
+    "name": "24式張替傘・乙",
+    "cat": "シェルター",
+    "imgFile": "Path_Wst_Shelter_Focus_01.png"
+  },
+  {
+    "key": "campingshelter",
+    "name": "キャンピングシェルター",
+    "cat": "シェルター",
+    "imgFile": "Path_Wst_Shelter_Wide_00.png"
+  },
+  {
+    "key": "campingshelter_crem",
+    "name": "キャンピングシェルターCREM",
+    "cat": "シェルター",
+    "imgFile": "Path_Wst_Shelter_Wide_02.png"
+  },
+  {
+    "key": "campingshelter_sorella",
+    "name": "キャンピングシェルターソレーラ",
+    "cat": "シェルター",
+    "imgFile": "Path_Wst_Shelter_Wide_01.png"
+  },
+  {
+    "key": "order_shelter_replica",
+    "name": "オーダーシェルター レプリカ",
+    "cat": "シェルター",
+    "imgFile": "Path_Wst_Shelter_Normal_O.png"
+  },
+  {
+    "key": "parashelter",
+    "name": "パラシェルター",
+    "cat": "シェルター",
+    "imgFile": "Path_Wst_Shelter_Normal_00.png"
+  },
+  {
+    "key": "parashelter_sorella",
+    "name": "パラシェルターソレーラ",
+    "cat": "シェルター",
+    "imgFile": "Path_Wst_Shelter_Normal_01.png"
+  },
+  {
+    "key": "spygadget",
+    "name": "スパイガジェット",
+    "cat": "シェルター",
+    "imgFile": "Path_Wst_Shelter_Compact_00.png"
+  },
+  {
+    "key": "spygadget_ryo",
+    "name": "スパイガジェット繚",
+    "cat": "シェルター",
+    "imgFile": "Path_Wst_Shelter_Compact_02.png"
+  },
+  {
+    "key": "spygadget_sorella",
+    "name": "スパイガジェットソレーラ",
+    "cat": "シェルター",
+    "imgFile": "Path_Wst_Shelter_Compact_01.png"
+  },
+  {
+    "key": "furuido",
+    "name": "フルイドV",
+    "cat": "ストリンガー",
+    "imgFile": "Path_Wst_Stringer_Explosion_00.png"
+  },
+  {
+    "key": "furuido_custom",
+    "name": "フルイドVカスタム",
+    "cat": "ストリンガー",
+    "imgFile": "Path_Wst_Stringer_Explosion_01.png"
+  },
+  {
+    "key": "lact450",
+    "name": "LACT-450",
+    "cat": "ストリンガー",
+    "imgFile": "Path_Wst_Stringer_Short_00.png"
+  },
+  {
+    "key": "lact450_deco",
+    "name": "LACT-450デコ",
+    "cat": "ストリンガー",
+    "imgFile": "Path_Wst_Stringer_Short_01.png"
+  },
+  {
+    "key": "lact450_milk",
+    "name": "LACT-450MILK",
+    "cat": "ストリンガー",
+    "imgFile": "Path_Wst_Stringer_Short_02.png"
+  },
+  {
+    "key": "order_stringer_replica",
+    "name": "オーダーストリンガー レプリカ",
+    "cat": "ストリンガー",
+    "imgFile": "Path_Wst_Stringer_Normal_O.png"
+  },
+  {
+    "key": "tristringer",
+    "name": "トライストリンガー",
+    "cat": "ストリンガー",
+    "imgFile": "Path_Wst_Stringer_Normal_00.png"
+  },
+  {
+    "key": "tristringer_collabo",
+    "name": "トライストリンガーコラボ",
+    "cat": "ストリンガー",
+    "imgFile": "Path_Wst_Stringer_Normal_01.png"
+  },
+  {
+    "key": "tristringer_tou",
+    "name": "トライストリンガー燈",
+    "cat": "ストリンガー",
+    "imgFile": "Path_Wst_Stringer_Normal_02.png"
+  }
+]
