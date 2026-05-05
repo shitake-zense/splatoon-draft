@@ -31,6 +31,22 @@ h1,h2,h3{font-family:'Zen Dots',sans-serif;}
 .logo h1{font-size:clamp(18px,4vw,28px);color:var(--y);text-shadow:3px 3px 0 var(--o);letter-spacing:2px;}
 .logo p{color:var(--mu);font-size:12px;margin-top:4px;}
 
+/* MODE SELECT */
+.mode-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.mode-btn{background:var(--s1);border:2px solid #2a2a4a;border-radius:var(--r);padding:20px;cursor:pointer;text-align:center;transition:border-color .15s,transform .1s;color:var(--tx);font-family:inherit;width:100%;}
+.mode-btn:hover{border-color:var(--y);transform:scale(1.02);}
+.mode-btn h2{font-family:'Zen Dots',sans-serif;font-size:14px;color:var(--y);margin-bottom:6px;}
+.mode-btn p{font-size:11px;color:var(--mu);}
+
+/* ROOM */
+.room-bar{background:var(--s2);border-radius:var(--r);padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.room-id{font-family:'Zen Dots',sans-serif;font-size:22px;color:var(--y);letter-spacing:4px;}
+.room-label{font-size:11px;color:var(--mu);}
+.room-join{display:flex;gap:8px;align-items:center;}
+.room-join input{background:#0f1729;border:1.5px solid #2a3a5a;border-radius:6px;color:var(--tx);padding:7px 9px;font-size:16px;font-family:'Zen Dots',sans-serif;width:140px;letter-spacing:3px;}
+.room-join input:focus{outline:none;border-color:var(--y);}
+.btn-join{padding:8px 16px;background:var(--y);color:#1a1a2e;border:none;border-radius:6px;font-family:'Zen Dots',sans-serif;font-size:12px;cursor:pointer;}
+
 /* SETUP */
 .setup-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:14px;}
 .card{background:var(--s1);border:1.5px solid #2a2a4a;border-radius:var(--r);padding:14px;}
@@ -40,13 +56,11 @@ h1,h2,h3{font-family:'Zen Dots',sans-serif;}
 input[type=text],select{background:#0f1729;border:1.5px solid #2a3a5a;border-radius:6px;color:var(--tx);padding:7px 9px;font-size:13px;font-family:inherit;width:100%;}
 input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .row select{flex:1;}
-.bp{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
-.bp-i{font-size:10px;padding:3px 7px;border-radius:4px;background:#0f1729;border:1px solid #2a3a5a;}
-.bp-i.a{border-color:var(--a);color:var(--a);}.bp-i.b{border-color:var(--b);color:var(--b);}
 .div{height:1px;background:#2a2a4a;margin:9px 0;}
 .btn-start{width:100%;padding:13px;background:linear-gradient(135deg,var(--y),var(--o));border:none;border-radius:var(--r);font-family:'Zen Dots',sans-serif;font-size:14px;color:#1a1a2e;cursor:pointer;letter-spacing:1px;transition:opacity .1s,transform .1s;margin-top:6px;}
 .btn-start:hover{opacity:.9;transform:scale(1.01);}
-.btn-start:active{transform:scale(.98);}
+.btn-re{width:100%;padding:11px;background:var(--s1);border:1.5px solid #2a2a4a;border-radius:var(--r);color:var(--mu);font-family:'Zen Dots',sans-serif;font-size:12px;cursor:pointer;margin-top:8px;}
+.btn-re:hover{background:var(--y);color:#1a1a2e;}
 
 /* DRAFT */
 .dh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
@@ -54,58 +68,66 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .ph-ban{background:#3d1a1a;color:var(--bn);border:1px solid var(--bn);}
 .ph-pick{background:#1a3d2a;color:var(--pk);border:1px solid var(--pk);}
 .ph-done{background:#2a2a1a;color:var(--y);border:1px solid var(--y);}
-
 .match-box{background:var(--s1);border:1px solid #2a2a4a;border-radius:var(--r);margin-bottom:12px;overflow:hidden;}
-.stage-wrap{width:100%;height:110px;position:relative;overflow:hidden;background:linear-gradient(135deg,#0a0a2e 0%,#0f2460 50%,#0a1a3e 100%);}
-.stage-wrap::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(74,144,226,.15) 0%,transparent 60%),radial-gradient(ellipse at 70% 50%,rgba(245,230,66,.08) 0%,transparent 60%);}
+.stage-wrap{width:100%;height:110px;position:relative;overflow:hidden;background:linear-gradient(135deg,#0a0a2e,#0f2460,#0a1a3e);}
 .stage-wrap img{width:100%;height:100%;object-fit:cover;object-position:center 40%;opacity:.65;position:absolute;top:0;left:0;}
 .stage-ov{position:absolute;bottom:0;left:0;right:0;padding:8px 14px;background:linear-gradient(transparent,rgba(0,0,0,.85));}
-.rule-tag{display:inline-block;font-size:11px;padding:2px 10px;border-radius:10px;background:var(--y);color:#1a1a2e;font-weight:700;margin-bottom:8px;width:fit-content;}
-.stage-name{font-family:'Zen Dots',sans-serif;font-size:clamp(13px,3vw,20px);color:#fff;text-shadow:0 0 20px rgba(74,144,226,.5);}
+.rule-tag{display:inline-block;font-size:11px;padding:2px 10px;border-radius:10px;background:var(--y);color:#1a1a2e;font-weight:700;margin-bottom:4px;}
+.stage-name{font-family:'Zen Dots',sans-serif;font-size:clamp(12px,3vw,17px);color:#fff;}
 
+/* 同時BAN */
+.ban-panel{background:var(--s1);border:1.5px solid var(--bn);border-radius:var(--r);padding:14px;margin-bottom:12px;}
+.ban-title{font-family:'Zen Dots',sans-serif;font-size:11px;color:var(--bn);margin-bottom:10px;letter-spacing:1px;}
+.ban-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ban-col{background:#0f1729;border-radius:8px;padding:10px;}
+.ban-col-name{font-size:11px;font-weight:700;margin-bottom:8px;}
+.ban-col-name.a{color:var(--a);}.ban-col-name.b{color:var(--b);}
+.ban-slots-row{display:flex;flex-wrap:wrap;gap:4px;min-height:28px;}
+.bsl{font-size:10px;padding:3px 7px;border-radius:4px;background:#1a1a2e;border:1px solid #2a3a5a;color:var(--mu);}
+.bsl.filled{border-color:var(--bn);color:var(--bn);}
+.bsl.pending{border-color:#ff8c00;color:#ff8c00;}
+.ban-hint{font-size:11px;color:var(--mu);text-align:center;margin-top:8px;}
+.ban-confirm{width:100%;margin-top:10px;padding:9px;background:#3d1a1a;border:1.5px solid var(--bn);border-radius:8px;color:var(--bn);font-family:'Zen Dots',sans-serif;font-size:12px;cursor:pointer;}
+.ban-confirm:hover:not(:disabled){background:#5a2020;}
+.ban-confirm:disabled{opacity:.35;cursor:not-allowed;}
+
+/* チームパネル */
 .tc{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
-.tp{background:var(--s1);border-radius:var(--r);padding:10px;border:2px solid;}
+.tp{background:var(--s1);border:2px solid #2a2a4a;border-radius:var(--r);padding:10px;}
 .tp.alpha{border-color:var(--a);}.tp.bravo{border-color:var(--b);}
-.tp.active-t{box-shadow:0 0 14px rgba(245,230,66,.2);}
 .th2{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.tn{font-family:'Zen Dots',sans-serif;font-size:clamp(10px,2vw,13px);}
-.tp.alpha .tn{color:var(--a);}.tp.bravo .tn{color:var(--b);}
-.ti{font-size:10px;padding:3px 8px;background:var(--y);color:#1a1a2e;border-radius:10px;font-weight:700;animation:pu 1s infinite;}
-@keyframes pu{0%,100%{opacity:1;}50%{opacity:.55;}}
-.ws{display:flex;align-items:center;gap:5px;padding:4px 6px;border-radius:6px;margin-bottom:4px;min-height:28px;}
-.ws.banned{background:rgba(255,71,87,.12);border:1px solid rgba(255,71,87,.28);}
-.ws.picked{background:rgba(46,213,115,.1);border:1px solid rgba(46,213,115,.28);}
-.ws.empty{background:rgba(255,255,255,.04);border:1px dashed #2a3a5a;color:var(--mu);}
-.ws .sl{font-size:9px;color:var(--mu);min-width:22px;}
-.ws.banned .sl{color:var(--bn);}.ws.picked .sl{color:var(--pk);}
-.ws img{width:22px;height:22px;object-fit:contain;flex-shrink:0;}
-.ws .sn{flex:1;font-size:10px;line-height:1.2;}
+.tn{font-family:'Zen Dots',sans-serif;font-size:12px;}
+.ti{font-size:9px;padding:2px 7px;border-radius:10px;background:var(--pk);color:#1a1a2e;font-weight:700;animation:pulse .8s ease-in-out infinite alternate;}
+@keyframes pulse{from{opacity:.7;}to{opacity:1;}}
+.ws{background:#0f1729;border-radius:6px;padding:6px 8px;display:flex;align-items:center;gap:6px;margin-bottom:4px;border:1px solid #1a2a4a;}
+.ws.banned{border-color:var(--bn);background:#1a0f0f;}
+.ws.picked{border-color:var(--pk);background:#0f1a14;}
+.ws.empty{opacity:.45;}
+.ws img{width:32px;height:32px;object-fit:contain;}
+.sl{font-size:9px;color:var(--mu);min-width:28px;}
+.sn{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tp-txt{text-align:center;font-size:13px;margin-bottom:12px;min-height:20px;color:var(--mu);}
 
-.tp-txt{text-align:center;padding:6px;font-size:12px;color:var(--mu);margin-bottom:8px;}
-.tp-txt strong{color:var(--y);}
-
-.wsec{background:var(--s1);border:1px solid #2a2a4a;border-radius:var(--r);padding:10px;}
-.wsh{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
-.wsh h3{font-size:11px;color:var(--y);letter-spacing:1px;}
-.cf{display:flex;gap:4px;flex-wrap:wrap;flex:1;}
-.cb{font-size:10px;padding:3px 7px;border-radius:10px;border:1px solid #2a3a5a;background:transparent;color:var(--mu);cursor:pointer;font-family:inherit;transition:all .15s;}
-.cb.on{background:var(--y);color:#1a1a2e;border-color:var(--y);font-weight:700;}
-.wg{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:5px;max-height:270px;overflow-y:auto;padding-right:3px;}
-.wg::-webkit-scrollbar{width:3px;}
-.wg::-webkit-scrollbar-track{background:#0f1729;}
-.wg::-webkit-scrollbar-thumb{background:#2a3a5a;border-radius:2px;}
-.wb{background:#0f1729;border:1.5px solid #1a2a4a;border-radius:6px;padding:5px 3px;text-align:center;cursor:pointer;transition:all .15s;position:relative;font-family:inherit;color:var(--tx);}
-.wb:hover:not(:disabled){border-color:var(--y);background:#1a2a3a;transform:translateY(-1px);}
-.wb:disabled{opacity:.28;cursor:not-allowed;}
-.wb img{width:38px;height:38px;object-fit:contain;display:block;margin:0 auto 2px;}
-.wb .wn{font-size:8px;line-height:1.2;color:var(--mu);}
-.wb.is-bn{border-color:var(--bn);background:rgba(255,71,87,.1);}
-.wb.is-pk{border-color:var(--pk);background:rgba(46,213,115,.1);}
-.wst{position:absolute;top:2px;right:2px;font-size:8px;padding:1px 3px;border-radius:3px;font-weight:700;}
-.wst.b{background:var(--bn);color:#fff;}.wst.p{background:var(--pk);color:#0a2a1a;}
+/* 武器グリッド */
+.wsec{background:var(--s1);border-radius:var(--r);padding:12px;}
+.wsh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;}
+.wsh h3{font-size:12px;color:var(--y);}
+.cf{display:flex;flex-wrap:wrap;gap:5px;}
+.cb{background:#0f1729;border:1px solid #2a3a5a;border-radius:5px;color:var(--mu);font-size:10px;padding:3px 8px;cursor:pointer;font-family:inherit;}
+.cb.on{background:var(--y);color:#1a1a2e;border-color:var(--y);}
+.wg{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px;max-height:340px;overflow-y:auto;}
+.wb{background:#0f1729;border:1.5px solid #1a2a4a;border-radius:8px;padding:6px 4px;cursor:pointer;text-align:center;transition:border-color .1s;position:relative;}
+.wb:hover:not(:disabled){border-color:var(--y);}
+.wb:disabled{opacity:.4;cursor:not-allowed;}
+.wb img{width:48px;height:48px;object-fit:contain;}
+.wn{font-size:9px;color:var(--mu);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wb.is-bn{border-color:var(--bn);background:#1a0f0f;}
+.wb.is-pk{border-color:var(--pk);background:#0f1a14;}
+.wst{position:absolute;top:2px;right:2px;font-size:8px;padding:1px 4px;border-radius:3px;}
+.wst.b{background:var(--bn);color:#fff;}.wst.p{background:var(--pk);color:#1a1a2e;}
 
 /* RESULT */
-.rm{background:#0a0a2e;border-radius:var(--r);overflow:hidden;margin-bottom:14px;position:relative;}
+.rm{background:#0a0a2e;border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
 .rm img{width:100%;height:90px;object-fit:cover;object-position:center 40%;opacity:.75;display:block;}
 .rmi{padding:10px 14px;text-align:center;}
 .br{font-family:'Zen Dots',sans-serif;font-size:clamp(15px,4vw,22px);color:var(--y);text-shadow:2px 2px 0 var(--o);}
@@ -114,13 +136,11 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .rc.alpha{border-color:var(--a);}.rc.bravo{border-color:var(--b);}
 .rtt{font-family:'Zen Dots',sans-serif;font-size:13px;margin-bottom:8px;}
 .rc.alpha .rtt{color:var(--a);}.rc.bravo .rtt{color:var(--b);}
-.rl{font-size:10px;color:var(--mu);margin-bottom:5px;}
-.rw{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
-.rt{font-size:11px;padding:3px 8px;border-radius:5px;background:rgba(255,255,255,.07);border:1px solid #2a3a5a;display:flex;align-items:center;gap:4px;}
-.rt img{width:18px;height:18px;object-fit:contain;}
-.rt.bnt{background:rgba(255,71,87,.1);border-color:rgba(255,71,87,.4);color:#ff8a96;text-decoration:line-through;}
-.btn-re{width:100%;padding:11px;background:transparent;border:2px solid var(--y);border-radius:var(--r);font-family:'Zen Dots',sans-serif;font-size:13px;color:var(--y);cursor:pointer;letter-spacing:1px;transition:all .15s;}
-.btn-re:hover{background:var(--y);color:#1a1a2e;}
+.rl{font-size:10px;color:var(--mu);margin-bottom:5px;margin-top:8px;}
+.rw{display:flex;flex-wrap:wrap;gap:5px;}
+.rt{display:flex;align-items:center;gap:5px;background:#0f1729;border-radius:6px;padding:4px 8px;font-size:11px;}
+.rt img{width:28px;height:28px;object-fit:contain;}
+.rt.bnt{opacity:.6;text-decoration:line-through;}
 </style>
 </head>
 <body>
@@ -130,13 +150,47 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 <div id="loading">
   <div class="spinner"></div>
   <h2>データ読込中...</h2>
-  <div class="load-msg" id="lmsg">stat.ink API から武器・ステージ情報を取得しています</div>
+  <div class="load-msg" id="lmsg">ローカルデータを読み込んでいます</div>
   <div id="err-msg"></div>
+</div>
+
+<!-- MODE SELECT -->
+<div id="s-mode" class="screen">
+  <div class="logo"><h1>SPLATOON DRAFT</h1><p>スプラトゥーン3 プライベートマッチ用ドラフトツール</p></div>
+  <div class="mode-wrap">
+    <button class="mode-btn" onclick="enterSolo()">
+      <h2>🎮 ソロモード</h2>
+      <p>1人で操作する<br>部屋番号なし</p>
+    </button>
+    <button class="mode-btn" onclick="enterMulti()">
+      <h2>👥 マルチモード</h2>
+      <p>部屋を作って共有<br>最大8人でリアルタイム同期</p>
+    </button>
+  </div>
 </div>
 
 <!-- SETUP -->
 <div id="s-setup" class="screen">
-  <div class="logo"><h1>SPLATOON DRAFT</h1><p>スプラトゥーン3 プライベートマッチ用ドラフトツール</p></div>
+  <div class="logo"><h1>SPLATOON DRAFT</h1><p id="setup-mode-label"></p></div>
+
+  <!-- マルチ時の部屋UI -->
+  <div id="room-section" style="display:none">
+    <div id="room-host-bar" class="room-bar" style="display:none">
+      <div>
+        <div class="room-label">部屋番号</div>
+        <div class="room-id" id="room-id-display">------</div>
+      </div>
+      <div class="room-label">この番号を参加者に共有してください</div>
+    </div>
+    <div id="room-join-bar" class="room-bar" style="display:none">
+      <div class="room-join">
+        <input type="text" id="room-join-input" maxlength="6" placeholder="部屋番号">
+        <button class="btn-join" onclick="joinRoom()">参加</button>
+      </div>
+      <div style="font-size:11px;color:var(--pk)" id="join-status"></div>
+    </div>
+  </div>
+
   <div class="setup-grid">
     <div class="card">
       <h3>TEAM SETTINGS</h3>
@@ -180,8 +234,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         </select>
       </div>
       <div class="div"></div>
-      <div style="font-size:10px;color:var(--mu);margin-bottom:5px;">Ban順プレビュー</div>
-      <div class="bp" id="bprev"></div>
+      <div style="font-size:10px;color:var(--mu)">BANは両チーム同時・PICKは交互</div>
     </div>
     <div class="card">
       <h3>RULE &amp; STAGE</h3>
@@ -199,18 +252,21 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <label>ステージ</label>
         <select id="sm"><option value="random">ランダム</option></select>
       </div>
-      <div style="font-size:10px;color:var(--mu);margin-top:8px;" id="weapon-count-info"></div>
+      <div style="font-size:10px;color:var(--mu);margin-top:8px" id="weapon-count-info"></div>
     </div>
   </div>
   <button class="btn-start" onclick="startDraft()">▶ ドラフト開始</button>
+  <button class="btn-re" onclick="showScreen('mode')">← モード選択に戻る</button>
 </div>
 
 <!-- DRAFT -->
 <div id="s-draft" class="screen">
   <div class="dh">
     <div id="pbadge" class="ph ph-ban">BAN PHASE</div>
-    <div id="tctr" style="font-size:11px;color:var(--mu);"></div>
+    <div id="tctr" style="font-size:11px;color:var(--mu)"></div>
+    <div id="room-badge" style="display:none;font-family:'Zen Dots',sans-serif;font-size:11px;color:var(--y)">ROOM: <span id="draft-room-id"></span></div>
   </div>
+
   <div class="match-box">
     <div class="stage-wrap">
       <img id="st-img" src="" alt="" onerror="this.style.opacity='0'">
@@ -220,6 +276,24 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       </div>
     </div>
   </div>
+
+  <!-- 同時BANパネル -->
+  <div id="ban-panel" class="ban-panel" style="display:none">
+    <div class="ban-title">⚡ BAN PHASE — 両チーム同時選択</div>
+    <div class="ban-cols">
+      <div class="ban-col">
+        <div class="ban-col-name a" id="ban-name-a">アルファ</div>
+        <div class="ban-slots-row" id="ban-slots-a"></div>
+      </div>
+      <div class="ban-col">
+        <div class="ban-col-name b" id="ban-name-b">ブラボー</div>
+        <div class="ban-slots-row" id="ban-slots-b"></div>
+      </div>
+    </div>
+    <div class="ban-hint" id="ban-hint"></div>
+    <button class="ban-confirm" id="ban-confirm-btn" onclick="confirmBans()" disabled>BANを確定する</button>
+  </div>
+
   <div class="tc">
     <div class="tp alpha" id="pa">
       <div class="th2">
@@ -268,116 +342,129 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       <div class="rl">PICK</div><div class="rw" id="rpb"></div>
     </div>
   </div>
-  <button class="btn-re" onclick="goSetup()">↩ 設定に戻る</button>
+  <button class="btn-re" onclick="goSetup()">↩ モード選択に戻る</button>
 </div>
 
 </div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, onValue, get }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-<script>
-// ===== DATA SOURCES (ローカル) =====
-// 武器データ: data/weapons.json (scripts/1_fetch_weapons.py で生成)
-// 武器画像:   images/weapons/Path_Wst_*.png (scripts/2_download_images.py で取得)
-// ステージ画像: images/stages/*.png (scripts/3_download_stages.py で取得)
+const firebaseConfig = {
+  apiKey: "AIzaSyA2x0qM3CZUXQbrf8druJJFVfPjrrVjQZo",
+  authDomain: "splatoon-draft-54bf8.firebaseapp.com",
+  databaseURL: "https://splatoon-draft-54bf8-default-rtdb.firebaseio.com",
+  projectId: "splatoon-draft-54bf8",
+  storageBucket: "splatoon-draft-54bf8.firebasestorage.app",
+  messagingSenderId: "886672853078",
+  appId: "1:886672853078:web:5857e5b77147a06ba253f7"
+};
+const fbApp = initializeApp(firebaseConfig);
+const db    = getDatabase(fbApp);
 
+// ===== データ定数 =====
 const WEAPONS_JSON = "data/weapons.json";
 const WEAPONS_IMG  = "images/weapons/";
 const STAGES_IMG   = "images/stages/";
-
-// Stage list — images/stages/{ja}.png と対応
-const STAGES_DATA = [
-  {ja:"ユノハナ大渓谷"},
-  {ja:"ゴンズイ地区"},
-  {ja:"ヤガラ市場"},
-  {ja:"マテガイ放水路"},
-  {ja:"ナメロウ金属"},
-  {ja:"クサヤ温泉"},
-  {ja:"ヒラメが丘団地"},
-  {ja:"マサバ海峡大橋"},
-  {ja:"スメーシーワールド"},
-  {ja:"キンメダイ美術館"},
-  {ja:"マヒマヒリゾート＆スパ"},
-  {ja:"海女美術大学"},
-  {ja:"バイガイ亭"},
-  {ja:"チョウザメ造船"},
-  {ja:"ザトウマーケット"},
-  {ja:"タラポートショッピングパーク"},
-  {ja:"ネギトロ炭鉱"},
-  {ja:"カジキ空港"},
-  {ja:"リュウグウターミナル"},
-  {ja:"デカライン高架下"},
-  {ja:"ナンプラー遺跡"},
-  {ja:"コンブトラック"},
-  {ja:"タカアシ経済特区"},
-  {ja:"オヒョウ海運"},
-  {ja:"マンタマリア号"},
+const STAGES_DATA  = [
+  "ユノハナ大渓谷","ゴンズイ地区","ヤガラ市場","マテガイ放水路",
+  "ナメロウ金属","クサヤ温泉","ヒラメが丘団地","マサバ海峡大橋",
+  "スメーシーワールド","キンメダイ美術館","マヒマヒリゾート＆スパ","海女美術大学",
+  "バイガイ亭","チョウザメ造船","ザトウマーケット","タラポートショッピングパーク",
+  "ネギトロ炭鉱","カジキ空港","リュウグウターミナル","デカライン高架下",
+  "ナンプラー遺跡","コンブトラック","タカアシ経済特区","オヒョウ海運","マンタマリア号",
 ];
-
 const RULES = ["ガチエリア","ガチヤグラ","ガチホコ","ガチアサリ"];
 
-let WEAPONS = [];
-let state = {};
+let WEAPONS   = [];
+let state     = {};
 let activeCat = "すべて";
 
-// ===== LOAD DATA (ローカルJSONから) =====
+// ===== モード管理 =====
+let isMulti = false;
+let isHost  = false;
+let roomId  = null;
+let fbUnsub = null;
+
+// ===== BANペンディング =====
+// ソロ: 両チームを1つのオペレーターが順番に入力
+// マルチ: ホスト=alpha、参加者=bravo（将来的にロール選択へ拡張可能）
+let banPending     = {alpha:[], bravo:[]};
+let banActiveTeam  = 'alpha'; // ソロ時に現在どちらを入力中か
+
+// ===== データ読み込み =====
 async function loadData(){
   try {
-    document.getElementById('lmsg').textContent = 'ローカルデータを読み込んでいます...';
     const res = await fetch(WEAPONS_JSON);
     if(!res.ok) throw new Error('weapons.json の読み込みに失敗: ' + res.status);
     const data = await res.json();
+    WEAPONS = data.map(w=>({key:w.key,name:w.name,cat:w.cat,imgUrl:WEAPONS_IMG+w.imgFile}));
 
-    // weapons.json は既にフィルタ済みなので、imgUrl だけローカルパスに変換
-    WEAPONS = data.map(w => ({
-      key:    w.key,
-      name:   w.name,
-      cat:    w.cat,
-      imgUrl: WEAPONS_IMG + w.imgFile,
-    }));
-
-    // Populate stage select
     const sel = document.getElementById('sm');
-    STAGES_DATA.forEach(s => {
+    STAGES_DATA.forEach(s=>{
       const o = document.createElement('option');
-      o.value = s.ja; o.textContent = s.ja;
-      sel.appendChild(o);
+      o.value = s; o.textContent = s; sel.appendChild(o);
     });
-
     document.getElementById('weapon-count-info').textContent =
       `✓ ${WEAPONS.length}種の武器を読み込みました`;
-
     document.getElementById('loading').style.display = 'none';
-    document.getElementById('s-setup').classList.add('active');
-    updateBP();
-
-  } catch(e) {
+    showScreen('mode');
+  } catch(e){
     document.getElementById('lmsg').textContent = '読み込みに失敗しました';
     const em = document.getElementById('err-msg');
     em.style.display = 'block';
-    em.textContent = 'エラー: ' + e.message + '\nネットワーク接続を確認してください。';
+    em.textContent = 'エラー: ' + e.message;
   }
 }
 
-// ===== SETUP =====
-function updateBP(){
-  const n = parseInt(document.getElementById('bc').value);
-  const f = document.getElementById('ft').value;
-  const el = document.getElementById('bprev');
-  el.innerHTML = '';
-  if(n===0){el.innerHTML='<span style="color:var(--mu);font-size:11px;">Banなし</span>';return;}
-  const first = f==='bravo'?'bravo':'alpha';
-  const sec = first==='alpha'?'bravo':'alpha';
-  for(let i=0;i<n*2;i++){
-    const t = i%2===0?first:sec;
-    const d = document.createElement('div');
-    d.className = 'bp-i '+(t==='alpha'?'a':'b');
-    d.textContent = `BAN${i+1}:${t==='alpha'?'α':'β'}`;
-    el.appendChild(d);
-  }
-}
-document.getElementById('bc').addEventListener('change', updateBP);
-document.getElementById('ft').addEventListener('change', updateBP);
+// ===== モード選択 =====
+window.enterSolo = function(){
+  isMulti=false; isHost=false; roomId=null;
+  document.getElementById('setup-mode-label').textContent = 'ソロモード';
+  document.getElementById('room-section').style.display = 'none';
+  showScreen('setup');
+};
 
-function startDraft(){
+window.enterMulti = function(){
+  isMulti = true;
+  document.getElementById('setup-mode-label').textContent = 'マルチモード';
+  document.getElementById('room-section').style.display = 'block';
+  const choice = confirm('部屋を作成しますか？\n[OK] 作成（ホスト）  [キャンセル] 参加');
+  if(choice){
+    isHost = true;
+    roomId = Math.random().toString(36).substring(2,8).toUpperCase();
+    document.getElementById('room-host-bar').style.display = 'flex';
+    document.getElementById('room-join-bar').style.display  = 'none';
+    document.getElementById('room-id-display').textContent  = roomId;
+    set(ref(db,`rooms/${roomId}/meta`),{created:Date.now(),status:'setup'});
+  } else {
+    isHost = false;
+    document.getElementById('room-host-bar').style.display = 'none';
+    document.getElementById('room-join-bar').style.display  = 'flex';
+  }
+  showScreen('setup');
+};
+
+window.joinRoom = async function(){
+  const input = document.getElementById('room-join-input').value.trim().toUpperCase();
+  if(input.length !== 6){ alert('6文字の部屋番号を入力してください'); return; }
+  const snap = await get(ref(db,`rooms/${input}/state`));
+  if(!snap.exists()){ alert('部屋が見つかりません。ホストがまだドラフトを開始していない場合は少し待ってください'); return; }
+  roomId = input;
+  document.getElementById('join-status').textContent = `✓ 部屋 ${roomId} に参加`;
+  state = snap.val();
+  subscribeRoom();
+  banPending = {alpha:[],bravo:[]};
+  activeCat  = 'すべて';
+  renderDraft();
+  document.getElementById('room-badge').style.display = 'block';
+  document.getElementById('draft-room-id').textContent = roomId;
+  showScreen('draft');
+};
+
+// ===== ドラフト開始 =====
+window.startDraft = function(){
   const an = document.getElementById('n-a').value || 'アルファ';
   const bn = document.getElementById('n-b').value || 'ブラボー';
   const ts = parseInt(document.getElementById('sz').value);
@@ -386,77 +473,198 @@ function startDraft(){
   const rm = document.getElementById('rm').value;
   const sm = document.getElementById('sm').value;
 
-  const rule = rm==='random' ? RULES[Math.floor(Math.random()*RULES.length)] : rm;
-  const stageObj = sm==='random'
-    ? STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)]
-    : STAGES_DATA.find(s=>s.ja===sm) || STAGES_DATA[0];
+  const rule    = rm==='random' ? RULES[Math.floor(Math.random()*RULES.length)] : rm;
+  const stageJa = sm==='random' ? STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)] : sm;
+  const first   = ft==='random' ? (Math.random()<.5?'alpha':'bravo') : ft;
+  const sec     = first==='alpha'?'bravo':'alpha';
 
-  const first = ft==='random' ? (Math.random()<.5?'alpha':'bravo') : ft;
-  const sec = first==='alpha'?'bravo':'alpha';
-
-  let seq = [];
-  for(let i=0;i<bc*2;i++) seq.push({phase:'ban',team:i%2===0?first:sec});
+  // シーケンス生成
+  // BANは「simultaneous」フェーズ1ステップ、PICKは交互
+  const seq = [];
+  if(bc>0) seq.push({phase:'ban', banCount:bc});
   for(let i=0;i<ts*2;i++){
     if(i===0) seq.push({phase:'pick',team:first});
-    else seq.push({phase:'pick',team:seq[seq.length-1].team==='alpha'?'bravo':'alpha'});
+    else seq.push({phase:'pick',team:seq[seq.length-1].team===first?sec:first});
   }
 
-  state = {an,bn,ts,bc,rule,stageObj,seq,idx:0,
-    bans:{alpha:[],bravo:[]},picks:{alpha:[],bravo:[]}};
-  activeCat = 'すべて';
+  state = {an,bn,ts,bc,rule,stageJa,seq,idx:0,
+    bans:{alpha:[],bravo:[]}, picks:{alpha:[],bravo:[]}};
+  banPending   = {alpha:[],bravo:[]};
+  banActiveTeam = 'alpha';
+  activeCat    = 'すべて';
+
+  if(isMulti && isHost){
+    pushState();
+    subscribeRoom();
+    document.getElementById('room-badge').style.display = 'block';
+    document.getElementById('draft-room-id').textContent = roomId;
+  }
   renderDraft();
   showScreen('draft');
+};
+
+// ===== Firebase =====
+function pushState(){
+  if(!isMulti||!roomId) return;
+  set(ref(db,`rooms/${roomId}/state`), JSON.parse(JSON.stringify(state)));
 }
 
-// ===== DRAFT =====
+function subscribeRoom(){
+  if(fbUnsub){fbUnsub();fbUnsub=null;}
+  fbUnsub = onValue(ref(db,`rooms/${roomId}/state`), snap=>{
+    if(!snap.exists()) return;
+    // 参加者のみ受信して描画（ホストは自分で書き込むため）
+    if(!isHost){
+      state = snap.val();
+      banPending = {alpha:[],bravo:[]};
+      renderDraft();
+    }
+  });
+}
+
+// ===== ドラフト描画 =====
 function renderDraft(){
-  const S = state;
+  const S    = state;
   const step = S.seq[S.idx];
   const done = !step;
+  const isBan = !done && step.phase==='ban';
 
+  // バッジ
   const badge = document.getElementById('pbadge');
-  if(done){badge.textContent='COMPLETE';badge.className='ph ph-done';}
-  else if(step.phase==='ban'){badge.textContent='BAN PHASE';badge.className='ph ph-ban';}
-  else{badge.textContent='PICK PHASE';badge.className='ph ph-pick';}
+  if(done)       {badge.textContent='COMPLETE';  badge.className='ph ph-done';}
+  else if(isBan) {badge.textContent='BAN PHASE'; badge.className='ph ph-ban';}
+  else           {badge.textContent='PICK PHASE';badge.className='ph ph-pick';}
 
-  document.getElementById('tctr').textContent = done?'':`STEP ${S.idx+1} / ${S.seq.length}`;
-  document.getElementById('d-rule').textContent = S.rule;
-  document.getElementById('d-stage').textContent = S.stageObj.ja;
-  const si = document.getElementById('st-img');
-  si.src = STAGES_IMG + S.stageObj.ja + '.png';
-  si.style.opacity = '';
-
+  document.getElementById('tctr').textContent  = done?'':`STEP ${S.idx+1} / ${S.seq.length}`;
+  document.getElementById('d-rule').textContent  = S.rule;
+  document.getElementById('d-stage').textContent = S.stageJa;
+  document.getElementById('st-img').src = STAGES_IMG + S.stageJa + '.png';
   document.getElementById('da').textContent = S.an;
   document.getElementById('db').textContent = S.bn;
+  document.getElementById('ban-name-a').textContent = S.an;
+  document.getElementById('ban-name-b').textContent = S.bn;
 
-  const cur = step?.team;
-  document.getElementById('tia').style.display = cur==='alpha'?'':'none';
-  document.getElementById('tib').style.display = cur==='bravo'?'':'none';
-  document.getElementById('pa').classList.toggle('active-t',cur==='alpha');
-  document.getElementById('pb').classList.toggle('active-t',cur==='bravo');
+  // BANパネル表示切り替え
+  document.getElementById('ban-panel').style.display = isBan ? 'block' : 'none';
+
+  if(isBan){
+    renderBanPanel();
+    document.getElementById('tprompt').innerHTML =
+      `<strong style="color:var(--bn)">両チームが同時にBANする武器を選択してください</strong>`;
+    document.getElementById('tia').style.display = 'none';
+    document.getElementById('tib').style.display = 'none';
+  } else if(done){
+    document.getElementById('tprompt').innerHTML =
+      '<strong style="color:var(--pk)">ドラフト完了！</strong>';
+    setTimeout(()=>showResult(), 900);
+  } else {
+    const col = step.team==='alpha'?'var(--a)':'var(--b)';
+    const tn  = step.team==='alpha'?S.an:S.bn;
+    document.getElementById('tprompt').innerHTML =
+      `<strong style="color:${col}">${tn}</strong> の <strong>PICKターン</strong> — 武器を選んでください`;
+    document.getElementById('tia').style.display = step.team==='alpha'?'':'none';
+    document.getElementById('tib').style.display = step.team==='bravo'?'':'none';
+    document.getElementById('pa').classList.toggle('active-t',step.team==='alpha');
+    document.getElementById('pb').classList.toggle('active-t',step.team==='bravo');
+  }
 
   renderSlots('alpha');
   renderSlots('bravo');
-
-  const pt = document.getElementById('tprompt');
-  if(done){
-    pt.innerHTML='<strong style="color:var(--pk)">ドラフト完了！</strong>';
-    setTimeout(()=>showResult(),900);
-  } else {
-    const tn = step.team==='alpha'?S.an:S.bn;
-    const ac = step.phase==='ban'?'BAN':'PICK';
-    const col = step.team==='alpha'?'var(--a)':'var(--b)';
-    pt.innerHTML=`<strong style="color:${col}">${tn}</strong> の <strong>${ac}ターン</strong> — 武器を選んでください`;
-  }
   renderGrid();
 }
 
+// ===== BANパネル =====
+function renderBanPanel(){
+  const S  = state;
+  const bc = S.bc;
+
+  ['alpha','bravo'].forEach(team=>{
+    const el  = document.getElementById('ban-slots-'+(team==='alpha'?'a':'b'));
+    el.innerHTML = '';
+    // 確定済み
+    (S.bans[team]||[]).forEach((w,i)=>{
+      const d = document.createElement('div');
+      d.className = 'bsl filled';
+      d.textContent = w.name;
+      el.appendChild(d);
+    });
+    // ペンディング
+    banPending[team].forEach(w=>{
+      const d = document.createElement('div');
+      d.className = 'bsl pending';
+      d.textContent = '▶ '+w.name;
+      el.appendChild(d);
+    });
+    // 空枠
+    const filled = (S.bans[team]||[]).length + banPending[team].length;
+    for(let i=filled;i<bc;i++){
+      const d = document.createElement('div');
+      d.className = 'bsl';
+      d.textContent = `BAN${i+1}`;
+      el.appendChild(d);
+    }
+  });
+
+  // ヒントテキスト（ソロ時のみ）
+  const hint = document.getElementById('ban-hint');
+  if(!isMulti){
+    const cur  = banActiveTeam;
+    const col  = cur==='alpha'?'var(--a)':'var(--b)';
+    const name = cur==='alpha'?state.an:state.bn;
+    hint.innerHTML = `現在 <strong style="color:${col}">${name}</strong> のBAN選択中`;
+  } else {
+    const myTeam = isHost?'alpha':'bravo';
+    const col    = myTeam==='alpha'?'var(--a)':'var(--b)';
+    const name   = myTeam==='alpha'?state.an:state.bn;
+    hint.innerHTML = `あなたは <strong style="color:${col}">${name}</strong> チームです`;
+  }
+
+  // 確定ボタン
+  const aFull = banPending.alpha.length >= (state.bc - (state.bans.alpha||[]).length);
+  const bFull = banPending.bravo.length >= (state.bc - (state.bans.bravo||[]).length);
+  const btn   = document.getElementById('ban-confirm-btn');
+  if(!isMulti){
+    btn.disabled = !(aFull && bFull);
+  } else if(isHost){
+    btn.disabled = !(aFull && bFull);
+  } else {
+    // 参加者は自分の分だけ入力、送信は別途実装（簡易版: 参加者はホストに伝える）
+    btn.textContent  = 'BANを送信する';
+    btn.disabled     = !bFull;
+  }
+}
+
+window.confirmBans = function(){
+  const S = state;
+  if(!isMulti){
+    // ソロ: 両チームのペンディングをそのまま確定
+    S.bans.alpha.push(...banPending.alpha);
+    S.bans.bravo.push(...banPending.bravo);
+  } else if(isHost){
+    S.bans.alpha.push(...banPending.alpha);
+    S.bans.bravo.push(...banPending.bravo);
+  } else {
+    // 参加者はbravo分だけFirebaseに書き込む（ホストが受け取って確定）
+    const newBravo = [...(state.bans.bravo||[]),...banPending.bravo];
+    set(ref(db,`rooms/${roomId}/pending_bravo_bans`), newBravo.map(w=>({key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat})));
+    alert('BANを送信しました。ホストが確定するまでお待ちください。');
+    banPending.bravo = [];
+    renderBanPanel();
+    return;
+  }
+  banPending = {alpha:[],bravo:[]};
+  S.idx++;
+  if(isMulti) pushState();
+  renderDraft();
+};
+
+// ===== スロット描画 =====
 function renderSlots(team){
   const S = state;
   const c = document.getElementById('sl'+team[0]);
   c.innerHTML = '';
   for(let i=0;i<S.bc;i++){
-    const w = S.bans[team][i];
+    const w = (S.bans[team]||[])[i];
     const d = document.createElement('div');
     d.className = 'ws '+(w?'banned':'empty');
     d.innerHTML = w
@@ -465,7 +673,7 @@ function renderSlots(team){
     c.appendChild(d);
   }
   for(let i=0;i<S.ts;i++){
-    const w = S.picks[team][i];
+    const w = (S.picks[team]||[])[i];
     const d = document.createElement('div');
     d.className = 'ws '+(w?'picked':'empty');
     d.innerHTML = w
@@ -475,10 +683,12 @@ function renderSlots(team){
   }
 }
 
+// ===== 武器グリッド =====
 function renderGrid(){
-  const S = state;
+  const S    = state;
   const step = S.seq[S.idx];
-  const cats = ['すべて',...new Set(WEAPONS.map(w=>w.cat))];
+  const isBan = step && step.phase==='ban';
+  const cats  = ['すべて',...new Set(WEAPONS.map(w=>w.cat))];
 
   const cf = document.getElementById('cf');
   cf.innerHTML = '';
@@ -490,76 +700,116 @@ function renderGrid(){
     cf.appendChild(btn);
   });
 
-  const allBanned = [...S.bans.alpha,...S.bans.bravo].map(w=>w.key);
-  const allPicked = [...S.picks.alpha,...S.picks.bravo].map(w=>w.key);
-  const filtered = activeCat==='すべて'?WEAPONS:WEAPONS.filter(w=>w.cat===activeCat);
+  const confirmedBanned = [...(S.bans.alpha||[]),...(S.bans.bravo||[])].map(w=>w.key);
+  const pendingBanned   = [...banPending.alpha,...banPending.bravo].map(w=>w.key);
+  const allBanned = [...confirmedBanned,...pendingBanned];
+  const allPicked = [...(S.picks.alpha||[]),...(S.picks.bravo||[])].map(w=>w.key);
+  const filtered  = activeCat==='すべて'?WEAPONS:WEAPONS.filter(w=>w.cat===activeCat);
 
   const grid = document.getElementById('wg');
   grid.innerHTML = '';
+
   filtered.forEach(w=>{
-    const isBan = allBanned.includes(w.key);
-    const isPick = allPicked.includes(w.key);
-    const unavail = isBan||isPick;
+    const isBanW  = allBanned.includes(w.key);
+    const isPickW = allPicked.includes(w.key);
+    const unavail = isBanW||isPickW;
     const btn = document.createElement('button');
-    btn.className = 'wb'+(isBan?' is-bn':'')+(isPick?' is-pk':'');
-    btn.disabled = unavail||!step;
+    btn.className = 'wb'+(isBanW?' is-bn':'')+(isPickW?' is-pk':'');
+
+    let clickable = false;
+    if(!unavail && step){
+      if(isBan){
+        // 今入力すべきチームを判定
+        const inputTeam = !isMulti ? banActiveTeam : (isHost?'alpha':'bravo');
+        const remaining = S.bc - (S.bans[inputTeam]||[]).length - banPending[inputTeam].length;
+        clickable = remaining > 0;
+      } else {
+        // PICKフェーズ
+        if(!isMulti) clickable = true;
+        else clickable = isHost ? step.team==='alpha' : step.team==='bravo';
+      }
+    }
+
+    btn.disabled = unavail||!clickable;
     btn.innerHTML = `<img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.height='38px';this.style.opacity='.2'">
       <div class="wn">${w.name}</div>
-      ${isBan?'<span class="wst b">BAN</span>':''}
-      ${isPick?'<span class="wst p">PICK</span>':''}`;
-    if(!unavail&&step) btn.onclick=()=>pick(w);
+      ${isBanW?'<span class="wst b">BAN</span>':''}
+      ${isPickW?'<span class="wst p">PICK</span>':''}`;
+    if(clickable&&!unavail) btn.onclick = ()=>pickWeapon(w);
     grid.appendChild(btn);
   });
 }
 
-function pick(w){
-  const S = state;
+function pickWeapon(w){
+  const S    = state;
   const step = S.seq[S.idx];
   if(!step) return;
-  if(step.phase==='ban') S.bans[step.team].push(w);
-  else S.picks[step.team].push(w);
-  S.idx++;
-  renderDraft();
+
+  if(step.phase==='ban'){
+    const inputTeam = !isMulti ? banActiveTeam : (isHost?'alpha':'bravo');
+    const remaining = S.bc - (S.bans[inputTeam]||[]).length - banPending[inputTeam].length;
+    if(remaining<=0) return;
+    banPending[inputTeam].push(w);
+
+    // ソロ: 今のチームが埋まったら自動で相手チームへ切り替え
+    if(!isMulti){
+      const newRem = S.bc - (S.bans[inputTeam]||[]).length - banPending[inputTeam].length;
+      if(newRem===0){
+        const other = inputTeam==='alpha'?'bravo':'alpha';
+        const otherRem = S.bc - (S.bans[other]||[]).length - banPending[other].length;
+        if(otherRem>0) banActiveTeam = other;
+      }
+    }
+    renderBanPanel();
+    renderGrid();
+  } else {
+    (S.picks[step.team] = S.picks[step.team]||[]).push(w);
+    S.idx++;
+    if(isMulti) pushState();
+    renderDraft();
+  }
 }
 
-// ===== RESULT =====
+// ===== リザルト =====
 function showResult(){
   const S = state;
-  document.getElementById('r-rule').textContent = S.rule;
-  document.getElementById('r-stage').textContent = '📍 '+S.stageObj.ja;
-  document.getElementById('r-simg').src = STAGES_IMG + S.stageObj.ja + '.png';
+  document.getElementById('r-rule').textContent  = S.rule;
+  document.getElementById('r-stage').textContent = '📍 '+S.stageJa;
+  document.getElementById('r-simg').src = STAGES_IMG + S.stageJa + '.png';
   document.getElementById('rna').textContent = S.an;
   document.getElementById('rnb').textContent = S.bn;
   ['alpha','bravo'].forEach(t=>{
     const sfx = t==='alpha'?'a':'b';
-    const be = document.getElementById('rb'+sfx);
-    const pe = document.getElementById('rp'+sfx);
-    be.innerHTML='';pe.innerHTML='';
-    if(!S.bans[t].length) be.innerHTML='<span style="font-size:11px;color:var(--mu)">なし</span>';
-    else S.bans[t].forEach(w=>{
-      const tg=document.createElement('div');
-      tg.className='rt bnt';
-      tg.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">${w.name}`;
-      be.appendChild(tg);
+    const be  = document.getElementById('rb'+sfx);
+    const pe  = document.getElementById('rp'+sfx);
+    be.innerHTML=''; pe.innerHTML='';
+    const bans = S.bans[t]||[];
+    if(!bans.length) be.innerHTML='<span style="font-size:11px;color:var(--mu)">なし</span>';
+    else bans.forEach(w=>{
+      const d=document.createElement('div');
+      d.className='rt bnt';
+      d.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">${w.name}`;
+      be.appendChild(d);
     });
-    S.picks[t].forEach(w=>{
-      const tg=document.createElement('div');
-      tg.className='rt';
-      tg.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">${w.name}`;
-      pe.appendChild(tg);
+    (S.picks[t]||[]).forEach(w=>{
+      const d=document.createElement('div');
+      d.className='rt';
+      d.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">${w.name}`;
+      pe.appendChild(d);
     });
   });
   showScreen('result');
 }
 
+// ===== ユーティリティ =====
 function showScreen(n){
-  ['setup','draft','result'].forEach(s=>
+  ['mode','setup','draft','result'].forEach(s=>
     document.getElementById('s-'+s).classList.toggle('active',s===n)
   );
 }
-function goSetup(){activeCat='すべて';showScreen('setup');}
+window.showScreen = showScreen;
+window.goSetup    = ()=>{ if(fbUnsub){fbUnsub();fbUnsub=null;} activeCat='すべて'; showScreen('mode'); };
 
-// START
 loadData();
 </script>
 </body>
