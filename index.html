@@ -385,7 +385,7 @@ let activeCat = "すべて";
 let isMulti = false;
 let isHost  = false;
 let roomId  = null;
-let fbUnsub = null;
+let fbUnsub    = null;
 let fbBanUnsub = null; // pending_bravo_bans の監視用
 let bravoBanSubmitted = false; // 参加者が送信済みかどうか
 
@@ -500,7 +500,7 @@ window.startDraft = function(){
   if(isMulti && isHost){
     pushState();
     subscribeRoom();
-    subscribePendingBravoBans(); // ホストはブラボーのBAN送信を監視
+    subscribePendingBravoBans();
     document.getElementById('room-badge').style.display = 'block';
     document.getElementById('draft-room-id').textContent = roomId;
   }
@@ -509,8 +509,13 @@ window.startDraft = function(){
 };
 
 // ===== Firebase =====
+
+// 自分が直前にpushしたstateのidxを記録してエコー防止
+let _lastPushedIdx = -1;
+
 function pushState(){
   if(!isMulti||!roomId) return;
+  _lastPushedIdx = state.idx;
   set(ref(db,`rooms/${roomId}/state`), JSON.parse(JSON.stringify(state)));
 }
 
@@ -518,13 +523,16 @@ function subscribeRoom(){
   if(fbUnsub){fbUnsub();fbUnsub=null;}
   fbUnsub = onValue(ref(db,`rooms/${roomId}/state`), snap=>{
     if(!snap.exists()) return;
-    // 参加者のみ受信して描画（ホストは自分で書き込むため）
-    if(!isHost){
-      state = snap.val();
-      banPending = {alpha:[],bravo:[]};
-      bravoBanSubmitted = false;
-      renderDraft();
+    const remote = snap.val();
+    // 自分がpushした直後のエコーは無視
+    if(isHost && remote.idx === _lastPushedIdx && _lastPushedIdx >= 0){
+      _lastPushedIdx = -1;
+      return;
     }
+    state = remote;
+    banPending = {alpha:[],bravo:[]};
+    bravoBanSubmitted = false;
+    renderDraft();
   });
 }
 
@@ -534,13 +542,11 @@ function subscribePendingBravoBans(){
   fbBanUnsub = onValue(ref(db,`rooms/${roomId}/pending_bravo_bans`), snap=>{
     if(!snap.exists()) return;
     const step = state.seq[state.idx];
-    if(!step || step.phase !== 'ban') return; // BANフェーズ以外は無視
+    if(!step || step.phase !== 'ban') return;
     const bravoBans = snap.val();
     if(!Array.isArray(bravoBans) || bravoBans.length === 0) return;
-    // ブラボーのBANが揃っているか確認
     const expectedCount = state.bc - (state.bans.bravo||[]).length;
     if(bravoBans.length >= expectedCount){
-      // banPending.bravoへ反映（重複を避けて上書き）
       banPending.bravo = bravoBans.slice(0, expectedCount);
       renderBanPanel();
       renderGrid();
@@ -564,7 +570,7 @@ function renderDraft(){
   document.getElementById('tctr').textContent  = done?'':`STEP ${S.idx+1} / ${S.seq.length}`;
   document.getElementById('d-rule').textContent  = S.rule;
   document.getElementById('d-stage').textContent = S.stageJa;
-  document.getElementById('st-img').src = STAGES_IMG + S.stageJa + '.png';
+  document.getElementById('st-img').src = STAGES_IMG + encodeURIComponent(S.stageJa) + '.png';
   document.getElementById('da').textContent = S.an;
   document.getElementById('db').textContent = S.bn;
   document.getElementById('ban-name-a').textContent = S.an;
@@ -639,20 +645,17 @@ function renderBanPanel(){
     const name = cur==='alpha'?state.an:state.bn;
     hint.innerHTML = `現在 <strong style="color:${col}">${name}</strong> のBAN選択中`;
   } else if(isHost){
-    const bFull = banPending.bravo.length >= (state.bc - (state.bans.bravo||[]).length);
-    if(bFull){
+    const bFull2 = banPending.bravo.length >= (state.bc - (state.bans.bravo||[]).length);
+    if(bFull2){
       hint.innerHTML = `<span style="color:var(--pk)">✓ ブラボーのBANが届きました！アルファのBANを選択して確定してください</span>`;
     } else {
-      hint.innerHTML = `<span style="color:var(--mu)">ブラボーのBANが届くのを待っています…<br>アルファ（あなた）のBANを先に選択できます</span>`;
+      hint.innerHTML = `<span style="color:var(--mu)">ブラボーのBANが届くのを待っています…アルファ（あなた）のBANを先に選んでおけます</span>`;
     }
   } else {
-    const myTeam = 'bravo';
-    const col    = 'var(--b)';
-    const name   = state.bn;
     if(bravoBanSubmitted){
       hint.innerHTML = `<span style="color:var(--pk)">✓ BANを送信しました。ホストが確定するまでお待ちください…</span>`;
     } else {
-      hint.innerHTML = `あなたは <strong style="color:${col}">${name}</strong> チームです — BANを選択して送信してください`;
+      hint.innerHTML = `あなたは <strong style="color:var(--b)">${state.bn}</strong> チームです — BANを選択して送信してください`;
     }
   }
 
@@ -667,7 +670,6 @@ function renderBanPanel(){
     btn.textContent = bFull ? 'BANを確定する ✓' : 'BANを確定する（ブラボー待ち）';
     btn.disabled = !(aFull && bFull);
   } else {
-    // 参加者は自分の分だけ入力して送信
     btn.textContent  = bravoBanSubmitted ? '送信済み ✓' : 'BANを送信する';
     btn.disabled     = bravoBanSubmitted || !bFull;
   }
@@ -764,7 +766,6 @@ function renderGrid(){
       if(isBan){
         // 今入力すべきチームを判定
         const inputTeam = !isMulti ? banActiveTeam : (isHost?'alpha':'bravo');
-        // 参加者が送信済みならクリック不可
         if(!isMulti || isHost || !bravoBanSubmitted){
           const remaining = S.bc - (S.bans[inputTeam]||[]).length - banPending[inputTeam].length;
           clickable = remaining > 0;
@@ -821,7 +822,7 @@ function showResult(){
   const S = state;
   document.getElementById('r-rule').textContent  = S.rule;
   document.getElementById('r-stage').textContent = '📍 '+S.stageJa;
-  document.getElementById('r-simg').src = STAGES_IMG + S.stageJa + '.png';
+  document.getElementById('r-simg').src = STAGES_IMG + encodeURIComponent(S.stageJa) + '.png';
   document.getElementById('rna').textContent = S.an;
   document.getElementById('rnb').textContent = S.bn;
   ['alpha','bravo'].forEach(t=>{
