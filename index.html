@@ -239,6 +239,10 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 <div id="s-lobby" class="screen">
   <div class="logo"><h1>SPLATOON DRAFT</h1><p>ロビー — ホスト</p></div>
 
+  <div style="background:var(--s1);border:1.5px solid #2a2a4a;border-radius:var(--r);padding:14px;margin-bottom:14px;">
+    <label style="font-size:11px;color:var(--y);display:block;margin-bottom:6px;letter-spacing:1px;">👑 あなたの名前（ホスト）</label>
+    <input type="text" id="host-name-input" maxlength="16" placeholder="ホスト名" style="font-size:15px;">
+  </div>
   <div class="lobby-header">
     <div>
       <div style="font-size:10px;color:var(--mu);margin-bottom:4px;">ROOM ID</div>
@@ -659,10 +663,12 @@ window.enterMultiCreate = async function(){
   isMulti=true; isHost=true;
   roomId = Math.random().toString(36).substring(2,8).toUpperCase();
   myMemberId = 'host';
+  const hostNameEl = document.getElementById('host-name-input');
+  const hostName = (hostNameEl?.value||'').trim() || 'ホスト';
   await set(ref(db,`rooms/${roomId}/lobby`),{
     status:'waiting',
     settings: getLobbySettings(),
-    members:{ host:{ name:'ホスト', team:'unassigned', isHost:true, joinedAt:Date.now() } }
+    members:{ host:{ name:hostName, team:'unassigned', isHost:true, joinedAt:Date.now() } }
   });
   showLobbyHost();
   subscribeLobby();
@@ -717,10 +723,12 @@ function showLobbyWait(){
 }
 
 // ===== ロビー監視 =====
+// 方針: lobbyドキュメント全体を監視し、status='started'になったら
+//       その場でstateをgetして遷移する。subscribeRoomはロビー離脱後に登録。
 function subscribeLobby(){
   if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
 
-  fbLobbyUnsub=onValue(ref(db,`rooms/${roomId}/lobby`),snap=>{
+  fbLobbyUnsub=onValue(ref(db,`rooms/${roomId}/lobby`),async snap=>{
     if(!snap.exists()) return;
     const lobby=snap.val();
     const members=lobby.members||{};
@@ -731,30 +739,32 @@ function subscribeLobby(){
     } else {
       // 設定をリアルタイム表示
       const s=lobby.settings||{};
-      const ruleStr=s.rule==='random'?'ランダム':(s.rule||'ランダム');
+      const ruleStr=s.rule==='ランダム'?'ランダム':(s.rule==='random'?'ランダム':(s.rule||'ランダム'));
       const stageStr=s.stageJa==='random'?'ランダム':(s.stageJa||'ランダム');
       const el=document.getElementById('lobby-wait-settings');
       if(el) el.innerHTML=
         `<span style="color:var(--a)">チーム: ${s.an||'アルファ'} vs ${s.bn||'ブラボー'}</span><br>`+
         `${s.ts||4}v${s.ts||4} ｜ BAN×${s.bc||3} ｜ ${ruleStr} ｜ ${stageStr}`;
 
-      // status が 'started' になったら state を取得してドラフトへ遷移
+      // ★ status が 'started' になったらドラフトへ
       if(lobby.status==='started'){
+        // まずlobby監視を止める
         if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
-        const tryGetState = (retries) => {
-          get(ref(db,`rooms/${roomId}/state`)).then(stateSnap=>{
-            if(!stateSnap.exists()){
-              // stateがまだ書き込まれていない場合、少し待ってリトライ
-              if(retries > 0) setTimeout(()=>tryGetState(retries-1), 500);
-              return;
-            }
-            state=stateSnap.val();
-            banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; activeCat='すべて';
-            subscribeRoom();
-            showDraftUI();
-          });
-        };
-        tryGetState(5);
+        // stateを取得（pushStateと競合しないよう少し待つ）
+        let stateSnap=null;
+        for(let i=0;i<10;i++){
+          stateSnap=await get(ref(db,`rooms/${roomId}/state`));
+          if(stateSnap.exists()) break;
+          await new Promise(r=>setTimeout(r,300));
+        }
+        if(!stateSnap||!stateSnap.exists()){
+          console.error('state not found after started');
+          return;
+        }
+        state=stateSnap.val();
+        banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; activeCat='すべて';
+        subscribeRoom();
+        showDraftUI();
       }
     }
   });
@@ -827,9 +837,9 @@ function getLobbySettings(){
 }
 
 // ===== ドラフト開始 (ホスト) =====
-window.startDraft = function(){
+window.startDraft = async function(){
   const s=getLobbySettings();
-  buildAndStartDraft({an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:s.ft, rm:s.rule, sm:s.stageJa});
+  await buildAndStartDraft({an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:s.ft, rm:s.rule, sm:s.stageJa});
 };
 
 async function buildAndStartDraft({an,bn,ts,bc,ft,rm,sm}){
@@ -851,11 +861,10 @@ async function buildAndStartDraft({an,bn,ts,bc,ft,rm,sm}){
 
   if(isMulti&&isHost){
     if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
-    // stateを先にFirebaseに書き込んでから、lobby statusを'started'に更新する
-    // （参加者がstatus='started'を検知した時点でstateが確実に存在するようにするため）
-    await set(ref(db,`rooms/${roomId}/state`), JSON.parse(JSON.stringify(state)));
-    _lastPushedIdx = state.idx;
+    // ① まず lobby.status を 'started' に更新（参加者がこれを検知する）
     await update(ref(db,`rooms/${roomId}/lobby`),{status:'started'});
+    // ② state を書き込む（参加者は get() で取得する）
+    await pushState();
     subscribeRoom();
     subscribePendingBravoBans();
   }
@@ -871,10 +880,10 @@ function showDraftUI(){
 }
 
 // ===== Firebase state管理 =====
-function pushState(){
+async function pushState(){
   if(!isMulti||!roomId) return;
   _lastPushedIdx=state.idx;
-  set(ref(db,`rooms/${roomId}/state`), JSON.parse(JSON.stringify(state)));
+  await set(ref(db,`rooms/${roomId}/state`), JSON.parse(JSON.stringify(state)));
 }
 
 function subscribeRoom(){
