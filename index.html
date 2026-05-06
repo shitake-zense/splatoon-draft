@@ -741,13 +741,20 @@ function subscribeLobby(){
       // status が 'started' になったら state を取得してドラフトへ遷移
       if(lobby.status==='started'){
         if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
-        get(ref(db,`rooms/${roomId}/state`)).then(stateSnap=>{
-          if(!stateSnap.exists()) return;
-          state=stateSnap.val();
-          banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; activeCat='すべて';
-          subscribeRoom();
-          showDraftUI();
-        });
+        const tryGetState = (retries) => {
+          get(ref(db,`rooms/${roomId}/state`)).then(stateSnap=>{
+            if(!stateSnap.exists()){
+              // stateがまだ書き込まれていない場合、少し待ってリトライ
+              if(retries > 0) setTimeout(()=>tryGetState(retries-1), 500);
+              return;
+            }
+            state=stateSnap.val();
+            banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; activeCat='すべて';
+            subscribeRoom();
+            showDraftUI();
+          });
+        };
+        tryGetState(5);
       }
     }
   });
@@ -844,8 +851,11 @@ async function buildAndStartDraft({an,bn,ts,bc,ft,rm,sm}){
 
   if(isMulti&&isHost){
     if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
+    // stateを先にFirebaseに書き込んでから、lobby statusを'started'に更新する
+    // （参加者がstatus='started'を検知した時点でstateが確実に存在するようにするため）
+    await set(ref(db,`rooms/${roomId}/state`), JSON.parse(JSON.stringify(state)));
+    _lastPushedIdx = state.idx;
     await update(ref(db,`rooms/${roomId}/lobby`),{status:'started'});
-    pushState();
     subscribeRoom();
     subscribePendingBravoBans();
   }
