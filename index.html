@@ -190,6 +190,18 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .rt{display:flex;align-items:center;gap:5px;background:#0f1729;border-radius:6px;padding:4px 8px;font-size:11px;}
 .rt img{width:28px;height:28px;object-fit:contain;}
 .rt.bnt{opacity:.6;text-decoration:line-through;}
+
+/* ===== ピックフロー ===== */
+.pick-flow{display:flex;align-items:center;gap:3px;overflow-x:auto;padding:10px 14px;background:var(--s1);border-radius:var(--r);margin-bottom:12px;scrollbar-width:none;}
+.pick-flow::-webkit-scrollbar{display:none;}
+.pf-sep{width:1px;height:16px;background:#2a3a5a;flex-shrink:0;margin:0 2px;}
+.pf-chip{flex-shrink:0;font-family:'Zen Dots',sans-serif;font-size:9px;padding:4px 8px;border-radius:4px;border:1.5px solid;transition:opacity .15s,transform .15s,box-shadow .15s;cursor:default;white-space:nowrap;}
+.pf-chip.pf-ban{background:#3d1a1a;color:var(--bn);border-color:var(--bn);}
+.pf-chip.pf-a{background:#1a2a4a;color:var(--a);border-color:var(--a);}
+.pf-chip.pf-b{background:#2a1a2a;color:var(--b);border-color:var(--b);}
+.pf-chip.pf-past{opacity:.25;}
+.pf-chip.pf-cur{transform:scale(1.18);box-shadow:0 0 8px currentColor;opacity:1;z-index:1;}
+.pf-chip.pf-next{opacity:.6;}
 </style>
 </head>
 <body>
@@ -486,6 +498,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       </div>
     </div>
   </div>
+  <div id="pick-flow" class="pick-flow"></div>
   <div id="ban-panel" class="ban-panel" style="display:none">
     <div class="ban-title">⚡ BAN PHASE — 両チーム同時選択</div>
     <div class="ban-cols">
@@ -1021,6 +1034,58 @@ function normalizeState(s){
   return s;
 }
 
+function renderPickFlow(){
+  const container=document.getElementById('pick-flow');
+  if(!container) return;
+  const S=state;
+  if(!S.seq||S.seq.length===0){container.innerHTML='';return;}
+
+  // チーム名の先頭2文字を使う
+  const la=(S.an||'アルファ').slice(0,2);
+  const lb=(S.bn||'ブラボー').slice(0,2);
+
+  container.innerHTML='';
+  let prevTeam=null;
+
+  S.seq.forEach((step,i)=>{
+    const isPast=i<S.idx, isCur=i===S.idx, isNext=i===S.idx+1;
+
+    // チームが切り替わったときに区切り線を入れる
+    const curTeam=step.phase==='ban'?'ban':step.team;
+    if(i>0 && curTeam!==prevTeam){
+      const sep=document.createElement('div');
+      sep.className='pf-sep';
+      container.appendChild(sep);
+    }
+    prevTeam=curTeam;
+
+    const chip=document.createElement('div');
+    let cls='pf-chip ';
+    if(step.phase==='ban'){
+      cls+='pf-ban';
+      chip.textContent='BAN';
+    } else {
+      cls+=(step.team==='alpha'?'pf-a':'pf-b');
+      chip.textContent=(step.team==='alpha'?la:lb);
+    }
+    if(isPast) cls+=' pf-past';
+    else if(isCur) cls+=' pf-cur';
+    else if(isNext) cls+=' pf-next';
+    chip.className=cls;
+
+    // ツールチップ（hover で詳細）
+    const stepNum=i+1;
+    if(step.phase==='ban') chip.title=`STEP ${stepNum}: BAN PHASE`;
+    else chip.title=`STEP ${stepNum}: ${step.team==='alpha'?S.an:S.bn} PICK`;
+
+    container.appendChild(chip);
+  });
+
+  // 現在のチップを中央にスクロール
+  const cur=container.querySelector('.pf-cur');
+  if(cur) cur.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
+}
+
 // ===== ドラフト描画 =====
 function renderDraft(){
   normalizeState(state);
@@ -1061,6 +1126,7 @@ function renderDraft(){
     document.getElementById('tib').style.display=step.team==='bravo'?'':'none';
   }
   renderSlots('alpha'); renderSlots('bravo'); renderGrid();
+  renderPickFlow();
 }
 
 // ===== BANパネル =====
