@@ -719,8 +719,6 @@ function showLobbyWait(){
 // ===== ロビー監視 =====
 function subscribeLobby(){
   if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
-  // 参加者はstateも並行して監視（ドラフト開始検知用）
-  if(!isHost) subscribeRoom();
 
   fbLobbyUnsub=onValue(ref(db,`rooms/${roomId}/lobby`),snap=>{
     if(!snap.exists()) return;
@@ -739,6 +737,18 @@ function subscribeLobby(){
       if(el) el.innerHTML=
         `<span style="color:var(--a)">チーム: ${s.an||'アルファ'} vs ${s.bn||'ブラボー'}</span><br>`+
         `${s.ts||4}v${s.ts||4} ｜ BAN×${s.bc||3} ｜ ${ruleStr} ｜ ${stageStr}`;
+
+      // status が 'started' になったら state を取得してドラフトへ遷移
+      if(lobby.status==='started'){
+        if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
+        get(ref(db,`rooms/${roomId}/state`)).then(stateSnap=>{
+          if(!stateSnap.exists()) return;
+          state=stateSnap.val();
+          banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; activeCat='すべて';
+          subscribeRoom();
+          showDraftUI();
+        });
+      }
     }
   });
 }
@@ -815,7 +825,7 @@ window.startDraft = function(){
   buildAndStartDraft({an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:s.ft, rm:s.rule, sm:s.stageJa});
 };
 
-function buildAndStartDraft({an,bn,ts,bc,ft,rm,sm}){
+async function buildAndStartDraft({an,bn,ts,bc,ft,rm,sm}){
   const rule    = rm==='random'?RULES[Math.floor(Math.random()*RULES.length)]:rm;
   const stageJa = sm==='random'?STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)]:sm;
   const first   = ft==='random'?(Math.random()<.5?'alpha':'bravo'):ft;
@@ -834,7 +844,7 @@ function buildAndStartDraft({an,bn,ts,bc,ft,rm,sm}){
 
   if(isMulti&&isHost){
     if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
-    update(ref(db,`rooms/${roomId}/lobby`),{status:'started'});
+    await update(ref(db,`rooms/${roomId}/lobby`),{status:'started'});
     pushState();
     subscribeRoom();
     subscribePendingBravoBans();
