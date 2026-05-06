@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SPLATOON DRAFT v0506-E</title>
+<title>SPLATOON DRAFT v0506-F</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Zen+Dots&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -381,7 +381,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       <span style="width:10px;height:10px;animation-delay:.4s"></span>
     </div>
     <h2>ホストがドラフトを開始するまでお待ちください</h2>
-    <div style="font-size:10px;color:var(--mu);margin-top:6px;">v0506-E</div>
+    <div style="font-size:10px;color:var(--mu);margin-top:6px;">v0506-F</div>
     <p id="lobby-wait-settings" style="margin-top:12px;line-height:1.8;"></p>
   </div>
   <button class="btn-re" onclick="leaveLobby()">← 退出する</button>
@@ -758,9 +758,8 @@ function subscribeLobby(){
     }
   });
 
-  // 参加者: state の onValue でドラフト開始を検知
-  // subscribeRoom() 内に「!onDraft → showDraftUI()」のロジックが既にあるのでそのまま利用
-  if(!isHost){
+  // 参加者: state を監視してドラフト開始を検知（未登録の場合のみ）
+  if(!isHost && !fbUnsub){
     subscribeRoom();
   }
 }
@@ -887,13 +886,11 @@ function subscribeRoom(){
     if(isHost && remote.idx===_lastPushedIdx && _lastPushedIdx>=0){
       _lastPushedIdx=-1; return;
     }
-    state=remote;
-    console.log('[DEBUG] subscribeRoom callback: before banPending init, banPending=', JSON.stringify(banPending));
-    banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false;
-    console.log('[DEBUG] subscribeRoom callback: after banPending init, onDraft check...');
+    state=normalizeState(remote);
     const onDraft=document.getElementById('s-draft').classList.contains('active');
     if(!onDraft){
-      // ロビー待機 or join画面からドラフトへ遷移
+      // 初回遷移時のみ banPending を初期化
+      banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false;
       if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
       showDraftUI();
     } else {
@@ -910,6 +907,7 @@ function subscribePendingBravoBans(){
     if(!step||step.phase!=='ban') return;
     const bravoBans=snap.val();
     if(!Array.isArray(bravoBans)||bravoBans.length===0) return;
+    normalizeState(state);
     const expected=state.bc-(state.bans.bravo||[]).length;
     if(bravoBans.length>=expected){
       banPending.bravo=bravoBans.slice(0,expected);
@@ -935,15 +933,22 @@ window.goHome = function(){
   showScreen('mode');
 };
 
+// state の null/undefined フィールドを正規化（Firebase は空配列を保存しない）
+function normalizeState(s){
+  if(!s) return s;
+  if(!s.bans)  s.bans ={alpha:[],bravo:[]};
+  if(!s.picks) s.picks={alpha:[],bravo:[]};
+  if(!s.bans.alpha)  s.bans.alpha=[];
+  if(!s.bans.bravo)  s.bans.bravo=[];
+  if(!s.picks.alpha) s.picks.alpha=[];
+  if(!s.picks.bravo) s.picks.bravo=[];
+  if(!s.seq) s.seq=[];
+  return s;
+}
+
 // ===== ドラフト描画 =====
 function renderDraft(){
-  // Firebaseは空配列を保存しないのでnullチェックが必要
-  if(!state.bans) state.bans={alpha:[],bravo:[]};
-  if(!state.picks) state.picks={alpha:[],bravo:[]};
-  if(!state.bans.alpha) state.bans.alpha=[];
-  if(!state.bans.bravo) state.bans.bravo=[];
-  if(!state.picks.alpha) state.picks.alpha=[];
-  if(!state.picks.bravo) state.picks.bravo=[];
+  normalizeState(state);
   const S=state, step=S.seq[S.idx], done=!step, isBan=!done&&step.phase==='ban';
 
   const badge=document.getElementById('pbadge');
@@ -985,7 +990,6 @@ function renderDraft(){
 
 // ===== BANパネル =====
 function renderBanPanel(){
-  console.log('[DEBUG] renderBanPanel called, banPending=', JSON.stringify(banPending), 'type=', typeof banPending);
   const S=state, bc=S.bc;
   ['alpha','bravo'].forEach(team=>{
     const el=document.getElementById('ban-slots-'+(team==='alpha'?'a':'b'));
