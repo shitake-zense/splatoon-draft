@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SPLATOON DRAFT v0506-F</title>
+<title>SPLATOON DRAFT</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Zen+Dots&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -336,6 +336,16 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <option value="random">ランダム</option>
         </select>
       </div>
+      <div class="row" id="pick-order-row">
+        <label>ピック順</label>
+        <select id="pick-order" onchange="onPickOrderChange()">
+          <option value="alt">交互 (先1-1-1-1…)</option>
+          <option value="snake" selected>スネーク (先1-後2-先2-後1)</option>
+          <option value="a121">バランス (先1-2-1 / 後1-2-1)</option>
+          <option value="a211">前重ね (先2-1-1 / 後1-2-1)</option>
+        </select>
+      </div>
+      <div id="pick-order-desc" style="font-size:10px;color:var(--mu);margin-top:-4px;margin-bottom:6px;padding-left:80px;line-height:1.6;"></div>
       <div class="div"></div>
       <div class="row">
         <label>ルール</label>
@@ -381,7 +391,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       <span style="width:10px;height:10px;animation-delay:.4s"></span>
     </div>
     <h2>ホストがドラフトを開始するまでお待ちください</h2>
-    <div style="font-size:10px;color:var(--mu);margin-top:6px;">v0506-F</div>
+
     <p id="lobby-wait-settings" style="margin-top:12px;line-height:1.8;"></p>
   </div>
   <button class="btn-re" onclick="leaveLobby()">← 退出する</button>
@@ -422,12 +432,22 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       </div>
       <div class="row">
         <label>先攻</label>
-        <select id="solo-ft">
+        <select id="solo-ft" onchange="onSoloPickOrderChange()">
           <option value="alpha">アルファ先攻</option>
           <option value="bravo">ブラボー先攻</option>
           <option value="random">ランダム</option>
         </select>
       </div>
+      <div class="row" id="solo-pick-order-row">
+        <label>ピック順</label>
+        <select id="solo-pick-order" onchange="onSoloPickOrderChange()">
+          <option value="alt">交互 (先1-1-1-1…)</option>
+          <option value="snake" selected>スネーク (先1-後2-先2-後1)</option>
+          <option value="a121">バランス (先1-2-1 / 後1-2-1)</option>
+          <option value="a211">前重ね (先2-1-1 / 後1-2-1)</option>
+        </select>
+      </div>
+      <div id="solo-pick-order-desc" style="font-size:10px;color:var(--mu);margin-top:-4px;margin-bottom:6px;padding-left:80px;line-height:1.6;"></div>
       <div class="div"></div>
       <div class="row">
         <label>ルール</label>
@@ -635,6 +655,8 @@ async function loadData(){
       });
     });
     document.getElementById('weapon-count-info').textContent=`✓ ${WEAPONS.length}種の武器を読み込みました`;
+    updatePickOrderDesc('pick-order','pick-order-desc');
+    updatePickOrderDesc('solo-pick-order','solo-pick-order-desc');
 
     // URL ?room=XXXX があれば自動的にjoin画面へ
     const urlRoom = new URLSearchParams(location.search).get('room');
@@ -667,6 +689,7 @@ window.startSoloDraft = function(){
     ts: parseInt(document.getElementById('solo-sz').value),
     bc: parseInt(document.getElementById('solo-bc').value),
     ft: document.getElementById('solo-ft').value,
+    po: document.getElementById('solo-pick-order')?.value||'snake',
     rm: document.getElementById('solo-rm').value,
     sm: document.getElementById('solo-sm').value,
   });
@@ -813,6 +836,29 @@ window.assignMember = function(memberId, team){
 };
 
 // ===== 設定変更 → Firebase反映 =====
+// ピック順の説明文
+const PICK_ORDER_DESC = {
+  alt:  '交互に1枚ずつ選択。シンプルだが後攻が有利になりやすい。',
+  snake:'先攻1→後攻2→先攻2→後攻1。4v4で最もバランスが取れた基本形。',
+  a121: '先攻 1-2-1 / 後攻 1-2-1。中盤に連続ピックあり。均衡型。',
+  a211: '先攻 2-1-1 / 後攻 1-2-1。先攻が序盤に2枚取れる前重ね型。',
+};
+
+function updatePickOrderDesc(selectId, descId){
+  const val = document.getElementById(selectId)?.value||'snake';
+  const el  = document.getElementById(descId);
+  if(el) el.textContent = PICK_ORDER_DESC[val]||'';
+}
+
+window.onPickOrderChange = function(){
+  updatePickOrderDesc('pick-order','pick-order-desc');
+  onSettingChange();
+};
+
+window.onSoloPickOrderChange = function(){
+  updatePickOrderDesc('solo-pick-order','solo-pick-order-desc');
+};
+
 window.onSettingChange = function(){
   if(!isHost||!roomId) return;
   set(ref(db,`rooms/${roomId}/lobby/settings`), getLobbySettings());
@@ -825,6 +871,7 @@ function getLobbySettings(){
     ts:  parseInt(document.getElementById('sz')?.value||4),
     bc:  parseInt(document.getElementById('bc')?.value||3),
     ft:  document.getElementById('ft')?.value||'alpha',
+    po:  document.getElementById('pick-order')?.value||'snake',
     rule: document.getElementById('rm')?.value||'random',
     stageJa: document.getElementById('sm')?.value||'random',
   };
@@ -833,21 +880,49 @@ function getLobbySettings(){
 // ===== ドラフト開始 (ホスト) =====
 window.startDraft = function(){
   const s=getLobbySettings();
-  buildAndStartDraft({an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:s.ft, rm:s.rule, sm:s.stageJa});
+  buildAndStartDraft({an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:s.ft, po:s.po, rm:s.rule, sm:s.stageJa});
 };
 
-function buildAndStartDraft({an,bn,ts,bc,ft,rm,sm}){
+// ピック順テンプレート（tsは1チームの枚数）
+// 値はfirstからの相対: 0=first, 1=second
+function buildPickSeq(ts, po, first, sec){
+  const seq=[];
+  if(po==='alt'){
+    // 交互: 0,1,0,1...
+    for(let i=0;i<ts*2;i++) seq.push(i%2===0?first:sec);
+  } else if(po==='snake'){
+    // スネーク: 0,1,1,0,0,1,1,0...
+    // 先1-後2-先2-後1 (ts=4の場合: 0,1,1,0)
+    const pattern=[0,1,1,0,0,1,1,0,0,1]; // 最大10枚対応
+    for(let i=0;i<ts*2;i++) seq.push(pattern[i]===0?first:sec);
+  } else if(po==='a121'){
+    // バランス: 先1-後1-先2-後2-先1-後1... → 実質先1-2-1 / 後1-2-1
+    // ts=4: F,S,F,F,S,S,F,S → [0,1,0,0,1,1,0,1]
+    const pattern=[0,1,0,0,1,1,0,1,0,1];
+    for(let i=0;i<ts*2;i++) seq.push(pattern[i]===0?first:sec);
+  } else if(po==='a211'){
+    // 前重ね: 先2-1-1 / 後1-2-1
+    // ts=4: F,F,S,F,S,S,F,S → [0,0,1,0,1,1,0,1]
+    const pattern=[0,0,1,0,1,1,0,1,0,1];
+    for(let i=0;i<ts*2;i++) seq.push(pattern[i]===0?first:sec);
+  } else {
+    // fallback: 交互
+    for(let i=0;i<ts*2;i++) seq.push(i%2===0?first:sec);
+  }
+  return seq;
+}
+
+function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm}){
   const rule    = rm==='random'?RULES[Math.floor(Math.random()*RULES.length)]:rm;
   const stageJa = sm==='random'?STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)]:sm;
   const first   = ft==='random'?(Math.random()<.5?'alpha':'bravo'):ft;
   const sec     = first==='alpha'?'bravo':'alpha';
+  const pickOrder = po||'snake';
 
   const seq=[];
   if(bc>0) seq.push({phase:'ban',banCount:bc});
-  for(let i=0;i<ts*2;i++){
-    if(i===0) seq.push({phase:'pick',team:first});
-    else seq.push({phase:'pick',team:seq[seq.length-1].team===first?sec:first});
-  }
+  const pickTeams = buildPickSeq(ts, pickOrder, first, sec);
+  for(const team of pickTeams) seq.push({phase:'pick',team});
 
   state={an,bn,ts,bc,rule,stageJa,seq,idx:0,bans:{alpha:[],bravo:[]},picks:{alpha:[],bravo:[]}};
   banPending={alpha:[],bravo:[]}; banActiveTeam='alpha';
