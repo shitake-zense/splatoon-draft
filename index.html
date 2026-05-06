@@ -223,6 +223,11 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 <div id="s-join" class="screen">
   <div class="logo"><h1>SPLATOON DRAFT</h1><p>部屋に参加</p></div>
   <div class="join-wrap">
+    <div style="margin-bottom:14px;">
+      <label style="font-size:11px;color:var(--mu);display:block;margin-bottom:6px;">あなたの名前</label>
+      <input type="text" id="join-name-input" maxlength="16" placeholder="プレイヤー名" autocomplete="off" style="font-size:16px;text-align:center;">
+    </div>
+    <label style="font-size:11px;color:var(--mu);display:block;margin-bottom:6px;">部屋番号</label>
     <input class="join-input-big" type="text" id="room-join-input" maxlength="6" placeholder="XXXXXX" autocomplete="off" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')joinRoom()">
     <button class="btn-start" onclick="joinRoom()">🚪 参加する</button>
     <div id="join-status" style="text-align:center;margin-top:10px;font-size:12px;color:var(--pk)"></div>
@@ -618,6 +623,8 @@ async function loadData(){
     document.getElementById('loading').style.display='none';
     if(urlRoom){
       document.getElementById('room-join-input').value=urlRoom.toUpperCase();
+      const statusEl=document.getElementById('join-status');
+      if(statusEl) statusEl.innerHTML='<span style="color:var(--y)">名前を入力して参加ボタンを押してください</span>';
       showScreen('join');
     } else {
       showScreen('mode');
@@ -687,9 +694,10 @@ window.joinRoom = async function(){
   }
   roomId=input; isMulti=true; isHost=false;
   myMemberId='member_'+Date.now();
+  const joinName=(document.getElementById('join-name-input')?.value||'').trim();
+  const memberName=joinName||('参加者'+Math.floor(Math.random()*900+100));
   await set(ref(db,`rooms/${roomId}/lobby/members/${myMemberId}`),{
-    name:'参加者'+Math.floor(Math.random()*900+100),
-    team:'unassigned', isHost:false, joinedAt:Date.now()
+    name:memberName, team:'unassigned', isHost:false, joinedAt:Date.now()
   });
   showLobbyWait();
   subscribeLobby();
@@ -711,6 +719,9 @@ function showLobbyWait(){
 // ===== ロビー監視 =====
 function subscribeLobby(){
   if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
+  // 参加者はstateも並行して監視（ドラフト開始検知用）
+  if(!isHost) subscribeRoom();
+
   fbLobbyUnsub=onValue(ref(db,`rooms/${roomId}/lobby`),snap=>{
     if(!snap.exists()) return;
     const lobby=snap.val();
@@ -720,15 +731,14 @@ function subscribeLobby(){
     if(isHost){
       renderTeamAssign(members);
     } else {
-      // 設定表示
+      // 設定をリアルタイム表示
       const s=lobby.settings||{};
       const ruleStr=s.rule==='random'?'ランダム':(s.rule||'ランダム');
       const stageStr=s.stageJa==='random'?'ランダム':(s.stageJa||'ランダム');
-      document.getElementById('lobby-wait-settings').innerHTML=
+      const el=document.getElementById('lobby-wait-settings');
+      if(el) el.innerHTML=
         `<span style="color:var(--a)">チーム: ${s.an||'アルファ'} vs ${s.bn||'ブラボー'}</span><br>`+
         `${s.ts||4}v${s.ts||4} ｜ BAN×${s.bc||3} ｜ ${ruleStr} ｜ ${stageStr}`;
-      // stateが出現したらドラフトへ
-      subscribeRoom();
     }
   });
 }
@@ -858,8 +868,10 @@ function subscribeRoom(){
     }
     state=remote;
     banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false;
-    // draft画面でなければ遷移（参加者がロビー待機中にスタートした場合）
-    if(!document.getElementById('s-draft').classList.contains('active')){
+    const onDraft=document.getElementById('s-draft').classList.contains('active');
+    if(!onDraft){
+      // ロビー待機 or join画面からドラフトへ遷移
+      if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
       showDraftUI();
     } else {
       renderDraft();
