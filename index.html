@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SPLATOON DRAFT v0506-D</title>
+<title>SPLATOON DRAFT v0506-E</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Zen+Dots&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -381,7 +381,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       <span style="width:10px;height:10px;animation-delay:.4s"></span>
     </div>
     <h2>ホストがドラフトを開始するまでお待ちください</h2>
-    <div style="font-size:10px;color:var(--mu);margin-top:6px;">v0506-D</div>
+    <div style="font-size:10px;color:var(--mu);margin-top:6px;">v0506-E</div>
     <p id="lobby-wait-settings" style="margin-top:12px;line-height:1.8;"></p>
   </div>
   <button class="btn-re" onclick="leaveLobby()">← 退出する</button>
@@ -937,6 +937,13 @@ window.goHome = function(){
 
 // ===== ドラフト描画 =====
 function renderDraft(){
+  // Firebaseは空配列を保存しないのでnullチェックが必要
+  if(!state.bans) state.bans={alpha:[],bravo:[]};
+  if(!state.picks) state.picks={alpha:[],bravo:[]};
+  if(!state.bans.alpha) state.bans.alpha=[];
+  if(!state.bans.bravo) state.bans.bravo=[];
+  if(!state.picks.alpha) state.picks.alpha=[];
+  if(!state.picks.bravo) state.picks.bravo=[];
   const S=state, step=S.seq[S.idx], done=!step, isBan=!done&&step.phase==='ban';
 
   const badge=document.getElementById('pbadge');
