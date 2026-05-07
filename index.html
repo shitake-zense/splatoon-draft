@@ -690,7 +690,8 @@ async function loadData(){
     const res = await fetch(WEAPONS_JSON);
     if(!res.ok) throw new Error('weapons.json 読み込み失敗: '+res.status);
     const data = await res.json();
-    WEAPONS = data.map(w=>({key:w.key,name:w.name,cat:w.cat,imgUrl:WEAPONS_IMG+w.imgFile}));
+    WEAPONS = data.map(w=>({key:w.key,name:w.name,cat:w.cat,imgUrl:WEAPONS_IMG+w.imgFile,imgFile:w.imgFile}));
+    console.log('[KEY SAMPLE]', WEAPONS.slice(0,10).map(w=>w.key+' | '+w.imgFile));
 
     // ステージ選択肢を全selectに追加
     ['sm','solo-sm'].forEach(id=>{
