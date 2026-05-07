@@ -202,6 +202,18 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .pf-chip.pf-past{opacity:.25;}
 .pf-chip.pf-cur{transform:scale(1.18);box-shadow:0 0 8px currentColor;opacity:1;z-index:1;}
 .pf-chip.pf-next{opacity:.6;}
+
+/* ===== 標準武器トグル ===== */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid #2a3a5a;}
+.toggle-label{font-size:11px;color:var(--tx);line-height:1.4;}
+.toggle-label small{display:block;font-size:9px;color:var(--mu);margin-top:1px;}
+.tgl{position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0;}
+.tgl input{opacity:0;width:0;height:0;}
+.tgl-sl{position:absolute;inset:0;background:#1a2a4a;border:1.5px solid #2a3a5a;border-radius:20px;cursor:pointer;transition:.2s;}
+.tgl-sl:before{content:'';position:absolute;width:14px;height:14px;left:2px;top:2px;background:var(--mu);border-radius:50%;transition:.2s;}
+.tgl input:checked+.tgl-sl{background:#1a3d4a;border-color:var(--pk);}
+.tgl input:checked+.tgl-sl:before{background:var(--pk);transform:translateX(16px);}
+.std-badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:4px;background:#1a3d4a;color:var(--pk);border:1px solid var(--pk);margin-left:6px;vertical-align:middle;}
 </style>
 </head>
 <body>
@@ -372,6 +384,16 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <select id="sm" onchange="onSettingChange()"><option value="random">ランダム</option></select>
       </div>
       <div style="font-size:10px;color:var(--mu);margin-top:4px" id="weapon-count-info"></div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          標準武器のみ
+          <small>各武器の基本形のみ表示（バリアント除外）</small>
+        </div>
+        <label class="tgl">
+          <input type="checkbox" id="std-only" onchange="onSettingChange()">
+          <span class="tgl-sl"></span>
+        </label>
+      </div>
     </div>
   </div>
 
@@ -472,6 +494,16 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       <div class="row">
         <label>ステージ</label>
         <select id="solo-sm"><option value="random">ランダム</option></select>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          標準武器のみ
+          <small>各武器の基本形のみ表示（バリアント除外）</small>
+        </div>
+        <label class="tgl">
+          <input type="checkbox" id="solo-std-only">
+          <span class="tgl-sl"></span>
+        </label>
       </div>
     </div>
   </div>
@@ -705,6 +737,7 @@ window.startSoloDraft = function(){
     po: document.getElementById('solo-pick-order')?.value||'snake',
     rm: document.getElementById('solo-rm').value,
     sm: document.getElementById('solo-sm').value,
+    stdOnly: document.getElementById('solo-std-only')?.checked||false,
   });
 };
 
@@ -790,7 +823,8 @@ function subscribeLobby(){
       const el=document.getElementById('lobby-wait-settings');
       if(el) el.innerHTML=
         `<span style="color:var(--a)">チーム: ${s.an||'アルファ'} vs ${s.bn||'ブラボー'}</span><br>`+
-        `${s.ts||4}v${s.ts||4} ｜ BAN×${s.bc||3} ｜ ${ruleStr} ｜ ${stageStr}`;
+        `${s.ts||4}v${s.ts||4} ｜ BAN×${s.bc||3} ｜ ${ruleStr} ｜ ${stageStr}`+
+        (s.stdOnly?'<br><span style="color:var(--pk)">⚙ 標準武器のみ</span>':'');
     }
   });
 
@@ -887,6 +921,7 @@ function getLobbySettings(){
     po:  document.getElementById('pick-order')?.value||'snake',
     rule: document.getElementById('rm')?.value||'random',
     stageJa: document.getElementById('sm')?.value||'random',
+    stdOnly: document.getElementById('std-only')?.checked||false,
   };
 }
 
@@ -925,7 +960,7 @@ function buildPickSeq(ts, po, first, sec){
   return seq;
 }
 
-function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm}){
+function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly}){
   const rule    = rm==='random'?RULES[Math.floor(Math.random()*RULES.length)]:rm;
   const stageJa = sm==='random'?STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)]:sm;
   const first   = ft==='random'?(Math.random()<.5?'alpha':'bravo'):ft;
@@ -937,7 +972,7 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm}){
   const pickTeams = buildPickSeq(ts, pickOrder, first, sec);
   for(const team of pickTeams) seq.push({phase:'pick',team});
 
-  state={an,bn,ts,bc,rule,stageJa,seq,idx:0,bans:{alpha:[],bravo:[]},picks:{alpha:[],bravo:[]}};
+  state={an,bn,ts,bc,rule,stageJa,seq,idx:0,bans:{alpha:[],bravo:[]},picks:{alpha:[],bravo:[]},stdOnly:!!stdOnly};
   banPending={alpha:[],bravo:[]}; banActiveTeam='alpha';
   bravoBanSubmitted=false; activeCat='すべて';
 
@@ -1031,6 +1066,7 @@ function normalizeState(s){
   if(!s.picks.alpha) s.picks.alpha=[];
   if(!s.picks.bravo) s.picks.bravo=[];
   if(!s.seq) s.seq=[];
+  if(s.stdOnly===undefined) s.stdOnly=false;
   return s;
 }
 
@@ -1223,7 +1259,8 @@ function renderSlots(team){
 // ===== 武器グリッド =====
 function renderGrid(){
   const S=state, step=S.seq[S.idx], isBan=step&&step.phase==='ban';
-  const cats=['すべて',...new Set(WEAPONS.map(w=>w.cat))];
+  const basePool2=state.stdOnly?WEAPONS.filter(w=>w.key.endsWith('_0')):WEAPONS;
+  const cats=['すべて',...new Set(basePool2.map(w=>w.cat))];
   const cf=document.getElementById('cf'); cf.innerHTML='';
   cats.forEach(c=>{
     const btn=document.createElement('button');
@@ -1234,7 +1271,9 @@ function renderGrid(){
 
   const allBanned=[...(S.bans.alpha||[]),...(S.bans.bravo||[]),...banPending.alpha,...banPending.bravo].map(w=>w.key);
   const allPicked=[...(S.picks.alpha||[]),...(S.picks.bravo||[])].map(w=>w.key);
-  const filtered=activeCat==='すべて'?WEAPONS:WEAPONS.filter(w=>w.cat===activeCat);
+  // 標準武器のみモード: key が _0 で終わるものだけ
+  const basePool=state.stdOnly?WEAPONS.filter(w=>w.key.endsWith('_0')):WEAPONS;
+  const filtered=activeCat==='すべて'?basePool:basePool.filter(w=>w.cat===activeCat);
   const grid=document.getElementById('wg'); grid.innerHTML='';
 
   filtered.forEach(w=>{
