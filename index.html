@@ -691,7 +691,6 @@ async function loadData(){
     if(!res.ok) throw new Error('weapons.json 読み込み失敗: '+res.status);
     const data = await res.json();
     WEAPONS = data.map(w=>({key:w.key,name:w.name,cat:w.cat,imgUrl:WEAPONS_IMG+w.imgFile,imgFile:w.imgFile}));
-    console.log('[KEY SAMPLE]', WEAPONS.slice(0,10).map(w=>w.key+' | '+w.imgFile));
 
     // ステージ選択肢を全selectに追加
     ['sm','solo-sm'].forEach(id=>{
@@ -929,7 +928,7 @@ function getLobbySettings(){
 // ===== ドラフト開始 (ホスト) =====
 window.startDraft = function(){
   const s=getLobbySettings();
-  buildAndStartDraft({an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:s.ft, po:s.po, rm:s.rule, sm:s.stageJa});
+  buildAndStartDraft({an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:s.ft, po:s.po, rm:s.rule, sm:s.stageJa, stdOnly:s.stdOnly});
 };
 
 // ピック順テンプレート（tsは1チームの枚数）
@@ -1260,7 +1259,7 @@ function renderSlots(team){
 // ===== 武器グリッド =====
 function renderGrid(){
   const S=state, step=S.seq[S.idx], isBan=step&&step.phase==='ban';
-  const basePool2=state.stdOnly?WEAPONS.filter(w=>w.key.endsWith('_0')):WEAPONS;
+  const basePool2=state.stdOnly?WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')):WEAPONS;
   const cats=['すべて',...new Set(basePool2.map(w=>w.cat))];
   const cf=document.getElementById('cf'); cf.innerHTML='';
   cats.forEach(c=>{
@@ -1273,7 +1272,7 @@ function renderGrid(){
   const allBanned=[...(S.bans.alpha||[]),...(S.bans.bravo||[]),...banPending.alpha,...banPending.bravo].map(w=>w.key);
   const allPicked=[...(S.picks.alpha||[]),...(S.picks.bravo||[])].map(w=>w.key);
   // 標準武器のみモード: key が _0 で終わるものだけ
-  const basePool=state.stdOnly?WEAPONS.filter(w=>w.key.endsWith('_0')):WEAPONS;
+  const basePool=state.stdOnly?WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')):WEAPONS;
   const filtered=activeCat==='すべて'?basePool:basePool.filter(w=>w.cat===activeCat);
   const grid=document.getElementById('wg'); grid.innerHTML='';
 
