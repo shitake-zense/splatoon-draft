@@ -1171,32 +1171,41 @@ async function checkBothBansReady(){
 
 function subscribeSimPick(){
   if(fbSimPickUnsub){fbSimPickUnsub();fbSimPickUnsub=null;}
-  const unsubA=onValue(ref(db,`rooms/${roomId}/pending_alpha_pick`),()=>checkBothPicksReady());
-  const unsubB=onValue(ref(db,`rooms/${roomId}/pending_bravo_pick`),()=>checkBothPicksReady());
+  const unsubA=onValue(ref(db,`rooms/${roomId}/pending_alpha_pick`),snap=>{
+    onSimPickSnap('alpha',snap);
+  });
+  const unsubB=onValue(ref(db,`rooms/${roomId}/pending_bravo_pick`),snap=>{
+    onSimPickSnap('bravo',snap);
+  });
   fbSimPickUnsub=()=>{unsubA();unsubB();};
 }
 
-async function checkBothPicksReady(){
-  if(_checkPicksInProgress) return;
+function onSimPickSnap(team, snap){
   const step=state.seq[state.idx];
   if(!step||step.phase!=='pick'||step.team!=='both') return;
-  _checkPicksInProgress=true;
-  try{
-    const [snapA,snapB]=await Promise.all([
-      get(ref(db,`rooms/${roomId}/pending_alpha_pick`)),
-      get(ref(db,`rooms/${roomId}/pending_bravo_pick`)),
-    ]);
-    const aReady=snapA.exists()&&snapA.val()&&snapA.val().key;
-    const bReady=snapB.exists()&&snapB.val()&&snapB.val().key;
-    if(aReady) { simPickPending.alpha=snapA.val(); alphaPickSubmitted=true; }
-    if(bReady) { simPickPending.bravo=snapB.val(); bravoPickSubmitted=true; }
-    renderSimPickPanel();
-    // オーバーレイはホストのみ表示。参加者はsubscribeRoom(pushState)で追従する
-    if(aReady&&bReady&&isHost){
-      setTimeout(()=>revealSimPick(),400);
-    }
-  } finally {
-    _checkPicksInProgress=false;
+
+  if(snap.exists()&&snap.val()&&snap.val().key){
+    const w=snap.val();
+    simPickPending[team]={key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat};
+    // submitted フラグは自分のチームのもののみセット
+    if(isHost  && team==='alpha') alphaPickSubmitted=true;
+    if(!isHost && team==='bravo') bravoPickSubmitted=true;
+  } else {
+    // null になった（リセット）→ ローカルもリセット
+    simPickPending[team]=null;
+    if(isHost  && team==='alpha') alphaPickSubmitted=false;
+    if(!isHost && team==='bravo') bravoPickSubmitted=false;
+  }
+
+  renderSimPickPanel();
+
+  // 両方揃ったらホストのみオーバーレイ表示
+  if(simPickPending.alpha&&simPickPending.bravo&&isHost&&!_checkPicksInProgress){
+    _checkPicksInProgress=true;
+    setTimeout(()=>{
+      revealSimPick();
+      // revealSimPickが終わったら（closeSimRevealで）フラグをリセット
+    },400);
   }
 }
 
@@ -1588,14 +1597,14 @@ function renderSimPickPanel(){
   });
 
   const hint=document.getElementById('sim-pick-hint');
-  const myTeam=!isMulti?'both':(isHost?'alpha':'bravo');
-  const myPick=simPickPending[myTeam==='both'?'alpha':myTeam];
-  const mySubmitted=isMulti?(isHost?alphaPickSubmitted:bravoPickSubmitted):false;
-  const otherTeam=myTeam==='alpha'?'bravo':'alpha';
-  const otherPick=simPickPending[otherTeam];
+  // マルチ時は明確に自分のチームを使う
+  const myTeamM = isHost?'alpha':'bravo';
+  const otherTeamM = isHost?'bravo':'alpha';
+  const myPick    = simPickPending[myTeamM];
+  const otherPick = simPickPending[otherTeamM];
+  const mySubmitted = isHost ? alphaPickSubmitted : bravoPickSubmitted;
 
   if(!isMulti){
-    // ソロ: alphaとbravoを順に選ぶ
     const aReady=!!simPickPending.alpha, bReady=!!simPickPending.bravo;
     if(!aReady) hint.innerHTML=`<strong style="color:var(--a)">${S.an}</strong> の武器を選択してください`;
     else if(!bReady) hint.innerHTML=`<strong style="color:var(--b)">${S.bn}</strong> の武器を選択してください`;
@@ -1613,11 +1622,11 @@ function renderSimPickPanel(){
   }
 
   const aReady=!!simPickPending.alpha, bReady=!!simPickPending.bravo;
-  const myReady=!isMulti?(myTeam==='both'?aReady:!!simPickPending[myTeam]):!!simPickPending[myTeam==='both'?'alpha':myTeam];
   const btn=document.getElementById('sim-pick-confirm-btn');
   if(!isMulti){
     btn.textContent='PICKを確定する'; btn.disabled=!(aReady&&bReady);
   } else {
+    const myReady=!!simPickPending[myTeamM];
     btn.textContent=mySubmitted?'送信済み ✓':'PICKを送信する';
     btn.disabled=mySubmitted||!myReady;
   }
@@ -1625,19 +1634,18 @@ function renderSimPickPanel(){
 
 window.confirmSimPick = function(){
   if(!isMulti){
-    // ソロ: 両方揃ったら公開オーバーレイ表示
     if(!simPickPending.alpha||!simPickPending.bravo) return;
     showSimRevealOverlay(simPickPending.alpha, simPickPending.bravo);
     return;
   }
-  // マルチ: 自分のピックをFirebaseに送信
   const myTeam=isHost?'alpha':'bravo';
+  const mySubmitted=isHost?alphaPickSubmitted:bravoPickSubmitted;
+  if(mySubmitted) return; // 二重送信防止
   const myPick=simPickPending[myTeam];
   if(!myPick) return;
   const myKey=isHost?'pending_alpha_pick':'pending_bravo_pick';
   set(ref(db,`rooms/${roomId}/${myKey}`), {key:myPick.key,name:myPick.name,imgUrl:myPick.imgUrl,cat:myPick.cat});
-  if(isHost) alphaPickSubmitted=true;
-  else       bravoPickSubmitted=true;
+  // submitted フラグはonSimPickSnapで自動セットされる（Firebase反映後）
   renderSimPickPanel(); renderGrid();
 };
 
