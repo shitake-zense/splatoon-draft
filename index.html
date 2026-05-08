@@ -392,7 +392,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <label>ピック順</label>
         <select id="pick-order" onchange="onPickOrderChange()">
           <option value="alt">交互 (先1-1-1-1…)</option>
-          <option value="snake" selected>スネーク (先1-後2-先2-後1)</option>
+          <option value="snake" selected>スネーク (先1-後3-先3-後1)</option>
           <option value="a121">バランス (先1-2-1 / 後1-2-1)</option>
           <option value="a211">前重ね (先2-1-1 / 後1-2-1)</option>
           <option value="sim">同時ピック (4回同時公開)</option>
@@ -505,7 +505,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <label>ピック順</label>
         <select id="solo-pick-order" onchange="onSoloPickOrderChange()">
           <option value="alt">交互 (先1-1-1-1…)</option>
-          <option value="snake" selected>スネーク (先1-後2-先2-後1)</option>
+          <option value="snake" selected>スネーク (先1-後3-先3-後1)</option>
           <option value="a121">バランス (先1-2-1 / 後1-2-1)</option>
           <option value="a211">前重ね (先2-1-1 / 後1-2-1)</option>
           <option value="sim">同時ピック (4回同時公開)</option>
@@ -959,7 +959,7 @@ window.assignMember = function(memberId, team){
 // ピック順の説明文
 const PICK_ORDER_DESC = {
   alt:  '交互に1枚ずつ選択。シンプルだが後攻が有利になりやすい。',
-  snake:'先攻1→後攻2→先攻2→後攻1。4v4で最もバランスが取れた基本形。',
+  snake:'先攻1→後攻(n-1)→先攻(n-1)→後攻1。ファーストとラストが別チームになる最公平形式。4v4では先1-後3-先3-後1。',
   a121: '先攻 1-2-1 / 後攻 1-2-1。中盤に連続ピックあり。均衡型。',
   a211: '先攻 2-1-1 / 後攻 1-2-1。先攻が序盤に2枚取れる前重ね型。',
   sim:  '両チーム同時にピックし、4回一斉公開。被りあり。先後攻の概念なし。',
@@ -1018,10 +1018,12 @@ function buildPickSeq(ts, po, first, sec){
     // 交互: 0,1,0,1...
     for(let i=0;i<ts*2;i++) seq.push(i%2===0?first:sec);
   } else if(po==='snake'){
-    // スネーク: 0,1,1,0,0,1,1,0...
-    // 先1-後2-先2-後1 (ts=4の場合: 0,1,1,0)
-    const pattern=[0,1,1,0,0,1,1,0,0,1]; // 最大10枚対応
-    for(let i=0;i<ts*2;i++) seq.push(pattern[i]===0?first:sec);
+    // 1-(ts-1)-(ts-1)-1 形式: 先攻ファーストピック・後攻ラストピック
+    // ts=4: 先1-後3-先3-後1, ts=3: 先1-後2-先2-後1, ts=2: 先1-後1-先1-後1
+    seq.push(first);
+    for(let i=0;i<ts-1;i++) seq.push(sec);
+    for(let i=0;i<ts-1;i++) seq.push(first);
+    seq.push(sec);
   } else if(po==='a121'){
     // バランス: 先1-後1-先2-後2-先1-後1... → 実質先1-2-1 / 後1-2-1
     // ts=4: F,S,F,F,S,S,F,S → [0,1,0,0,1,1,0,1]
