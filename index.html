@@ -172,6 +172,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .wn{font-size:9px;color:var(--mu);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .wb.is-bn{border-color:var(--bn);background:#1a0f0f;}
 .wb.is-pk{border-color:var(--pk);background:#0f1a14;}
+.wb.is-sel{border-color:var(--y);background:#2a2a0a;box-shadow:0 0 8px var(--y);}
 .wst{position:absolute;top:2px;right:2px;font-size:8px;padding:1px 4px;border-radius:3px;}
 .wst.b{background:var(--bn);color:#fff;}.wst.p{background:var(--pk);color:#1a1a2e;}
 
@@ -717,6 +718,9 @@ let simPickRound      = 0; // 現在の同時ピックラウンド(0-3)
 let fbSimPickUnsub    = null;
 let _checkPicksInProgress = false;
 
+// 2タップ確定用: 仮選択中の武器
+let pendingSelect = null; // {w, team, phase}  1タップ目でセット、2タップ目で確定
+
 // ===== ユーティリティ =====
 function stageImgUrl(name){
   return STAGES_IMG + encodeURIComponent(name) + '.png';
@@ -959,7 +963,7 @@ window.assignMember = function(memberId, team){
 // ピック順の説明文
 const PICK_ORDER_DESC = {
   alt:  '交互に1枚ずつ選択。シンプルだが後攻が有利になりやすい。',
-  snake:'先攻1→後攻(n-1)→先攻(n-1)→後攻1。ファーストとラストが別チームになる最公平形式。4v4では先1-後3-先3-後1。',
+  snake:'',
   a121: '先攻 1-2-1 / 後攻 1-2-1。中盤に連続ピックあり。均衡型。',
   a211: '先攻 2-1-1 / 後攻 1-2-1。先攻が序盤に2枚取れる前重ね型。',
   sim:  '両チーム同時にピックし、4回一斉公開。被りあり。先後攻の概念なし。',
@@ -1114,6 +1118,7 @@ function subscribeRoom(){
         simPickPending={alpha:null,bravo:null};
         alphaPickSubmitted=false; bravoPickSubmitted=false;
         _checkPicksInProgress=false;
+        pendingSelect=null;
         if(!isHost){
           banPending={alpha:[],bravo:[]};
           bravoBanSubmitted=false; alphaBanSubmitted=false;
@@ -1304,6 +1309,7 @@ function renderPickFlow(){
 
 // ===== ドラフト描画 =====
 function renderDraft(){
+  pendingSelect=null;
   normalizeState(state);
   const S=state, step=S.seq[S.idx], done=!step, isBan=!done&&step.phase==='ban';
   const isSimPick=!done&&step.phase==='pick'&&step.team==='both';
@@ -1356,6 +1362,7 @@ function renderDraft(){
     document.getElementById('tib').style.display=step.team==='bravo'?'':'none';
   }
   renderSlots('alpha'); renderSlots('bravo'); renderGrid();
+  if(pendingSelect && pendingSelect.phase==='pick') renderSlotsWithPending();
   renderPickFlow();
 }
 
@@ -1377,6 +1384,10 @@ function renderBanPanel(){
       banPending[team].forEach(w=>{
         const d=document.createElement('div'); d.className='bsl pending'; d.textContent='▶ '+w.name; el.appendChild(d);
       });
+      // 仮選択（1タップ目）を追加表示
+      if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.team===team){
+        const d=document.createElement('div'); d.className='bsl'; d.style.borderColor='var(--y)'; d.style.color='var(--y)'; d.textContent='▷ '+pendingSelect.w.name; el.appendChild(d);
+      }
     } else {
       // 相手側: pendingがある場合は「送信済み」と表示
       for(let i=0;i<pending;i++){
@@ -1500,14 +1511,16 @@ function renderGrid(){
         const it=!isMulti?banActiveTeam:(isHost?'alpha':'bravo');
         const mySubmitted=isHost?alphaBanSubmitted:bravoBanSubmitted;
         if(!isMulti||!mySubmitted){
-          clickable=(S.bc-(S.bans[it]||[]).length-banPending[it].length)>0;
+          // 仮選択中は1スロット仮占有とみなす
+          const selOffset=(pendingSelect&&pendingSelect.phase==='ban'&&pendingSelect.team===it)?1:0;
+          clickable=(S.bc-(S.bans[it]||[]).length-banPending[it].length-selOffset)>0 || (pendingSelect&&pendingSelect.phase==='ban'&&pendingSelect.team===it);
         }
       } else if(isSimPick){
         // 同時ピック: 自分の枠がまだ選ばれていない場合のみ
-        const myTeam=!isMulti?'alpha':(isHost?'alpha':'bravo');
+        const myTeam=!isMulti?(!simPickPending.alpha?'alpha':'bravo'):(isHost?'alpha':'bravo');
         const mySubmitted=!isMulti?false:(isHost?alphaPickSubmitted:bravoPickSubmitted);
         if(!isMulti){
-          // ソロ: alphaが未選択ならalpha枠、選択済みならbravo枠
+          // ソロ: alphaが未確定ならalpha枠、確定済みならbravo枠
           if(!simPickPending.alpha) clickable=true;
           else if(!simPickPending.bravo) clickable=true;
         } else if(!mySubmitted && !simPickPending[myTeam]){
@@ -1525,7 +1538,11 @@ function renderGrid(){
     btn.innerHTML=`<img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.height='38px';this.style.opacity='.2'">
       <div class="wn">${w.name}</div>
       ${isBanW?'<span class="wst b">BAN</span>':''}${isPickW?'<span class="wst p">PICK</span>':''}`;
-    if(clickable&&!unavail) btn.onclick=()=>pickWeapon(w);
+    if(clickable&&!unavail){
+      const isSelW = pendingSelect && pendingSelect.w.key===w.key;
+      if(isSelW) btn.classList.add('is-sel');
+      btn.onclick=()=>pickWeapon(w);
+    }
     grid.appendChild(btn);
   });
 }
@@ -1533,40 +1550,94 @@ function renderGrid(){
 function pickWeapon(w){
   const S=state, step=S.seq[S.idx];
   if(!step) return;
+
   if(step.phase==='ban'){
     const it=!isMulti?banActiveTeam:(isHost?'alpha':'bravo');
     const mySubmitted=isHost?alphaBanSubmitted:bravoBanSubmitted;
     if(isMulti&&mySubmitted) return;
     if((S.bc-(S.bans[it]||[]).length-banPending[it].length)<=0) return;
-    banPending[it].push(w);
-    if(!isMulti){
-      const nr=S.bc-(S.bans[it]||[]).length-banPending[it].length;
-      if(nr===0){
-        const other=it==='alpha'?'bravo':'alpha';
-        if((S.bc-(S.bans[other]||[]).length-banPending[other].length)>0) banActiveTeam=other;
+
+    // 2タップ確定: 同じ武器を再タップで確定、別の武器なら仮選択を更新
+    if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.team===it){
+      if(pendingSelect.w.key===w.key){
+        // 2タップ目: 確定
+        banPending[it].push(w);
+        pendingSelect=null;
+        if(!isMulti){
+          const nr=S.bc-(S.bans[it]||[]).length-banPending[it].length;
+          if(nr===0){
+            const other=it==='alpha'?'bravo':'alpha';
+            if((S.bc-(S.bans[other]||[]).length-banPending[other].length)>0) banActiveTeam=other;
+          }
+        }
+        renderBanPanel(); renderGrid();
+        return;
       }
     }
+    // 1タップ目（または別の武器に変更）: 仮選択
+    pendingSelect={w, team:it, phase:'ban'};
     renderBanPanel(); renderGrid();
+
   } else if(step.team==='both'){
     // 同時ピック
-    if(!isMulti){
-      // ソロ: alphaが未選択なら alpha, 選択済みなら bravo
-      if(!simPickPending.alpha){
-        simPickPending.alpha=w;
-      } else if(!simPickPending.bravo){
-        simPickPending.bravo=w;
-      } else return;
-    } else {
-      const myTeam=isHost?'alpha':'bravo';
-      if(simPickPending[myTeam]) return;
-      simPickPending[myTeam]=w;
+    const myTeam=!isMulti?(!simPickPending.alpha?'alpha':'bravo'):(isHost?'alpha':'bravo');
+    if(isMulti && simPickPending[myTeam]) return;
+    if(!isMulti && simPickPending.alpha && simPickPending.bravo) return;
+
+    if(pendingSelect && pendingSelect.phase==='simpick' && pendingSelect.team===myTeam){
+      if(pendingSelect.w.key===w.key){
+        // 2タップ目: 確定
+        if(!isMulti){
+          if(!simPickPending.alpha) simPickPending.alpha=w;
+          else if(!simPickPending.bravo) simPickPending.bravo=w;
+        } else {
+          simPickPending[myTeam]=w;
+        }
+        pendingSelect=null;
+        renderSimPickPanel(); renderGrid();
+        return;
+      }
     }
+    // 1タップ目（または別の武器に変更）: 仮選択
+    pendingSelect={w, team:myTeam, phase:'simpick'};
     renderSimPickPanel(); renderGrid();
+
   } else {
-    (S.picks[step.team]=S.picks[step.team]||[]).push(w);
-    S.idx++;
-    if(isMulti) pushState();
-    renderDraft();
+    // 通常ピック
+    const it=step.team;
+    if(pendingSelect && pendingSelect.phase==='pick' && pendingSelect.team===it){
+      if(pendingSelect.w.key===w.key){
+        // 2タップ目: 確定
+        (S.picks[it]=S.picks[it]||[]).push(w);
+        pendingSelect=null;
+        S.idx++;
+        if(isMulti) pushState();
+        renderDraft();
+        return;
+      }
+    }
+    // 1タップ目（または別の武器に変更）: 仮選択
+    pendingSelect={w, team:it, phase:'pick'};
+    renderGrid();
+    // 通常ピックの仮選択はスロットに表示
+    renderSlotsWithPending();
+  }
+}
+
+// 仮選択をスロットに仮表示（通常ピック用）
+function renderSlotsWithPending(){
+  renderSlots('alpha'); renderSlots('bravo');
+  if(!pendingSelect || pendingSelect.phase!=='pick') return;
+  const {w, team}=pendingSelect;
+  const S=state;
+  const c=document.getElementById('sl'+team[0]);
+  const picked=(S.picks[team]||[]).length;
+  // picked番目のスロットを仮選択表示に書き換え
+  const slots=c.querySelectorAll('.ws');
+  const slotIdx=S.bc+picked; // BAN分オフセット
+  if(slots[slotIdx]){
+    slots[slotIdx].className='ws picked';
+    slots[slotIdx].innerHTML=`<span class="sl">P${picked+1}</span><img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.display='none'"><span class="sn" style="color:var(--y)">▶ ${w.name}</span>`;
   }
 }
 
@@ -1593,6 +1664,9 @@ function renderSimPickPanel(){
       }
     } else if(submitted){
       d.className='spsl pending'; d.textContent='送信済み ✓';
+    } else if(isMyTeam && pendingSelect && pendingSelect.phase==='simpick' && pendingSelect.team===team){
+      // 仮選択（1タップ目）を表示
+      d.className='spsl'; d.style.borderColor='var(--y)'; d.style.color='var(--y)'; d.textContent='▷ '+pendingSelect.w.name;
     } else {
       d.className='spsl'; d.textContent=`PICK ${roundNum}`;
     }
