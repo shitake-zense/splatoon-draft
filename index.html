@@ -1096,29 +1096,26 @@ function subscribeRoom(){
     if(isHost && remote.idx===_lastPushedIdx && _lastPushedIdx>=0){
       _lastPushedIdx=-1; return;
     }
-    const prevState=state;
     state=normalizeState(remote);
     const onDraft=document.getElementById('s-draft').classList.contains('active');
     if(!onDraft){
-      // 初回遷移時のみ banPending を初期化
       banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; alphaBanSubmitted=false;
       simPickPending={alpha:null,bravo:null}; alphaPickSubmitted=false; bravoPickSubmitted=false;
+      _checkPicksInProgress=false;
       if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
       subscribePendingBravoBans();
       subscribeSimPick();
       showDraftUI();
     } else {
-      // idxが進んだ場合（ホストが確定した）: ローカルの同時ピック状態をリセット
+      // idxが進んだ → ローカルの一時状態を全リセット
       if(remote.idx !== prevIdx && prevIdx >= 0){
         simPickPending={alpha:null,bravo:null};
         alphaPickSubmitted=false; bravoPickSubmitted=false;
-        // 参加者待機中のオーバーレイを閉じる
-        const overlay=document.getElementById('sim-reveal-overlay');
-        if(overlay&&overlay.style.display!=='none'&&overlay.dataset.guestWaiting==='1'){
-          overlay.style.display='none';
+        _checkPicksInProgress=false;
+        if(!isHost){
+          banPending={alpha:[],bravo:[]};
+          bravoBanSubmitted=false; alphaBanSubmitted=false;
         }
-        // BAN状態もリセット
-        if(!isHost){ banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; alphaBanSubmitted=false; }
       }
       prevIdx=remote.idx;
       renderDraft();
@@ -1194,14 +1191,9 @@ async function checkBothPicksReady(){
     if(aReady) { simPickPending.alpha=snapA.val(); alphaPickSubmitted=true; }
     if(bReady) { simPickPending.bravo=snapB.val(); bravoPickSubmitted=true; }
     renderSimPickPanel();
-    if(aReady&&bReady){
-      setTimeout(()=>{
-        if(isHost){
-          revealSimPick();
-        } else {
-          showSimRevealOverlay(simPickPending.alpha,simPickPending.bravo,/*guestMode=*/true);
-        }
-      },400);
+    // オーバーレイはホストのみ表示。参加者はsubscribeRoom(pushState)で追従する
+    if(aReady&&bReady&&isHost){
+      setTimeout(()=>revealSimPick(),400);
     }
   } finally {
     _checkPicksInProgress=false;
@@ -1655,7 +1647,7 @@ function revealSimPick(){
   showSimRevealOverlay(simPickPending.alpha, simPickPending.bravo);
 }
 
-function showSimRevealOverlay(wA, wB, guestMode=false){
+function showSimRevealOverlay(wA, wB){
   const S=state;
   const roundNum=(S.picks.alpha||[]).length+1;
   document.getElementById('sim-reveal-round').textContent=`ROUND ${roundNum} — PICK 公開！`;
@@ -1663,14 +1655,6 @@ function showSimRevealOverlay(wA, wB, guestMode=false){
   const elB=document.getElementById('sim-reveal-weapons-b');
   elA.innerHTML=`<div class="sim-reveal-weapon"><img src="${wA.imgUrl}" alt="${wA.name}" onerror="this.style.display='none'"><span>${wA.name}</span></div>`;
   elB.innerHTML=`<div class="sim-reveal-weapon"><img src="${wB.imgUrl}" alt="${wB.name}" onerror="this.style.display='none'"><span>${wB.name}</span></div>`;
-  const nextBtn=document.querySelector('#sim-reveal-overlay .btn-reveal-next');
-  if(nextBtn) nextBtn.style.display=guestMode?'none':'';
-  // 参加者用: ホスト確定時にオーバーレイが自動で閉じるよう待機
-  if(guestMode){
-    document.getElementById('sim-reveal-overlay').dataset.guestWaiting='1';
-  } else {
-    document.getElementById('sim-reveal-overlay').dataset.guestWaiting='';
-  }
   document.getElementById('sim-reveal-overlay').style.display='flex';
   if(wA.key===wB.key){
     document.getElementById('sim-reveal-round').innerHTML=
@@ -1681,9 +1665,7 @@ function showSimRevealOverlay(wA, wB, guestMode=false){
 window.closeSimReveal = function(){
   const wA=simPickPending.alpha, wB=simPickPending.bravo;
   document.getElementById('sim-reveal-overlay').style.display='none';
-  document.getElementById('sim-reveal-overlay').dataset.guestWaiting='';
   if(wA.key===wB.key){
-    // 被り: 両方リセットして再選択
     simPickPending={alpha:null,bravo:null};
     alphaPickSubmitted=false; bravoPickSubmitted=false;
     _checkPicksInProgress=false;
@@ -1694,8 +1676,8 @@ window.closeSimReveal = function(){
     renderSimPickPanel(); renderGrid();
     return;
   }
-  // 被りなし: ピックを確定して次のステップへ（ホストのみ処理、参加者はsubscribeRoomで追従）
-  if(isMulti&&!isHost) return; // 参加者はここで何もしない
+  // 被りなし: ホストのみ確定処理。参加者はsubscribeRoomで追従
+  if(isMulti&&!isHost) return;
   const S=state;
   (S.picks.alpha=S.picks.alpha||[]).push(wA);
   (S.picks.bravo=S.picks.bravo||[]).push(wB);
