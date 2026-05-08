@@ -214,6 +214,34 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .tgl input:checked+.tgl-sl{background:#1a3d4a;border-color:var(--pk);}
 .tgl input:checked+.tgl-sl:before{background:var(--pk);transform:translateX(16px);}
 .std-badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:4px;background:#1a3d4a;color:var(--pk);border:1px solid var(--pk);margin-left:6px;vertical-align:middle;}
+
+/* ===== 同時ピックパネル ===== */
+.sim-pick-panel{background:var(--s1);border:1.5px solid var(--pk);border-radius:var(--r);padding:14px;margin-bottom:12px;}
+.sim-pick-title{font-family:'Zen Dots',sans-serif;font-size:11px;color:var(--pk);margin-bottom:10px;letter-spacing:1px;}
+.sim-pick-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.sim-pick-col{background:#0f1729;border-radius:8px;padding:10px;}
+.sim-pick-col-name{font-size:11px;font-weight:700;margin-bottom:8px;}
+.sim-pick-col-name.a{color:var(--a);}.sim-pick-col-name.b{color:var(--b);}
+.sim-pick-slots-row{display:flex;flex-wrap:wrap;gap:4px;min-height:28px;}
+.spsl{font-size:10px;padding:3px 7px;border-radius:4px;background:#1a1a2e;border:1px solid #2a3a5a;color:var(--mu);}
+.spsl.filled{border-color:var(--pk);color:var(--pk);}
+.spsl.pending{border-color:#00c9ff;color:#00c9ff;}
+.spsl.hidden{border-color:#555;color:#555;}
+.sim-pick-hint{font-size:11px;color:var(--mu);text-align:center;margin-top:8px;}
+.sim-pick-confirm{width:100%;margin-top:10px;padding:9px;background:#1a3d2a;border:1.5px solid var(--pk);border-radius:8px;color:var(--pk);font-family:'Zen Dots',sans-serif;font-size:12px;cursor:pointer;}
+.sim-pick-confirm:hover:not(:disabled){background:#2a5a3a;}
+.sim-pick-confirm:disabled{opacity:.35;cursor:not-allowed;}
+.sim-reveal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:999;}
+.sim-reveal-box{background:var(--s1);border:2px solid var(--pk);border-radius:16px;padding:28px 32px;text-align:center;max-width:420px;width:90%;}
+.sim-reveal-box h2{font-family:'Zen Dots',sans-serif;font-size:15px;color:var(--pk);margin-bottom:18px;letter-spacing:1px;}
+.sim-reveal-picks{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+.sim-reveal-team{background:#0f1729;border-radius:10px;padding:12px;}
+.sim-reveal-team-name{font-size:11px;font-weight:700;margin-bottom:8px;}
+.sim-reveal-team-name.a{color:var(--a);}.sim-reveal-team-name.b{color:var(--b);}
+.sim-reveal-weapon{display:flex;align-items:center;gap:8px;background:#1a1a2e;border-radius:6px;padding:6px 8px;margin-bottom:4px;}
+.sim-reveal-weapon img{width:36px;height:36px;object-fit:contain;}
+.sim-reveal-weapon span{font-size:12px;}
+.btn-reveal-next{background:linear-gradient(135deg,var(--pk),#00a86b);border:none;border-radius:8px;color:#1a1a2e;font-family:'Zen Dots',sans-serif;font-size:13px;padding:10px 28px;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -367,6 +395,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <option value="snake" selected>スネーク (先1-後2-先2-後1)</option>
           <option value="a121">バランス (先1-2-1 / 後1-2-1)</option>
           <option value="a211">前重ね (先2-1-1 / 後1-2-1)</option>
+          <option value="sim">同時ピック (4回同時公開)</option>
         </select>
       </div>
       <div id="pick-order-desc" style="font-size:10px;color:var(--mu);margin-top:-4px;margin-bottom:6px;padding-left:80px;line-height:1.6;"></div>
@@ -479,6 +508,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <option value="snake" selected>スネーク (先1-後2-先2-後1)</option>
           <option value="a121">バランス (先1-2-1 / 後1-2-1)</option>
           <option value="a211">前重ね (先2-1-1 / 後1-2-1)</option>
+          <option value="sim">同時ピック (4回同時公開)</option>
         </select>
       </div>
       <div id="solo-pick-order-desc" style="font-size:10px;color:var(--mu);margin-top:-4px;margin-bottom:6px;padding-left:80px;line-height:1.6;"></div>
@@ -545,6 +575,40 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
     </div>
     <div class="ban-hint" id="ban-hint"></div>
     <button class="ban-confirm" id="ban-confirm-btn" onclick="confirmBans()" disabled>BANを確定する</button>
+  </div>
+
+  <div id="sim-pick-panel" class="sim-pick-panel" style="display:none">
+    <div class="sim-pick-title">🎯 SIMULTANEOUS PICK — 両チーム同時選択</div>
+    <div class="sim-pick-cols">
+      <div class="sim-pick-col">
+        <div class="sim-pick-col-name a" id="sim-pick-name-a">アルファ</div>
+        <div class="sim-pick-slots-row" id="sim-pick-slots-a"></div>
+      </div>
+      <div class="sim-pick-col">
+        <div class="sim-pick-col-name b" id="sim-pick-name-b">ブラボー</div>
+        <div class="sim-pick-slots-row" id="sim-pick-slots-b"></div>
+      </div>
+    </div>
+    <div class="sim-pick-hint" id="sim-pick-hint"></div>
+    <button class="sim-pick-confirm" id="sim-pick-confirm-btn" onclick="confirmSimPick()" disabled>PICKを確定する</button>
+  </div>
+
+  <!-- 同時ピック公開オーバーレイ -->
+  <div id="sim-reveal-overlay" class="sim-reveal-overlay" style="display:none">
+    <div class="sim-reveal-box">
+      <h2 id="sim-reveal-round"></h2>
+      <div class="sim-reveal-picks">
+        <div class="sim-reveal-team">
+          <div class="sim-reveal-team-name a" id="sim-reveal-name-a">アルファ</div>
+          <div id="sim-reveal-weapons-a"></div>
+        </div>
+        <div class="sim-reveal-team">
+          <div class="sim-reveal-team-name b" id="sim-reveal-name-b">ブラボー</div>
+          <div id="sim-reveal-weapons-b"></div>
+        </div>
+      </div>
+      <button class="btn-reveal-next" onclick="closeSimReveal()">次へ →</button>
+    </div>
   </div>
   <div class="tc">
     <div class="tp alpha">
@@ -643,6 +707,14 @@ let banPending        = {alpha:[], bravo:[]};
 let banActiveTeam     = 'alpha';
 let bravoBanSubmitted = false;
 let _lastPushedIdx    = -1;
+
+// 同時BAN/PICK用
+let alphaBanSubmitted = false;  // alphaがBANを送信したか（マルチ時）
+let simPickPending    = {alpha:null, bravo:null}; // 同時ピック選択中
+let alphaPickSubmitted = false;
+let bravoPickSubmitted = false;
+let simPickRound      = 0; // 現在の同時ピックラウンド(0-3)
+let fbSimPickUnsub    = null;
 
 // ===== ユーティリティ =====
 function stageImgUrl(name){
@@ -889,6 +961,7 @@ const PICK_ORDER_DESC = {
   snake:'先攻1→後攻2→先攻2→後攻1。4v4で最もバランスが取れた基本形。',
   a121: '先攻 1-2-1 / 後攻 1-2-1。中盤に連続ピックあり。均衡型。',
   a211: '先攻 2-1-1 / 後攻 1-2-1。先攻が序盤に2枚取れる前重ね型。',
+  sim:  '両チーム同時にピックし、4回一斉公開。被りあり。先後攻の概念なし。',
 };
 
 function updatePickOrderDesc(selectId, descId){
@@ -935,6 +1008,11 @@ window.startDraft = function(){
 // 値はfirstからの相対: 0=first, 1=second
 function buildPickSeq(ts, po, first, sec){
   const seq=[];
+  if(po==='sim'){
+    // 同時ピック: tsラウンド分、各ラウンドでboth同時
+    for(let i=0;i<ts;i++) seq.push({phase:'pick',team:'both',round:i});
+    return seq;
+  }
   if(po==='alt'){
     // 交互: 0,1,0,1...
     for(let i=0;i<ts*2;i++) seq.push(i%2===0?first:sec);
@@ -969,18 +1047,25 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly}){
 
   const seq=[];
   if(bc>0) seq.push({phase:'ban',banCount:bc});
-  const pickTeams = buildPickSeq(ts, pickOrder, first, sec);
-  for(const team of pickTeams) seq.push({phase:'pick',team});
+  const pickSteps = buildPickSeq(ts, pickOrder, first, sec);
+  // sim の場合はすでに {phase,team,round} オブジェクト、それ以外は team 文字列
+  for(const step of pickSteps){
+    if(typeof step==='object') seq.push(step);
+    else seq.push({phase:'pick',team:step});
+  }
 
   state={an,bn,ts,bc,rule,stageJa,seq,idx:0,bans:{alpha:[],bravo:[]},picks:{alpha:[],bravo:[]},stdOnly:!!stdOnly};
   banPending={alpha:[],bravo:[]}; banActiveTeam='alpha';
-  bravoBanSubmitted=false; activeCat='すべて';
+  bravoBanSubmitted=false; alphaBanSubmitted=false; activeCat='すべて';
+  simPickPending={alpha:null,bravo:null};
+  alphaPickSubmitted=false; bravoPickSubmitted=false; simPickRound=0;
 
   if(isMulti&&isHost){
     if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
     pushState(); // state を Firebase に書き込む（参加者の onValue が発火して遷移する）
     subscribeRoom();
     subscribePendingBravoBans();
+    subscribeSimPick();
   }
   showDraftUI();
 }
@@ -1013,8 +1098,11 @@ function subscribeRoom(){
     const onDraft=document.getElementById('s-draft').classList.contains('active');
     if(!onDraft){
       // 初回遷移時のみ banPending を初期化
-      banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false;
+      banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; alphaBanSubmitted=false;
+      simPickPending={alpha:null,bravo:null}; alphaPickSubmitted=false; bravoPickSubmitted=false;
       if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
+      subscribePendingBravoBans();
+      subscribeSimPick();
       showDraftUI();
     } else {
       renderDraft();
@@ -1024,25 +1112,79 @@ function subscribeRoom(){
 
 function subscribePendingBravoBans(){
   if(fbBanUnsub){fbBanUnsub();fbBanUnsub=null;}
-  fbBanUnsub=onValue(ref(db,`rooms/${roomId}/pending_bravo_bans`),snap=>{
-    if(!snap.exists()) return;
-    const step=state.seq[state.idx];
-    if(!step||step.phase!=='ban') return;
-    const bravoBans=snap.val();
-    if(!Array.isArray(bravoBans)||bravoBans.length===0) return;
-    normalizeState(state);
-    const expected=state.bc-(state.bans.bravo||[]).length;
-    if(bravoBans.length>=expected){
-      banPending.bravo=bravoBans.slice(0,expected);
-      renderBanPanel(); renderGrid();
-    }
-  });
+  // alpha pending
+  const unsubA=onValue(ref(db,`rooms/${roomId}/pending_alpha_bans`),()=>checkBothBansReady());
+  // bravo pending
+  const unsubB=onValue(ref(db,`rooms/${roomId}/pending_bravo_bans`),()=>checkBothBansReady());
+  fbBanUnsub=()=>{unsubA();unsubB();};
+}
+
+async function checkBothBansReady(){
+  if(!isHost) return; // ホストのみが確定処理を行う
+  const step=state.seq[state.idx];
+  if(!step||step.phase!=='ban') return;
+  const [snapA,snapB]=await Promise.all([
+    get(ref(db,`rooms/${roomId}/pending_alpha_bans`)),
+    get(ref(db,`rooms/${roomId}/pending_bravo_bans`)),
+  ]);
+  if(!snapA.exists()||!snapB.exists()) { renderBanPanel(); return; }
+  const aBans=snapA.val(), bBans=snapB.val();
+  if(!Array.isArray(aBans)||!Array.isArray(bBans)) { renderBanPanel(); return; }
+  const needed=state.bc-(state.bans.alpha||[]).length;
+  if(aBans.length>=needed && bBans.length>=needed){
+    // 両方揃った → 自動確定
+    banPending.alpha=aBans.slice(0,needed);
+    banPending.bravo=bBans.slice(0,needed);
+    renderBanPanel();
+    // 少し待ってから自動確定（UIで見えるように）
+    setTimeout(()=>{
+      const S=state;
+      S.bans.alpha.push(...banPending.alpha);
+      S.bans.bravo.push(...banPending.bravo);
+      set(ref(db,`rooms/${roomId}/pending_alpha_bans`),null);
+      set(ref(db,`rooms/${roomId}/pending_bravo_bans`),null);
+      banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; alphaBanSubmitted=false;
+      S.idx++;
+      pushState();
+      renderDraft();
+    },800);
+  } else {
+    // 片方だけ届いた場合もUIを更新
+    if(Array.isArray(aBans)&&aBans.length>0) banPending.alpha=aBans.slice(0,needed);
+    if(Array.isArray(bBans)&&bBans.length>0) banPending.bravo=bBans.slice(0,needed);
+    renderBanPanel();
+  }
+}
+
+function subscribeSimPick(){
+  if(fbSimPickUnsub){fbSimPickUnsub();fbSimPickUnsub=null;}
+  const unsubA=onValue(ref(db,`rooms/${roomId}/pending_alpha_pick`),()=>checkBothPicksReady());
+  const unsubB=onValue(ref(db,`rooms/${roomId}/pending_bravo_pick`),()=>checkBothPicksReady());
+  fbSimPickUnsub=()=>{unsubA();unsubB();};
+}
+
+async function checkBothPicksReady(){
+  const step=state.seq[state.idx];
+  if(!step||step.phase!=='pick'||step.team!=='both') return;
+  const [snapA,snapB]=await Promise.all([
+    get(ref(db,`rooms/${roomId}/pending_alpha_pick`)),
+    get(ref(db,`rooms/${roomId}/pending_bravo_pick`)),
+  ]);
+  const aReady=snapA.exists()&&snapA.val()&&snapA.val().key;
+  const bReady=snapB.exists()&&snapB.val()&&snapB.val().key;
+  if(aReady) { simPickPending.alpha=snapA.val(); alphaPickSubmitted=true; }
+  if(bReady) { simPickPending.bravo=snapB.val(); bravoPickSubmitted=true; }
+  renderSimPickPanel();
+  if(aReady&&bReady&&isHost){
+    // 両方揃った → 公開してから確定
+    setTimeout(()=>revealSimPick(),400);
+  }
 }
 
 // ===== 退出 =====
 window.leaveLobby = function(){
-  [fbLobbyUnsub,fbUnsub,fbBanUnsub].forEach(f=>{if(f){f();} });
-  fbLobbyUnsub=fbUnsub=fbBanUnsub=null;
+  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub].forEach(f=>{if(f){f();} });
+  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=null;
   if(isMulti&&!isHost&&myMemberId&&roomId){
     remove(ref(db,`rooms/${roomId}/lobby/members/${myMemberId}`));
   }
@@ -1050,8 +1192,8 @@ window.leaveLobby = function(){
   showScreen('mode');
 };
 window.goHome = function(){
-  [fbLobbyUnsub,fbUnsub,fbBanUnsub].forEach(f=>{if(f){f();}});
-  fbLobbyUnsub=fbUnsub=fbBanUnsub=null;
+  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub].forEach(f=>{if(f){f();}});
+  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=null;
   roomId=null; isMulti=false; isHost=false; myMemberId=null;
   showScreen('mode');
 };
@@ -1100,6 +1242,12 @@ function renderPickFlow(){
     if(step.phase==='ban'){
       cls+='pf-ban';
       chip.textContent='BAN';
+    } else if(step.team==='both'){
+      cls+='pf-a'; // 同時ピックは特別色
+      chip.textContent='同時';
+      chip.style.background='linear-gradient(135deg,#1a2a4a,#2a1a2a)';
+      chip.style.borderColor='var(--pk)';
+      chip.style.color='var(--pk)';
     } else {
       cls+=(step.team==='alpha'?'pf-a':'pf-b');
       chip.textContent=(step.team==='alpha'?la:lb);
@@ -1112,6 +1260,7 @@ function renderPickFlow(){
     // ツールチップ（hover で詳細）
     const stepNum=i+1;
     if(step.phase==='ban') chip.title=`STEP ${stepNum}: BAN PHASE`;
+    else if(step.team==='both') chip.title=`STEP ${stepNum}: 同時PICK (ROUND ${(step.round||0)+1})`;
     else chip.title=`STEP ${stepNum}: ${step.team==='alpha'?S.an:S.bn} PICK`;
 
     container.appendChild(chip);
@@ -1126,11 +1275,13 @@ function renderPickFlow(){
 function renderDraft(){
   normalizeState(state);
   const S=state, step=S.seq[S.idx], done=!step, isBan=!done&&step.phase==='ban';
+  const isSimPick=!done&&step.phase==='pick'&&step.team==='both';
 
   const badge=document.getElementById('pbadge');
-  if(done)       {badge.textContent='COMPLETE';  badge.className='ph ph-done';}
-  else if(isBan) {badge.textContent='BAN PHASE'; badge.className='ph ph-ban';}
-  else           {badge.textContent='PICK PHASE';badge.className='ph ph-pick';}
+  if(done)           {badge.textContent='COMPLETE';       badge.className='ph ph-done';}
+  else if(isBan)     {badge.textContent='BAN PHASE';      badge.className='ph ph-ban';}
+  else if(isSimPick) {badge.textContent='SIMULTANEOUS PICK'; badge.className='ph ph-pick';}
+  else               {badge.textContent='PICK PHASE';     badge.className='ph ph-pick';}
 
   document.getElementById('tctr').textContent=done?'':`STEP ${S.idx+1} / ${S.seq.length}`;
   document.getElementById('d-rule').textContent=S.rule;
@@ -1144,11 +1295,23 @@ function renderDraft(){
   document.getElementById('db').textContent=S.bn;
   document.getElementById('ban-name-a').textContent=S.an;
   document.getElementById('ban-name-b').textContent=S.bn;
+  document.getElementById('sim-pick-name-a').textContent=S.an;
+  document.getElementById('sim-pick-name-b').textContent=S.bn;
+  document.getElementById('sim-reveal-name-a').textContent=S.an;
+  document.getElementById('sim-reveal-name-b').textContent=S.bn;
+
   document.getElementById('ban-panel').style.display=isBan?'block':'none';
+  document.getElementById('sim-pick-panel').style.display=isSimPick?'block':'none';
 
   if(isBan){
     renderBanPanel();
     document.getElementById('tprompt').innerHTML=`<strong style="color:var(--bn)">両チームが同時にBANする武器を選択してください</strong>`;
+    document.getElementById('tia').style.display='none';
+    document.getElementById('tib').style.display='none';
+  } else if(isSimPick){
+    renderSimPickPanel();
+    const roundNum=(S.picks.alpha||[]).length+1;
+    document.getElementById('tprompt').innerHTML=`<strong style="color:var(--pk)">ROUND ${roundNum} — 両チーム同時にピックしてください（送信後に公開）</strong>`;
     document.getElementById('tia').style.display='none';
     document.getElementById('tib').style.display='none';
   } else if(done){
@@ -1171,13 +1334,25 @@ function renderBanPanel(){
   ['alpha','bravo'].forEach(team=>{
     const el=document.getElementById('ban-slots-'+(team==='alpha'?'a':'b'));
     el.innerHTML='';
+    // 確定済みBAN
     (S.bans[team]||[]).forEach(w=>{
       const d=document.createElement('div'); d.className='bsl filled'; d.textContent=w.name; el.appendChild(d);
     });
-    banPending[team].forEach(w=>{
-      const d=document.createElement('div'); d.className='bsl pending'; d.textContent='▶ '+w.name; el.appendChild(d);
-    });
-    const filled=(S.bans[team]||[]).length+banPending[team].length;
+    const confirmed=(S.bans[team]||[]).length;
+    const pending=banPending[team].length;
+    // マルチ時: 相手チームのpendingは「送信済み」として伏せて表示
+    const isMyTeam=!isMulti||(isHost?team==='alpha':team==='bravo');
+    if(isMyTeam){
+      banPending[team].forEach(w=>{
+        const d=document.createElement('div'); d.className='bsl pending'; d.textContent='▶ '+w.name; el.appendChild(d);
+      });
+    } else {
+      // 相手側: pendingがある場合は「送信済み」と表示
+      for(let i=0;i<pending;i++){
+        const d=document.createElement('div'); d.className='bsl pending'; d.textContent='送信済み ✓'; el.appendChild(d);
+      }
+    }
+    const filled=confirmed+pending;
     for(let i=filled;i<bc;i++){
       const d=document.createElement('div'); d.className='bsl'; d.textContent=`BAN${i+1}`; el.appendChild(d);
     }
@@ -1188,50 +1363,58 @@ function renderBanPanel(){
     const col=banActiveTeam==='alpha'?'var(--a)':'var(--b)';
     const name=banActiveTeam==='alpha'?state.an:state.bn;
     hint.innerHTML=`現在 <strong style="color:${col}">${name}</strong> のBAN選択中`;
-  } else if(isHost){
-    const bF=banPending.bravo.length>=(state.bc-(state.bans.bravo||[]).length);
-    hint.innerHTML=bF
-      ?`<span style="color:var(--pk)">✓ ブラボーのBANが届きました！アルファのBANを選択して確定してください</span>`
-      :`<span style="color:var(--mu)">ブラボーのBANを待っています… アルファ（あなた）のBANを先に選んでおけます</span>`;
   } else {
-    hint.innerHTML=bravoBanSubmitted
-      ?`<span style="color:var(--pk)">✓ BANを送信しました。ホストが確定するまでお待ちください…</span>`
-      :`あなたは <strong style="color:var(--b)">${state.bn}</strong> チームです — BANを選択して送信してください`;
+    const myTeam=isHost?'alpha':'bravo';
+    const myFull=banPending[myTeam].length>=(state.bc-(state.bans[myTeam]||[]).length);
+    const otherTeam=isHost?'bravo':'alpha';
+    const otherFull=banPending[otherTeam].length>=(state.bc-(state.bans[otherTeam]||[]).length);
+    const mySubmitted=isHost?alphaBanSubmitted:bravoBanSubmitted;
+    if(mySubmitted && !otherFull){
+      hint.innerHTML=`<span style="color:var(--pk)">✓ BANを送信しました。相手チームを待っています…</span>`;
+    } else if(!mySubmitted && otherFull){
+      hint.innerHTML=`<span style="color:var(--y)">相手チームのBANが届いています。あなたのBANを選択して送信してください</span>`;
+    } else if(mySubmitted && otherFull){
+      hint.innerHTML=`<span style="color:var(--pk)">✓ 両チームのBANが揃いました！まもなく公開されます…</span>`;
+    } else {
+      const myTeamName=isHost?state.an:state.bn;
+      hint.innerHTML=`<strong style="color:${isHost?'var(--a)':'var(--b)'}">${myTeamName}</strong> — BANする武器を選択して送信してください`;
+    }
   }
 
+  const myTeam2=isHost?'alpha':'bravo';
+  const myFull2=banPending[myTeam2].length>=(state.bc-(state.bans[myTeam2]||[]).length);
+  const mySubmitted2=isHost?alphaBanSubmitted:bravoBanSubmitted;
   const aFull=banPending.alpha.length>=(state.bc-(state.bans.alpha||[]).length);
   const bFull=banPending.bravo.length>=(state.bc-(state.bans.bravo||[]).length);
   const btn=document.getElementById('ban-confirm-btn');
   if(!isMulti){
     btn.textContent='BANを確定する'; btn.disabled=!(aFull&&bFull);
-  } else if(isHost){
-    btn.textContent=bFull?'BANを確定する ✓':'BANを確定する（ブラボー待ち）';
-    btn.disabled=!(aFull&&bFull);
   } else {
-    btn.textContent=bravoBanSubmitted?'送信済み ✓':'BANを送信する';
-    btn.disabled=bravoBanSubmitted||!bFull;
+    btn.textContent=mySubmitted2?'送信済み ✓':'BANを送信する';
+    btn.disabled=mySubmitted2||!myFull2;
   }
 }
 
 window.confirmBans = function(){
   const S=state;
   if(!isMulti){
+    // ソロ: 両チームそのまま確定
     S.bans.alpha.push(...banPending.alpha);
     S.bans.bravo.push(...banPending.bravo);
-  } else if(isHost){
-    S.bans.alpha.push(...banPending.alpha);
-    S.bans.bravo.push(...banPending.bravo);
-    set(ref(db,`rooms/${roomId}/pending_bravo_bans`),null);
-  } else {
-    const nb=[...(state.bans.bravo||[]),...banPending.bravo];
-    set(ref(db,`rooms/${roomId}/pending_bravo_bans`),nb.map(w=>({key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat})));
-    bravoBanSubmitted=true; banPending.bravo=[];
-    renderBanPanel(); renderGrid(); return;
+    banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; alphaBanSubmitted=false;
+    S.idx++;
+    renderDraft();
+    return;
   }
-  banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false;
-  S.idx++;
-  if(isMulti) pushState();
-  renderDraft();
+  // マルチ: 自分のBANをFirebaseに送信
+  const myTeam=isHost?'alpha':'bravo';
+  const myKey=isHost?'pending_alpha_bans':'pending_bravo_bans';
+  const myBans=banPending[myTeam].map(w=>({key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat}));
+  set(ref(db,`rooms/${roomId}/${myKey}`), myBans);
+  if(isHost){ alphaBanSubmitted=true; }
+  else      { bravoBanSubmitted=true; banPending.bravo=[]; }
+  renderBanPanel(); renderGrid();
+  // ホスト側はcheckBothBansReadyが自動確定する
 };
 
 // ===== スロット描画 =====
@@ -1259,6 +1442,7 @@ function renderSlots(team){
 // ===== 武器グリッド =====
 function renderGrid(){
   const S=state, step=S.seq[S.idx], isBan=step&&step.phase==='ban';
+  const isSimPick=step&&step.phase==='pick'&&step.team==='both';
   const basePool2=state.stdOnly?WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')):WEAPONS;
   const cats=['すべて',...new Set(basePool2.map(w=>w.cat))];
   const cf=document.getElementById('cf'); cf.innerHTML='';
@@ -1271,7 +1455,6 @@ function renderGrid(){
 
   const allBanned=[...(S.bans.alpha||[]),...(S.bans.bravo||[]),...banPending.alpha,...banPending.bravo].map(w=>w.key);
   const allPicked=[...(S.picks.alpha||[]),...(S.picks.bravo||[])].map(w=>w.key);
-  // 標準武器のみモード: key が _0 で終わるものだけ
   const basePool=state.stdOnly?WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')):WEAPONS;
   const filtered=activeCat==='すべて'?basePool:basePool.filter(w=>w.cat===activeCat);
   const grid=document.getElementById('wg'); grid.innerHTML='';
@@ -1284,14 +1467,29 @@ function renderGrid(){
     if(!unavail&&step){
       if(isBan){
         const it=!isMulti?banActiveTeam:(isHost?'alpha':'bravo');
-        if(!isMulti||isHost||!bravoBanSubmitted){
+        const mySubmitted=isHost?alphaBanSubmitted:bravoBanSubmitted;
+        if(!isMulti||!mySubmitted){
           clickable=(S.bc-(S.bans[it]||[]).length-banPending[it].length)>0;
+        }
+      } else if(isSimPick){
+        // 同時ピック: 自分の枠がまだ選ばれていない場合のみ
+        const myTeam=!isMulti?'alpha':(isHost?'alpha':'bravo');
+        const mySubmitted=!isMulti?false:(isHost?alphaPickSubmitted:bravoPickSubmitted);
+        if(!isMulti){
+          // ソロ: alphaが未選択ならalpha枠、選択済みならbravo枠
+          if(!simPickPending.alpha) clickable=true;
+          else if(!simPickPending.bravo) clickable=true;
+        } else if(!mySubmitted && !simPickPending[myTeam]){
+          clickable=true;
         }
       } else {
         if(!isMulti) clickable=true;
         else clickable=isHost?step.team==='alpha':step.team==='bravo';
       }
     }
+    // 同時ピック中、相手側のpick武器をグレーアウト（キーが一致する場合）
+    const isSimPending=(simPickPending.alpha&&simPickPending.alpha.key===w.key)||
+                       (simPickPending.bravo&&simPickPending.bravo.key===w.key);
     btn.disabled=unavail||!clickable;
     btn.innerHTML=`<img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.height='38px';this.style.opacity='.2'">
       <div class="wn">${w.name}</div>
@@ -1306,6 +1504,8 @@ function pickWeapon(w){
   if(!step) return;
   if(step.phase==='ban'){
     const it=!isMulti?banActiveTeam:(isHost?'alpha':'bravo');
+    const mySubmitted=isHost?alphaBanSubmitted:bravoBanSubmitted;
+    if(isMulti&&mySubmitted) return;
     if((S.bc-(S.bans[it]||[]).length-banPending[it].length)<=0) return;
     banPending[it].push(w);
     if(!isMulti){
@@ -1316,6 +1516,21 @@ function pickWeapon(w){
       }
     }
     renderBanPanel(); renderGrid();
+  } else if(step.team==='both'){
+    // 同時ピック
+    if(!isMulti){
+      // ソロ: alphaが未選択なら alpha, 選択済みなら bravo
+      if(!simPickPending.alpha){
+        simPickPending.alpha=w;
+      } else if(!simPickPending.bravo){
+        simPickPending.bravo=w;
+      } else return;
+    } else {
+      const myTeam=isHost?'alpha':'bravo';
+      if(simPickPending[myTeam]) return;
+      simPickPending[myTeam]=w;
+    }
+    renderSimPickPanel(); renderGrid();
   } else {
     (S.picks[step.team]=S.picks[step.team]||[]).push(w);
     S.idx++;
@@ -1324,7 +1539,139 @@ function pickWeapon(w){
   }
 }
 
-// ===== リザルト =====
+// ===== 同時ピックパネル =====
+function renderSimPickPanel(){
+  const S=state;
+  ['alpha','bravo'].forEach(team=>{
+    const el=document.getElementById('sim-pick-slots-'+(team==='alpha'?'a':'b'));
+    el.innerHTML='';
+    // 確定済みピック（このラウンド以前）
+    const confirmed=(S.picks[team]||[]).length;
+    const roundNum=confirmed+1;
+    // 選択中
+    const isMyTeam=!isMulti||(isHost?team==='alpha':team==='bravo');
+    const pending=simPickPending[team];
+    const submitted=isMulti?(isHost?(team==='alpha'?alphaPickSubmitted:bravoPickSubmitted):(team==='bravo'?bravoPickSubmitted:alphaPickSubmitted)):false;
+
+    const d=document.createElement('div');
+    if(pending){
+      if(isMyTeam){
+        d.className='spsl pending'; d.textContent='▶ '+pending.name;
+      } else {
+        d.className='spsl pending'; d.textContent='選択済み ✓';
+      }
+    } else if(submitted){
+      d.className='spsl pending'; d.textContent='送信済み ✓';
+    } else {
+      d.className='spsl'; d.textContent=`PICK ${roundNum}`;
+    }
+    el.appendChild(d);
+  });
+
+  const hint=document.getElementById('sim-pick-hint');
+  const myTeam=!isMulti?'both':(isHost?'alpha':'bravo');
+  const myPick=simPickPending[myTeam==='both'?'alpha':myTeam];
+  const mySubmitted=isMulti?(isHost?alphaPickSubmitted:bravoPickSubmitted):false;
+  const otherTeam=myTeam==='alpha'?'bravo':'alpha';
+  const otherPick=simPickPending[otherTeam];
+
+  if(!isMulti){
+    // ソロ: alphaとbravoを順に選ぶ
+    const aReady=!!simPickPending.alpha, bReady=!!simPickPending.bravo;
+    if(!aReady) hint.innerHTML=`<strong style="color:var(--a)">${S.an}</strong> の武器を選択してください`;
+    else if(!bReady) hint.innerHTML=`<strong style="color:var(--b)">${S.bn}</strong> の武器を選択してください`;
+    else hint.innerHTML=`<span style="color:var(--pk)">両チームの選択が完了しました！確定してください</span>`;
+  } else if(mySubmitted && !otherPick){
+    hint.innerHTML=`<span style="color:var(--pk)">✓ PICKを送信しました。相手チームを待っています…</span>`;
+  } else if(!mySubmitted && otherPick){
+    hint.innerHTML=`<span style="color:var(--y)">相手チームの選択が届いています。武器を選んで送信してください</span>`;
+  } else if(mySubmitted && otherPick){
+    hint.innerHTML=`<span style="color:var(--pk)">✓ 両チームの選択が揃いました！まもなく公開されます…</span>`;
+  } else {
+    const myName=isHost?S.an:S.bn;
+    const myCol=isHost?'var(--a)':'var(--b)';
+    hint.innerHTML=`<strong style="color:${myCol}">${myName}</strong> — ピックする武器を選択して送信してください`;
+  }
+
+  const aReady=!!simPickPending.alpha, bReady=!!simPickPending.bravo;
+  const myReady=!isMulti?(myTeam==='both'?aReady:!!simPickPending[myTeam]):!!simPickPending[myTeam==='both'?'alpha':myTeam];
+  const btn=document.getElementById('sim-pick-confirm-btn');
+  if(!isMulti){
+    btn.textContent='PICKを確定する'; btn.disabled=!(aReady&&bReady);
+  } else {
+    btn.textContent=mySubmitted?'送信済み ✓':'PICKを送信する';
+    btn.disabled=mySubmitted||!myReady;
+  }
+}
+
+window.confirmSimPick = function(){
+  if(!isMulti){
+    // ソロ: 両方揃ったら公開オーバーレイ表示
+    if(!simPickPending.alpha||!simPickPending.bravo) return;
+    showSimRevealOverlay(simPickPending.alpha, simPickPending.bravo);
+    return;
+  }
+  // マルチ: 自分のピックをFirebaseに送信
+  const myTeam=isHost?'alpha':'bravo';
+  const myPick=simPickPending[myTeam];
+  if(!myPick) return;
+  const myKey=isHost?'pending_alpha_pick':'pending_bravo_pick';
+  set(ref(db,`rooms/${roomId}/${myKey}`), {key:myPick.key,name:myPick.name,imgUrl:myPick.imgUrl,cat:myPick.cat});
+  if(isHost) alphaPickSubmitted=true;
+  else       bravoPickSubmitted=true;
+  renderSimPickPanel(); renderGrid();
+};
+
+function revealSimPick(){
+  // ホストのみが呼ぶ（マルチ）
+  if(!simPickPending.alpha||!simPickPending.bravo) return;
+  showSimRevealOverlay(simPickPending.alpha, simPickPending.bravo);
+}
+
+function showSimRevealOverlay(wA, wB){
+  const S=state;
+  const roundNum=(S.picks.alpha||[]).length+1;
+  document.getElementById('sim-reveal-round').textContent=`ROUND ${roundNum} — PICK 公開！`;
+  const elA=document.getElementById('sim-reveal-weapons-a');
+  const elB=document.getElementById('sim-reveal-weapons-b');
+  elA.innerHTML=`<div class="sim-reveal-weapon"><img src="${wA.imgUrl}" alt="${wA.name}" onerror="this.style.display='none'"><span>${wA.name}</span></div>`;
+  elB.innerHTML=`<div class="sim-reveal-weapon"><img src="${wB.imgUrl}" alt="${wB.name}" onerror="this.style.display='none'"><span>${wB.name}</span></div>`;
+  document.getElementById('sim-reveal-overlay').style.display='flex';
+  // 被りチェック
+  if(wA.key===wB.key){
+    document.getElementById('sim-reveal-round').innerHTML=
+      `ROUND ${roundNum} — PICK 公開！<br><span style="color:var(--bn);font-size:11px;">⚠️ 被り！どちらかが変更してください</span>`;
+  }
+}
+
+window.closeSimReveal = function(){
+  const wA=simPickPending.alpha, wB=simPickPending.bravo;
+  document.getElementById('sim-reveal-overlay').style.display='none';
+  if(wA.key===wB.key){
+    // 被り: 両方リセットして再選択
+    simPickPending={alpha:null,bravo:null};
+    alphaPickSubmitted=false; bravoPickSubmitted=false;
+    if(isMulti){
+      set(ref(db,`rooms/${roomId}/pending_alpha_pick`),null);
+      set(ref(db,`rooms/${roomId}/pending_bravo_pick`),null);
+    }
+    renderSimPickPanel(); renderGrid();
+    return;
+  }
+  // 被りなし: ピックを確定して次のステップへ
+  const S=state;
+  (S.picks.alpha=S.picks.alpha||[]).push(wA);
+  (S.picks.bravo=S.picks.bravo||[]).push(wB);
+  simPickPending={alpha:null,bravo:null};
+  alphaPickSubmitted=false; bravoPickSubmitted=false;
+  S.idx++;
+  if(isMulti){
+    set(ref(db,`rooms/${roomId}/pending_alpha_pick`),null);
+    set(ref(db,`rooms/${roomId}/pending_bravo_pick`),null);
+    pushState();
+  }
+  renderDraft();
+};
 function showResult(){
   const S=state;
   document.getElementById('r-rule').textContent=S.rule;
