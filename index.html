@@ -1187,25 +1187,26 @@ function onSimPickSnap(team, snap){
   if(snap.exists()&&snap.val()&&snap.val().key){
     const w=snap.val();
     simPickPending[team]={key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat};
-    // submitted フラグは自分のチームのもののみセット
-    if(isHost  && team==='alpha') alphaPickSubmitted=true;
-    if(!isHost && team==='bravo') bravoPickSubmitted=true;
+    // submitted フラグは「Firebaseに書き込まれたか」をチーム単位で管理
+    // isHost/参加者を問わず両チーム分セット（ホストが両フラグを使って公開判定するため）
+    if(team==='alpha') alphaPickSubmitted=true;
+    if(team==='bravo') bravoPickSubmitted=true;
   } else {
     // null になった（リセット）→ ローカルもリセット
     simPickPending[team]=null;
-    if(isHost  && team==='alpha') alphaPickSubmitted=false;
-    if(!isHost && team==='bravo') bravoPickSubmitted=false;
+    if(team==='alpha') alphaPickSubmitted=false;
+    if(team==='bravo') bravoPickSubmitted=false;
   }
 
   renderSimPickPanel();
 
-  // 両方揃ったらホストのみオーバーレイ表示
-  if(simPickPending.alpha&&simPickPending.bravo&&isHost&&!_checkPicksInProgress){
+  // 両方揃った判定は「両方Firebaseに送信済み」のみ
+  // alphaPickSubmitted = ホストがFirebaseに書き込んだ
+  // bravoPickSubmitted = 参加者がFirebaseに書き込んだ
+  // ホストのみ公開処理を行う（両フラグが共にtrueのとき）
+  if(alphaPickSubmitted && bravoPickSubmitted && isHost && !_checkPicksInProgress){
     _checkPicksInProgress=true;
-    setTimeout(()=>{
-      revealSimPick();
-      // revealSimPickが終わったら（closeSimRevealで）フラグをリセット
-    },400);
+    setTimeout(()=>revealSimPick(), 400);
   }
 }
 
@@ -1664,27 +1665,12 @@ function showSimRevealOverlay(wA, wB){
   elA.innerHTML=`<div class="sim-reveal-weapon"><img src="${wA.imgUrl}" alt="${wA.name}" onerror="this.style.display='none'"><span>${wA.name}</span></div>`;
   elB.innerHTML=`<div class="sim-reveal-weapon"><img src="${wB.imgUrl}" alt="${wB.name}" onerror="this.style.display='none'"><span>${wB.name}</span></div>`;
   document.getElementById('sim-reveal-overlay').style.display='flex';
-  if(wA.key===wB.key){
-    document.getElementById('sim-reveal-round').innerHTML=
-      `ROUND ${roundNum} — PICK 公開！<br><span style="color:var(--bn);font-size:11px;">⚠️ 被り！どちらかが変更してください</span>`;
-  }
 }
 
 window.closeSimReveal = function(){
   const wA=simPickPending.alpha, wB=simPickPending.bravo;
   document.getElementById('sim-reveal-overlay').style.display='none';
-  if(wA.key===wB.key){
-    simPickPending={alpha:null,bravo:null};
-    alphaPickSubmitted=false; bravoPickSubmitted=false;
-    _checkPicksInProgress=false;
-    if(isMulti){
-      set(ref(db,`rooms/${roomId}/pending_alpha_pick`),null);
-      set(ref(db,`rooms/${roomId}/pending_bravo_pick`),null);
-    }
-    renderSimPickPanel(); renderGrid();
-    return;
-  }
-  // 被りなし: ホストのみ確定処理。参加者はsubscribeRoomで追従
+  // 被りOK仕様: 何があっても確定してidxを進める（ホストのみ処理）
   if(isMulti&&!isHost) return;
   const S=state;
   (S.picks.alpha=S.picks.alpha||[]).push(wA);
