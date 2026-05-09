@@ -665,6 +665,8 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, onValue, get, update, remove }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getAuth, signInAnonymously }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA2x0qM3CZUXQbrf8druJJFVfPjrrVjQZo",
@@ -677,6 +679,24 @@ const firebaseConfig = {
 };
 const fbApp = initializeApp(firebaseConfig);
 const db    = getDatabase(fbApp);
+const auth  = getAuth(fbApp);
+
+// ===== 匿名認証 =====
+// アプリ起動時に必ず匿名ログインを行う。
+// uid は myMemberId のデフォルト値として使用し、Firebase Rules の auth != null を満たす。
+let currentUid = null;
+
+async function initAuth(){
+  try {
+    const cred = await signInAnonymously(auth);
+    currentUid = cred.user.uid;
+  } catch(e) {
+    const em = document.getElementById('err-msg');
+    em.style.display = 'block';
+    em.textContent = '認証エラー: ' + e.message;
+    throw e;
+  }
+}
 
 // ===== 定数 =====
 const WEAPONS_JSON = "data/weapons.json";
@@ -693,34 +713,39 @@ const STAGES_DATA  = [
 const RULES = ["ガチエリア","ガチヤグラ","ガチホコ","ガチアサリ"];
 
 // ===== 状態変数 =====
-let WEAPONS   = [];
-let state     = {};
-let activeCat = "すべて";
-let isMulti   = false;
-let isHost    = false;
-let roomId    = null;
-let myMemberId = null;
+let WEAPONS    = [];
+let state      = {};
+let activeCat  = 'すべて';
 
-let fbUnsub      = null;
-let fbBanUnsub   = null;
-let fbLobbyUnsub = null;
+// --- セッション ---
+let isMulti    = false;
+let isHost     = false;
+let roomId     = null;
+let myMemberId = null;   // 部屋作成時: 'host', 参加時: uid ベースの文字列
 
+// --- Firebase 購読解除関数 ---
+let fbUnsub        = null;  // state 監視
+let fbBanUnsub     = null;  // pending ban 監視
+let fbLobbyUnsub   = null;  // lobby 監視
+let fbSimPickUnsub = null;  // pending sim pick 監視
+
+// --- BAN フェーズ ---
 let banPending        = {alpha:[], bravo:[]};
-let banActiveTeam     = 'alpha';
+let banActiveTeam     = 'alpha';   // ソロ時のみ使用
+let alphaBanSubmitted = false;
 let bravoBanSubmitted = false;
 let _lastPushedIdx    = -1;
 
-// 同時BAN/PICK用
-let alphaBanSubmitted = false;  // alphaがBANを送信したか（マルチ時）
-let simPickPending    = {alpha:null, bravo:null}; // 同時ピック選択中
-let alphaPickSubmitted = false;
-let bravoPickSubmitted = false;
-let simPickRound      = 0; // 現在の同時ピックラウンド(0-3)
-let fbSimPickUnsub    = null;
-let _checkPicksInProgress = false;
+// --- 同時ピックフェーズ ---
+let simPickPending         = {alpha:null, bravo:null};
+let alphaPickSubmitted     = false;
+let bravoPickSubmitted     = false;
+let simPickRound           = 0;
+let _checkPicksInProgress  = false;
 
-// 2タップ確定用: 仮選択中の武器
-let pendingSelect = null; // {w, team, phase}  1タップ目でセット、2タップ目で確定
+// --- 2タップ確定用 ---
+// 武器グリッドで1タップ目に仮選択、2タップ目で確定する仕組み
+let pendingSelect = null; // {w, team, phase}
 
 // ===== ユーティリティ =====
 function stageImgUrl(name){
@@ -762,9 +787,13 @@ function flashBtn(ids, orig, msg){
   });
 }
 
-// ===== データ読み込み =====
+// ===== データ読み込み（認証→武器データ→画面表示） =====
 async function loadData(){
   try {
+    document.getElementById('lmsg').textContent = '認証中...';
+    await initAuth();
+
+    document.getElementById('lmsg').textContent = 'ローカルデータを読み込んでいます';
     const res = await fetch(WEAPONS_JSON);
     if(!res.ok) throw new Error('weapons.json 読み込み失敗: '+res.status);
     const data = await res.json();
@@ -823,11 +852,11 @@ window.startSoloDraft = function(){
 window.enterMultiCreate = async function(){
   isMulti=true; isHost=true;
   roomId = Math.random().toString(36).substring(2,8).toUpperCase();
-  myMemberId = 'host';
+  myMemberId = 'host_' + (currentUid || Date.now());
   await set(ref(db,`rooms/${roomId}/lobby`),{
     status:'waiting',
     settings: getLobbySettings(),
-    members:{ host:{ name:(document.getElementById('host-name-input')?.value.trim()||'ホスト'), team:'alpha', isHost:true, joinedAt:Date.now() } }
+    members:{ [myMemberId]:{ name:(document.getElementById('host-name-input')?.value.trim()||'ホスト'), team:'alpha', isHost:true, joinedAt:Date.now() } }
   });
   showLobbyHost();
   subscribeLobby();
@@ -845,7 +874,7 @@ window.joinRoom = async function(){
   if(stateSnap.exists()){
     roomId=input; isMulti=true; isHost=false;
     state=stateSnap.val();
-    myMemberId='member_'+Date.now();
+    myMemberId = 'member_' + (currentUid || Date.now());
     banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; activeCat='すべて';
     subscribeRoom();
     showDraftUI();
@@ -858,7 +887,7 @@ window.joinRoom = async function(){
     return;
   }
   roomId=input; isMulti=true; isHost=false;
-  myMemberId='member_'+Date.now();
+  myMemberId = 'member_' + (currentUid || Date.now());
   const joinName=(document.getElementById('join-name-input')?.value||'').trim();
   const memberName=joinName||('参加者'+Math.floor(Math.random()*900+100));
   await set(ref(db,`rooms/${roomId}/lobby/members/${myMemberId}`),{
