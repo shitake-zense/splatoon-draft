@@ -645,6 +645,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       <div class="bs" id="r-stage"></div>
     </div>
   </div>
+  <div id="r-img-debug" style="font-size:11px;padding:6px 10px;background:#0f1729;border-radius:6px;margin-bottom:10px;border:1px solid #2a3a5a;min-height:22px;"></div>
   <div class="tc">
     <div class="rc alpha">
       <div class="rtt" id="rna"></div>
@@ -1768,10 +1769,23 @@ function showResult(){
   document.getElementById('r-rule').textContent=S.rule;
   document.getElementById('r-stage').textContent='📍 '+S.stageJa;
   const simg=document.getElementById('r-simg');
+  const url=stageImgUrl(S.stageJa);
   simg.style.display='block';
+  simg.style.opacity='1';
   simg.removeAttribute('src');
-  simg.onerror=()=>{ simg.style.display='none'; };
-  simg.src=stageImgUrl(S.stageJa);
+  simg.onerror=()=>{
+    simg.style.opacity='0';
+    const dbg=document.getElementById('r-img-debug');
+    if(dbg) dbg.innerHTML=`<span style="color:#ff4757">⚠ 画像読込失敗:</span><br><code style="font-size:10px;word-break:break-all;color:#ffa502">${url}</code>`;
+  };
+  simg.onload=()=>{
+    simg.style.opacity='1';
+    const dbg=document.getElementById('r-img-debug');
+    if(dbg) dbg.innerHTML=`<span style="color:#2ed573">✓ 画像読込OK: ${url}</span>`;
+  };
+  simg.src=url;
+  const dbg=document.getElementById('r-img-debug');
+  if(dbg) dbg.innerHTML=`<span style="color:#a8a8b3">⏳ 読込中: <code style="font-size:10px">${url}</code></span>`;
   document.getElementById('rna').textContent=S.an;
   document.getElementById('rnb').textContent=S.bn;
   ['alpha','bravo'].forEach(t=>{
