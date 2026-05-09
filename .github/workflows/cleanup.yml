@@ -1,0 +1,19 @@
+name: 古いルームを自動削除
+
+on:
+  schedule:
+    - cron: '0 15 * * *'  # 毎日 深夜0時 JST (UTC 15:00)
+  workflow_dispatch:        # 手動実行ボタンも追加
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install firebase-admin
+      - run: node scripts/cleanup-rooms.js
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
