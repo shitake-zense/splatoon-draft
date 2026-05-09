@@ -639,7 +639,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 <div id="s-result" class="screen">
   <div class="logo"><h1>DRAFT COMPLETE</h1><p>ドラフト結果</p></div>
   <div class="rm">
-    <img id="r-simg" src="" alt="" onerror="this.style.display='none'">
+    <img id="r-simg" src="" alt="" onerror="this.style.opacity='0'">
     <div class="rmi">
       <div class="br" id="r-rule"></div>
       <div class="bs" id="r-stage"></div>
@@ -1767,7 +1767,11 @@ function showResult(){
   const S=state;
   document.getElementById('r-rule').textContent=S.rule;
   document.getElementById('r-stage').textContent='📍 '+S.stageJa;
-  document.getElementById('r-simg').src=stageImgUrl(S.stageJa);
+  const simg=document.getElementById('r-simg');
+  simg.style.display='block';
+  simg.removeAttribute('src');
+  simg.onerror=()=>{ simg.style.display='none'; };
+  simg.src=stageImgUrl(S.stageJa);
   document.getElementById('rna').textContent=S.an;
   document.getElementById('rnb').textContent=S.bn;
   ['alpha','bravo'].forEach(t=>{
