@@ -244,6 +244,36 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .sim-reveal-weapon img{width:36px;height:36px;object-fit:contain;}
 .sim-reveal-weapon span{font-size:12px;}
 .btn-reveal-next{background:linear-gradient(135deg,var(--pk),#00a86b);border:none;border-radius:8px;color:#1a1a2e;font-family:'Zen Dots',sans-serif;font-size:13px;padding:10px 28px;cursor:pointer;}
+
+/* ===== 個人ピックモード — ピック順UI ===== */
+.pick-order-card{background:var(--s1);border:1.5px solid #2a2a4a;border-radius:var(--r);padding:14px;margin-bottom:14px;}
+.pick-order-card h3{font-size:11px;color:var(--y);margin-bottom:10px;letter-spacing:1px;}
+.pick-order-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pick-order-col{background:#0f1729;border-radius:8px;padding:10px;}
+.po-col-head{font-size:11px;font-weight:700;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #2a3a5a;}
+.po-col-head.a{color:var(--a);}.po-col-head.b{color:var(--b);}
+.po-item{display:flex;align-items:center;gap:6px;background:#1a2a4a;border-radius:6px;padding:5px 8px;margin-bottom:4px;font-size:12px;}
+.po-num{font-size:10px;color:var(--pk);min-width:18px;font-family:'Zen Dots',sans-serif;}
+.po-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.po-btns{display:flex;gap:2px;flex-shrink:0;}
+.btn-po{padding:1px 5px;border:none;border-radius:3px;font-size:11px;cursor:pointer;background:#2a3a5a;color:var(--mu);line-height:1.4;}
+.btn-po:hover:not(:disabled){background:var(--y);color:#1a1a2e;}
+.btn-po:disabled{opacity:.3;cursor:not-allowed;}
+.po-empty{font-size:11px;color:var(--mu);text-align:center;padding:8px;}
+.mode-select-group{background:#0f1729;border-radius:8px;padding:10px;margin-bottom:10px;}
+.mode-select-group .row{margin-bottom:6px;}
+.mode-select-group .row:last-child{margin-bottom:0;}
+
+/* ===== 個人BANパネル拡張 ===== */
+.ban-member-row{display:flex;align-items:center;gap:6px;background:#0f1729;border-radius:6px;padding:6px 8px;margin-bottom:5px;}
+.ban-member-name{font-size:11px;font-weight:700;min-width:60px;}
+.ban-member-name.a{color:var(--a);}.ban-member-name.b{color:var(--b);}
+.ban-member-slot{flex:1;}
+.iban-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.iban-col{background:#0f1729;border-radius:8px;padding:10px;}
+
+/* ===== ドラフト画面プレイヤー表示 ===== */
+.player-indicator{font-size:10px;color:var(--mu);margin-top:2px;}
 </style>
 </head>
 <body>
@@ -352,6 +382,20 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
     </div>
   </div>
 
+  <div class="pick-order-card" id="pick-order-card" style="display:none">
+    <h3>🎯 PICK ORDER — 個人ピックモード</h3>
+    <div class="pick-order-cols">
+      <div class="pick-order-col">
+        <div class="po-col-head a">α <span id="po-head-a">アルファ</span></div>
+        <div id="pick-order-alpha-list"><div class="po-empty">チームに割り当てると表示されます</div></div>
+      </div>
+      <div class="pick-order-col">
+        <div class="po-col-head b">β <span id="po-head-b">ブラボー</span></div>
+        <div id="pick-order-bravo-list"><div class="po-empty">チームに割り当てると表示されます</div></div>
+      </div>
+    </div>
+  </div>
+
   <div class="lobby-grid">
     <div class="card">
       <h3>TEAM SETTINGS</h3>
@@ -363,7 +407,6 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <label style="font-size:10px;color:var(--b);display:block;margin-bottom:3px;">ブラボーチーム名</label>
         <input type="text" id="n-b" value="ブラボー" oninput="onSettingChange()">
       </div>
-      <div class="div"></div>
       <div class="row">
         <label>人数</label>
         <select id="sz" onchange="onSettingChange()">
@@ -424,6 +467,21 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <input type="checkbox" id="std-only" onchange="onSettingChange()">
           <span class="tgl-sl"></span>
         </label>
+      </div>
+      <div class="div"></div>
+      <div class="row">
+        <label>ピックモード</label>
+        <select id="pick-mode" onchange="onPickModeChange()">
+          <option value="individual">👥 個人ピック（推奨）</option>
+          <option value="team">🤝 チームピック（2人用）</option>
+        </select>
+      </div>
+      <div class="row" id="ban-mode-row">
+        <label>BANモード</label>
+        <select id="ban-mode" onchange="onSettingChange()">
+          <option value="individual">👤 個人BAN（各自1枚）</option>
+          <option value="representative">🤝 代表者BAN（現行）</option>
+        </select>
       </div>
     </div>
   </div>
@@ -728,6 +786,12 @@ let fbUnsub        = null;  // state 監視
 let fbBanUnsub     = null;  // pending ban 監視
 let fbLobbyUnsub   = null;  // lobby 監視
 let fbSimPickUnsub = null;  // pending sim pick 監視
+let fbIndividualBanUnsub = null;  // 個人BAN監視
+
+// --- ロビーローカルキャッシュ ---
+let lobbyMembers        = {};   // {memberId: {name,team,isHost,...}}
+let lobbyPickOrderAlpha = [];   // memberIdの配列（アルファチームのピック順）
+let lobbyPickOrderBravo = [];   // memberIdの配列（ブラボーチームのピック順）
 
 // --- BAN フェーズ ---
 let banPending        = {alpha:[], bravo:[]};
@@ -735,6 +799,10 @@ let banActiveTeam     = 'alpha';   // ソロ時のみ使用
 let alphaBanSubmitted = false;
 let bravoBanSubmitted = false;
 let _lastPushedIdx    = -1;
+
+// --- 個人BANフェーズ ---
+let banPendingIndividual = {};  // {memberId: weapon} Firebase反映ローカルキャッシュ
+let myBanSubmitted       = false; // 自分のBAN送信済みフラグ
 
 // --- 同時ピックフェーズ ---
 let simPickPending         = {alpha:null, bravo:null};
@@ -921,16 +989,22 @@ function subscribeLobby(){
     renderLobbyMembers(members);
 
     if(isHost){
+      // Firebase の pickOrderAlpha/Bravo を復元（初回のみ）
+      const s=lobby.settings||{};
+      if(s.pickOrderAlpha) lobbyPickOrderAlpha=s.pickOrderAlpha;
+      if(s.pickOrderBravo) lobbyPickOrderBravo=s.pickOrderBravo;
       renderTeamAssign(members);
     } else {
       // 設定をリアルタイム表示
       const s=lobby.settings||{};
       const ruleStr=s.rule==='random'?'ランダム':(s.rule||'ランダム');
       const stageStr=s.stageJa==='random'?'ランダム':(s.stageJa||'ランダム');
+      const modeStr=s.pickMode==='individual'?'👥 個人ピック':'🤝 チームピック';
       const el=document.getElementById('lobby-wait-settings');
       if(el) el.innerHTML=
         `<span style="color:var(--a)">チーム: ${s.an||'アルファ'} vs ${s.bn||'ブラボー'}</span><br>`+
-        `${s.ts||4}v${s.ts||4} ｜ BAN×${s.bc||3} ｜ ${ruleStr} ｜ ${stageStr}`+
+        `${s.ts||4}v${s.ts||4} ｜ BAN×${s.bc||3} ｜ ${ruleStr} ｜ ${stageStr}<br>`+
+        `<span style="color:var(--pk)">${modeStr}</span>`+
         (s.stdOnly?'<br><span style="color:var(--pk)">⚙ 標準武器のみ</span>':'');
     }
   });
@@ -942,6 +1016,7 @@ function subscribeLobby(){
 }
 
 function renderLobbyMembers(members){
+  lobbyMembers = members;  // ローカルキャッシュ更新
   const ids=Object.keys(members).sort((a,b)=>members[a].joinedAt-members[b].joinedAt);
   const html=ids.map(id=>{
     const m=members[id];
@@ -983,6 +1058,9 @@ function renderTeamAssign(members){
       el.appendChild(div);
     });
   });
+
+  // 個人ピックモードのピック順UIを更新
+  renderPickOrderUI();
 }
 
 window.assignMember = function(memberId, team){
@@ -1010,6 +1088,79 @@ window.onPickOrderChange = function(){
   onSettingChange();
 };
 
+window.onPickModeChange = function(){
+  const isIndividual = document.getElementById('pick-mode')?.value === 'individual';
+  document.getElementById('pick-order-card').style.display  = isIndividual ? 'block' : 'none';
+  document.getElementById('ban-mode-row').style.display     = isIndividual ? '' : 'none';
+  onSettingChange();
+};
+
+// ===== ピック順UI =====
+function renderPickOrderUI(){
+  if(!isHost) return;
+  const isIndividual = document.getElementById('pick-mode')?.value === 'individual';
+  document.getElementById('pick-order-card').style.display = isIndividual ? 'block' : 'none';
+  if(!isIndividual) return;
+
+  const an = document.getElementById('n-a')?.value||'アルファ';
+  const bn = document.getElementById('n-b')?.value||'ブラボー';
+  document.getElementById('po-head-a').textContent = an;
+  document.getElementById('po-head-b').textContent = bn;
+
+  // ピック順とメンバーを同期（チームに合わせて追加/削除）
+  const alphaMembers = Object.entries(lobbyMembers).filter(([,m])=>m.team==='alpha').map(([id])=>id);
+  const bravoMembers = Object.entries(lobbyMembers).filter(([,m])=>m.team==='bravo').map(([id])=>id);
+
+  // 既存順序を維持しつつ、いなくなったメンバーを除去、新規メンバーを追加
+  lobbyPickOrderAlpha = syncPickOrder(lobbyPickOrderAlpha, alphaMembers);
+  lobbyPickOrderBravo = syncPickOrder(lobbyPickOrderBravo, bravoMembers);
+
+  renderPickOrderList('pick-order-alpha-list', lobbyPickOrderAlpha, 'alpha');
+  renderPickOrderList('pick-order-bravo-list', lobbyPickOrderBravo, 'bravo');
+}
+
+function syncPickOrder(currentOrder, currentMembers){
+  // 現在の順序から抜けたメンバーを除去
+  const synced = currentOrder.filter(id => currentMembers.includes(id));
+  // 新しいメンバーを末尾に追加
+  currentMembers.forEach(id => { if(!synced.includes(id)) synced.push(id); });
+  return synced;
+}
+
+function renderPickOrderList(containerId, order, team){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  if(order.length === 0){
+    el.innerHTML = '<div class="po-empty">チームに割り当てると表示されます</div>';
+    return;
+  }
+  el.innerHTML = '';
+  order.forEach((memberId, i) => {
+    const m = lobbyMembers[memberId];
+    if(!m) return;
+    const div = document.createElement('div');
+    div.className = 'po-item';
+    div.innerHTML = `<span class="po-num">${i+1}</span>
+      <span class="po-name">${m.name}${m.isHost?' 👑':''}</span>
+      <div class="po-btns">
+        <button class="btn-po" onclick="movePickOrder('${team}','${memberId}',-1)" ${i===0?'disabled':''}>▲</button>
+        <button class="btn-po" onclick="movePickOrder('${team}','${memberId}',1)"  ${i===order.length-1?'disabled':''}>▼</button>
+      </div>`;
+    el.appendChild(div);
+  });
+}
+
+window.movePickOrder = function(team, memberId, dir){
+  const order = team==='alpha' ? lobbyPickOrderAlpha : lobbyPickOrderBravo;
+  const idx = order.indexOf(memberId);
+  if(idx < 0) return;
+  const newIdx = idx + dir;
+  if(newIdx < 0 || newIdx >= order.length) return;
+  [order[idx], order[newIdx]] = [order[newIdx], order[idx]];
+  renderPickOrderList(`pick-order-${team}-list`, order, team);
+  onSettingChange();  // Firebaseに即反映
+};
+
 window.onSoloPickOrderChange = function(){
   updatePickOrderDesc('solo-pick-order','solo-pick-order-desc');
 };
@@ -1030,78 +1181,148 @@ function getLobbySettings(){
     rule: document.getElementById('rm')?.value||'random',
     stageJa: document.getElementById('sm')?.value||'random',
     stdOnly: document.getElementById('std-only')?.checked||false,
+    pickMode: document.getElementById('pick-mode')?.value||'individual',
+    banMode:  document.getElementById('ban-mode')?.value||'individual',
+    pickOrderAlpha: [...lobbyPickOrderAlpha],
+    pickOrderBravo: [...lobbyPickOrderBravo],
   };
 }
 
 // ===== ドラフト開始 (ホスト) =====
 window.startDraft = function(){
   const s=getLobbySettings();
-  buildAndStartDraft({an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:s.ft, po:s.po, rm:s.rule, sm:s.stageJa, stdOnly:s.stdOnly});
+  // メンバー情報をstateに含める（表示名やピック順に使用）
+  const membersForState={};
+  Object.entries(lobbyMembers).forEach(([id,m])=>{
+    membersForState[id]={name:m.name,team:m.team,isHost:m.isHost};
+  });
+  buildAndStartDraft({
+    an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:s.ft, po:s.po,
+    rm:s.rule, sm:s.stageJa, stdOnly:s.stdOnly,
+    pickMode:s.pickMode, banMode:s.banMode,
+    pickOrderAlpha:s.pickOrderAlpha, pickOrderBravo:s.pickOrderBravo,
+    members:membersForState,
+  });
 };
 
 // ピック順テンプレート（tsは1チームの枚数）
 // 値はfirstからの相対: 0=first, 1=second
-function buildPickSeq(ts, po, first, sec){
+// pickMode==='individual' の場合は memberId を付与する
+function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec){
   const seq=[];
   if(po==='sim'){
-    // 同時ピック: tsラウンド分、各ラウンドでboth同時
     for(let i=0;i<ts;i++) seq.push({phase:'pick',team:'both',round:i});
     return seq;
   }
+
+  // チームごとのピックカウンタ（個人ピック用）
+  let fiCnt=0, siCnt=0;
+  const memberOf = (team) => {
+    if(team===first){
+      const arr = pickOrderFirst||[];
+      const id = arr.length>0 ? arr[fiCnt % arr.length] : null;
+      fiCnt++;
+      return id;
+    } else {
+      const arr = pickOrderSec||[];
+      const id = arr.length>0 ? arr[siCnt % arr.length] : null;
+      siCnt++;
+      return id;
+    }
+  };
+
+  let teamSeq=[];
   if(po==='alt'){
-    // 交互: 0,1,0,1...
-    for(let i=0;i<ts*2;i++) seq.push(i%2===0?first:sec);
+    for(let i=0;i<ts*2;i++) teamSeq.push(i%2===0?first:sec);
   } else if(po==='snake'){
-    // 1-(ts-1)-(ts-1)-1 形式: 先攻ファーストピック・後攻ラストピック
-    // ts=4: 先1-後3-先3-後1, ts=3: 先1-後2-先2-後1, ts=2: 先1-後1-先1-後1
-    seq.push(first);
-    for(let i=0;i<ts-1;i++) seq.push(sec);
-    for(let i=0;i<ts-1;i++) seq.push(first);
-    seq.push(sec);
+    teamSeq.push(first);
+    for(let i=0;i<ts-1;i++) teamSeq.push(sec);
+    for(let i=0;i<ts-1;i++) teamSeq.push(first);
+    teamSeq.push(sec);
   } else if(po==='a121'){
-    // バランス: 先1-後1-先2-後2-先1-後1... → 実質先1-2-1 / 後1-2-1
-    // ts=4: F,S,F,F,S,S,F,S → [0,1,0,0,1,1,0,1]
     const pattern=[0,1,0,0,1,1,0,1,0,1];
-    for(let i=0;i<ts*2;i++) seq.push(pattern[i]===0?first:sec);
+    for(let i=0;i<ts*2;i++) teamSeq.push(pattern[i]===0?first:sec);
   } else if(po==='a211'){
-    // 前重ね: 先2-1-1 / 後1-2-1
-    // ts=4: F,F,S,F,S,S,F,S → [0,0,1,0,1,1,0,1]
     const pattern=[0,0,1,0,1,1,0,1,0,1];
-    for(let i=0;i<ts*2;i++) seq.push(pattern[i]===0?first:sec);
+    for(let i=0;i<ts*2;i++) teamSeq.push(pattern[i]===0?first:sec);
   } else {
-    // fallback: 交互
-    for(let i=0;i<ts*2;i++) seq.push(i%2===0?first:sec);
+    for(let i=0;i<ts*2;i++) teamSeq.push(i%2===0?first:sec);
   }
+
+  teamSeq.forEach(team=>{
+    const memberId = memberOf(team);
+    const step = {phase:'pick', team};
+    if(memberId) step.memberId = memberId;
+    seq.push(step);
+  });
   return seq;
 }
 
-function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly}){
+function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,pickOrderAlpha,pickOrderBravo,members}){
   const rule    = rm==='random'?RULES[Math.floor(Math.random()*RULES.length)]:rm;
   const stageJa = sm==='random'?STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)]:sm;
   const first   = ft==='random'?(Math.random()<.5?'alpha':'bravo'):ft;
   const sec     = first==='alpha'?'bravo':'alpha';
   const pickOrder = po||'snake';
+  const pMode   = pickMode||'team';
+  const bMode   = banMode||'representative';
+
+  // 個人モード時のピック順（先攻/後攻に合わせて整列）
+  const poFirst = first==='alpha' ? (pickOrderAlpha||[]) : (pickOrderBravo||[]);
+  const poSec   = first==='alpha' ? (pickOrderBravo||[]) : (pickOrderAlpha||[]);
 
   const seq=[];
   if(bc>0) seq.push({phase:'ban',banCount:bc});
-  const pickSteps = buildPickSeq(ts, pickOrder, first, sec);
-  // sim の場合はすでに {phase,team,round} オブジェクト、それ以外は team 文字列
+
+  // 個人BANモード時: bannerIdsを計算（ピック順上位bc人）
+  let bannerIds = null;
+  if(pMode==='individual' && bMode==='individual' && bc>0){
+    const bAlpha = (pickOrderAlpha||[]).slice(0, bc);
+    const bBravo = (pickOrderBravo||[]).slice(0, bc);
+    // bc人に足りない場合は繰り返し
+    while(bAlpha.length < bc && (pickOrderAlpha||[]).length > 0){
+      bAlpha.push(...pickOrderAlpha.slice(0, bc - bAlpha.length));
+    }
+    while(bBravo.length < bc && (pickOrderBravo||[]).length > 0){
+      bBravo.push(...pickOrderBravo.slice(0, bc - bBravo.length));
+    }
+    bannerIds = {alpha: bAlpha.slice(0,bc), bravo: bBravo.slice(0,bc)};
+  }
+
+  const pickSteps = buildPickSeq(ts, pickOrder, first, sec,
+    pMode==='individual' ? poFirst : null,
+    pMode==='individual' ? poSec   : null
+  );
   for(const step of pickSteps){
     if(typeof step==='object') seq.push(step);
     else seq.push({phase:'pick',team:step});
   }
 
-  state={an,bn,ts,bc,rule,stageJa,seq,idx:0,bans:{alpha:[],bravo:[]},picks:{alpha:[],bravo:[]},stdOnly:!!stdOnly};
+  state={
+    an, bn, ts, bc, rule, stageJa, seq, idx:0,
+    bans:{alpha:[],bravo:[]},
+    picks:{alpha:[],bravo:[]},
+    stdOnly:!!stdOnly,
+    pickMode: pMode,
+    banMode:  bMode,
+    members:  members||{},
+    bannerIds: bannerIds,
+  };
   banPending={alpha:[],bravo:[]}; banActiveTeam='alpha';
   bravoBanSubmitted=false; alphaBanSubmitted=false; activeCat='すべて';
+  banPendingIndividual={}; myBanSubmitted=false;
   simPickPending={alpha:null,bravo:null};
   alphaPickSubmitted=false; bravoPickSubmitted=false; simPickRound=0;
 
   if(isMulti&&isHost){
     if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
-    pushState(); // state を Firebase に書き込む（参加者の onValue が発火して遷移する）
+    pushState();
     subscribeRoom();
-    subscribePendingBravoBans();
+    if(pMode==='individual' && bMode==='individual'){
+      subscribeIndividualBans();
+    } else {
+      subscribePendingBravoBans();
+    }
     subscribeSimPick();
   }
   showDraftUI();
@@ -1136,10 +1357,15 @@ function subscribeRoom(){
     const onDraft=document.getElementById('s-draft').classList.contains('active');
     if(!onDraft){
       banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; alphaBanSubmitted=false;
+      banPendingIndividual={}; myBanSubmitted=false;
       simPickPending={alpha:null,bravo:null}; alphaPickSubmitted=false; bravoPickSubmitted=false;
       _checkPicksInProgress=false;
       if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
-      subscribePendingBravoBans();
+      if(state.pickMode==='individual' && state.banMode==='individual'){
+        subscribeIndividualBans();
+      } else {
+        subscribePendingBravoBans();
+      }
       subscribeSimPick();
       showDraftUI();
     } else {
@@ -1149,6 +1375,7 @@ function subscribeRoom(){
         alphaPickSubmitted=false; bravoPickSubmitted=false;
         _checkPicksInProgress=false;
         pendingSelect=null;
+        banPendingIndividual={}; myBanSubmitted=false;
         if(!isHost){
           banPending={alpha:[],bravo:[]};
           bravoBanSubmitted=false; alphaBanSubmitted=false;
@@ -1167,6 +1394,17 @@ function subscribePendingBravoBans(){
   // bravo pending
   const unsubB=onValue(ref(db,`rooms/${roomId}/pending_bravo_bans`),()=>checkBothBansReady());
   fbBanUnsub=()=>{unsubA();unsubB();};
+}
+
+// ===== 個人BAN購読 =====
+function subscribeIndividualBans(){
+  if(fbIndividualBanUnsub){fbIndividualBanUnsub();fbIndividualBanUnsub=null;}
+  const unsubAll = onValue(ref(db,`rooms/${roomId}/pending_bans`), snap=>{
+    banPendingIndividual = snap.exists() ? (snap.val()||{}) : {};
+    renderBanPanel();
+    if(isHost) checkIndividualBansReady();
+  });
+  fbIndividualBanUnsub = unsubAll;
 }
 
 async function checkBothBansReady(){
@@ -1249,18 +1487,20 @@ function onSimPickSnap(team, snap){
 
 // ===== 退出 =====
 window.leaveLobby = function(){
-  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub].forEach(f=>{if(f){f();} });
-  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=null;
+  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub].forEach(f=>{if(f){f();} });
+  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=null;
   if(isMulti&&!isHost&&myMemberId&&roomId){
     remove(ref(db,`rooms/${roomId}/lobby/members/${myMemberId}`));
   }
   roomId=null; isMulti=false; isHost=false; myMemberId=null;
+  lobbyMembers={}; lobbyPickOrderAlpha=[]; lobbyPickOrderBravo=[];
   showScreen('mode');
 };
 window.goHome = function(){
-  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub].forEach(f=>{if(f){f();}});
-  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=null;
+  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub].forEach(f=>{if(f){f();}});
+  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=null;
   roomId=null; isMulti=false; isHost=false; myMemberId=null;
+  lobbyMembers={}; lobbyPickOrderAlpha=[]; lobbyPickOrderBravo=[];
   showScreen('mode');
 };
 
@@ -1275,6 +1515,9 @@ function normalizeState(s){
   if(!s.picks.bravo) s.picks.bravo=[];
   if(!s.seq) s.seq=[];
   if(s.stdOnly===undefined) s.stdOnly=false;
+  if(!s.pickMode) s.pickMode='team';
+  if(!s.banMode)  s.banMode='representative';
+  if(!s.members)  s.members={};
   return s;
 }
 
@@ -1284,9 +1527,17 @@ function renderPickFlow(){
   const S=state;
   if(!S.seq||S.seq.length===0){container.innerHTML='';return;}
 
-  // チーム名の先頭2文字を使う
+  // チーム名の先頭2文字を使う（個人ピックはプレイヤー名2文字）
   const la=(S.an||'アルファ').slice(0,2);
   const lb=(S.bn||'ブラボー').slice(0,2);
+  const isIndividual = S.pickMode==='individual';
+
+  // プレイヤー名先頭2文字を返す
+  const playerLabel = (memberId) => {
+    if(!memberId) return '?';
+    const m = (S.members||{})[memberId];
+    return m ? m.name.slice(0,2) : '?';
+  };
 
   container.innerHTML='';
   let prevTeam=null;
@@ -1294,7 +1545,6 @@ function renderPickFlow(){
   S.seq.forEach((step,i)=>{
     const isPast=i<S.idx, isCur=i===S.idx, isNext=i===S.idx+1;
 
-    // チームが切り替わったときに区切り線を入れる
     const curTeam=step.phase==='ban'?'ban':step.team;
     if(i>0 && curTeam!==prevTeam){
       const sep=document.createElement('div');
@@ -1309,30 +1559,37 @@ function renderPickFlow(){
       cls+='pf-ban';
       chip.textContent='BAN';
     } else if(step.team==='both'){
-      cls+='pf-a'; // 同時ピックは特別色
+      cls+='pf-a';
       chip.textContent='同時';
       chip.style.background='linear-gradient(135deg,#1a2a4a,#2a1a2a)';
       chip.style.borderColor='var(--pk)';
       chip.style.color='var(--pk)';
     } else {
       cls+=(step.team==='alpha'?'pf-a':'pf-b');
-      chip.textContent=(step.team==='alpha'?la:lb);
+      // 個人ピックモードかつmemberIdあり → プレイヤー名2文字
+      if(isIndividual && step.memberId){
+        chip.textContent = playerLabel(step.memberId);
+      } else {
+        chip.textContent=(step.team==='alpha'?la:lb);
+      }
     }
     if(isPast) cls+=' pf-past';
     else if(isCur) cls+=' pf-cur';
     else if(isNext) cls+=' pf-next';
     chip.className=cls;
 
-    // ツールチップ（hover で詳細）
     const stepNum=i+1;
     if(step.phase==='ban') chip.title=`STEP ${stepNum}: BAN PHASE`;
     else if(step.team==='both') chip.title=`STEP ${stepNum}: 同時PICK (ROUND ${(step.round||0)+1})`;
-    else chip.title=`STEP ${stepNum}: ${step.team==='alpha'?S.an:S.bn} PICK`;
+    else {
+      const tn=step.team==='alpha'?S.an:S.bn;
+      const mn=step.memberId&&(S.members||{})[step.memberId]?.name;
+      chip.title=`STEP ${stepNum}: ${mn?mn+' ('+tn+')':tn} PICK`;
+    }
 
     container.appendChild(chip);
   });
 
-  // 現在のチップを中央にスクロール
   const cur=container.querySelector('.pf-cur');
   if(cur) cur.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
 }
@@ -1372,7 +1629,20 @@ function renderDraft(){
 
   if(isBan){
     renderBanPanel();
-    document.getElementById('tprompt').innerHTML=`<strong style="color:var(--bn)">両チームが同時にBANする武器を選択してください</strong>`;
+    const bMode = S.banMode||'representative';
+    if(bMode==='individual' && S.pickMode==='individual'){
+      // 個人BANモード: 誰がBANするか表示
+      const myBannerInfo = getMyBannerInfo(S);
+      if(myBannerInfo){
+        document.getElementById('tprompt').innerHTML=
+          `<strong style="color:var(--bn)">あなたのBANターンです</strong> — BANする武器を選んでください`;
+      } else {
+        document.getElementById('tprompt').innerHTML=
+          `<strong style="color:var(--bn)">BAN PHASE</strong> — 担当プレイヤーがBANを選択中です`;
+      }
+    } else {
+      document.getElementById('tprompt').innerHTML=`<strong style="color:var(--bn)">両チームが同時にBANする武器を選択してください</strong>`;
+    }
     document.getElementById('tia').style.display='none';
     document.getElementById('tib').style.display='none';
   } else if(isSimPick){
@@ -1387,7 +1657,20 @@ function renderDraft(){
   } else {
     const col=step.team==='alpha'?'var(--a)':'var(--b)';
     const tn =step.team==='alpha'?S.an:S.bn;
-    document.getElementById('tprompt').innerHTML=`<strong style="color:${col}">${tn}</strong> の <strong>PICKターン</strong> — 武器を選んでください`;
+    // 個人ピックモード: memberId で誰のターンか表示
+    if(S.pickMode==='individual' && step.memberId){
+      const isMyTurn = step.memberId === myMemberId;
+      const memberName = (S.members||{})[step.memberId]?.name || '?';
+      if(isMyTurn){
+        document.getElementById('tprompt').innerHTML=
+          `<strong style="color:var(--pk)">あなたのPICKターン</strong> — 武器を選んでください`;
+      } else {
+        document.getElementById('tprompt').innerHTML=
+          `<strong style="color:${col}">${memberName}</strong> が選択中…`;
+      }
+    } else {
+      document.getElementById('tprompt').innerHTML=`<strong style="color:${col}">${tn}</strong> の <strong>PICKターン</strong> — 武器を選んでください`;
+    }
     document.getElementById('tia').style.display=step.team==='alpha'?'':'none';
     document.getElementById('tib').style.display=step.team==='bravo'?'':'none';
   }
@@ -1396,30 +1679,45 @@ function renderDraft(){
   renderPickFlow();
 }
 
+// 個人BANモード: 自分がBANを担当しているか、担当スロットを返す
+function getMyBannerInfo(S){
+  if(!isMulti) return null; // ソロは全員担当
+  const banners = S.bannerIds;
+  if(!banners) return null;
+  const myTeam = isHost?'alpha':'bravo';
+  const myArr  = banners[myTeam]||[];
+  const idx    = myArr.indexOf(myMemberId);
+  return idx>=0 ? {team:myTeam, slotIdx:idx} : null;
+}
+
 // ===== BANパネル =====
 function renderBanPanel(){
   const S=state, bc=S.bc;
+  const isIndividualBan = S.pickMode==='individual' && S.banMode==='individual' && isMulti;
+
+  if(isIndividualBan){
+    renderIndividualBanPanel(S, bc);
+    return;
+  }
+
+  // ===== 代表者BANパネル（既存） =====
   ['alpha','bravo'].forEach(team=>{
     const el=document.getElementById('ban-slots-'+(team==='alpha'?'a':'b'));
     el.innerHTML='';
-    // 確定済みBAN
     (S.bans[team]||[]).forEach(w=>{
       const d=document.createElement('div'); d.className='bsl filled'; d.textContent=w.name; el.appendChild(d);
     });
     const confirmed=(S.bans[team]||[]).length;
     const pending=banPending[team].length;
-    // マルチ時: 相手チームのpendingは「送信済み」として伏せて表示
     const isMyTeam=!isMulti||(isHost?team==='alpha':team==='bravo');
     if(isMyTeam){
       banPending[team].forEach(w=>{
         const d=document.createElement('div'); d.className='bsl pending'; d.textContent='▶ '+w.name; el.appendChild(d);
       });
-      // 仮選択（1タップ目）を追加表示
       if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.team===team){
         const d=document.createElement('div'); d.className='bsl'; d.style.borderColor='var(--y)'; d.style.color='var(--y)'; d.textContent='▷ '+pendingSelect.w.name; el.appendChild(d);
       }
     } else {
-      // 相手側: pendingがある場合は「送信済み」と表示
       for(let i=0;i<pending;i++){
         const d=document.createElement('div'); d.className='bsl pending'; d.textContent='送信済み ✓'; el.appendChild(d);
       }
@@ -1467,8 +1765,77 @@ function renderBanPanel(){
   }
 }
 
+// ===== 個人BANパネル描画 =====
+function renderIndividualBanPanel(S, bc){
+  const banners = S.bannerIds||{alpha:[],bravo:[]};
+
+  // ban-slotsを流用して個人BAN表示に変える
+  ['alpha','bravo'].forEach(team=>{
+    const el=document.getElementById('ban-slots-'+(team==='alpha'?'a':'b'));
+    el.innerHTML='';
+    const bannersOfTeam = banners[team]||[];
+    bannersOfTeam.forEach((memberId, slotIdx) => {
+      const m = (S.members||{})[memberId];
+      const memberName = m?.name||'?';
+      const isMe = memberId===myMemberId;
+      const confirmed = (S.bans[team]||[]).find((_,i)=>i===slotIdx);
+      const submitted = banPendingIndividual[memberId];
+
+      const row = document.createElement('div');
+      row.className = 'ban-member-row';
+      let slotHtml = '';
+      if((S.bans[team]||[])[slotIdx]){
+        const w = S.bans[team][slotIdx];
+        slotHtml = `<div class="bsl filled" style="flex:1">${w.name}</div>`;
+      } else if(submitted){
+        slotHtml = `<div class="bsl pending" style="flex:1">${isMe?'▶ '+submitted.name:'送信済み ✓'}</div>`;
+      } else if(isMe && pendingSelect?.phase==='ban'){
+        slotHtml = `<div class="bsl" style="flex:1;border-color:var(--y);color:var(--y)">▷ ${pendingSelect.w.name}</div>`;
+      } else {
+        slotHtml = `<div class="bsl" style="flex:1">BAN${slotIdx+1}</div>`;
+      }
+      row.innerHTML = `<span class="ban-member-name ${team}">${memberName}</span>${slotHtml}`;
+      el.appendChild(row);
+    });
+  });
+
+  const hint=document.getElementById('ban-hint');
+  const bannerInfo = getMyBannerInfo(S);
+  if(bannerInfo){
+    if(myBanSubmitted){
+      hint.innerHTML=`<span style="color:var(--pk)">✓ BANを送信しました。全員のBANが揃うのを待っています…</span>`;
+    } else if(pendingSelect?.phase==='ban'){
+      hint.innerHTML=`<span style="color:var(--y)">▷ <strong>${pendingSelect.w.name}</strong> — もう一度タップで確定</span>`;
+    } else {
+      hint.innerHTML=`<strong style="color:var(--pk)">あなたのBANターンです</strong> — BANする武器を選んでください`;
+    }
+  } else {
+    // 担当外: 全員の進捗を表示
+    const allBanners = [...(banners.alpha||[]),...(banners.bravo||[])];
+    const submitted  = allBanners.filter(id=>banPendingIndividual[id]||(S.bans.alpha||[]).some((_,i)=>(banners.alpha||[])[i]===id)||(S.bans.bravo||[]).some((_,i)=>(banners.bravo||[])[i]===id));
+    hint.innerHTML=`${submitted.length} / ${allBanners.length} 人がBANを送信しました`;
+  }
+
+  const btn=document.getElementById('ban-confirm-btn');
+  const bannerInfo2=getMyBannerInfo(S);
+  if(!bannerInfo2){
+    btn.style.display='none';
+  } else {
+    btn.style.display='';
+    btn.textContent=myBanSubmitted?'送信済み ✓':'BANを送信する';
+    btn.disabled=myBanSubmitted||!pendingSelect||pendingSelect.phase!=='ban';
+  }
+}
+
 window.confirmBans = function(){
   const S=state;
+  const isIndividualBan = S.pickMode==='individual' && S.banMode==='individual' && isMulti;
+
+  if(isIndividualBan){
+    confirmIndividualBan(S);
+    return;
+  }
+
   if(!isMulti){
     // ソロ: 両チームそのまま確定
     S.bans.alpha.push(...banPending.alpha);
@@ -1478,7 +1845,7 @@ window.confirmBans = function(){
     renderDraft();
     return;
   }
-  // マルチ: 自分のBANをFirebaseに送信
+  // マルチ代表者BAN: 自分のBANをFirebaseに送信
   const myTeam=isHost?'alpha':'bravo';
   const myKey=isHost?'pending_alpha_bans':'pending_bravo_bans';
   const myBans=banPending[myTeam].map(w=>({key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat}));
@@ -1488,6 +1855,47 @@ window.confirmBans = function(){
   renderBanPanel(); renderGrid();
   // ホスト側はcheckBothBansReadyが自動確定する
 };
+
+// 個人BANの送信
+function confirmIndividualBan(S){
+  if(!pendingSelect || pendingSelect.phase!=='ban') return;
+  if(myBanSubmitted) return;
+  const w = pendingSelect.w;
+  pendingSelect = null;
+  myBanSubmitted = true;
+  set(ref(db,`rooms/${roomId}/pending_bans/${myMemberId}`),
+    {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat});
+  renderBanPanel();
+}
+
+// 個人BAN全員分揃ったか確認（ホストのみ）
+function checkIndividualBansReady(){
+  if(!isHost) return;
+  const S=state;
+  const step=S.seq[S.idx];
+  if(!step||step.phase!=='ban') return;
+  const banners = S.bannerIds||{alpha:[],bravo:[]};
+  const allBanners = [...(banners.alpha||[]),...(banners.bravo||[])];
+  if(allBanners.length===0){
+    S.idx++; pushState(); renderDraft(); return;
+  }
+  const allSubmitted = allBanners.every(id => banPendingIndividual[id]);
+  if(!allSubmitted) return;
+
+  setTimeout(()=>{
+    (banners.alpha||[]).forEach(id=>{
+      if(banPendingIndividual[id]) S.bans.alpha.push(banPendingIndividual[id]);
+    });
+    (banners.bravo||[]).forEach(id=>{
+      if(banPendingIndividual[id]) S.bans.bravo.push(banPendingIndividual[id]);
+    });
+    set(ref(db,`rooms/${roomId}/pending_bans`), null);
+    banPendingIndividual={}; myBanSubmitted=false;
+    S.idx++;
+    pushState();
+    renderDraft();
+  }, 800);
+}
 
 // ===== スロット描画 =====
 function renderSlots(team){
@@ -1537,20 +1945,25 @@ function renderGrid(){
     btn.className='wb'+(isBanW?' is-bn':'')+(isPickW?' is-pk':'');
     let clickable=false;
     if(!unavail&&step){
+      const S=state;
+      const isIndividualBan = S.pickMode==='individual' && S.banMode==='individual' && isMulti;
       if(isBan){
-        const it=!isMulti?banActiveTeam:(isHost?'alpha':'bravo');
-        const mySubmitted=isHost?alphaBanSubmitted:bravoBanSubmitted;
-        if(!isMulti||!mySubmitted){
-          // 仮選択中は1スロット仮占有とみなす
-          const selOffset=(pendingSelect&&pendingSelect.phase==='ban'&&pendingSelect.team===it)?1:0;
-          clickable=(S.bc-(S.bans[it]||[]).length-banPending[it].length-selOffset)>0 || (pendingSelect&&pendingSelect.phase==='ban'&&pendingSelect.team===it);
+        if(isIndividualBan){
+          // 個人BAN: 自分がBANバナーかつ未送信の場合のみ
+          const bannerInfo = getMyBannerInfo(S);
+          clickable = !!bannerInfo && !myBanSubmitted;
+        } else {
+          const it=!isMulti?banActiveTeam:(isHost?'alpha':'bravo');
+          const mySubmitted=isHost?alphaBanSubmitted:bravoBanSubmitted;
+          if(!isMulti||!mySubmitted){
+            const selOffset=(pendingSelect&&pendingSelect.phase==='ban'&&pendingSelect.team===it)?1:0;
+            clickable=(S.bc-(S.bans[it]||[]).length-banPending[it].length-selOffset)>0 || (pendingSelect&&pendingSelect.phase==='ban'&&pendingSelect.team===it);
+          }
         }
       } else if(isSimPick){
-        // 同時ピック: 自分の枠がまだ選ばれていない場合のみ
         const myTeam=!isMulti?(!simPickPending.alpha?'alpha':'bravo'):(isHost?'alpha':'bravo');
         const mySubmitted=!isMulti?false:(isHost?alphaPickSubmitted:bravoPickSubmitted);
         if(!isMulti){
-          // ソロ: alphaが未確定ならalpha枠、確定済みならbravo枠
           if(!simPickPending.alpha) clickable=true;
           else if(!simPickPending.bravo) clickable=true;
         } else if(!mySubmitted && !simPickPending[myTeam]){
@@ -1558,7 +1971,12 @@ function renderGrid(){
         }
       } else {
         if(!isMulti) clickable=true;
-        else clickable=isHost?step.team==='alpha':step.team==='bravo';
+        else if(S.pickMode==='individual' && step.memberId){
+          // 個人ピック: memberId が自分のものか
+          clickable = step.memberId===myMemberId;
+        } else {
+          clickable=isHost?step.team==='alpha':step.team==='bravo';
+        }
       }
     }
     // 同時ピック中、相手側のpick武器をグレーアウト（キーが一致する場合）
@@ -1582,15 +2000,27 @@ function pickWeapon(w){
   if(!step) return;
 
   if(step.phase==='ban'){
+    const isIndividualBan = S.pickMode==='individual' && S.banMode==='individual' && isMulti;
+    if(isIndividualBan){
+      // 個人BANモード: 2タップ確定（仮選択→送信はconfirmBansで行う）
+      if(myBanSubmitted) return;
+      if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.w.key===w.key){
+        // 2タップ目 → 自動送信
+        confirmIndividualBan(S);
+        return;
+      }
+      pendingSelect={w, team:'individual', phase:'ban'};
+      renderBanPanel(); renderGrid();
+      return;
+    }
+
     const it=!isMulti?banActiveTeam:(isHost?'alpha':'bravo');
     const mySubmitted=isHost?alphaBanSubmitted:bravoBanSubmitted;
     if(isMulti&&mySubmitted) return;
     if((S.bc-(S.bans[it]||[]).length-banPending[it].length)<=0) return;
 
-    // 2タップ確定: 同じ武器を再タップで確定、別の武器なら仮選択を更新
     if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.team===it){
       if(pendingSelect.w.key===w.key){
-        // 2タップ目: 確定
         banPending[it].push(w);
         pendingSelect=null;
         if(!isMulti){
@@ -1604,7 +2034,6 @@ function pickWeapon(w){
         return;
       }
     }
-    // 1タップ目（または別の武器に変更）: 仮選択
     pendingSelect={w, team:it, phase:'ban'};
     renderBanPanel(); renderGrid();
 
@@ -1633,12 +2062,18 @@ function pickWeapon(w){
     renderSimPickPanel(); renderGrid();
 
   } else {
-    // 通常ピック
+    // 通常ピック（チームピック or 個人ピック）
     const it=step.team;
+    // 個人ピックモード: 自分のターンでなければ何もしない
+    if(S.pickMode==='individual' && step.memberId && isMulti){
+      if(step.memberId !== myMemberId) return;
+    }
     if(pendingSelect && pendingSelect.phase==='pick' && pendingSelect.team===it){
       if(pendingSelect.w.key===w.key){
-        // 2タップ目: 確定
-        (S.picks[it]=S.picks[it]||[]).push(w);
+        // 2タップ目: 確定（memberIdも付与）
+        const pickObj = {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat};
+        if(step.memberId) pickObj.memberId = step.memberId;
+        (S.picks[it]=S.picks[it]||[]).push(pickObj);
         pendingSelect=null;
         S.idx++;
         if(isMulti) pushState();
@@ -1802,6 +2237,9 @@ function showResult(){
   simg.src=stageImgUrl(S.stageJa);
   document.getElementById('rna').textContent=S.an;
   document.getElementById('rnb').textContent=S.bn;
+
+  const isIndividual = S.pickMode==='individual';
+
   ['alpha','bravo'].forEach(t=>{
     const sfx=t==='alpha'?'a':'b';
     const be=document.getElementById('rb'+sfx), pe=document.getElementById('rp'+sfx);
@@ -1810,14 +2248,36 @@ function showResult(){
     if(!bans.length) be.innerHTML='<span style="font-size:11px;color:var(--mu)">なし</span>';
     else bans.forEach(w=>{
       const d=document.createElement('div'); d.className='rt bnt';
-      d.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">${w.name}`;
+      const bannerName = w.memberId && (S.members||{})[w.memberId]?.name;
+      d.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">${bannerName?`<span style="font-size:10px;color:var(--mu)">${bannerName}:</span> `:''}${w.name}`;
       be.appendChild(d);
     });
-    (S.picks[t]||[]).forEach(w=>{
-      const d=document.createElement('div'); d.className='rt';
-      d.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">${w.name}`;
-      pe.appendChild(d);
-    });
+
+    if(isIndividual){
+      // 個人ピックモード: memberId で誰のピックか表示
+      const pickOrderForTeam = t==='alpha' ? (S.pickOrderAlpha||[]) : (S.pickOrderBravo||[]);
+      // ピック順にソート
+      const picks = S.picks[t]||[];
+      const orderMap = {};
+      pickOrderForTeam.forEach((id,i)=>orderMap[id]=i);
+      const sorted = [...picks].sort((a,b)=>{
+        const ia = a.memberId?((orderMap[a.memberId]??99)):99;
+        const ib = b.memberId?((orderMap[b.memberId]??99)):99;
+        return ia-ib;
+      });
+      sorted.forEach(w=>{
+        const d=document.createElement('div'); d.className='rt';
+        const playerName = w.memberId && (S.members||{})[w.memberId]?.name;
+        d.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">${playerName?`<span style="font-size:10px;color:var(--mu)">${playerName}:</span> `:''}${w.name}`;
+        pe.appendChild(d);
+      });
+    } else {
+      (S.picks[t]||[]).forEach(w=>{
+        const d=document.createElement('div'); d.className='rt';
+        d.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">${w.name}`;
+        pe.appendChild(d);
+      });
+    }
   });
   showScreen('result');
 }
