@@ -741,8 +741,16 @@ const auth  = getAuth(fbApp);
 
 // ===== 匿名認証 =====
 // アプリ起動時に必ず匿名ログインを行う。
-// uid は myMemberId のデフォルト値として使用し、Firebase Rules の auth != null を満たす。
+// currentUid は Firebase Rules の auth != null を満たすためだけに使用。
+// myMemberId は generateMemberId() で別途生成（同一ブラウザ複数タブを区別するため）。
 let currentUid = null;
+
+// セッションごとに一意なメンバーIDを生成（同一ブラウザの複数タブも区別できる）
+function generateMemberId(){
+  const rand = Math.random().toString(36).substring(2, 8);
+  const ts   = Date.now().toString(36).slice(-4);
+  return 'mb_' + rand + ts;
+}
 
 async function initAuth(){
   try {
@@ -920,7 +928,7 @@ window.startSoloDraft = function(){
 window.enterMultiCreate = async function(){
   isMulti=true; isHost=true;
   roomId = Math.random().toString(36).substring(2,8).toUpperCase();
-  myMemberId = 'host_' + (currentUid || Date.now());
+  myMemberId = generateMemberId();
   await set(ref(db,`rooms/${roomId}/lobby`),{
     status:'waiting',
     settings: getLobbySettings(),
@@ -942,7 +950,7 @@ window.joinRoom = async function(){
   if(stateSnap.exists()){
     roomId=input; isMulti=true; isHost=false;
     state=stateSnap.val();
-    myMemberId = 'member_' + (currentUid || Date.now());
+    myMemberId = generateMemberId();
     banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; activeCat='すべて';
     subscribeRoom();
     showDraftUI();
@@ -955,7 +963,7 @@ window.joinRoom = async function(){
     return;
   }
   roomId=input; isMulti=true; isHost=false;
-  myMemberId = 'member_' + (currentUid || Date.now());
+  myMemberId = generateMemberId();
   const joinName=(document.getElementById('join-name-input')?.value||'').trim();
   const memberName=joinName||('参加者'+Math.floor(Math.random()*900+100));
   await set(ref(db,`rooms/${roomId}/lobby/members/${myMemberId}`),{
