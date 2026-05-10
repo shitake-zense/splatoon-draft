@@ -842,6 +842,7 @@ let _lastPushedIdx    = -1;
 let banPendingIndividual = {};  // {memberId: weapon} Firebase反映ローカルキャッシュ
 let myBanSubmitted       = false; // 自分のBAN送信済みフラグ
 let myConfirmedBan       = null;  // 自分がローカル確定したBAN武器（送信前）
+let _checkBansInProgress = false; // 個人BAN確定処理の多重発火防止
 
 // --- タイマー ---
 let timerIntervalId = null;  // setInterval ID
@@ -1224,8 +1225,17 @@ function startTimer(deadline, totalSec){
     bar.style.background = remaining<=5?'#ff4444':remaining<=10?'var(--y)':'var(--pk)';
     if(remaining <= 0){
       clearTimer();
-      // ホストのみ自動処理を実行
-      if(isHost) handleTimeout();
+      if(!isMulti){
+        // ソロ: 直接処理
+        handleTimeout();
+      } else {
+        // マルチ: 全クライアントが自分の分を先に処理
+        handleTimeoutSelf();
+        if(isHost){
+          // ホストは1.5秒待って他クライアントの送信を待ってから残りを補完
+          setTimeout(handleTimeout, 1500);
+        }
+      }
     }
   }
   tick();
@@ -1237,6 +1247,62 @@ function clearTimer(){
   startTimer._deadline = null;
   const wrap = document.getElementById('timer-wrap');
   if(wrap) wrap.style.display='none';
+}
+
+// タイムアウト時の自動処理（自分の担当分のみ — 全クライアントが実行）
+function handleTimeoutSelf(){
+  if(!isMulti) return;
+  const S = state;
+  const step = S.seq[S.idx];
+  if(!step) return;
+
+  if(step.phase==='ban'){
+    const isIndividualBan = S.pickMode==='individual' && S.banMode==='individual';
+    if(!isIndividualBan) return; // 代表者BANはホストの handleTimeout に任せる
+    if(myBanSubmitted) return;
+    const bannerInfo = getMyBannerInfo(S);
+    if(!bannerInfo) return; // 自分は担当外
+
+    // 確定済み > 仮選択 > ランダム の優先順で自動選択
+    const allWeapons = getAvailableWeapons(S);
+    const chosen = myConfirmedBan
+      || (pendingSelect && pendingSelect.phase==='ban' ? pendingSelect.w : null)
+      || pickRandom(allWeapons);
+    myConfirmedBan = null; pendingSelect = null; myBanSubmitted = true;
+    if(chosen){
+      set(ref(db, `rooms/${roomId}/pending_bans/${myMemberId}`),
+        {key:chosen.key, name:chosen.name, imgUrl:chosen.imgUrl, cat:chosen.cat});
+    }
+    renderBanPanel();
+
+  } else if(step.phase==='pick' && step.team !== 'both'){
+    // 個人ピック: 自分のターンのみ自動送信
+    if(S.pickMode !== 'individual' || step.memberId !== myMemberId) return;
+    const allWeapons = getAvailableWeapons(S);
+    const w = (pendingSelect && pendingSelect.phase==='pick') ? pendingSelect.w : pickRandom(allWeapons);
+    pendingSelect = null;
+    if(!w) return;
+    const pickObj = {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat};
+    if(step.memberId) pickObj.memberId = step.memberId;
+    (S.picks[step.team] = S.picks[step.team]||[]).push(pickObj);
+    state.deadline = null;
+    S.idx++;
+    pushState(); renderDraft();
+
+  } else if(step.phase==='pick' && step.team === 'both'){
+    // 同時ピック: 自分のチームが未送信なら自動送信
+    const myTeam = isHost ? 'alpha' : 'bravo';
+    const mySubmitted = isHost ? alphaPickSubmitted : bravoPickSubmitted;
+    if(mySubmitted) return;
+    const allWeapons = getAvailableWeapons(S);
+    const chosen = (pendingSelect && pendingSelect.phase==='simpick' && pendingSelect.team===myTeam)
+      ? pendingSelect.w : pickRandom(allWeapons);
+    if(!chosen) return;
+    pendingSelect = null;
+    const myKey = isHost ? 'pending_alpha_pick' : 'pending_bravo_pick';
+    set(ref(db, `rooms/${roomId}/${myKey}`),
+      {key:chosen.key, name:chosen.name, imgUrl:chosen.imgUrl, cat:chosen.cat});
+  }
 }
 
 // タイムアウト時の自動処理（ホストまたはソロのみ実行）
@@ -1654,6 +1720,7 @@ function subscribeRoom(){
         _checkPicksInProgress=false;
         pendingSelect=null;
         banPendingIndividual={}; myBanSubmitted=false; myConfirmedBan=null;
+        _checkBansInProgress=false;
         if(!isHost){
           banPending={alpha:[],bravo:[]};
           bravoBanSubmitted=false; alphaBanSubmitted=false;
@@ -2190,6 +2257,7 @@ function confirmIndividualBan(S){
 // 個人BAN全員分揃ったか確認（ホストのみ）
 function checkIndividualBansReady(){
   if(!isHost) return;
+  if(_checkBansInProgress) return;  // 多重発火防止
   const S=state;
   const step=S.seq[S.idx];
   if(!step||step.phase!=='ban') return;
@@ -2201,6 +2269,7 @@ function checkIndividualBansReady(){
   const allSubmitted = allBanners.every(id => banPendingIndividual[id]);
   if(!allSubmitted) return;
 
+  _checkBansInProgress = true;  // 以降の重複呼び出しをブロック
   setTimeout(()=>{
     (banners.alpha||[]).forEach(id=>{
       if(banPendingIndividual[id]) S.bans.alpha.push(banPendingIndividual[id]);
@@ -2210,6 +2279,7 @@ function checkIndividualBansReady(){
     });
     set(ref(db,`rooms/${roomId}/pending_bans`), null);
     banPendingIndividual={}; myBanSubmitted=false; myConfirmedBan=null;
+    _checkBansInProgress = false;  // フラグリセット
     S.idx++;
     pushState();
     renderDraft();
