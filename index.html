@@ -272,7 +272,6 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .timer-display.danger{color:#ff4444;animation:pulse .5s infinite alternate;}
 @keyframes pulse{from{opacity:1}to{opacity:.5}}
 .timer-wrap{background:#0f1729;border-radius:8px;padding:8px 14px;margin-bottom:10px;}
-</style>
 .ban-member-row{display:flex;align-items:center;gap:6px;background:#0f1729;border-radius:6px;padding:6px 8px;margin-bottom:5px;}
 .ban-member-name{font-size:11px;font-weight:700;min-width:60px;}
 .ban-member-name.a{color:var(--a);}.ban-member-name.b{color:var(--b);}
@@ -1206,6 +1205,9 @@ window.movePickOrder = function(team, memberId, dir){
 
 // ===== タイマー =====
 function startTimer(deadline, totalSec){
+  // 同じdeadlineで既に動いていれば再起動しない
+  if(timerIntervalId && startTimer._deadline === deadline) return;
+  startTimer._deadline = deadline;
   clearTimer();
   const wrap    = document.getElementById('timer-wrap');
   const display = document.getElementById('timer-display');
@@ -1232,6 +1234,7 @@ function startTimer(deadline, totalSec){
 
 function clearTimer(){
   if(timerIntervalId){ clearInterval(timerIntervalId); timerIntervalId=null; }
+  startTimer._deadline = null;
   const wrap = document.getElementById('timer-wrap');
   if(wrap) wrap.style.display='none';
 }
@@ -1262,8 +1265,8 @@ function handleTimeout(){
             {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat});
         });
       Promise.all(promises).then(()=>checkIndividualBansReady());
-    } else {
-      // 代表者BAN: 未送信チームをランダムBAN
+    } else if(isMulti){
+      // マルチ 代表者BAN: 未送信チームをランダムBAN
       let mutable = [...allWeapons];
       if(!alphaBanSubmitted){
         const needed = S.bc - (S.bans.alpha||[]).length - banPending.alpha.length;
@@ -1272,8 +1275,7 @@ function handleTimeout(){
           banPending.alpha.push(w);
           mutable=mutable.filter(x=>x.key!==w.key);
         }
-        const myKey='pending_alpha_bans';
-        set(ref(db,`rooms/${roomId}/${myKey}`),
+        set(ref(db,`rooms/${roomId}/pending_alpha_bans`),
           banPending.alpha.map(w=>({key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat})));
         alphaBanSubmitted=true;
       }
@@ -1289,44 +1291,76 @@ function handleTimeout(){
         bravoBanSubmitted=true;
       }
       checkBothBansReady();
+    } else {
+      // ソロBAN: 仮選択があれば優先、なければランダム
+      if(pendingSelect && pendingSelect.phase==='ban'){
+        const team = pendingSelect.team;
+        if(!(banPending[team]||[]).find(b=>b.key===pendingSelect.w.key)){
+          (banPending[team]=banPending[team]||[]).push(pendingSelect.w);
+        }
+        pendingSelect=null;
+      }
+      const needed = S.bc - (S.bans.alpha||[]).length;
+      const allKeys = allWeapons.map(x=>x.key);
+      const alphaUsed = banPending.alpha.map(b=>b.key);
+      for(let i=banPending.alpha.length; i<needed; i++){
+        const w=pickRandom(allWeapons.filter(x=>!alphaUsed.includes(x.key))); if(!w) break;
+        banPending.alpha.push(w); alphaUsed.push(w.key);
+      }
+      const bravoNeeded = S.bc - (S.bans.bravo||[]).length;
+      const bravoUsed = banPending.bravo.map(b=>b.key);
+      for(let i=banPending.bravo.length; i<bravoNeeded; i++){
+        const w=pickRandom(allWeapons.filter(x=>!alphaUsed.includes(x.key)&&!bravoUsed.includes(x.key))); if(!w) break;
+        banPending.bravo.push(w); bravoUsed.push(w.key);
+      }
+      // ソロBANは即確定
+      S.bans.alpha.push(...banPending.alpha);
+      S.bans.bravo.push(...banPending.bravo);
+      banPending={alpha:[],bravo:[]};
+      state.deadline=null;
+      S.idx++;
+      renderDraft();
     }
     return;
   }
 
   if(step.phase==='pick' && step.team==='both'){
-    // 同時ピック: 未送信チームをランダム
+    // 同時ピック: 未送信チームをランダム（仮選択優先）
     let mutable = [...allWeapons];
     if(!alphaPickSubmitted){
-      const w = pickRandom(mutable);
-      if(w){
-        mutable=mutable.filter(x=>x.key!==w.key);
+      // 仮選択があれば優先
+      const chosen = (pendingSelect && pendingSelect.team==='alpha' && pendingSelect.phase==='pick')
+        ? pendingSelect.w : pickRandom(mutable);
+      if(chosen){
+        mutable=mutable.filter(x=>x.key!==chosen.key);
         set(ref(db,`rooms/${roomId}/pending_alpha_pick`),
-          {key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat});
+          {key:chosen.key,name:chosen.name,imgUrl:chosen.imgUrl,cat:chosen.cat});
         alphaPickSubmitted=true;
       }
     }
     if(!bravoPickSubmitted){
-      const w = pickRandom(mutable);
-      if(w){
+      const chosen = (pendingSelect && pendingSelect.team==='bravo' && pendingSelect.phase==='pick')
+        ? pendingSelect.w : pickRandom(mutable);
+      if(chosen){
         set(ref(db,`rooms/${roomId}/pending_bravo_pick`),
-          {key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat});
+          {key:chosen.key,name:chosen.name,imgUrl:chosen.imgUrl,cat:chosen.cat});
         bravoPickSubmitted=true;
       }
     }
+    pendingSelect=null;
     return;
   }
 
   if(step.phase==='pick'){
-    // 通常ピック
-    // TODO: 仮選択がある場合は仮選択の武器を優先（後回し）
-    const w = pickRandom(allWeapons);
+    // 通常ピック: 仮選択があれば優先、なければランダム
+    const w = (pendingSelect && pendingSelect.phase==='pick') ? pendingSelect.w : pickRandom(allWeapons);
+    pendingSelect=null;
     if(!w) return;
     const pickObj = {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat};
     if(step.memberId) pickObj.memberId = step.memberId;
     (S.picks[step.team]=S.picks[step.team]||[]).push(pickObj);
-    S.idx++;
-    if(isMulti){ pushState(); renderDraft(); }
-    else soloAdvance();
+    if(isMulti){ S.idx++; pushState(); renderDraft(); }
+    else{ state.deadline=null; S.idx++; renderDraft(); }
   }
 }
 
