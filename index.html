@@ -1251,40 +1251,66 @@ function handleTimeout(){
   if(step.phase==='ban'){
     const isIndividualBan = S.pickMode==='individual' && S.banMode==='individual' && isMulti;
     if(isIndividualBan){
-      // 未送信のBANバナーをホストが代わりにランダムBAN送信
+      // マルチ個人BAN: 未送信メンバーをランダムBAN送信（ホストが全員分担当）
+      // 自分自身が未送信の場合、仮選択・確定済みを優先
       const banners = S.bannerIds||{alpha:[],bravo:[]};
       const allBanners = [...(banners.alpha||[]),...(banners.bravo||[])];
       let mutable = [...allWeapons];
       const promises = allBanners
         .filter(id => !banPendingIndividual[id])
         .map(id => {
-          const w = pickRandom(mutable);
-          if(!w) return Promise.resolve();
-          mutable = mutable.filter(x=>x.key!==w.key);
+          let chosen;
+          if(id === myMemberId){
+            // 自分: 確定済み > 仮選択 > ランダム
+            chosen = myConfirmedBan
+              || (pendingSelect && pendingSelect.phase==='ban' ? pendingSelect.w : null)
+              || pickRandom(mutable);
+            myConfirmedBan=null; pendingSelect=null; myBanSubmitted=true;
+          } else {
+            chosen = pickRandom(mutable);
+          }
+          if(!chosen) return Promise.resolve();
+          mutable = mutable.filter(x=>x.key!==chosen.key);
           return set(ref(db,`rooms/${roomId}/pending_bans/${id}`),
-            {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat});
+            {key:chosen.key, name:chosen.name, imgUrl:chosen.imgUrl, cat:chosen.cat});
         });
       Promise.all(promises).then(()=>checkIndividualBansReady());
     } else if(isMulti){
-      // マルチ 代表者BAN: 未送信チームをランダムBAN
+      // マルチ代表者BAN: 未送信チームをランダムBAN（仮選択があれば優先）
       let mutable = [...allWeapons];
       if(!alphaBanSubmitted){
+        // 仮選択中の武器があればbanPendingに追加
+        if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.team==='alpha'){
+          if(!banPending.alpha.find(b=>b.key===pendingSelect.w.key)){
+            banPending.alpha.push(pendingSelect.w);
+          }
+          pendingSelect=null;
+        }
         const needed = S.bc - (S.bans.alpha||[]).length - banPending.alpha.length;
+        const alphaUsed = banPending.alpha.map(b=>b.key);
         for(let i=0;i<needed;i++){
-          const w=pickRandom(mutable); if(!w) break;
-          banPending.alpha.push(w);
-          mutable=mutable.filter(x=>x.key!==w.key);
+          const w=pickRandom(mutable.filter(x=>!alphaUsed.includes(x.key)));
+          if(!w) break;
+          banPending.alpha.push(w); alphaUsed.push(w.key);
         }
         set(ref(db,`rooms/${roomId}/pending_alpha_bans`),
           banPending.alpha.map(w=>({key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat})));
         alphaBanSubmitted=true;
       }
       if(!bravoBanSubmitted){
+        if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.team==='bravo'){
+          if(!banPending.bravo.find(b=>b.key===pendingSelect.w.key)){
+            banPending.bravo.push(pendingSelect.w);
+          }
+          pendingSelect=null;
+        }
         const needed = S.bc - (S.bans.bravo||[]).length - banPending.bravo.length;
+        const bravoUsed = banPending.bravo.map(b=>b.key);
+        const alphaUsed2 = banPending.alpha.map(b=>b.key);
         for(let i=0;i<needed;i++){
-          const w=pickRandom(mutable); if(!w) break;
-          banPending.bravo.push(w);
-          mutable=mutable.filter(x=>x.key!==w.key);
+          const w=pickRandom(mutable.filter(x=>!alphaUsed2.includes(x.key)&&!bravoUsed.includes(x.key)));
+          if(!w) break;
+          banPending.bravo.push(w); bravoUsed.push(w.key);
         }
         set(ref(db,`rooms/${roomId}/pending_bravo_bans`),
           banPending.bravo.map(w=>({key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat})));
@@ -1292,7 +1318,7 @@ function handleTimeout(){
       }
       checkBothBansReady();
     } else {
-      // ソロBAN: 仮選択があれば優先、なければランダム
+      // ソロBAN: 仮選択があれば優先してbanPendingに追加、なければランダム
       if(pendingSelect && pendingSelect.phase==='ban'){
         const team = pendingSelect.team;
         if(!(banPending[team]||[]).find(b=>b.key===pendingSelect.w.key)){
@@ -1300,17 +1326,18 @@ function handleTimeout(){
         }
         pendingSelect=null;
       }
-      const needed = S.bc - (S.bans.alpha||[]).length;
-      const allKeys = allWeapons.map(x=>x.key);
       const alphaUsed = banPending.alpha.map(b=>b.key);
+      const needed = S.bc - (S.bans.alpha||[]).length;
       for(let i=banPending.alpha.length; i<needed; i++){
-        const w=pickRandom(allWeapons.filter(x=>!alphaUsed.includes(x.key))); if(!w) break;
+        const w=pickRandom(allWeapons.filter(x=>!alphaUsed.includes(x.key)));
+        if(!w) break;
         banPending.alpha.push(w); alphaUsed.push(w.key);
       }
-      const bravoNeeded = S.bc - (S.bans.bravo||[]).length;
       const bravoUsed = banPending.bravo.map(b=>b.key);
+      const bravoNeeded = S.bc - (S.bans.bravo||[]).length;
       for(let i=banPending.bravo.length; i<bravoNeeded; i++){
-        const w=pickRandom(allWeapons.filter(x=>!alphaUsed.includes(x.key)&&!bravoUsed.includes(x.key))); if(!w) break;
+        const w=pickRandom(allWeapons.filter(x=>!alphaUsed.includes(x.key)&&!bravoUsed.includes(x.key)));
+        if(!w) break;
         banPending.bravo.push(w); bravoUsed.push(w.key);
       }
       // ソロBANは即確定
@@ -1325,29 +1352,40 @@ function handleTimeout(){
   }
 
   if(step.phase==='pick' && step.team==='both'){
-    // 同時ピック: 未送信チームをランダム（仮選択優先）
+    // 同時ピック: 仮選択があれば優先、なければランダム
     let mutable = [...allWeapons];
     if(!alphaPickSubmitted){
-      // 仮選択があれば優先
-      const chosen = (pendingSelect && pendingSelect.team==='alpha' && pendingSelect.phase==='pick')
-        ? pendingSelect.w : pickRandom(mutable);
+      const chosen = (pendingSelect && pendingSelect.phase==='simpick' && pendingSelect.team==='alpha')
+        ? pendingSelect.w : (!isMulti && simPickPending.alpha ? null : pickRandom(mutable));
       if(chosen){
         mutable=mutable.filter(x=>x.key!==chosen.key);
-        set(ref(db,`rooms/${roomId}/pending_alpha_pick`),
-          {key:chosen.key,name:chosen.name,imgUrl:chosen.imgUrl,cat:chosen.cat});
-        alphaPickSubmitted=true;
+        if(isMulti){
+          set(ref(db,`rooms/${roomId}/pending_alpha_pick`),
+            {key:chosen.key,name:chosen.name,imgUrl:chosen.imgUrl,cat:chosen.cat});
+          alphaPickSubmitted=true;
+        } else {
+          simPickPending.alpha=chosen;
+        }
       }
     }
     if(!bravoPickSubmitted){
-      const chosen = (pendingSelect && pendingSelect.team==='bravo' && pendingSelect.phase==='pick')
-        ? pendingSelect.w : pickRandom(mutable);
+      const chosen = (pendingSelect && pendingSelect.phase==='simpick' && pendingSelect.team==='bravo')
+        ? pendingSelect.w : (!isMulti && simPickPending.bravo ? null : pickRandom(mutable));
       if(chosen){
-        set(ref(db,`rooms/${roomId}/pending_bravo_pick`),
-          {key:chosen.key,name:chosen.name,imgUrl:chosen.imgUrl,cat:chosen.cat});
-        bravoPickSubmitted=true;
+        if(isMulti){
+          set(ref(db,`rooms/${roomId}/pending_bravo_pick`),
+            {key:chosen.key,name:chosen.name,imgUrl:chosen.imgUrl,cat:chosen.cat});
+          bravoPickSubmitted=true;
+        } else {
+          simPickPending.bravo=chosen;
+        }
       }
     }
     pendingSelect=null;
+    // ソロ同時ピックは両方揃ったらリビール
+    if(!isMulti && simPickPending.alpha && simPickPending.bravo){
+      showSimRevealOverlay(simPickPending.alpha, simPickPending.bravo);
+    }
     return;
   }
 
@@ -1359,8 +1397,11 @@ function handleTimeout(){
     const pickObj = {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat};
     if(step.memberId) pickObj.memberId = step.memberId;
     (S.picks[step.team]=S.picks[step.team]||[]).push(pickObj);
-    if(isMulti){ S.idx++; pushState(); renderDraft(); }
-    else{ state.deadline=null; S.idx++; renderDraft(); }
+    // idxを進めて再描画（soloAdvanceを使わず直接処理してdeadlineを確実にリセット）
+    state.deadline=null;
+    S.idx++;
+    if(isMulti){ pushState(); renderDraft(); }
+    else renderDraft();
   }
 }
 
@@ -1369,7 +1410,7 @@ function getAvailableWeapons(S){
   const bannedKeys = [...(S.bans.alpha||[]),...(S.bans.bravo||[])].map(w=>w.key);
   const pickedKeys = [...(S.picks.alpha||[]),...(S.picks.bravo||[])].map(w=>w.key);
   const usedKeys   = new Set([...bannedKeys,...pickedKeys]);
-  const src = (S.stdOnly ? weapons.filter(w=>!w.isVariant) : weapons);
+  const src = (S.stdOnly ? WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')) : WEAPONS);
   return src.filter(w=>!usedKeys.has(w.key));
 }
 
@@ -1835,7 +1876,7 @@ function renderPickFlow(){
 
 // ===== ドラフト描画 =====
 function renderDraft(){
-  pendingSelect=null;
+  // ※ pendingSelect は仮選択状態を保持するため、ここでは絶対にリセットしない
   normalizeState(state);
   const S=state, step=S.seq[S.idx], done=!step, isBan=!done&&step.phase==='ban';
   const isSimPick=!done&&step.phase==='pick'&&step.team==='both';
