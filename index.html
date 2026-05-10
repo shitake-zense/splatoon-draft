@@ -811,6 +811,7 @@ let _lastPushedIdx    = -1;
 // --- 個人BANフェーズ ---
 let banPendingIndividual = {};  // {memberId: weapon} Firebase反映ローカルキャッシュ
 let myBanSubmitted       = false; // 自分のBAN送信済みフラグ
+let myConfirmedBan       = null;  // 自分がローカル確定したBAN武器（送信前）
 
 // --- 同時ピックフェーズ ---
 let simPickPending         = {alpha:null, bravo:null};
@@ -1318,7 +1319,7 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,pi
   };
   banPending={alpha:[],bravo:[]}; banActiveTeam='alpha';
   bravoBanSubmitted=false; alphaBanSubmitted=false; activeCat='すべて';
-  banPendingIndividual={}; myBanSubmitted=false;
+  banPendingIndividual={}; myBanSubmitted=false; myConfirmedBan=null;
   simPickPending={alpha:null,bravo:null};
   alphaPickSubmitted=false; bravoPickSubmitted=false; simPickRound=0;
 
@@ -1365,7 +1366,7 @@ function subscribeRoom(){
     const onDraft=document.getElementById('s-draft').classList.contains('active');
     if(!onDraft){
       banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; alphaBanSubmitted=false;
-      banPendingIndividual={}; myBanSubmitted=false;
+      banPendingIndividual={}; myBanSubmitted=false; myConfirmedBan=null;
       simPickPending={alpha:null,bravo:null}; alphaPickSubmitted=false; bravoPickSubmitted=false;
       _checkPicksInProgress=false;
       if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
@@ -1383,7 +1384,7 @@ function subscribeRoom(){
         alphaPickSubmitted=false; bravoPickSubmitted=false;
         _checkPicksInProgress=false;
         pendingSelect=null;
-        banPendingIndividual={}; myBanSubmitted=false;
+        banPendingIndividual={}; myBanSubmitted=false; myConfirmedBan=null;
         if(!isHost){
           banPending={alpha:[],bravo:[]};
           bravoBanSubmitted=false; alphaBanSubmitted=false;
@@ -1642,8 +1643,16 @@ function renderDraft(){
       // 個人BANモード: 誰がBANするか表示
       const myBannerInfo = getMyBannerInfo(S);
       if(myBannerInfo){
-        document.getElementById('tprompt').innerHTML=
-          `<strong style="color:var(--bn)">あなたのBANターンです</strong> — BANする武器を選んでください`;
+        if(myBanSubmitted){
+          document.getElementById('tprompt').innerHTML=
+            `<strong style="color:var(--bn)">BAN PHASE</strong> — <span style="color:var(--pk)">✓ 送信済み。全員が揃うのを待っています…</span>`;
+        } else if(myConfirmedBan){
+          document.getElementById('tprompt').innerHTML=
+            `<strong style="color:var(--bn)">BAN PHASE</strong> — <span style="color:var(--pk)">▶ ${myConfirmedBan.name} を確定しました</span> — 「BANを送信する」で送信してください`;
+        } else {
+          document.getElementById('tprompt').innerHTML=
+            `<strong style="color:var(--bn)">あなたのBANターンです</strong> — BANする武器を選んでください`;
+        }
       } else {
         document.getElementById('tprompt').innerHTML=
           `<strong style="color:var(--bn)">BAN PHASE</strong> — 担当プレイヤーがBANを選択中です`;
@@ -1692,9 +1701,14 @@ function getMyBannerInfo(S){
   if(!isMulti) return null; // ソロは全員担当
   const banners = S.bannerIds;
   if(!banners) return null;
-  const myTeam = isHost?'alpha':'bravo';
-  const myArr  = banners[myTeam]||[];
-  const idx    = myArr.indexOf(myMemberId);
+
+  // ★修正: isHost でチームを決めない。state.members から自分のチームを引く。
+  // （ホストと同チームの非ホストが必ず「担当外」になるバグを修正）
+  const myMemberData = (S.members||{})[myMemberId];
+  const myTeam = myMemberData?.team || (isHost ? 'alpha' : 'bravo'); // fallback
+
+  const myArr = banners[myTeam]||[];
+  const idx   = myArr.indexOf(myMemberId);
   return idx>=0 ? {team:myTeam, slotIdx:idx} : null;
 }
 
@@ -1786,19 +1800,24 @@ function renderIndividualBanPanel(S, bc){
       const m = (S.members||{})[memberId];
       const memberName = m?.name||'?';
       const isMe = memberId===myMemberId;
-      const confirmed = (S.bans[team]||[]).find((_,i)=>i===slotIdx);
       const submitted = banPendingIndividual[memberId];
+      const alreadyConfirmed = (S.bans[team]||[])[slotIdx];
 
       const row = document.createElement('div');
       row.className = 'ban-member-row';
       let slotHtml = '';
-      if((S.bans[team]||[])[slotIdx]){
-        const w = S.bans[team][slotIdx];
-        slotHtml = `<div class="bsl filled" style="flex:1">${w.name}</div>`;
+      if(alreadyConfirmed){
+        // Firebase確定済み
+        slotHtml = `<div class="bsl filled" style="flex:1">${alreadyConfirmed.name}</div>`;
       } else if(submitted){
+        // Firebase送信済み（まだ確定前）
         slotHtml = `<div class="bsl pending" style="flex:1">${isMe?'▶ '+submitted.name:'送信済み ✓'}</div>`;
+      } else if(isMe && myConfirmedBan){
+        // 自分がローカル確定済み（送信前）
+        slotHtml = `<div class="bsl pending" style="flex:1;border-color:var(--pk);color:var(--pk)">▶ ${myConfirmedBan.name} <span style="font-size:9px">(送信待ち)</span></div>`;
       } else if(isMe && pendingSelect?.phase==='ban'){
-        slotHtml = `<div class="bsl" style="flex:1;border-color:var(--y);color:var(--y)">▷ ${pendingSelect.w.name}</div>`;
+        // 自分が仮選択中
+        slotHtml = `<div class="bsl" style="flex:1;border-color:var(--y);color:var(--y)">▷ ${pendingSelect.w.name} <span style="font-size:9px">(もう一度タップで確定)</span></div>`;
       } else {
         slotHtml = `<div class="bsl" style="flex:1">BAN${slotIdx+1}</div>`;
       }
@@ -1812,6 +1831,8 @@ function renderIndividualBanPanel(S, bc){
   if(bannerInfo){
     if(myBanSubmitted){
       hint.innerHTML=`<span style="color:var(--pk)">✓ BANを送信しました。全員のBANが揃うのを待っています…</span>`;
+    } else if(myConfirmedBan){
+      hint.innerHTML=`<span style="color:var(--pk)">▶ <strong>${myConfirmedBan.name}</strong> を確定しました — 「BANを送信する」で送信してください</span>`;
     } else if(pendingSelect?.phase==='ban'){
       hint.innerHTML=`<span style="color:var(--y)">▷ <strong>${pendingSelect.w.name}</strong> — もう一度タップで確定</span>`;
     } else {
@@ -1831,7 +1852,8 @@ function renderIndividualBanPanel(S, bc){
   } else {
     btn.style.display='';
     btn.textContent=myBanSubmitted?'送信済み ✓':'BANを送信する';
-    btn.disabled=myBanSubmitted||!pendingSelect||pendingSelect.phase!=='ban';
+    // ★修正: ローカル確定済み（myConfirmedBan）の時のみ送信ボタンを有効化
+    btn.disabled=myBanSubmitted||!myConfirmedBan;
   }
 }
 
@@ -1864,12 +1886,13 @@ window.confirmBans = function(){
   // ホスト側はcheckBothBansReadyが自動確定する
 };
 
-// 個人BANの送信
+// 個人BANの送信（ボタン押下時）
 function confirmIndividualBan(S){
-  if(!pendingSelect || pendingSelect.phase!=='ban') return;
+  if(!myConfirmedBan) return;  // ローカル確定済みでなければ送信しない
   if(myBanSubmitted) return;
-  const w = pendingSelect.w;
-  pendingSelect = null;
+  const w = myConfirmedBan;
+  myConfirmedBan = null;
+  pendingSelect  = null;
   myBanSubmitted = true;
   set(ref(db,`rooms/${roomId}/pending_bans/${myMemberId}`),
     {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat});
@@ -1898,7 +1921,7 @@ function checkIndividualBansReady(){
       if(banPendingIndividual[id]) S.bans.bravo.push(banPendingIndividual[id]);
     });
     set(ref(db,`rooms/${roomId}/pending_bans`), null);
-    banPendingIndividual={}; myBanSubmitted=false;
+    banPendingIndividual={}; myBanSubmitted=false; myConfirmedBan=null;
     S.idx++;
     pushState();
     renderDraft();
@@ -1957,7 +1980,7 @@ function renderGrid(){
       const isIndividualBan = S.pickMode==='individual' && S.banMode==='individual' && isMulti;
       if(isBan){
         if(isIndividualBan){
-          // 個人BAN: 自分がBANバナーかつ未送信の場合のみ
+          // 個人BAN: 担当者かつ未送信ならクリック可（確定後も変更可能）
           const bannerInfo = getMyBannerInfo(S);
           clickable = !!bannerInfo && !myBanSubmitted;
         } else {
@@ -2010,13 +2033,35 @@ function pickWeapon(w){
   if(step.phase==='ban'){
     const isIndividualBan = S.pickMode==='individual' && S.banMode==='individual' && isMulti;
     if(isIndividualBan){
-      // 個人BANモード: 2タップ確定（仮選択→送信はconfirmBansで行う）
+      // 個人BANモード: 3段階フロー
+      //   tap1 → 仮選択（▷）
+      //   tap2（同武器）→ ローカル確定（▶）。送信はボタンで別途行う
+      //   tap2（別武器）→ 仮選択を更新
       if(myBanSubmitted) return;
-      if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.w.key===w.key){
-        // 2タップ目 → 自動送信
-        confirmIndividualBan(S);
+
+      if(myConfirmedBan){
+        // 確定済みの武器を再タップ → 確定取り消して仮選択に戻す
+        if(myConfirmedBan.key === w.key){
+          myConfirmedBan = null;
+          pendingSelect = {w, team:'individual', phase:'ban'};
+          renderBanPanel(); renderGrid();
+          return;
+        }
+        // 別の武器をタップ → 仮選択に変更（確定はリセット）
+        myConfirmedBan = null;
+        pendingSelect = {w, team:'individual', phase:'ban'};
+        renderBanPanel(); renderGrid();
         return;
       }
+
+      if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.w.key===w.key){
+        // tap2: ローカル確定（Firebaseには送らない）
+        myConfirmedBan = w;
+        pendingSelect = null;
+        renderBanPanel(); renderGrid();
+        return;
+      }
+      // tap1: 仮選択
       pendingSelect={w, team:'individual', phase:'ban'};
       renderBanPanel(); renderGrid();
       return;
