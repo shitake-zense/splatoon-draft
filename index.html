@@ -264,7 +264,15 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .mode-select-group .row{margin-bottom:6px;}
 .mode-select-group .row:last-child{margin-bottom:0;}
 
-/* ===== 個人BANパネル拡張 ===== */
+/* ===== タイマー ===== */
+.timer-bar-wrap{margin:6px 0 2px;height:6px;background:#1a2a4a;border-radius:3px;overflow:hidden;}
+.timer-bar{height:100%;border-radius:3px;transition:width .9s linear,background .3s;}
+.timer-display{font-family:'Zen Dots',sans-serif;font-size:22px;text-align:center;letter-spacing:2px;margin:4px 0;}
+.timer-display.warn{color:var(--y);}
+.timer-display.danger{color:#ff4444;animation:pulse .5s infinite alternate;}
+@keyframes pulse{from{opacity:1}to{opacity:.5}}
+.timer-wrap{background:#0f1729;border-radius:8px;padding:8px 14px;margin-bottom:10px;}
+</style>
 .ban-member-row{display:flex;align-items:center;gap:6px;background:#0f1729;border-radius:6px;padding:6px 8px;margin-bottom:5px;}
 .ban-member-name{font-size:11px;font-weight:700;min-width:60px;}
 .ban-member-name.a{color:var(--a);}.ban-member-name.b{color:var(--b);}
@@ -483,6 +491,25 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <option value="representative">🤝 代表者BAN（現行）</option>
         </select>
       </div>
+      <div class="div"></div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          ⏱ 制限時間あり
+          <small>時間切れで自動ランダムBAN/ピック</small>
+        </div>
+        <label class="tgl">
+          <input type="checkbox" id="time-limit-enabled" onchange="onTimeLimitChange()">
+          <span class="tgl-sl"></span>
+        </label>
+      </div>
+      <div class="row" id="time-limit-row" style="display:none">
+        <label>制限時間</label>
+        <select id="time-limit-sec" onchange="onSettingChange()">
+          <option value="15">15秒</option>
+          <option value="20">20秒</option>
+          <option value="30" selected>30秒</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -687,6 +714,10 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
     </div>
   </div>
   <div class="tp-txt" id="tprompt"></div>
+  <div id="timer-wrap" class="timer-wrap" style="display:none">
+    <div class="timer-display" id="timer-display">30</div>
+    <div class="timer-bar-wrap"><div class="timer-bar" id="timer-bar" style="width:100%;background:var(--pk)"></div></div>
+  </div>
   <div class="wsec">
     <div class="wsh"><h3>WEAPONS</h3><div class="cf" id="cf"></div></div>
     <div class="wg" id="wg"></div>
@@ -812,6 +843,9 @@ let _lastPushedIdx    = -1;
 let banPendingIndividual = {};  // {memberId: weapon} Firebase反映ローカルキャッシュ
 let myBanSubmitted       = false; // 自分のBAN送信済みフラグ
 let myConfirmedBan       = null;  // 自分がローカル確定したBAN武器（送信前）
+
+// --- タイマー ---
+let timerIntervalId = null;  // setInterval ID
 
 // --- 同時ピックフェーズ ---
 let simPickPending         = {alpha:null, bravo:null};
@@ -1167,8 +1201,149 @@ window.movePickOrder = function(team, memberId, dir){
   if(newIdx < 0 || newIdx >= order.length) return;
   [order[idx], order[newIdx]] = [order[newIdx], order[idx]];
   renderPickOrderList(`pick-order-${team}-list`, order, team);
-  onSettingChange();  // Firebaseに即反映
+  onSettingChange();
 };
+
+// ===== タイマー =====
+function startTimer(deadline, totalSec){
+  clearTimer();
+  const wrap    = document.getElementById('timer-wrap');
+  const display = document.getElementById('timer-display');
+  const bar     = document.getElementById('timer-bar');
+  if(!wrap||!display||!bar) return;
+  wrap.style.display='block';
+
+  function tick(){
+    const remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+    display.textContent = remaining;
+    display.className = 'timer-display' + (remaining<=5?' danger':remaining<=10?' warn':'');
+    const pct = Math.max(0, (remaining / totalSec) * 100);
+    bar.style.width = pct + '%';
+    bar.style.background = remaining<=5?'#ff4444':remaining<=10?'var(--y)':'var(--pk)';
+    if(remaining <= 0){
+      clearTimer();
+      // ホストのみ自動処理を実行
+      if(isHost) handleTimeout();
+    }
+  }
+  tick();
+  timerIntervalId = setInterval(tick, 500);
+}
+
+function clearTimer(){
+  if(timerIntervalId){ clearInterval(timerIntervalId); timerIntervalId=null; }
+  const wrap = document.getElementById('timer-wrap');
+  if(wrap) wrap.style.display='none';
+}
+
+// タイムアウト時の自動処理（ホストまたはソロのみ実行）
+function handleTimeout(){
+  if(isMulti && !isHost) return;  // 参加者は何もしない
+  const S = state;
+  const step = S.seq[S.idx];
+  if(!step) return;
+
+  const allWeapons = getAvailableWeapons(S);
+
+  if(step.phase==='ban'){
+    const isIndividualBan = S.pickMode==='individual' && S.banMode==='individual' && isMulti;
+    if(isIndividualBan){
+      // 未送信のBANバナーをホストが代わりにランダムBAN送信
+      const banners = S.bannerIds||{alpha:[],bravo:[]};
+      const allBanners = [...(banners.alpha||[]),...(banners.bravo||[])];
+      let mutable = [...allWeapons];
+      const promises = allBanners
+        .filter(id => !banPendingIndividual[id])
+        .map(id => {
+          const w = pickRandom(mutable);
+          if(!w) return Promise.resolve();
+          mutable = mutable.filter(x=>x.key!==w.key);
+          return set(ref(db,`rooms/${roomId}/pending_bans/${id}`),
+            {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat});
+        });
+      Promise.all(promises).then(()=>checkIndividualBansReady());
+    } else {
+      // 代表者BAN: 未送信チームをランダムBAN
+      let mutable = [...allWeapons];
+      if(!alphaBanSubmitted){
+        const needed = S.bc - (S.bans.alpha||[]).length - banPending.alpha.length;
+        for(let i=0;i<needed;i++){
+          const w=pickRandom(mutable); if(!w) break;
+          banPending.alpha.push(w);
+          mutable=mutable.filter(x=>x.key!==w.key);
+        }
+        const myKey='pending_alpha_bans';
+        set(ref(db,`rooms/${roomId}/${myKey}`),
+          banPending.alpha.map(w=>({key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat})));
+        alphaBanSubmitted=true;
+      }
+      if(!bravoBanSubmitted){
+        const needed = S.bc - (S.bans.bravo||[]).length - banPending.bravo.length;
+        for(let i=0;i<needed;i++){
+          const w=pickRandom(mutable); if(!w) break;
+          banPending.bravo.push(w);
+          mutable=mutable.filter(x=>x.key!==w.key);
+        }
+        set(ref(db,`rooms/${roomId}/pending_bravo_bans`),
+          banPending.bravo.map(w=>({key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat})));
+        bravoBanSubmitted=true;
+      }
+      checkBothBansReady();
+    }
+    return;
+  }
+
+  if(step.phase==='pick' && step.team==='both'){
+    // 同時ピック: 未送信チームをランダム
+    let mutable = [...allWeapons];
+    if(!alphaPickSubmitted){
+      const w = pickRandom(mutable);
+      if(w){
+        mutable=mutable.filter(x=>x.key!==w.key);
+        set(ref(db,`rooms/${roomId}/pending_alpha_pick`),
+          {key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat});
+        alphaPickSubmitted=true;
+      }
+    }
+    if(!bravoPickSubmitted){
+      const w = pickRandom(mutable);
+      if(w){
+        set(ref(db,`rooms/${roomId}/pending_bravo_pick`),
+          {key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat});
+        bravoPickSubmitted=true;
+      }
+    }
+    return;
+  }
+
+  if(step.phase==='pick'){
+    // 通常ピック
+    // TODO: 仮選択がある場合は仮選択の武器を優先（後回し）
+    const w = pickRandom(allWeapons);
+    if(!w) return;
+    const pickObj = {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat};
+    if(step.memberId) pickObj.memberId = step.memberId;
+    (S.picks[step.team]=S.picks[step.team]||[]).push(pickObj);
+    S.idx++;
+    if(isMulti){ pushState(); renderDraft(); }
+    else soloAdvance();
+  }
+}
+
+// 利用可能な武器リストを返す（BAN済・ピック済を除外）
+function getAvailableWeapons(S){
+  const bannedKeys = [...(S.bans.alpha||[]),...(S.bans.bravo||[])].map(w=>w.key);
+  const pickedKeys = [...(S.picks.alpha||[]),...(S.picks.bravo||[])].map(w=>w.key);
+  const usedKeys   = new Set([...bannedKeys,...pickedKeys]);
+  const src = (S.stdOnly ? weapons.filter(w=>!w.isVariant) : weapons);
+  return src.filter(w=>!usedKeys.has(w.key));
+}
+
+// 配列からランダム1件取得
+function pickRandom(arr){
+  if(!arr||arr.length===0) return null;
+  return arr[Math.floor(Math.random()*arr.length)];
+}
 
 window.onSoloPickOrderChange = function(){
   updatePickOrderDesc('solo-pick-order','solo-pick-order-desc');
@@ -1194,8 +1369,16 @@ function getLobbySettings(){
     banMode:  document.getElementById('ban-mode')?.value||'individual',
     pickOrderAlpha: [...lobbyPickOrderAlpha],
     pickOrderBravo: [...lobbyPickOrderBravo],
+    timeLimitEnabled: document.getElementById('time-limit-enabled')?.checked||false,
+    timeLimitSec: parseInt(document.getElementById('time-limit-sec')?.value||30),
   };
 }
+
+window.onTimeLimitChange = function(){
+  const enabled = document.getElementById('time-limit-enabled')?.checked;
+  document.getElementById('time-limit-row').style.display = enabled ? '' : 'none';
+  onSettingChange();
+};
 
 // ===== ドラフト開始 (ホスト) =====
 window.startDraft = function(){
@@ -1211,6 +1394,8 @@ window.startDraft = function(){
     pickMode:s.pickMode, banMode:s.banMode,
     pickOrderAlpha:s.pickOrderAlpha, pickOrderBravo:s.pickOrderBravo,
     members:membersForState,
+    timeLimitEnabled:s.timeLimitEnabled,
+    timeLimitSec:s.timeLimitSec,
   });
 };
 
@@ -1267,7 +1452,7 @@ function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec){
   return seq;
 }
 
-function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,pickOrderAlpha,pickOrderBravo,members}){
+function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec}){
   const rule    = rm==='random'?RULES[Math.floor(Math.random()*RULES.length)]:rm;
   const stageJa = sm==='random'?STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)]:sm;
   const first   = ft==='random'?(Math.random()<.5?'alpha':'bravo'):ft;
@@ -1316,6 +1501,9 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,pi
     banMode:  bMode,
     members:  members||{},
     bannerIds: bannerIds,
+    timeLimitEnabled: !!timeLimitEnabled,
+    timeLimitSec: timeLimitSec||30,
+    deadline: null,
   };
   banPending={alpha:[],bravo:[]}; banActiveTeam='alpha';
   bravoBanSubmitted=false; alphaBanSubmitted=false; activeCat='すべて';
@@ -1349,6 +1537,12 @@ function showDraftUI(){
 function pushState(){
   if(!isMulti||!roomId) return;
   _lastPushedIdx=state.idx;
+  // 制限時間が有効なら新しいステップの開始時刻としてdeadlineをセット
+  if(state.timeLimitEnabled && state.idx < state.seq.length){
+    state.deadline = Date.now() + state.timeLimitSec * 1000;
+  } else {
+    state.deadline = null;
+  }
   set(ref(db,`rooms/${roomId}/state`), JSON.parse(JSON.stringify(state)));
 }
 
@@ -1527,6 +1721,8 @@ function normalizeState(s){
   if(!s.pickMode) s.pickMode='team';
   if(!s.banMode)  s.banMode='representative';
   if(!s.members)  s.members={};
+  if(s.timeLimitEnabled===undefined) s.timeLimitEnabled=false;
+  if(!s.timeLimitSec) s.timeLimitSec=30;
   return s;
 }
 
@@ -1694,6 +1890,24 @@ function renderDraft(){
   renderSlots('alpha'); renderSlots('bravo'); renderGrid();
   if(pendingSelect && pendingSelect.phase==='pick') renderSlotsWithPending();
   renderPickFlow();
+
+// タイマー起動/停止
+  if(state.timeLimitEnabled && !done){
+    // ソロモードは renderDraft のたびに deadline を設定（マルチは pushState で設定済み）
+    if(!isMulti && !state.deadline){
+      state.deadline = Date.now() + state.timeLimitSec * 1000;
+    }
+    if(state.deadline) startTimer(state.deadline, state.timeLimitSec);
+  } else {
+    clearTimer();
+  }
+}
+
+// ソロ用ステップ進行（deadline リセット付き）
+function soloAdvance(){
+  state.deadline = null;
+  state.idx++;
+  renderDraft();
 }
 
 // 個人BANモード: 自分がBANを担当しているか、担当スロットを返す
@@ -1871,8 +2085,7 @@ window.confirmBans = function(){
     S.bans.alpha.push(...banPending.alpha);
     S.bans.bravo.push(...banPending.bravo);
     banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; alphaBanSubmitted=false;
-    S.idx++;
-    renderDraft();
+    soloAdvance();
     return;
   }
   // マルチ代表者BAN: 自分のBANをFirebaseに送信
@@ -2129,8 +2342,8 @@ function pickWeapon(w){
         (S.picks[it]=S.picks[it]||[]).push(pickObj);
         pendingSelect=null;
         S.idx++;
-        if(isMulti) pushState();
-        renderDraft();
+        if(isMulti){ pushState(); renderDraft(); }
+        else soloAdvance();
         return;
       }
     }
@@ -2277,8 +2490,10 @@ window.closeSimReveal = function(){
     set(ref(db,`rooms/${roomId}/pending_alpha_pick`),null);
     set(ref(db,`rooms/${roomId}/pending_bravo_pick`),null);
     pushState();
+    renderDraft();
+  } else {
+    soloAdvance();
   }
-  renderDraft();
 };
 function showResult(){
   const S=state;
