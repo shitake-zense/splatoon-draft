@@ -853,6 +853,7 @@ let alphaPickSubmitted     = false;
 let bravoPickSubmitted     = false;
 let simPickRound           = 0;
 let _checkPicksInProgress  = false;
+let _pickHandledBySelf     = false; // handleTimeoutSelf がピックを処理済みか
 
 // --- 2タップ確定用 ---
 // 武器グリッドで1タップ目に仮選択、2タップ目で確定する仕組み
@@ -1258,6 +1259,7 @@ function handleTimeoutSelf(expectedIdx){
   if(expectedIdx !== undefined && S.idx !== expectedIdx) return;
   const step = S.seq[S.idx];
   if(!step) return;
+  console.log('[handleTimeoutSelf] idx='+S.idx+' phase='+step.phase+' team='+step.team+' isHost='+isHost);
 
   if(step.phase==='ban'){
     const isIndividualBan = S.pickMode==='individual' && S.banMode==='individual';
@@ -1327,6 +1329,8 @@ function handleTimeoutSelf(expectedIdx){
     (S.picks[step.team] = S.picks[step.team]||[]).push(pickObj);
     state.deadline = null;
     S.idx++;
+    _pickHandledBySelf = true; // handleTimeout に「処理済み」を伝える
+    console.log('[handleTimeoutSelf] ピック処理完了 idx='+S.idx);
     pushState(); renderDraft();
 
   } else if(step.phase==='pick' && step.team === 'both'){
@@ -1352,13 +1356,15 @@ async function handleTimeout(expectedIdx){
   if(isMulti && expectedIdx !== undefined){
     const idxSnap = await get(ref(db,`rooms/${roomId}/state/idx`));
     const latestIdx = idxSnap.exists() ? idxSnap.val() : state.idx;
-    if(latestIdx !== expectedIdx) return;
+    console.log('[handleTimeout] expectedIdx='+expectedIdx+' latestIdx='+latestIdx+' state.idx='+state.idx);
+    if(latestIdx !== expectedIdx){ console.log('[handleTimeout] SKIP by Firebase idx'); return; }
   }
   const S = state;
   // awaitで中断している間にstep自体が進んでいる可能性があるため再チェック
-  if(isMulti && expectedIdx !== undefined && S.idx !== expectedIdx) return;
+  if(isMulti && expectedIdx !== undefined && S.idx !== expectedIdx){ console.log('[handleTimeout] SKIP by local idx'); return; }
   const step = S.seq[S.idx];
   if(!step) return;
+  console.log('[handleTimeout] EXECUTE idx='+S.idx+' phase='+step.phase+' team='+step.team);
 
   const allWeapons = getAvailableWeapons(S);
 
@@ -1507,6 +1513,20 @@ async function handleTimeout(expectedIdx){
   }
 
   if(step.phase==='pick'){
+    if(isMulti){
+      // マルチ: handleTimeoutSelf が自分のターンを処理済みのはず。
+      // ホストのターン（アルファ or 自分のmemberId）のみここで処理する。
+      // 参加者のターンは handleTimeoutSelf に任せ、ここでは何もしない。
+      const isMyTurn = S.pickMode === 'individual'
+        ? step.memberId === myMemberId   // 個人ピック: 自分のmemberIdのみ
+        : step.team === 'alpha';          // チームピック: ホスト=アルファのみ
+      if(!isMyTurn) return;
+      // handleTimeoutSelf が既に処理済みならスキップ（同一ターンの二重処理防止）
+      if(_pickHandledBySelf){ _pickHandledBySelf=false; return; }
+      // Firebaseを再確認（他クライアントが処理済みならスキップ）
+      const recheck = await get(ref(db,`rooms/${roomId}/state/idx`));
+      if(recheck.exists() && recheck.val() !== expectedIdx) return;
+    }
     // 通常ピック: 仮選択があれば優先、なければランダム
     const w = (pendingSelect && pendingSelect.phase==='pick') ? pendingSelect.w : pickRandom(allWeapons);
     pendingSelect=null;
@@ -1772,6 +1792,7 @@ function subscribeRoom(){
         pendingSelect=null;
         banPendingIndividual={}; myBanSubmitted=false; myConfirmedBan=null;
         _checkBansInProgress=false;
+        _pickHandledBySelf=false;
         if(!isHost){
           banPending={alpha:[],bravo:[]};
           bravoBanSubmitted=false; alphaBanSubmitted=false;
@@ -1831,6 +1852,7 @@ async function checkBothBansReady(){
       set(ref(db,`rooms/${roomId}/pending_bravo_bans`),null);
       banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; alphaBanSubmitted=false;
       S.idx++;
+      console.log('[checkBothBansReady] BAN確定 → idx='+S.idx+'(ピックフェーズ)へ');
       pushState();
       _checkBansInProgress = false;  // pushState後にリセット
       renderDraft();
