@@ -1225,15 +1225,16 @@ function startTimer(deadline, totalSec){
     bar.style.background = remaining<=5?'#ff4444':remaining<=10?'var(--y)':'var(--pk)';
     if(remaining <= 0){
       clearTimer();
+      const timerStartIdx = state.idx; // タイマー開始時のidxを保存（二重処理防止用）
       if(!isMulti){
         // ソロ: 直接処理
         handleTimeout();
       } else {
         // マルチ: 全クライアントが自分の分を先に処理
-        handleTimeoutSelf();
+        handleTimeoutSelf(timerStartIdx);
         if(isHost){
           // ホストは1.5秒待って他クライアントの送信を待ってから残りを補完
-          setTimeout(handleTimeout, 1500);
+          setTimeout(()=>handleTimeout(timerStartIdx), 1500);
         }
       }
     }
@@ -1250,9 +1251,11 @@ function clearTimer(){
 }
 
 // タイムアウト時の自動処理（自分の担当分のみ — 全クライアントが実行）
-function handleTimeoutSelf(){
+function handleTimeoutSelf(expectedIdx){
   if(!isMulti) return;
   const S = state;
+  // 既に他クライアントがこのステップを処理済みなら何もしない
+  if(expectedIdx !== undefined && S.idx !== expectedIdx) return;
   const step = S.seq[S.idx];
   if(!step) return;
 
@@ -1276,9 +1279,18 @@ function handleTimeoutSelf(){
     renderBanPanel();
 
   } else if(step.phase==='pick' && step.team !== 'both'){
-    // 個人ピック: 自分のターンのみ自動送信
-    if(S.pickMode !== 'individual' || step.memberId !== myMemberId) return;
+    const myTeam = isHost ? 'alpha' : 'bravo';
+
+    if(S.pickMode === 'individual'){
+      // 個人ピック: 自分のmemberIdのターンのみ
+      if(step.memberId !== myMemberId) return;
+    } else {
+      // チームピック: 自分のチームのターンのみ
+      if(step.team !== myTeam) return;
+    }
+
     const allWeapons = getAvailableWeapons(S);
+    // 確定済み仮選択 > ランダム
     const w = (pendingSelect && pendingSelect.phase==='pick') ? pendingSelect.w : pickRandom(allWeapons);
     pendingSelect = null;
     if(!w) return;
@@ -1306,8 +1318,10 @@ function handleTimeoutSelf(){
 }
 
 // タイムアウト時の自動処理（ホストまたはソロのみ実行）
-function handleTimeout(){
+function handleTimeout(expectedIdx){
   if(isMulti && !isHost) return;  // 参加者は何もしない
+  // マルチ: 既に他クライアントがこのステップを処理済みならスキップ
+  if(isMulti && expectedIdx !== undefined && state.idx !== expectedIdx) return;
   const S = state;
   const step = S.seq[S.idx];
   if(!step) return;
