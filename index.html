@@ -2486,8 +2486,7 @@ function pickWeapon(w){
         if(step.memberId) pickObj.memberId = step.memberId;
         (S.picks[it]=S.picks[it]||[]).push(pickObj);
         pendingSelect=null;
-        S.idx++;
-        if(isMulti){ pushState(); renderDraft(); }
+        if(isMulti){ S.idx++; pushState(); renderDraft(); }
         else soloAdvance();
         return;
       }
