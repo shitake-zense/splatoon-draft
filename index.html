@@ -444,7 +444,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <label>ピック順</label>
         <select id="pick-order" onchange="onPickOrderChange()">
           <option value="alt">交互 (先1-1-1-1…)</option>
-          <option value="snake" selected>スネーク (先1-後3-先3-後1)</option>
+          <option value="snake" selected>スネーク (○✕✕○○✕○✕)</option>
           <option value="a121">バランス (先1-2-1 / 後1-2-1)</option>
           <option value="a211">前重ね (先2-1-1 / 後1-2-1)</option>
           <option value="sim">同時ピック (4回同時公開)</option>
@@ -479,15 +479,15 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       <div class="row">
         <label>ピックモード</label>
         <select id="pick-mode" onchange="onPickModeChange()">
-          <option value="individual">👥 個人ピック（推奨）</option>
-          <option value="team">🤝 チームピック（2人用）</option>
+          <option value="individual">👥 個人ピック</option>
+          <option value="team">🤝 代表者ピック</option>
         </select>
       </div>
       <div class="row" id="ban-mode-row">
         <label>BANモード</label>
         <select id="ban-mode" onchange="onSettingChange()">
-          <option value="individual">👤 個人BAN（各自1枚）</option>
-          <option value="representative">🤝 代表者BAN（現行）</option>
+          <option value="individual">👤 個人BAN</option>
+          <option value="representative">🤝 代表者BAN</option>
         </select>
       </div>
       <div class="div"></div>
@@ -591,7 +591,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <label>ピック順</label>
         <select id="solo-pick-order" onchange="onSoloPickOrderChange()">
           <option value="alt">交互 (先1-1-1-1…)</option>
-          <option value="snake" selected>スネーク (先1-後3-先3-後1)</option>
+          <option value="snake" selected>スネーク (○✕✕○○✕○✕)</option>
           <option value="a121">バランス (先1-2-1 / 後1-2-1)</option>
           <option value="a211">前重ね (先2-1-1 / 後1-2-1)</option>
           <option value="sim">同時ピック (4回同時公開)</option>
@@ -1043,7 +1043,7 @@ function subscribeLobby(){
       const s=lobby.settings||{};
       const ruleStr=s.rule==='random'?'ランダム':(s.rule||'ランダム');
       const stageStr=s.stageJa==='random'?'ランダム':(s.stageJa||'ランダム');
-      const modeStr=s.pickMode==='individual'?'👥 個人ピック':'🤝 チームピック';
+      const modeStr=s.pickMode==='individual'?'👥 個人ピック':'🤝 代表者ピック';
       const el=document.getElementById('lobby-wait-settings');
       if(el) el.innerHTML=
         `<span style="color:var(--a)">チーム: ${s.an||'アルファ'} vs ${s.bn||'ブラボー'}</span><br>`+
@@ -1115,7 +1115,7 @@ window.assignMember = function(memberId, team){
 // ピック順の説明文
 const PICK_ORDER_DESC = {
   alt:  '交互に1枚ずつ選択。シンプルだが後攻が有利になりやすい。',
-  snake:'',
+  snake:'先攻1枚→後攻2枚→先攻2枚→後攻1枚→先攻1枚→後攻1枚（4v4: ○✕✕○○✕○✕）。先後攻の有利差を均等に分散したバランス型。',
   a121: '先攻 1-2-1 / 後攻 1-2-1。中盤に連続ピックあり。均衡型。',
   a211: '先攻 2-1-1 / 後攻 1-2-1。先攻が序盤に2枚取れる前重ね型。',
   sim:  '両チーム同時にピックし、4回一斉公開。被りあり。先後攻の概念なし。',
@@ -1641,10 +1641,15 @@ function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec){
   if(po==='alt'){
     for(let i=0;i<ts*2;i++) teamSeq.push(i%2===0?first:sec);
   } else if(po==='snake'){
-    teamSeq.push(first);
-    for(let i=0;i<ts-1;i++) teamSeq.push(sec);
-    for(let i=0;i<ts-1;i++) teamSeq.push(first);
-    teamSeq.push(sec);
+    if(ts===4){
+      // 4v4専用バランス型: ○✕✕○○✕○✕
+      teamSeq=[first,sec,sec,first,first,sec,first,sec];
+    } else {
+      teamSeq.push(first);
+      for(let i=0;i<ts-1;i++) teamSeq.push(sec);
+      for(let i=0;i<ts-1;i++) teamSeq.push(first);
+      teamSeq.push(sec);
+    }
   } else if(po==='a121'){
     const pattern=[0,1,0,0,1,1,0,1,0,1];
     for(let i=0;i<ts*2;i++) teamSeq.push(pattern[i]===0?first:sec);
