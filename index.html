@@ -1826,19 +1826,21 @@ function subscribeIndividualBans(){
 
 async function checkBothBansReady(){
   if(!isHost) return; // ホストのみが確定処理を行う
-  if(_checkBansInProgress) return;  // 多重発火防止（checkIndividualBansReadyと共通）
+  if(_checkBansInProgress) return;  // 多重発火防止
   const step=state.seq[state.idx];
   if(!step||step.phase!=='ban') return;
+  // ★ awaitに入る前に同期的にフラグをセット
+  // （await中にリスナーが複数発火しても2回目以降はreturnされる）
+  _checkBansInProgress = true;
   const [snapA,snapB]=await Promise.all([
     get(ref(db,`rooms/${roomId}/pending_alpha_bans`)),
     get(ref(db,`rooms/${roomId}/pending_bravo_bans`)),
   ]);
-  if(!snapA.exists()||!snapB.exists()) { renderBanPanel(); return; }
+  if(!snapA.exists()||!snapB.exists()) { _checkBansInProgress=false; renderBanPanel(); return; }
   const aBans=snapA.val(), bBans=snapB.val();
-  if(!Array.isArray(aBans)||!Array.isArray(bBans)) { renderBanPanel(); return; }
+  if(!Array.isArray(aBans)||!Array.isArray(bBans)) { _checkBansInProgress=false; renderBanPanel(); return; }
   const needed=state.bc-(state.bans.alpha||[]).length;
   if(aBans.length>=needed && bBans.length>=needed){
-    _checkBansInProgress = true;  // 以降の重複呼び出しをブロック
     // 両方揃った → 自動確定
     banPending.alpha=aBans.slice(0,needed);
     banPending.bravo=bBans.slice(0,needed);
