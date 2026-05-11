@@ -1261,7 +1261,35 @@ function handleTimeoutSelf(expectedIdx){
 
   if(step.phase==='ban'){
     const isIndividualBan = S.pickMode==='individual' && S.banMode==='individual';
-    if(!isIndividualBan) return; // 代表者BANはホストの handleTimeout に任せる
+    if(!isIndividualBan){
+      // 代表者BAN: ホストは handleTimeout に任せる
+      // 参加者（ブラボー）は仮選択をFirebaseに送信しておく
+      if(isHost) return;
+      if(bravoBanSubmitted) return;
+      // 仮選択中の武器 > ランダム の優先順で選択
+      const allWeaponsRep = getAvailableWeapons(S);
+      const alreadyBravo = [...(S.bans.bravo||[]),...banPending.bravo];
+      const neededRep = S.bc - alreadyBravo.length;
+      if(neededRep <= 0){ bravoBanSubmitted=true; return; }
+      if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.team==='bravo'){
+        if(!banPending.bravo.find(b=>b.key===pendingSelect.w.key)){
+          banPending.bravo.push(pendingSelect.w);
+        }
+        pendingSelect=null;
+      }
+      const bravoUsedRep = banPending.bravo.map(b=>b.key);
+      const alphaUsedRep = banPending.alpha.map(b=>b.key);
+      while(banPending.bravo.length < S.bc - (S.bans.bravo||[]).length){
+        const w = pickRandom(allWeaponsRep.filter(x=>!alphaUsedRep.includes(x.key)&&!bravoUsedRep.includes(x.key)));
+        if(!w) break;
+        banPending.bravo.push(w); bravoUsedRep.push(w.key);
+      }
+      set(ref(db,`rooms/${roomId}/pending_bravo_bans`),
+        banPending.bravo.map(w=>({key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat})));
+      bravoBanSubmitted=true;
+      renderBanPanel();
+      return;
+    }
     if(myBanSubmitted) return;
     const bannerInfo = getMyBannerInfo(S);
     if(!bannerInfo) return; // 自分は担当外
@@ -1318,10 +1346,14 @@ function handleTimeoutSelf(expectedIdx){
 }
 
 // タイムアウト時の自動処理（ホストまたはソロのみ実行）
-function handleTimeout(expectedIdx){
+async function handleTimeout(expectedIdx){
   if(isMulti && !isHost) return;  // 参加者は何もしない
-  // マルチ: 既に他クライアントがこのステップを処理済みならスキップ
-  if(isMulti && expectedIdx !== undefined && state.idx !== expectedIdx) return;
+  // マルチ: Firebaseの最新idxを取得してスキップ判定（メモリ上のstate.idxは遅延する場合がある）
+  if(isMulti && expectedIdx !== undefined){
+    const idxSnap = await get(ref(db,`rooms/${roomId}/state/idx`));
+    const latestIdx = idxSnap.exists() ? idxSnap.val() : state.idx;
+    if(latestIdx !== expectedIdx) return;
+  }
   const S = state;
   const step = S.seq[S.idx];
   if(!step) return;
@@ -2293,9 +2325,9 @@ function checkIndividualBansReady(){
     });
     set(ref(db,`rooms/${roomId}/pending_bans`), null);
     banPendingIndividual={}; myBanSubmitted=false; myConfirmedBan=null;
-    _checkBansInProgress = false;  // フラグリセット
     S.idx++;
     pushState();
+    _checkBansInProgress = false;  // pushState後にリセット（handleTimeoutとの競合防止）
     renderDraft();
   }, 800);
 }
