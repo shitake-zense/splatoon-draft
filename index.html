@@ -444,7 +444,9 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <label>ピック順</label>
         <select id="pick-order" onchange="onPickOrderChange()">
           <option value="alt">交互 (先1-1-1-1…)</option>
-          <option value="snake" selected>スネーク (○✕✕○○✕○✕)</option>
+          <option value="snake" selected>スネーク (1-2-2-1-1-1)</option>
+          <option value="snake_classic">クラシックスネーク (1-3-3-1)</option>
+          <option value="snake_mid">ミドルスネーク (1-2-2-2-1)</option>
           <option value="a121">バランス (先1-2-1 / 後1-2-1)</option>
           <option value="a211">前重ね (先2-1-1 / 後1-2-1)</option>
           <option value="sim">同時ピック (4回同時公開)</option>
@@ -591,7 +593,9 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <label>ピック順</label>
         <select id="solo-pick-order" onchange="onSoloPickOrderChange()">
           <option value="alt">交互 (先1-1-1-1…)</option>
-          <option value="snake" selected>スネーク (○✕✕○○✕○✕)</option>
+          <option value="snake" selected>スネーク (1-2-2-1-1-1)</option>
+          <option value="snake_classic">クラシックスネーク (1-3-3-1)</option>
+          <option value="snake_mid">ミドルスネーク (1-2-2-2-1)</option>
           <option value="a121">バランス (先1-2-1 / 後1-2-1)</option>
           <option value="a211">前重ね (先2-1-1 / 後1-2-1)</option>
           <option value="sim">同時ピック (4回同時公開)</option>
@@ -1114,11 +1118,13 @@ window.assignMember = function(memberId, team){
 // ===== 設定変更 → Firebase反映 =====
 // ピック順の説明文
 const PICK_ORDER_DESC = {
-  alt:  '交互に1枚ずつ選択。シンプルだが後攻が有利になりやすい。',
-  snake:'先攻1枚→後攻2枚→先攻2枚→後攻1枚→先攻1枚→後攻1枚（4v4: ○✕✕○○✕○✕）。先後攻の有利差を均等に分散したバランス型。',
-  a121: '先攻 1-2-1 / 後攻 1-2-1。中盤に連続ピックあり。均衡型。',
-  a211: '先攻 2-1-1 / 後攻 1-2-1。先攻が序盤に2枚取れる前重ね型。',
-  sim:  '両チーム同時にピックし、4回一斉公開。被りあり。先後攻の概念なし。',
+  alt:          '交互に1枚ずつ選択。シンプルだが後攻が有利になりやすい。',
+  snake:        '先攻1→後攻2→先攻2→後攻1→先攻1→後攻1（4v4）。先後攻の有利差を細かく分散したバランス型。',
+  snake_classic:'先攻1→後攻3→先攻3→後攻1（4v4）。シンプルな連続取りで各チームが前半・後半にまとめてピックできる。',
+  snake_mid:    '先攻1→後攻2→先攻2→後攻2→先攻1（4v4）。中盤を後攻が手厚く取れる中寄せ型。',
+  a121:         '先攻 1-2-1 / 後攻 1-2-1。中盤に連続ピックあり。均衡型。',
+  a211:         '先攻 2-1-1 / 後攻 1-2-1。先攻が序盤に2枚取れる前重ね型。',
+  sim:          '両チーム同時にピックし、4回一斉公開。被りあり。先後攻の概念なし。',
 };
 
 function updatePickOrderDesc(selectId, descId){
@@ -1642,13 +1648,27 @@ function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec){
     for(let i=0;i<ts*2;i++) teamSeq.push(i%2===0?first:sec);
   } else if(po==='snake'){
     if(ts===4){
-      // 4v4専用バランス型: ○✕✕○○✕○✕
+      // 4v4専用バランス型: 1-2-2-1-1-1
       teamSeq=[first,sec,sec,first,first,sec,first,sec];
     } else {
       teamSeq.push(first);
       for(let i=0;i<ts-1;i++) teamSeq.push(sec);
       for(let i=0;i<ts-1;i++) teamSeq.push(first);
       teamSeq.push(sec);
+    }
+  } else if(po==='snake_classic'){
+    // クラシックスネーク: 1-3-3-1 (先攻1→後攻(ts-1)→先攻(ts-1)→後攻1)
+    teamSeq.push(first);
+    for(let i=0;i<ts-1;i++) teamSeq.push(sec);
+    for(let i=0;i<ts-1;i++) teamSeq.push(first);
+    teamSeq.push(sec);
+  } else if(po==='snake_mid'){
+    if(ts===4){
+      // 4v4専用: 1-2-2-2-1
+      teamSeq=[first,sec,sec,first,first,sec,sec,first];
+    } else {
+      // 汎用フォールバック: 通常交互
+      for(let i=0;i<ts*2;i++) teamSeq.push(i%2===0?first:sec);
     }
   } else if(po==='a121'){
     const pattern=[0,1,0,0,1,1,0,1,0,1];
