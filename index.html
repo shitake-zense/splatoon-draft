@@ -749,7 +749,10 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       <div class="rl">PICK</div><div class="rw" id="rpb"></div>
     </div>
   </div>
-  <button class="btn-re" onclick="goHome()">↩ モード選択に戻る</button>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+    <button class="btn-re" id="btn-redraft" onclick="redraftWithSameMembers()" style="display:none;background:var(--pk);color:#1a1a2e;border-color:var(--pk);">🔄 同じメンバーで再ドラフト</button>
+    <button class="btn-re" onclick="goHome()">↩ モード選択に戻る</button>
+  </div>
 </div>
 
 </div><!-- /app -->
@@ -1787,7 +1790,29 @@ function subscribeRoom(){
   if(fbUnsub){fbUnsub();fbUnsub=null;}
   let prevIdx=-1;
   fbUnsub=onValue(ref(db,`rooms/${roomId}/state`),snap=>{
-    if(!snap.exists()) return;
+    // state が削除された = ホストが再ドラフトを開始した → 参加者はロビーへ戻る
+    if(!snap.exists()){
+      const onResult = document.getElementById('s-result').classList.contains('active');
+      const onDraft  = document.getElementById('s-draft').classList.contains('active');
+      if((onResult || onDraft) && !isHost){
+        // ローカルの全一時変数をリセット
+        clearTimer();
+        state = null;
+        banPending = {alpha:[], bravo:[]}; banActiveTeam = 'alpha';
+        alphaBanSubmitted = false; bravoBanSubmitted = false;
+        banPendingIndividual = {}; myBanSubmitted = false; myConfirmedBan = null;
+        _checkBansInProgress = false;
+        simPickPending = {alpha:null, bravo:null};
+        alphaPickSubmitted = false; bravoPickSubmitted = false;
+        simPickRound = 0; _checkPicksInProgress = false;
+        pendingSelect = null; _lastPushedIdx = -1; _pickHandledBySelf = false;
+        activeCat = 'すべて'; prevIdx = -1;
+        // ロビー監視を再開してロビー待機画面へ
+        subscribeLobby();
+        showLobbyWait();
+      }
+      return;
+    }
     const remote=snap.val();
     // 自分のpushエコーは無視
     if(isHost && remote.idx===_lastPushedIdx && _lastPushedIdx>=0){
@@ -2794,8 +2819,73 @@ function showResult(){
       });
     }
   });
+  // マルチプレイ時のみ再ドラフトボタンを表示（ホストのみ操作可能）
+  const btnRedraft = document.getElementById('btn-redraft');
+  if(btnRedraft){
+    btnRedraft.style.display = (isMulti && isHost) ? '' : 'none';
+  }
   showScreen('result');
 }
+
+// ===== 同じメンバーで再ドラフト =====
+window.redraftWithSameMembers = async function(){
+  if(!isMulti || !isHost || !roomId) return;
+
+  // ① タイマー停止
+  clearTimer();
+
+  // ② 全Firebase購読を解除
+  [fbUnsub, fbBanUnsub, fbSimPickUnsub, fbIndividualBanUnsub].forEach(f=>{if(f){f();}});
+  fbUnsub = fbBanUnsub = fbSimPickUnsub = fbIndividualBanUnsub = null;
+  // fbLobbyUnsub はここでは解除しない（再開後に subscribeLobby で張り直す）
+  if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
+
+  // ③ Firebaseのドラフトデータを全削除（lobby/members は残す）
+  await Promise.all([
+    remove(ref(db, `rooms/${roomId}/state`)),
+    remove(ref(db, `rooms/${roomId}/pending_alpha_bans`)),
+    remove(ref(db, `rooms/${roomId}/pending_bravo_bans`)),
+    remove(ref(db, `rooms/${roomId}/pending_bans`)),
+    remove(ref(db, `rooms/${roomId}/pending_alpha_pick`)),
+    remove(ref(db, `rooms/${roomId}/pending_bravo_pick`)),
+  ]);
+
+  // ④ ローカルの全一時変数をリセット（前回ドラフトのデータが混入しないように）
+  state = null;
+  banPending = {alpha:[], bravo:[]};
+  banActiveTeam = 'alpha';
+  alphaBanSubmitted = false;
+  bravoBanSubmitted = false;
+  banPendingIndividual = {};
+  myBanSubmitted = false;
+  myConfirmedBan = null;
+  _checkBansInProgress = false;
+  simPickPending = {alpha:null, bravo:null};
+  alphaPickSubmitted = false;
+  bravoPickSubmitted = false;
+  simPickRound = 0;
+  _checkPicksInProgress = false;
+  pendingSelect = null;
+  _lastPushedIdx = -1;
+  _pickHandledBySelf = false;
+  activeCat = 'すべて';
+
+  // ⑤ lobbyメンバー情報を再取得してロビー画面へ戻る
+  // lobbyMembers は既にキャッシュされているが、Firebase から最新を取り直す
+  const lobbySnap = await get(ref(db, `rooms/${roomId}/lobby`));
+  if(lobbySnap.exists()){
+    const lobby = lobbySnap.val();
+    lobbyMembers = lobby.members || {};
+    // ピック順を復元
+    const s = lobby.settings || {};
+    if(s.pickOrderAlpha) lobbyPickOrderAlpha = s.pickOrderAlpha;
+    if(s.pickOrderBravo) lobbyPickOrderBravo = s.pickOrderBravo;
+  }
+
+  // ⑥ ロビー監視を再開（参加者はstateがnullになったことを検知してロビーへ戻る）
+  subscribeLobby();
+  showLobbyHost();
+};
 
 // ===== ページ離脱時クリーンアップ =====
 window.addEventListener('beforeunload',()=>{
