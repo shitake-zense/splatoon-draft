@@ -516,6 +516,9 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 
   <button class="btn-start" id="btn-start-draft" onclick="startDraft()">▶ ドラフト開始</button>
   <div id="start-btn-info" style="text-align:center;font-size:11px;color:var(--mu);margin-top:6px;min-height:16px;"></div>
+  <div id="lobby-rejoin-info" style="display:none;text-align:center;font-size:10px;color:#4a5a7a;margin-top:8px;line-height:1.6;">
+    ⚠️ 参加者が退出した場合、URLを再送して参加し直してもらってください
+  </div>
   <button class="btn-re" onclick="leaveLobby()">← モード選択に戻る</button>
 </div>
 
@@ -545,6 +548,10 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
     <h2>ホストがドラフトを開始するまでお待ちください</h2>
 
     <p id="lobby-wait-settings" style="margin-top:12px;line-height:1.8;"></p>
+    <p style="margin-top:14px;font-size:10px;color:#4a5a7a;line-height:1.6;">
+      ⚠️ ページを閉じたり再読み込みすると退出扱いになります。<br>
+      退出した場合はURLから再度アクセスして参加し直してください。
+    </p>
   </div>
   <button class="btn-re" onclick="leaveLobby()">← 退出する</button>
 </div>
@@ -1048,6 +1055,12 @@ function showLobbyHost(){
   document.getElementById('lobby-room-url-preview').textContent=url;
   showScreen('lobby');
   updateStartButton();
+  // 離脱したメンバーへの案内を team-assign-card の下に表示
+  const infoEl = document.getElementById('lobby-rejoin-info');
+  if(infoEl){
+    const total = Object.keys(lobbyMembers).length;
+    infoEl.style.display = total > 1 ? '' : 'none';
+  }
 }
 function showLobbyWait(){
   document.getElementById('lobby-wait-room-id').textContent=roomId;
@@ -1796,6 +1809,20 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,pi
     else seq.push({phase:'pick',team:step});
   }
 
+  // 代表者BANの代表者IDを計算（マルチ・代表者BANモード時のみ）
+  let representativeAlpha = null;
+  let representativeBravo = null;
+  if(isMulti && bMode==='representative' && bc>0){
+    // alpha代表: isHost=true のメンバー
+    const hostEntry = Object.entries(members||{}).find(([,m])=>m.isHost);
+    representativeAlpha = hostEntry ? hostEntry[0] : null;
+    // bravo代表: bravoチームで joinedAt が最小の非ホストメンバー（lobbyMembers を参照）
+    const bravoEntries = Object.entries(lobbyMembers)
+      .filter(([,m])=>m.team==='bravo'&&!m.isHost)
+      .sort((a,b)=>(a[1].joinedAt||0)-(b[1].joinedAt||0));
+    representativeBravo = bravoEntries.length>0 ? bravoEntries[0][0] : null;
+  }
+
   state={
     an, bn, ts, bc, rule, stageJa, seq, idx:0,
     bans:{alpha:[],bravo:[]},
@@ -1805,6 +1832,8 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,pi
     banMode:  bMode,
     members:  members||{},
     bannerIds: bannerIds,
+    representativeAlpha,
+    representativeBravo,
     timeLimitEnabled: !!timeLimitEnabled,
     timeLimitSec: timeLimitSec||30,
     deadline: null,
@@ -2123,6 +2152,8 @@ function normalizeState(s){
   if(!s.members)  s.members={};
   if(s.timeLimitEnabled===undefined) s.timeLimitEnabled=false;
   if(!s.timeLimitSec) s.timeLimitSec=30;
+  if(s.representativeAlpha===undefined) s.representativeAlpha=null;
+  if(s.representativeBravo===undefined) s.representativeBravo=null;
   return s;
 }
 
@@ -2254,7 +2285,23 @@ function renderDraft(){
           `<strong style="color:var(--bn)">BAN PHASE</strong> — 担当プレイヤーがBANを選択中です`;
       }
     } else {
-      document.getElementById('tprompt').innerHTML=`<strong style="color:var(--bn)">両チームが同時にBANする武器を選択してください</strong>`;
+      // 代表者BANモード
+      const isRep = isRepBanRepresentative(S);
+      const myTeam2 = isHost ? 'alpha' : 'bravo';
+      const memberData2 = (S.members||{})[myMemberId];
+      const myTeamReal = memberData2?.team || myTeam2;
+      if(isMulti && !isRep){
+        // 非代表者: 操作不可
+        const repId = myTeamReal==='alpha' ? S.representativeAlpha : S.representativeBravo;
+        const repName = repId ? (S.members||{})[repId]?.name : '代表者';
+        document.getElementById('tprompt').innerHTML=
+          `<strong style="color:var(--bn)">BAN PHASE</strong> — <span style="color:var(--mu)">${repName||'代表者'} がBANを選択中です。しばらくお待ちください</span>`;
+      } else {
+        const badge = (isMulti && isRep)
+          ? `<span style="background:var(--bn);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px;margin-right:6px;vertical-align:middle;">代表者</span>`
+          : '';
+        document.getElementById('tprompt').innerHTML=`${badge}<strong style="color:var(--bn)">両チームが同時にBANする武器を選択してください</strong>`;
+      }
     }
     document.getElementById('tia').style.display='none';
     document.getElementById('tib').style.display='none';
@@ -2310,20 +2357,37 @@ function soloAdvance(){
   renderDraft();
 }
 
-// 個人BANモード: 自分がBANを担当しているか、担当スロットを返す
+// 個人BANモード: 自分が担当している未送信スロットを返す（複数スロット対応）
 function getMyBannerInfo(S){
   if(!isMulti) return null; // ソロは全員担当
   const banners = S.bannerIds;
   if(!banners) return null;
 
-  // ★修正: isHost でチームを決めない。state.members から自分のチームを引く。
-  // （ホストと同チームの非ホストが必ず「担当外」になるバグを修正）
   const myMemberData = (S.members||{})[myMemberId];
-  const myTeam = myMemberData?.team || (isHost ? 'alpha' : 'bravo'); // fallback
+  const myTeam = myMemberData?.team || (isHost ? 'alpha' : 'bravo');
 
   const myArr = banners[myTeam]||[];
-  const idx   = myArr.indexOf(myMemberId);
-  return idx>=0 ? {team:myTeam, slotIdx:idx} : null;
+  // 自分のmemberIdが担当する全スロットのうち、まだ未送信のものを先頭から返す
+  for(let i=0; i<myArr.length; i++){
+    if(myArr[i] === myMemberId){
+      const banKey = `${myMemberId}_${i}`;
+      if(!banPendingIndividual[banKey]){
+        return {team:myTeam, slotIdx:i, banKey};
+      }
+    }
+  }
+  return null; // 全スロット送信済みか、担当外
+}
+
+// 代表者BANフェーズで「自分が代表者か」を返す
+function isRepBanRepresentative(S){
+  if(!isMulti) return true;
+  if(S.pickMode==='individual' && S.banMode==='individual') return true; // 個人BAN
+  if(S.banMode!=='representative') return true;
+  const memberData = (S.members||{})[myMemberId];
+  const myTeam = memberData?.team || (isHost ? 'alpha' : 'bravo');
+  const repId = myTeam==='alpha' ? S.representativeAlpha : S.representativeBravo;
+  return !repId || repId===myMemberId;
 }
 
 // ===== BANパネル =====
@@ -2405,7 +2469,6 @@ function renderBanPanel(){
 function renderIndividualBanPanel(S, bc){
   const banners = S.bannerIds||{alpha:[],bravo:[]};
 
-  // ban-slotsを流用して個人BAN表示に変える
   ['alpha','bravo'].forEach(team=>{
     const el=document.getElementById('ban-slots-'+(team==='alpha'?'a':'b'));
     el.innerHTML='';
@@ -2414,28 +2477,39 @@ function renderIndividualBanPanel(S, bc){
       const m = (S.members||{})[memberId];
       const memberName = m?.name||'?';
       const isMe = memberId===myMemberId;
-      const submitted = banPendingIndividual[memberId];
+      const banKey = `${memberId}_${slotIdx}`;
+      const submitted = banPendingIndividual[banKey];
       const alreadyConfirmed = (S.bans[team]||[])[slotIdx];
+
+      // 同一メンバーが複数スロットを担当するとき、スロット番号を表示
+      const isDuplicate = bannersOfTeam.filter(id=>id===memberId).length > 1;
+      const labelSuffix = isDuplicate ? ` (${slotIdx+1})` : '';
 
       const row = document.createElement('div');
       row.className = 'ban-member-row';
       let slotHtml = '';
       if(alreadyConfirmed){
-        // Firebase確定済み
         slotHtml = `<div class="bsl filled" style="flex:1">${alreadyConfirmed.name}</div>`;
       } else if(submitted){
-        // Firebase送信済み（まだ確定前）
         slotHtml = `<div class="bsl pending" style="flex:1">${isMe?'▶ '+submitted.name:'送信済み ✓'}</div>`;
-      } else if(isMe && myConfirmedBan){
-        // 自分がローカル確定済み（送信前）
-        slotHtml = `<div class="bsl pending" style="flex:1;border-color:var(--pk);color:var(--pk)">▶ ${myConfirmedBan.name} <span style="font-size:9px">(送信待ち)</span></div>`;
-      } else if(isMe && pendingSelect?.phase==='ban'){
-        // 自分が仮選択中
-        slotHtml = `<div class="bsl" style="flex:1;border-color:var(--y);color:var(--y)">▷ ${pendingSelect.w.name} <span style="font-size:9px">(もう一度タップで確定)</span></div>`;
+      } else if(isMe){
+        // 自分の担当スロットのうち、現在操作中のスロット（getMyBannerInfo が返すもの）
+        const activeSlot = getMyBannerInfo(S);
+        const isActiveSlot = activeSlot && activeSlot.slotIdx===slotIdx;
+        if(isActiveSlot && myConfirmedBan){
+          slotHtml = `<div class="bsl pending" style="flex:1;border-color:var(--pk);color:var(--pk)">▶ ${myConfirmedBan.name} <span style="font-size:9px">(送信待ち)</span></div>`;
+        } else if(isActiveSlot && pendingSelect?.phase==='ban'){
+          slotHtml = `<div class="bsl" style="flex:1;border-color:var(--y);color:var(--y)">▷ ${pendingSelect.w.name} <span style="font-size:9px">(もう一度タップで確定)</span></div>`;
+        } else if(!isActiveSlot && activeSlot){
+          // 前スロットが未送信のため待機中
+          slotHtml = `<div class="bsl" style="flex:1;color:var(--mu)">BAN${slotIdx+1} <span style="font-size:9px">(前のBANを送信後)</span></div>`;
+        } else {
+          slotHtml = `<div class="bsl" style="flex:1">BAN${slotIdx+1}</div>`;
+        }
       } else {
         slotHtml = `<div class="bsl" style="flex:1">BAN${slotIdx+1}</div>`;
       }
-      row.innerHTML = `<span class="ban-member-name ${team}">${memberName}</span>${slotHtml}`;
+      row.innerHTML = `<span class="ban-member-name ${team}">${memberName}${labelSuffix}</span>${slotHtml}`;
       el.appendChild(row);
     });
   });
@@ -2443,20 +2517,33 @@ function renderIndividualBanPanel(S, bc){
   const hint=document.getElementById('ban-hint');
   const bannerInfo = getMyBannerInfo(S);
   if(bannerInfo){
-    if(myBanSubmitted){
-      hint.innerHTML=`<span style="color:var(--pk)">✓ BANを送信しました。全員のBANが揃うのを待っています…</span>`;
-    } else if(myConfirmedBan){
+    if(myConfirmedBan){
       hint.innerHTML=`<span style="color:var(--pk)">▶ <strong>${myConfirmedBan.name}</strong> を確定しました — 「BANを送信する」で送信してください</span>`;
     } else if(pendingSelect?.phase==='ban'){
       hint.innerHTML=`<span style="color:var(--y)">▷ <strong>${pendingSelect.w.name}</strong> — もう一度タップで確定</span>`;
     } else {
-      hint.innerHTML=`<strong style="color:var(--pk)">あなたのBANターンです</strong> — BANする武器を選んでください`;
+      // 複数スロット担当の場合、何回目かを表示
+      const mySlots = (banners[bannerInfo.team]||[]).filter(id=>id===myMemberId).length;
+      const sentSlots = (banners[bannerInfo.team]||[])
+        .map((id,i)=>`${id}_${i}`)
+        .filter((k,i)=>(banners[bannerInfo.team]||[])[i]===myMemberId && banPendingIndividual[k]).length;
+      const slotInfo = mySlots>1 ? ` (${sentSlots+1}/${mySlots}回目)` : '';
+      hint.innerHTML=`<strong style="color:var(--pk)">あなたのBANターンです${slotInfo}</strong> — BANする武器を選んでください`;
     }
+  } else if(myBanSubmitted){
+    hint.innerHTML=`<span style="color:var(--pk)">✓ BANを送信しました。全員のBANが揃うのを待っています…</span>`;
   } else {
-    // 担当外: 全員の進捗を表示
-    const allBanners = [...(banners.alpha||[]),...(banners.bravo||[])];
-    const submitted  = allBanners.filter(id=>banPendingIndividual[id]||(S.bans.alpha||[]).some((_,i)=>(banners.alpha||[])[i]===id)||(S.bans.bravo||[]).some((_,i)=>(banners.bravo||[])[i]===id));
-    hint.innerHTML=`${submitted.length} / ${allBanners.length} 人がBANを送信しました`;
+    // 担当外: 全スロット進捗を表示
+    const allAlphaKeys = (banners.alpha||[]).map((id,i)=>`${id}_${i}`);
+    const allBravoKeys = (banners.bravo||[]).map((id,i)=>`${id}_${i}`);
+    const allKeys = [...allAlphaKeys,...allBravoKeys];
+    const submitted = allKeys.filter(k=>banPendingIndividual[k]||(()=>{
+      const [,si] = k.split('_'); const idx=parseInt(si);
+      const inAlpha = allAlphaKeys.includes(k) && !!(S.bans.alpha||[])[idx];
+      const inBravo = allBravoKeys.includes(k) && !!(S.bans.bravo||[])[idx];
+      return inAlpha||inBravo;
+    })()).length;
+    hint.innerHTML=`${submitted} / ${allKeys.length} スロットがBANを送信しました`;
   }
 
   const btn=document.getElementById('ban-confirm-btn');
@@ -2465,9 +2552,8 @@ function renderIndividualBanPanel(S, bc){
     btn.style.display='none';
   } else {
     btn.style.display='';
-    btn.textContent=myBanSubmitted?'送信済み ✓':'BANを送信する';
-    // ★修正: ローカル確定済み（myConfirmedBan）の時のみ送信ボタンを有効化
-    btn.disabled=myBanSubmitted||!myConfirmedBan;
+    btn.textContent='BANを送信する';
+    btn.disabled=!myConfirmedBan;
   }
 }
 
@@ -2501,14 +2587,27 @@ window.confirmBans = function(){
 
 // 個人BANの送信（ボタン押下時）
 function confirmIndividualBan(S){
-  if(!myConfirmedBan) return;  // ローカル確定済みでなければ送信しない
-  if(myBanSubmitted) return;
+  if(!myConfirmedBan) return;
+  // 担当中の未送信スロットを取得
+  const bannerInfo = getMyBannerInfo(S);
+  if(!bannerInfo) return;
+  const {banKey} = bannerInfo;
+  if(banPendingIndividual[banKey]) return; // このスロットは送信済み
+
   const w = myConfirmedBan;
   myConfirmedBan = null;
   pendingSelect  = null;
-  myBanSubmitted = true;
-  set(ref(db,`rooms/${roomId}/pending_bans/${myMemberId}`),
+  // キーを banKey にすることで同一メンバーが複数スロットを独立して持てる
+  banPendingIndividual[banKey] = {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat};
+  set(ref(db,`rooms/${roomId}/pending_bans/${banKey}`),
     {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat});
+
+  // まだ未送信の担当スロットが残っているか確認
+  const nextSlot = getMyBannerInfo(S);
+  if(!nextSlot){
+    // 全担当スロット送信済み
+    myBanSubmitted = true;
+  }
   renderBanPanel();
   renderGrid();
 }
@@ -2516,31 +2615,39 @@ function confirmIndividualBan(S){
 // 個人BAN全員分揃ったか確認（ホストのみ）
 function checkIndividualBansReady(){
   if(!isHost) return;
-  if(_checkBansInProgress) return;  // 多重発火防止
+  if(_checkBansInProgress) return;
   const S=state;
   const step=S.seq[S.idx];
   if(!step||step.phase!=='ban') return;
   const banners = S.bannerIds||{alpha:[],bravo:[]};
-  const allBanners = [...(banners.alpha||[]),...(banners.bravo||[])];
-  if(allBanners.length===0){
+  // 全スロット（memberId_slotIdx キー）が揃っているか確認
+  const allAlpha = (banners.alpha||[]);
+  const allBravo = (banners.bravo||[]);
+  if(allAlpha.length===0 && allBravo.length===0){
     S.idx++; pushState(); renderDraft(); return;
   }
-  const allSubmitted = allBanners.every(id => banPendingIndividual[id]);
+  const allKeys = [
+    ...allAlpha.map((id,i)=>`${id}_${i}`),
+    ...allBravo.map((id,i)=>`${id}_${i}`),
+  ];
+  const allSubmitted = allKeys.every(k => banPendingIndividual[k]);
   if(!allSubmitted) return;
 
-  _checkBansInProgress = true;  // 以降の重複呼び出しをブロック
+  _checkBansInProgress = true;
   setTimeout(()=>{
-    (banners.alpha||[]).forEach(id=>{
-      if(banPendingIndividual[id]) S.bans.alpha.push(banPendingIndividual[id]);
+    allAlpha.forEach((id,i)=>{
+      const k=`${id}_${i}`;
+      if(banPendingIndividual[k]) S.bans.alpha.push(banPendingIndividual[k]);
     });
-    (banners.bravo||[]).forEach(id=>{
-      if(banPendingIndividual[id]) S.bans.bravo.push(banPendingIndividual[id]);
+    allBravo.forEach((id,i)=>{
+      const k=`${id}_${i}`;
+      if(banPendingIndividual[k]) S.bans.bravo.push(banPendingIndividual[k]);
     });
     set(ref(db,`rooms/${roomId}/pending_bans`), null);
     banPendingIndividual={}; myBanSubmitted=false; myConfirmedBan=null;
     S.idx++;
     pushState();
-    _checkBansInProgress = false;  // pushState後にリセット（handleTimeoutとの競合防止）
+    _checkBansInProgress = false;
     renderDraft();
   }, 800);
 }
@@ -2597,13 +2704,15 @@ function renderGrid(){
       const isIndividualBan = S.pickMode==='individual' && S.banMode==='individual' && isMulti;
       if(isBan){
         if(isIndividualBan){
-          // 個人BAN: 担当者かつ未送信ならクリック可（確定後も変更可能）
+          // 個人BAN: 担当スロットが残っていてかつ未送信ならクリック可
           const bannerInfo = getMyBannerInfo(S);
           clickable = !!bannerInfo && !myBanSubmitted;
         } else {
           const it=!isMulti?banActiveTeam:(isHost?'alpha':'bravo');
           const mySubmitted=isHost?alphaBanSubmitted:bravoBanSubmitted;
-          if(!isMulti||!mySubmitted){
+          // 代表者BANモード: 非代表者はクリック不可
+          const isRep = isRepBanRepresentative(S);
+          if((!isMulti||(!mySubmitted && isRep))){
             const selOffset=(pendingSelect&&pendingSelect.phase==='ban'&&pendingSelect.team===it)?1:0;
             clickable=(S.bc-(S.bans[it]||[]).length-banPending[it].length-selOffset)>0 || (pendingSelect&&pendingSelect.phase==='ban'&&pendingSelect.team===it);
           }
@@ -2654,6 +2763,9 @@ function pickWeapon(w){
       //   tap1 → 仮選択（▷）
       //   tap2（同武器）→ ローカル確定（▶）。送信はボタンで別途行う
       //   tap2（別武器）→ 仮選択を更新
+      // 担当中の未送信スロットがなければ何もしない
+      const bannerInfo = getMyBannerInfo(S);
+      if(!bannerInfo) return;
       if(myBanSubmitted) return;
 
       if(myConfirmedBan){
@@ -2687,6 +2799,7 @@ function pickWeapon(w){
     const it=!isMulti?banActiveTeam:(isHost?'alpha':'bravo');
     const mySubmitted=isHost?alphaBanSubmitted:bravoBanSubmitted;
     if(isMulti&&mySubmitted) return;
+    if(isMulti && !isRepBanRepresentative(S)) return; // 非代表者はBAN操作不可
     if((S.bc-(S.bans[it]||[]).length-banPending[it].length)<=0) return;
 
     if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.team===it){
@@ -3019,6 +3132,8 @@ window.redraftWithSameMembers = async function(){
 };
 
 // ===== ページ離脱時クリーンアップ =====
+// 参加者がブラウザバック・リロード・タブ閉鎖で離脱した際に lobby/members から削除する
+// ドラフト中・ロビー待機中どちらでも動作する
 window.addEventListener('beforeunload',()=>{
   if(isMulti&&!isHost&&myMemberId&&roomId){
     navigator.sendBeacon(
