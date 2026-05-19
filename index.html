@@ -598,7 +598,6 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <option value="snake_mid">ミドルスネーク (1-2-2-2-1)</option>
           <option value="a121">バランス (先1-2-1 / 後1-2-1)</option>
           <option value="a211">前重ね (先2-1-1 / 後1-2-1)</option>
-          <option value="sim">同時ピック (4回同時公開)</option>
         </select>
       </div>
       <div id="solo-pick-order-desc" style="font-size:10px;color:var(--mu);margin-top:-4px;margin-bottom:6px;padding-left:80px;line-height:1.6;"></div>
@@ -624,6 +623,25 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <input type="checkbox" id="solo-std-only">
           <span class="tgl-sl"></span>
         </label>
+      </div>
+      <div class="div"></div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          ⏱ 制限時間あり
+          <small>時間切れで自動ランダムBAN/ピック</small>
+        </div>
+        <label class="tgl">
+          <input type="checkbox" id="solo-time-limit-enabled" onchange="onSoloTimeLimitChange()">
+          <span class="tgl-sl"></span>
+        </label>
+      </div>
+      <div class="row" id="solo-time-limit-row" style="display:none">
+        <label>制限時間</label>
+        <select id="solo-time-limit-sec">
+          <option value="15">15秒</option>
+          <option value="20">20秒</option>
+          <option value="30" selected>30秒</option>
+        </select>
       </div>
     </div>
   </div>
@@ -964,6 +982,8 @@ window.startSoloDraft = function(){
     rm: document.getElementById('solo-rm').value,
     sm: document.getElementById('solo-sm').value,
     stdOnly: document.getElementById('solo-std-only')?.checked||false,
+    timeLimitEnabled: document.getElementById('solo-time-limit-enabled')?.checked||false,
+    timeLimitSec: parseInt(document.getElementById('solo-time-limit-sec')?.value||30),
   });
 };
 
@@ -1054,7 +1074,7 @@ function subscribeLobby(){
       const el=document.getElementById('lobby-wait-settings');
       if(el) el.innerHTML=
         `<span style="color:var(--a)">チーム: ${s.an||'アルファ'} vs ${s.bn||'ブラボー'}</span><br>`+
-        `${s.ts||4}v${s.ts||4} ｜ BAN×${s.bc||3} ｜ ${ruleStr} ｜ ${stageStr}<br>`+
+        `${s.ts||4}v${s.ts||4} ｜ ${s.bc===0?'BANなし':'BAN×'+(s.bc||3)} ｜ ${ruleStr} ｜ ${stageStr}<br>`+
         `<span style="color:var(--pk)">${modeStr}</span>`+
         (s.stdOnly?'<br><span style="color:var(--pk)">⚙ 標準武器のみ</span>':'');
     }
@@ -1087,7 +1107,7 @@ function renderLobbyMembers(members){
 function renderTeamAssign(members){
   const card=document.getElementById('team-assign-card');
   const ids=Object.keys(members);
-  if(ids.length<=1){ card.style.display='none'; return; }
+  if(ids.length<=1){ card.style.display='none'; renderPickOrderUI(); return; }
   card.style.display='block';
 
   const an=document.getElementById('n-a').value||'アルファ';
@@ -1595,6 +1615,11 @@ function getLobbySettings(){
   };
 }
 
+window.onSoloTimeLimitChange = function(){
+  const enabled = document.getElementById('solo-time-limit-enabled')?.checked;
+  document.getElementById('solo-time-limit-row').style.display = enabled ? '' : 'none';
+};
+
 window.onTimeLimitChange = function(){
   const enabled = document.getElementById('time-limit-enabled')?.checked;
   document.getElementById('time-limit-row').style.display = enabled ? '' : 'none';
@@ -1674,11 +1699,21 @@ function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec){
       for(let i=0;i<ts*2;i++) teamSeq.push(i%2===0?first:sec);
     }
   } else if(po==='a121'){
-    const pattern=[0,1,0,0,1,1,0,1,0,1];
-    for(let i=0;i<ts*2;i++) teamSeq.push(pattern[i]===0?first:sec);
+    if(ts >= 3){
+      const pattern=[0,1,0,0,1,1,0,1,0,1];
+      for(let i=0;i<ts*2;i++) teamSeq.push(pattern[i]===0?first:sec);
+    } else {
+      // ts<3 には a121 パターンが定義されていないため交互にフォールバック
+      for(let i=0;i<ts*2;i++) teamSeq.push(i%2===0?first:sec);
+    }
   } else if(po==='a211'){
-    const pattern=[0,0,1,0,1,1,0,1,0,1];
-    for(let i=0;i<ts*2;i++) teamSeq.push(pattern[i]===0?first:sec);
+    if(ts >= 3){
+      const pattern=[0,0,1,0,1,1,0,1,0,1];
+      for(let i=0;i<ts*2;i++) teamSeq.push(pattern[i]===0?first:sec);
+    } else {
+      // ts<3 には a211 パターンが定義されていないため交互にフォールバック
+      for(let i=0;i<ts*2;i++) teamSeq.push(i%2===0?first:sec);
+    }
   } else {
     for(let i=0;i<ts*2;i++) teamSeq.push(i%2===0?first:sec);
   }
@@ -2380,6 +2415,7 @@ function confirmIndividualBan(S){
   set(ref(db,`rooms/${roomId}/pending_bans/${myMemberId}`),
     {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat});
   renderBanPanel();
+  renderGrid();
 }
 
 // 個人BAN全員分揃ったか確認（ホストのみ）
