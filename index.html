@@ -1643,6 +1643,8 @@ function updateStartButton(){
   info.style.color = ready ? 'var(--pk)' : 'var(--mu)';
 }
 window.updateStartButton = updateStartButton;
+
+window.onSoloTimeLimitChange = function(){
   const enabled = document.getElementById('solo-time-limit-enabled')?.checked;
   document.getElementById('solo-time-limit-row').style.display = enabled ? '' : 'none';
 };
