@@ -2007,6 +2007,11 @@ window.leaveLobby = function(){
 window.goHome = function(){
   [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub].forEach(f=>{if(f){f();}});
   fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=null;
+  // 参加者がモード選択に戻る際も Firebase lobby から自分を削除する
+  // （再ドラフト時にホストが古いメンバー情報を取得してしまうのを防ぐ）
+  if(isMulti&&!isHost&&myMemberId&&roomId){
+    remove(ref(db,`rooms/${roomId}/lobby/members/${myMemberId}`));
+  }
   roomId=null; isMulti=false; isHost=false; myMemberId=null;
   lobbyMembers={}; lobbyPickOrderAlpha=[]; lobbyPickOrderBravo=[];
   showScreen('mode');
