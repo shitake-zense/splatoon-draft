@@ -514,7 +514,8 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
     </div>
   </div>
 
-  <button class="btn-start" onclick="startDraft()">▶ ドラフト開始</button>
+  <button class="btn-start" id="btn-start-draft" onclick="startDraft()">▶ ドラフト開始</button>
+  <div id="start-btn-info" style="text-align:center;font-size:11px;color:var(--mu);margin-top:6px;min-height:16px;"></div>
   <button class="btn-re" onclick="leaveLobby()">← モード選択に戻る</button>
 </div>
 
@@ -658,6 +659,9 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       ROOM: <span id="draft-room-id"></span>
       <button class="btn-copy" style="padding:3px 9px;font-size:10px;" id="btn-copy-draft" onclick="copyRoomId()">📋</button>
     </div>
+  </div>
+  <div id="btn-back-to-lobby-wrap" style="display:none;margin-bottom:10px;">
+    <button class="btn-re" style="width:auto;padding:7px 16px;font-size:11px;" onclick="backToLobby()">← ロビーに戻る</button>
   </div>
   <div class="match-box">
     <div class="stage-wrap">
@@ -1043,6 +1047,7 @@ function showLobbyHost(){
   const url=getRoomUrl();
   document.getElementById('lobby-room-url-preview').textContent=url;
   showScreen('lobby');
+  updateStartButton();
 }
 function showLobbyWait(){
   document.getElementById('lobby-wait-room-id').textContent=roomId;
@@ -1132,6 +1137,7 @@ function renderTeamAssign(members){
 
   // 個人ピックモードのピック順UIを更新
   renderPickOrderUI();
+  updateStartButton();
 }
 
 window.assignMember = function(memberId, team){
@@ -1166,6 +1172,7 @@ window.onPickModeChange = function(){
   document.getElementById('pick-order-card').style.display  = isIndividual ? 'block' : 'none';
   document.getElementById('ban-mode-row').style.display     = isIndividual ? '' : 'none';
   onSettingChange();
+  updateStartButton();
 };
 
 // ===== ピック順UI =====
@@ -1593,6 +1600,7 @@ window.onSoloPickOrderChange = function(){
 window.onSettingChange = function(){
   if(!isHost||!roomId) return;
   set(ref(db,`rooms/${roomId}/lobby/settings`), getLobbySettings());
+  updateStartButton();
 };
 
 function getLobbySettings(){
@@ -1615,7 +1623,26 @@ function getLobbySettings(){
   };
 }
 
-window.onSoloTimeLimitChange = function(){
+// ===== ドラフト開始ボタンの活性制御（Feature-2） =====
+function updateStartButton(){
+  const btn = document.getElementById('btn-start-draft');
+  const info = document.getElementById('start-btn-info');
+  if(!btn || !info) return;
+  const pickMode = document.getElementById('pick-mode')?.value || 'individual';
+  if(pickMode !== 'individual'){
+    btn.disabled = false;
+    info.textContent = '';
+    return;
+  }
+  const ts = parseInt(document.getElementById('sz')?.value || 4);
+  const alphaCount = Object.values(lobbyMembers).filter(m=>m.team==='alpha').length;
+  const bravoCount = Object.values(lobbyMembers).filter(m=>m.team==='bravo').length;
+  const ready = alphaCount === ts && bravoCount === ts;
+  btn.disabled = !ready;
+  info.textContent = `個人ピックモード：アルファ ${alphaCount}/${ts}人、ブラボー ${bravoCount}/${ts}人`;
+  info.style.color = ready ? 'var(--pk)' : 'var(--mu)';
+}
+window.updateStartButton = updateStartButton;
   const enabled = document.getElementById('solo-time-limit-enabled')?.checked;
   document.getElementById('solo-time-limit-row').style.display = enabled ? '' : 'none';
 };
@@ -1804,6 +1831,9 @@ function showDraftUI(){
   const info=document.getElementById('draft-room-info');
   info.style.display=isMulti?'flex':'none';
   if(isMulti) document.getElementById('draft-room-id').textContent=roomId;
+  // Feature-1: ホスト専用ロビー戻りボタンの表示制御
+  const backWrap = document.getElementById('btn-back-to-lobby-wrap');
+  if(backWrap) backWrap.style.display = (isMulti && isHost) ? '' : 'none';
   renderDraft();
   showScreen('draft');
 }
@@ -1992,6 +2022,64 @@ function onSimPickSnap(team, snap){
     setTimeout(()=>revealSimPick(), 400);
   }
 }
+
+// ===== ドラフト中にホストがロビーへ戻る（Feature-1） =====
+window.backToLobby = async function(){
+  if(!isMulti || !isHost || !roomId) return;
+  if(!confirm('ドラフトを中断してロビーに戻りますか？\nメンバー情報は保持されます。')) return;
+
+  // タイマー停止
+  clearTimer();
+
+  // 全Firebase購読を解除（lobby監視は後で再登録）
+  [fbUnsub, fbBanUnsub, fbSimPickUnsub, fbIndividualBanUnsub].forEach(f=>{if(f){f();}});
+  fbUnsub = fbBanUnsub = fbSimPickUnsub = fbIndividualBanUnsub = null;
+  if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
+
+  // Firebaseのドラフトデータを全削除（lobby/members は残す）
+  // state を null にすることで参加者が subscribeRoom() 経由でロビーへ自動遷移する
+  await Promise.all([
+    remove(ref(db, `rooms/${roomId}/state`)),
+    remove(ref(db, `rooms/${roomId}/pending_alpha_bans`)),
+    remove(ref(db, `rooms/${roomId}/pending_bravo_bans`)),
+    remove(ref(db, `rooms/${roomId}/pending_bans`)),
+    remove(ref(db, `rooms/${roomId}/pending_alpha_pick`)),
+    remove(ref(db, `rooms/${roomId}/pending_bravo_pick`)),
+  ]);
+
+  // ローカルの全一時変数をリセット
+  state = null;
+  banPending = {alpha:[], bravo:[]};
+  banActiveTeam = 'alpha';
+  alphaBanSubmitted = false;
+  bravoBanSubmitted = false;
+  banPendingIndividual = {};
+  myBanSubmitted = false;
+  myConfirmedBan = null;
+  _checkBansInProgress = false;
+  simPickPending = {alpha:null, bravo:null};
+  alphaPickSubmitted = false;
+  bravoPickSubmitted = false;
+  simPickRound = 0;
+  _checkPicksInProgress = false;
+  pendingSelect = null;
+  _lastPushedIdx = -1;
+  _pickHandledBySelf = false;
+  activeCat = 'すべて';
+
+  // Firebase からメンバー情報を最新取得してロビーへ戻る
+  const lobbySnap = await get(ref(db, `rooms/${roomId}/lobby`));
+  if(lobbySnap.exists()){
+    const lobby = lobbySnap.val();
+    lobbyMembers = lobby.members || {};
+    const s = lobby.settings || {};
+    if(s.pickOrderAlpha) lobbyPickOrderAlpha = s.pickOrderAlpha;
+    if(s.pickOrderBravo) lobbyPickOrderBravo = s.pickOrderBravo;
+  }
+
+  subscribeLobby();
+  showLobbyHost();
+};
 
 // ===== 退出 =====
 window.leaveLobby = function(){
