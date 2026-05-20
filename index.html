@@ -425,11 +425,11 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
     <div class="card">
       <h3>DRAFT SETTINGS</h3>
       <div class="row">
-        <label>Banフェーズ</label>
+        <label>Ban数</label>
         <select id="bc" onchange="onSettingChange()">
-          <option value="0">Banなし</option><option value="1">各1Ban</option>
-          <option value="2">各2Ban</option><option value="3" selected>各3Ban</option>
-          <option value="4">各4Ban</option>
+          <option value="0">Banなし</option><option value="1">Ban数1</option>
+          <option value="2">Ban数2</option><option value="3" selected>Ban数3</option>
+          <option value="4">Ban数4</option>
         </select>
       </div>
       <div class="row">
@@ -470,7 +470,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       <div class="toggle-row">
         <div class="toggle-label">
           標準武器のみ
-          <small>各武器の基本形のみ表示（バリアント除外）</small>
+          <small>各武器の基本形のみ表示</small>
         </div>
         <label class="tgl">
           <input type="checkbox" id="std-only" onchange="onSettingChange()">
