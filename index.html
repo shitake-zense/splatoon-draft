@@ -1084,6 +1084,18 @@ function subscribeLobby(){
       if(s.pickOrderBravo) lobbyPickOrderBravo=s.pickOrderBravo;
       renderTeamAssign(members);
     } else {
+      // 参加者: kicked フラグを確認
+      const myEntry = (lobby.members||{})[myMemberId];
+      if(myEntry && myEntry.kicked){
+        // キックされた → 購読解除してモード選択へ
+        if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
+        if(fbUnsub){fbUnsub();fbUnsub=null;}
+        roomId=null; isMulti=false; isHost=false; myMemberId=null;
+        lobbyMembers={}; lobbyPickOrderAlpha=[]; lobbyPickOrderBravo=[];
+        alert('ホストによってロビーから退出させられました。');
+        showScreen('mode');
+        return;
+      }
       // 設定をリアルタイム表示
       const s=lobby.settings||{};
       const ruleStr=s.rule==='random'?'ランダム':(s.rule||'ランダム');
@@ -1143,6 +1155,7 @@ function renderTeamAssign(members){
         ${team!=='alpha'?`<button class="btn-assign to-a" onclick="assignMember('${id}','alpha')">α</button>`:''}
         ${team!=='bravo'?`<button class="btn-assign to-b" onclick="assignMember('${id}','bravo')">β</button>`:''}
         ${team!=='unassigned'?`<button class="btn-assign to-un" onclick="assignMember('${id}','unassigned')">－</button>`:''}
+        ${!m.isHost?`<button class="btn-assign" style="color:#e06060;border-color:#e06060;margin-left:4px;" onclick="kickMember('${id}','${m.name}')">×</button>`:''}
       </div>`;
       el.appendChild(div);
     });
@@ -1155,6 +1168,17 @@ function renderTeamAssign(members){
 
 window.assignMember = function(memberId, team){
   set(ref(db,`rooms/${roomId}/lobby/members/${memberId}/team`), team);
+};
+
+// ===== 参加者キック（ホスト操作） =====
+window.kickMember = function(memberId, memberName){
+  if(!confirm(`「${memberName}」をロビーから退出させますか？\n相手のモード選択画面に戻ります。`)) return;
+  // kicked フラグを書き込む → 参加者側の subscribeLobby が検知して退出処理
+  set(ref(db,`rooms/${roomId}/lobby/members/${memberId}/kicked`), true);
+  // ホスト側は少し待ってから lobby/members を削除
+  setTimeout(()=>{
+    remove(ref(db,`rooms/${roomId}/lobby/members/${memberId}`));
+  }, 1500);
 };
 
 // ===== 設定変更 → Firebase反映 =====
