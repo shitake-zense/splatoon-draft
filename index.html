@@ -1444,29 +1444,40 @@ async function handleTimeout(expectedIdx){
   if(step.phase==='ban'){
     const isIndividualBan = S.pickMode==='individual' && S.banMode==='individual' && isMulti;
     if(isIndividualBan){
-      // マルチ個人BAN: 未送信メンバーをランダムBAN送信（ホストが全員分担当）
-      // 自分自身が未送信の場合、仮選択・確定済みを優先
+      // マルチ個人BAN: 未送信スロットをランダムBAN送信（ホストが全スロット分担当）
       const banners = S.bannerIds||{alpha:[],bravo:[]};
-      const allBanners = [...(banners.alpha||[]),...(banners.bravo||[])];
       let mutable = [...allWeapons];
-      const promises = allBanners
-        .filter(id => !banPendingIndividual[id])
-        .map(id => {
+      const promises = [];
+
+      ['alpha','bravo'].forEach(team=>{
+        (banners[team]||[]).forEach((memberId, slotIdx)=>{
+          const banKey = `${memberId}_${slotIdx}`;
+          if(banPendingIndividual[banKey]) return; // 送信済みスロットはスキップ
+
           let chosen;
-          if(id === myMemberId){
-            // 自分: 確定済み > 仮選択 > ランダム
+          // 自分のスロットかつ現在操作中（getMyBannerInfo が返す）なら確定済み・仮選択を優先
+          const activeSlot = (memberId === myMemberId)
+            ? (()=>{ const info = getMyBannerInfo(S); return (info && info.slotIdx===slotIdx) ? info : null; })()
+            : null;
+          if(activeSlot){
             chosen = myConfirmedBan
               || (pendingSelect && pendingSelect.phase==='ban' ? pendingSelect.w : null)
               || pickRandom(mutable);
-            myConfirmedBan=null; pendingSelect=null; myBanSubmitted=true;
+            myConfirmedBan=null; pendingSelect=null;
           } else {
             chosen = pickRandom(mutable);
           }
-          if(!chosen) return Promise.resolve();
+          if(!chosen) return;
           mutable = mutable.filter(x=>x.key!==chosen.key);
-          return set(ref(db,`rooms/${roomId}/pending_bans/${id}`),
-            {key:chosen.key, name:chosen.name, imgUrl:chosen.imgUrl, cat:chosen.cat});
+          banPendingIndividual[banKey] = {key:chosen.key, name:chosen.name, imgUrl:chosen.imgUrl, cat:chosen.cat};
+          promises.push(
+            set(ref(db,`rooms/${roomId}/pending_bans/${banKey}`),
+              {key:chosen.key, name:chosen.name, imgUrl:chosen.imgUrl, cat:chosen.cat})
+          );
         });
+      });
+
+      myBanSubmitted = true;
       Promise.all(promises).then(()=>checkIndividualBansReady());
     } else if(isMulti){
       // マルチ代表者BAN: 未送信チームをランダムBAN（仮選択があれば優先）
