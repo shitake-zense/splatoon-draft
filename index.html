@@ -1674,7 +1674,7 @@ window.startDraft = function(){
   // メンバー情報をstateに含める（表示名やピック順に使用）
   const membersForState={};
   Object.entries(lobbyMembers).forEach(([id,m])=>{
-    membersForState[id]={name:m.name,team:m.team,isHost:m.isHost};
+    membersForState[id]={name:m.name,team:m.team,isHost:m.isHost,joinedAt:m.joinedAt||0};
   });
   buildAndStartDraft({
     an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:s.ft, po:s.po,
@@ -1813,11 +1813,10 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,pi
   let representativeAlpha = null;
   let representativeBravo = null;
   if(isMulti && bMode==='representative' && bc>0){
-    // alpha代表: isHost=true のメンバー
-    const hostEntry = Object.entries(members||{}).find(([,m])=>m.isHost);
-    representativeAlpha = hostEntry ? hostEntry[0] : null;
-    // bravo代表: bravoチームで joinedAt が最小の非ホストメンバー（lobbyMembers を参照）
-    const bravoEntries = Object.entries(lobbyMembers)
+    // alpha代表: buildAndStartDraft は常にホストが呼ぶため myMemberId がα代表
+    representativeAlpha = myMemberId;
+    // bravo代表: membersForState からbravoチームの非ホストで最も早く参加したメンバー
+    const bravoEntries = Object.entries(members||{})
       .filter(([,m])=>m.team==='bravo'&&!m.isHost)
       .sort((a,b)=>(a[1].joinedAt||0)-(b[1].joinedAt||0));
     representativeBravo = bravoEntries.length>0 ? bravoEntries[0][0] : null;
@@ -2384,10 +2383,18 @@ function isRepBanRepresentative(S){
   if(!isMulti) return true;
   if(S.pickMode==='individual' && S.banMode==='individual') return true; // 個人BAN
   if(S.banMode!=='representative') return true;
+
+  // 自分のチームを取得（S.membersから引く。見つからない場合はisHostで判定）
   const memberData = (S.members||{})[myMemberId];
-  const myTeam = memberData?.team || (isHost ? 'alpha' : 'bravo');
+  const myTeam = memberData ? memberData.team : (isHost ? 'alpha' : 'bravo');
+
   const repId = myTeam==='alpha' ? S.representativeAlpha : S.representativeBravo;
-  return !repId || repId===myMemberId;
+
+  // repIdが未設定の場合: alpha→ホストのみ許可、bravo→非ホストのうち最初の一人（比較できないので全員拒否で安全側に倒す）
+  if(!repId){
+    return myTeam==='alpha' ? isHost : false;
+  }
+  return repId === myMemberId;
 }
 
 // ===== BANパネル =====
