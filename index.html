@@ -1407,16 +1407,17 @@ function handleTimeoutSelf(expectedIdx){
     pushState(); renderDraft();
 
   } else if(step.phase==='pick' && step.team === 'both'){
-    // 同時ピック: 自分のチームが未送信なら自動送信
-    const myTeam = isHost ? 'alpha' : 'bravo';
-    const mySubmitted = isHost ? alphaPickSubmitted : bravoPickSubmitted;
+    // 同時ピック（ペア・ラウンド制）: このラウンドの自チーム担当者のみ自動送信
+    const myTeam = mySimPickTeam(S, step);
+    if(!myTeam) return; // 担当外は何もしない
+    const mySubmitted = myTeam==='alpha' ? alphaPickSubmitted : bravoPickSubmitted;
     if(mySubmitted) return;
     const allWeapons = getAvailableWeapons(S);
     const chosen = (pendingSelect && pendingSelect.phase==='simpick' && pendingSelect.team===myTeam)
       ? pendingSelect.w : pickRandom(allWeapons);
     if(!chosen) return;
     pendingSelect = null;
-    const myKey = isHost ? 'pending_alpha_pick' : 'pending_bravo_pick';
+    const myKey = myTeam==='alpha' ? 'pending_alpha_pick' : 'pending_bravo_pick';
     set(ref(db, `rooms/${roomId}/${myKey}`),
       {key:chosen.key, name:chosen.name, imgUrl:chosen.imgUrl, cat:chosen.cat});
   }
@@ -1725,10 +1726,20 @@ window.startDraft = function(){
 // ピック順テンプレート（tsは1チームの枚数）
 // 値はfirstからの相対: 0=first, 1=second
 // pickMode==='individual' の場合は memberId を付与する
-function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec){
+function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec, simOrderAlpha, simOrderBravo){
   const seq=[];
   if(po==='sim'){
-    for(let i=0;i<ts;i++) seq.push({phase:'pick',team:'both',round:i});
+    // 同時ピックは「各ラウンドで Alpha[i] と Bravo[i] のペア2人が同時にピック」型。
+    // ラウンドへの担当者割当はチーム別のピック順（無ければ joinedAt 順）に従う。
+    // ソロや旧スキーマ後方互換のため、割当が無いラウンドは memberId 無しで進む。
+    const oa = simOrderAlpha||[];
+    const ob = simOrderBravo||[];
+    for(let i=0;i<ts;i++){
+      const step={phase:'pick',team:'both',round:i};
+      if(oa[i]) step.alphaMemberId=oa[i];
+      if(ob[i]) step.bravoMemberId=ob[i];
+      seq.push(step);
+    }
     return seq;
   }
 
@@ -1835,9 +1846,22 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,pi
     bannerIds = {alpha: bAlpha.slice(0,bc), bravo: bBravo.slice(0,bc)};
   }
 
+  // 同時ピック用: チーム別の担当順（明示ピック順 > joinedAt フォールバック）。
+  // pickMode に関わらず同時ピックはペア・ラウンド制なので常に解決する。
+  const resolveSimOrder = (team, explicitOrder) => {
+    if(explicitOrder && explicitOrder.length>0) return [...explicitOrder];
+    return Object.entries(members||{})
+      .filter(([,m])=>m.team===team)
+      .sort((a,b)=>(a[1].joinedAt||0)-(b[1].joinedAt||0))
+      .map(([id])=>id);
+  };
+  const simOrderAlpha = pickOrder==='sim' ? resolveSimOrder('alpha', pickOrderAlpha) : null;
+  const simOrderBravo = pickOrder==='sim' ? resolveSimOrder('bravo', pickOrderBravo) : null;
+
   const pickSteps = buildPickSeq(ts, pickOrder, first, sec,
     pMode==='individual' ? poFirst : null,
-    pMode==='individual' ? poSec   : null
+    pMode==='individual' ? poSec   : null,
+    simOrderAlpha, simOrderBravo
   );
   for(const step of pickSteps){
     if(typeof step==='object') seq.push(step);
@@ -2432,6 +2456,20 @@ function isRepBanRepresentative(S){
   return repId === myMemberId;
 }
 
+// 同時ピックの現ラウンドで「自分が担当する側」を返す（担当外/観戦は null）。
+// 新スキーマ: step.alphaMemberId / step.bravoMemberId で一意に判定。
+// 後方互換: 割当が無い旧ステップは従来の isHost 判定（alpha=ホスト/bravo=参加者）。
+function mySimPickTeam(S, step){
+  if(!isMulti) return null; // ソロは別ロジック（両チームを順に選ぶ）
+  if(!step || step.team!=='both') return null;
+  if(step.alphaMemberId || step.bravoMemberId){
+    if(step.alphaMemberId===myMemberId) return 'alpha';
+    if(step.bravoMemberId===myMemberId) return 'bravo';
+    return null; // このラウンドの担当外（送信ロック）
+  }
+  return isHost ? 'alpha' : 'bravo';
+}
+
 // ===== BANパネル =====
 function renderBanPanel(){
   const S=state, bc=S.bc;
@@ -2760,13 +2798,14 @@ function renderGrid(){
           }
         }
       } else if(isSimPick){
-        const myTeam=!isMulti?(!simPickPending.alpha?'alpha':'bravo'):(isHost?'alpha':'bravo');
-        const mySubmitted=!isMulti?false:(isHost?alphaPickSubmitted:bravoPickSubmitted);
         if(!isMulti){
           if(!simPickPending.alpha) clickable=true;
           else if(!simPickPending.bravo) clickable=true;
-        } else if(!mySubmitted && !simPickPending[myTeam]){
-          clickable=true;
+        } else {
+          // ペア・ラウンド制: このラウンドの自チーム担当者だけが送信可能
+          const myTeam=mySimPickTeam(S, step);
+          const mySubmitted=myTeam==='alpha'?alphaPickSubmitted:(myTeam==='bravo'?bravoPickSubmitted:false);
+          if(myTeam && !mySubmitted && !simPickPending[myTeam]) clickable=true;
         }
       } else {
         if(!isMulti) clickable=true;
@@ -2863,8 +2902,9 @@ function pickWeapon(w){
     renderBanPanel(); renderGrid();
 
   } else if(step.team==='both'){
-    // 同時ピック
-    const myTeam=!isMulti?(!simPickPending.alpha?'alpha':'bravo'):(isHost?'alpha':'bravo');
+    // 同時ピック（ペア・ラウンド制: 自分がこのラウンドの担当でなければ操作不可）
+    const myTeam=!isMulti?(!simPickPending.alpha?'alpha':'bravo'):mySimPickTeam(S, step);
+    if(isMulti && !myTeam) return; // 担当外
     if(isMulti && simPickPending[myTeam]) return;
     if(!isMulti && simPickPending.alpha && simPickPending.bravo) return;
 
@@ -2933,6 +2973,9 @@ function renderSlotsWithPending(){
 // ===== 同時ピックパネル =====
 function renderSimPickPanel(){
   const S=state;
+  const step=S.seq[S.idx];
+  // このラウンドで自分が担当する側（ペア・ラウンド制）。観戦者は null。
+  const myPickTeam = mySimPickTeam(S, step);
   ['alpha','bravo'].forEach(team=>{
     const el=document.getElementById('sim-pick-slots-'+(team==='alpha'?'a':'b'));
     el.innerHTML='';
@@ -2940,9 +2983,9 @@ function renderSimPickPanel(){
     const confirmed=(S.picks[team]||[]).length;
     const roundNum=confirmed+1;
     // 選択中
-    const isMyTeam=!isMulti||(isHost?team==='alpha':team==='bravo');
+    const isMyTeam=!isMulti||(team===myPickTeam);
     const pending=simPickPending[team];
-    const submitted=isMulti?(isHost?(team==='alpha'?alphaPickSubmitted:bravoPickSubmitted):(team==='bravo'?bravoPickSubmitted:alphaPickSubmitted)):false;
+    const submitted=isMulti?(team==='alpha'?alphaPickSubmitted:bravoPickSubmitted):false;
 
     const d=document.createElement('div');
     if(pending){
@@ -2963,39 +3006,46 @@ function renderSimPickPanel(){
   });
 
   const hint=document.getElementById('sim-pick-hint');
-  // マルチ時は明確に自分のチームを使う
-  const myTeamM = isHost?'alpha':'bravo';
-  const otherTeamM = isHost?'bravo':'alpha';
-  const myPick    = simPickPending[myTeamM];
-  const otherPick = simPickPending[otherTeamM];
-  const mySubmitted = isHost ? alphaPickSubmitted : bravoPickSubmitted;
+  const btn=document.getElementById('sim-pick-confirm-btn');
+  // このラウンドで自分が担当する側（観戦者は null）
+  const myTeamM    = myPickTeam;
+  const otherTeamM = myTeamM==='alpha'?'bravo':(myTeamM==='bravo'?'alpha':null);
+  const otherPick  = otherTeamM ? simPickPending[otherTeamM] : null;
+  const mySubmitted = myTeamM==='alpha'?alphaPickSubmitted:(myTeamM==='bravo'?bravoPickSubmitted:false);
 
   if(!isMulti){
     const aReady=!!simPickPending.alpha, bReady=!!simPickPending.bravo;
     if(!aReady) hint.innerHTML=`<strong style="color:var(--a)">${S.an}</strong> の武器を選択してください`;
     else if(!bReady) hint.innerHTML=`<strong style="color:var(--b)">${S.bn}</strong> の武器を選択してください`;
     else hint.innerHTML=`<span style="color:var(--pk)">両チームの選択が完了しました！確定してください</span>`;
-  } else if(mySubmitted && !otherPick){
+    btn.textContent='PICKを確定する'; btn.disabled=!(simPickPending.alpha&&simPickPending.bravo);
+    return;
+  }
+
+  if(!myTeamM){
+    // このラウンドの担当外（観戦）。送信できない。
+    const aPicker = step&&step.alphaMemberId ? (S.members||{})[step.alphaMemberId]?.name : S.an;
+    const bPicker = step&&step.bravoMemberId ? (S.members||{})[step.bravoMemberId]?.name : S.bn;
+    hint.innerHTML=`<span style="color:var(--mu)">このラウンドは <strong style="color:var(--a)">${aPicker||S.an}</strong> と <strong style="color:var(--b)">${bPicker||S.bn}</strong> がピック中です。お待ちください</span>`;
+    btn.textContent='担当外'; btn.disabled=true;
+    return;
+  }
+
+  if(mySubmitted && !otherPick){
     hint.innerHTML=`<span style="color:var(--pk)">✓ PICKを送信しました。相手チームを待っています…</span>`;
   } else if(!mySubmitted && otherPick){
     hint.innerHTML=`<span style="color:var(--y)">相手チームの選択が届いています。武器を選んで送信してください</span>`;
   } else if(mySubmitted && otherPick){
     hint.innerHTML=`<span style="color:var(--pk)">✓ 両チームの選択が揃いました！まもなく公開されます…</span>`;
   } else {
-    const myName=isHost?S.an:S.bn;
-    const myCol=isHost?'var(--a)':'var(--b)';
+    const myName=myTeamM==='alpha'?S.an:S.bn;
+    const myCol=myTeamM==='alpha'?'var(--a)':'var(--b)';
     hint.innerHTML=`<strong style="color:${myCol}">${myName}</strong> — ピックする武器を選択して送信してください`;
   }
 
-  const aReady=!!simPickPending.alpha, bReady=!!simPickPending.bravo;
-  const btn=document.getElementById('sim-pick-confirm-btn');
-  if(!isMulti){
-    btn.textContent='PICKを確定する'; btn.disabled=!(aReady&&bReady);
-  } else {
-    const myReady=!!simPickPending[myTeamM];
-    btn.textContent=mySubmitted?'送信済み ✓':'PICKを送信する';
-    btn.disabled=mySubmitted||!myReady;
-  }
+  const myReady=!!simPickPending[myTeamM];
+  btn.textContent=mySubmitted?'送信済み ✓':'PICKを送信する';
+  btn.disabled=mySubmitted||!myReady;
 }
 
 window.confirmSimPick = function(){
@@ -3004,12 +3054,14 @@ window.confirmSimPick = function(){
     showSimRevealOverlay(simPickPending.alpha, simPickPending.bravo);
     return;
   }
-  const myTeam=isHost?'alpha':'bravo';
-  const mySubmitted=isHost?alphaPickSubmitted:bravoPickSubmitted;
+  const step=state.seq[state.idx];
+  const myTeam=mySimPickTeam(state, step);
+  if(!myTeam) return; // このラウンドの担当外は送信不可
+  const mySubmitted=myTeam==='alpha'?alphaPickSubmitted:bravoPickSubmitted;
   if(mySubmitted) return; // 二重送信防止
   const myPick=simPickPending[myTeam];
   if(!myPick) return;
-  const myKey=isHost?'pending_alpha_pick':'pending_bravo_pick';
+  const myKey=myTeam==='alpha'?'pending_alpha_pick':'pending_bravo_pick';
   set(ref(db,`rooms/${roomId}/${myKey}`), {key:myPick.key,name:myPick.name,imgUrl:myPick.imgUrl,cat:myPick.cat});
   // submitted フラグはonSimPickSnapで自動セットされる（Firebase反映後）
   renderSimPickPanel(); renderGrid();
