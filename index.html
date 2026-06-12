@@ -204,6 +204,10 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .pf-chip.pf-past{opacity:.25;}
 .pf-chip.pf-cur{transform:scale(1.18);box-shadow:0 0 8px currentColor;opacity:1;z-index:1;}
 .pf-chip.pf-next{opacity:.6;}
+.pf-chip.pf-pair{display:flex;flex-direction:column;gap:2px;padding:3px 7px;background:linear-gradient(135deg,#16331f,#1f3320);border-color:var(--pk);}
+.pf-pair span{font-size:9px;line-height:1.15;text-align:center;letter-spacing:.5px;}
+.pf-pair .pf-pa{color:var(--a);}
+.pf-pair .pf-pb{color:var(--b);}
 
 /* ===== 標準武器トグル ===== */
 .toggle-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid #2a3a5a;}
@@ -2253,11 +2257,11 @@ function renderPickFlow(){
       cls+='pf-ban';
       chip.textContent='BAN';
     } else if(step.team==='both'){
-      cls+='pf-a';
-      chip.textContent='同時';
-      chip.style.background='linear-gradient(135deg,#1a2a4a,#2a1a2a)';
-      chip.style.borderColor='var(--pk)';
-      chip.style.color='var(--pk)';
+      // 同時ピック: ラウンド（ペア）を1ボックスにまとめ、担当2人を表示
+      cls+='pf-pair';
+      const aLab = step.alphaMemberId ? playerLabel(step.alphaMemberId) : la;
+      const bLab = step.bravoMemberId ? playerLabel(step.bravoMemberId) : lb;
+      chip.innerHTML=`<span class="pf-pa">${aLab}</span><span class="pf-pb">${bLab}</span>`;
     } else {
       cls+=(step.team==='alpha'?'pf-a':'pf-b');
       // 個人ピックモードかつmemberIdあり → プレイヤー名2文字
@@ -2274,7 +2278,12 @@ function renderPickFlow(){
 
     const stepNum=i+1;
     if(step.phase==='ban') chip.title=`STEP ${stepNum}: BAN PHASE`;
-    else if(step.team==='both') chip.title=`STEP ${stepNum}: 同時PICK (ROUND ${(step.round||0)+1})`;
+    else if(step.team==='both'){
+      const an=step.alphaMemberId&&(S.members||{})[step.alphaMemberId]?.name;
+      const bn=step.bravoMemberId&&(S.members||{})[step.bravoMemberId]?.name;
+      const pairStr=(an||bn)?`${an||S.an} & ${bn||S.bn}`:'両チーム';
+      chip.title=`STEP ${stepNum}: 同時PICK ROUND ${(step.round||0)+1} — ${pairStr}`;
+    }
     else {
       const tn=step.team==='alpha'?S.an:S.bn;
       const mn=step.memberId&&(S.members||{})[step.memberId]?.name;
