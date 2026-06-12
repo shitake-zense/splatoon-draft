@@ -910,5 +910,109 @@
     "name": "トライストリンガー燈",
     "cat": "ストリンガー",
     "imgFile": "Path_Wst_Stringer_Normal_02.png"
+  },
+  {
+    "key": "splaspinner",
+    "name": "スプラスピナー",
+    "cat": "スピナー",
+    "imgFile": "Path_Wst_Spinner_Quick_00.png",
+    "sub": "クイックボム",
+    "special": "ウルトラハンコ"
+  },
+  {
+    "key": "splaspinner_collabo",
+    "name": "スプラスピナーコラボ",
+    "cat": "スピナー",
+    "imgFile": "Path_Wst_Spinner_Quick_01.png",
+    "sub": "ポイズンミスト",
+    "special": "グレートバリア"
+  },
+  {
+    "key": "barrelspinner",
+    "name": "バレルスピナー",
+    "cat": "スピナー",
+    "imgFile": "Path_Wst_Spinner_Standard_00.png",
+    "sub": "スプリンクラー",
+    "special": "ホップソナー"
+  },
+  {
+    "key": "barrelspinner_deco",
+    "name": "バレルスピナーデコ",
+    "cat": "スピナー",
+    "imgFile": "Path_Wst_Spinner_Standard_01.png",
+    "sub": "ポイントセンサー",
+    "special": "テイオウイカ"
+  },
+  {
+    "key": "orderspinner_replica",
+    "name": "オーダースピナー レプリカ",
+    "cat": "スピナー",
+    "imgFile": "Path_Wst_Spinner_Standard_O.png",
+    "sub": "スプリンクラー",
+    "special": "ホップソナー"
+  },
+  {
+    "key": "hydra",
+    "name": "ハイドラント",
+    "cat": "スピナー",
+    "imgFile": "Path_Wst_Spinner_Hyper_00.png",
+    "sub": "ロボットボム",
+    "special": "ナイスダマ"
+  },
+  {
+    "key": "hydra_custom",
+    "name": "ハイドラントカスタム",
+    "cat": "スピナー",
+    "imgFile": "Path_Wst_Spinner_Hyper_01.png",
+    "sub": "トラップ",
+    "special": "スミナガシート"
+  },
+  {
+    "key": "kugelschreiber",
+    "name": "クーゲルシュライバー",
+    "cat": "スピナー",
+    "imgFile": "Path_Wst_Spinner_Downpour_00.png",
+    "sub": "タンサンボム",
+    "special": "ジェットパック"
+  },
+  {
+    "key": "kugelschreiber_hue",
+    "name": "クーゲルシュライバー・ヒュー",
+    "cat": "スピナー",
+    "imgFile": "Path_Wst_Spinner_Downpour_01.png",
+    "sub": "トラップ",
+    "special": "キューインキ"
+  },
+  {
+    "key": "nautilus47",
+    "name": "ノーチラス47",
+    "cat": "スピナー",
+    "imgFile": "Path_Wst_Spinner_Serein_00.png",
+    "sub": "ポイントセンサー",
+    "special": "アメフラシ"
+  },
+  {
+    "key": "nautilus79",
+    "name": "ノーチラス79",
+    "cat": "スピナー",
+    "imgFile": "Path_Wst_Spinner_Serein_01.png",
+    "sub": "キューバンボム",
+    "special": "ウルトラチャクチ"
+  },
+  {
+    "key": "examiner",
+    "name": "イグザミナー",
+    "cat": "スピナー",
+    "imgFile": "Path_Wst_Spinner_HyperShort_00.png",
+    "sub": "カーリングボム",
+    "special": "エナジースタンド"
+  },
+  {
+    "key": "examiner_hue",
+    "name": "イグザミナー・ヒュー",
+    "cat": "スピナー",
+    "imgFile": "Path_Wst_Spinner_HyperShort_01.png",
+    "sub": "スプラッシュボム",
+    "special": "カニタンク"
   }
 ]
