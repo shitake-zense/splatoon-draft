@@ -521,7 +521,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
   <button class="btn-start" id="btn-start-draft" onclick="startDraft()">▶ ドラフト開始</button>
   <div id="start-btn-info" style="text-align:center;font-size:11px;color:var(--mu);margin-top:6px;min-height:16px;"></div>
   <div id="lobby-rejoin-info" style="display:none;text-align:center;font-size:10px;color:#4a5a7a;margin-top:8px;line-height:1.6;">
-    ⚠️ 参加者が退出した場合、URLを再送して参加し直してもらってください
+    💡 参加者が離脱しても、同じ端末・同じブラウザで再参加すれば元のチーム枠に復帰します（改名も可）
   </div>
   <button class="btn-re" onclick="leaveLobby()">← モード選択に戻る</button>
 </div>
@@ -822,6 +822,47 @@ function generateMemberId(){
   return 'mb_' + rand + ts;
 }
 
+// ===== デバイス保存（同一デバイス再参加のための memberId 引き継ぎ） =====
+// localStorage に { [roomId]: { memberId } } を保存。再参加時に memberId 基準で
+// 既存スロット（team・ピック順割当）へ再アタッチする。なりすまし対策は不要（カジュアル用途）。
+const LS_MEMBERS_KEY = 'splatoon-draft-members';
+function loadSavedMembers(){
+  try { return JSON.parse(localStorage.getItem(LS_MEMBERS_KEY) || '{}') || {}; }
+  catch(e){ return {}; }
+}
+function getSavedMemberId(rid){
+  const all = loadSavedMembers();
+  return (all[rid] && all[rid].memberId) || null;
+}
+function saveMemberId(rid, mid){
+  try {
+    const all = loadSavedMembers();
+    all[rid] = { memberId: mid };
+    localStorage.setItem(LS_MEMBERS_KEY, JSON.stringify(all));
+  } catch(e){ /* localStorage 不可環境では引き継ぎ無しで続行 */ }
+}
+function clearSavedMemberId(rid){
+  try {
+    const all = loadSavedMembers();
+    if(all[rid]){ delete all[rid]; localStorage.setItem(LS_MEMBERS_KEY, JSON.stringify(all)); }
+  } catch(e){ /* no-op */ }
+}
+
+// 保存済み設定をホストの設定フォームへ復元（ホスト再参加時の設定上書き事故を防ぐ）
+function applyLobbySettingsToForm(s){
+  if(!s) return;
+  const setVal = (id,v)=>{ const el=document.getElementById(id); if(el && v!=null) el.value=v; };
+  const setChk = (id,v)=>{ const el=document.getElementById(id); if(el) el.checked=!!v; };
+  setVal('n-a',s.an); setVal('n-b',s.bn); setVal('sz',s.ts); setVal('bc',s.bc);
+  setVal('ft',s.ft); setVal('pick-order',s.po); setVal('rm',s.rule); setVal('sm',s.stageJa);
+  setChk('std-only',s.stdOnly); setVal('pick-mode',s.pickMode); setVal('ban-mode',s.banMode);
+  setChk('time-limit-enabled',s.timeLimitEnabled); setVal('time-limit-sec',s.timeLimitSec);
+  // 派生UI（onSettingChange を発火させず＝Firebase へ書き戻さず手動更新）
+  const tlRow=document.getElementById('time-limit-row');
+  if(tlRow) tlRow.style.display = s.timeLimitEnabled ? '' : 'none';
+  updatePickOrderDesc('pick-order','pick-order-desc');
+}
+
 async function initAuth(){
   try {
     const cred = await signInAnonymously(auth);
@@ -1012,6 +1053,7 @@ window.enterMultiCreate = async function(){
     settings: getLobbySettings(),
     members:{ [myMemberId]:{ name:(document.getElementById('host-name-input')?.value.trim()||'ホスト'), team:'alpha', isHost:true, joinedAt:Date.now() } }
   });
+  saveMemberId(roomId, myMemberId); // 同一デバイス再参加のため保存
   showLobbyHost();
   subscribeLobby();
 };
@@ -1023,12 +1065,23 @@ window.joinRoom = async function(){
   const statusEl=document.getElementById('join-status');
   statusEl.textContent='接続中...';
 
+  const savedId = getSavedMemberId(input);
+  const joinName=(document.getElementById('join-name-input')?.value||'').trim();
+
   // ドラフト進行中か確認
   const stateSnap=await get(ref(db,`rooms/${input}/state`));
   if(stateSnap.exists()){
     roomId=input; isMulti=true; isHost=false;
     state=stateSnap.val();
-    myMemberId = generateMemberId();
+    // 途中復帰（nice-to-have）: 保存済み memberId が state.members の非ホストスロットに
+    // 居れば identity を引き継ぐ（個人ピック/同時ピックの担当判定が復帰する）。
+    // ホスト復帰（オーケストレーション再確立）は今回スコープ外。
+    if(savedId && state.members && state.members[savedId] && !state.members[savedId].isHost){
+      myMemberId = savedId;
+    } else {
+      myMemberId = generateMemberId();
+    }
+    saveMemberId(input, myMemberId);
     banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; activeCat='すべて';
     subscribeRoom();
     showDraftUI();
@@ -1040,13 +1093,39 @@ window.joinRoom = async function(){
     statusEl.textContent='❌ 部屋が見つかりません';
     return;
   }
-  roomId=input; isMulti=true; isHost=false;
+  roomId=input; isMulti=true;
+  const members=(lobbySnap.val().members)||{};
+
+  if(savedId && members[savedId] && !members[savedId].kicked){
+    // 同一デバイス再参加: 既存スロット（team・ピック順割当）を再利用
+    // （ホストにキックされたスロットは再利用せず、後段で新規参加扱いにする）
+    myMemberId = savedId;
+    const existing = members[savedId];
+    isHost = !!existing.isHost;
+    // 名前は表示用キー外。入力があれば改名、無ければ既存名を維持。
+    if(joinName && joinName!==existing.name){
+      await update(ref(db,`rooms/${roomId}/lobby/members/${myMemberId}`), {name:joinName});
+    }
+    saveMemberId(roomId, myMemberId);
+    if(isHost){
+      // ホスト復帰: 設定フォームを Firebase の保存値で復元してから通常のホストロビーへ
+      applyLobbySettingsToForm(lobbySnap.val().settings);
+      showLobbyHost();
+    } else {
+      showLobbyWait();
+    }
+    subscribeLobby();
+    return;
+  }
+
+  // 新規参加
+  isHost=false;
   myMemberId = generateMemberId();
-  const joinName=(document.getElementById('join-name-input')?.value||'').trim();
   const memberName=joinName||('参加者'+Math.floor(Math.random()*900+100));
   await set(ref(db,`rooms/${roomId}/lobby/members/${myMemberId}`),{
     name:memberName, team:'unassigned', isHost:false, joinedAt:Date.now()
   });
+  saveMemberId(roomId, myMemberId);
   showLobbyWait();
   subscribeLobby();
 };
@@ -1094,6 +1173,7 @@ function subscribeLobby(){
         // キックされた → 購読解除してモード選択へ
         if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
         if(fbUnsub){fbUnsub();fbUnsub=null;}
+        clearSavedMemberId(roomId); // キック済みスロットへ再アタッチしない
         roomId=null; isMulti=false; isHost=false; myMemberId=null;
         lobbyMembers={}; lobbyPickOrderAlpha=[]; lobbyPickOrderBravo=[];
         alert('ホストによってロビーから退出させられました。');
@@ -2180,6 +2260,7 @@ window.leaveLobby = function(){
   fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=null;
   if(isMulti&&!isHost&&myMemberId&&roomId){
     remove(ref(db,`rooms/${roomId}/lobby/members/${myMemberId}`));
+    clearSavedMemberId(roomId); // 意図的な退出: 再アタッチ情報を破棄
   }
   roomId=null; isMulti=false; isHost=false; myMemberId=null;
   lobbyMembers={}; lobbyPickOrderAlpha=[]; lobbyPickOrderBravo=[];
@@ -2192,6 +2273,7 @@ window.goHome = function(){
   // （再ドラフト時にホストが古いメンバー情報を取得してしまうのを防ぐ）
   if(isMulti&&!isHost&&myMemberId&&roomId){
     remove(ref(db,`rooms/${roomId}/lobby/members/${myMemberId}`));
+    clearSavedMemberId(roomId); // 意図的な退出: 再アタッチ情報を破棄
   }
   roomId=null; isMulti=false; isHost=false; myMemberId=null;
   lobbyMembers={}; lobbyPickOrderAlpha=[]; lobbyPickOrderBravo=[];
@@ -3235,10 +3317,15 @@ window.redraftWithSameMembers = async function(){
 };
 
 // ===== ページ離脱時クリーンアップ =====
-// 参加者がブラウザバック・リロード・タブ閉鎖で離脱した際に lobby/members から削除する
-// ドラフト中・ロビー待機中どちらでも動作する
+// 参加者がブラウザバック・リロード・タブ閉鎖で離脱した際の扱い。
+// 修正#4: チーム割当済みメンバーは同一デバイス再参加でスロット（team・ピック順割当）を
+// 再利用するため離脱時に残す。未割当（ロビーで待機中のみ）のメンバーだけ削除して
+// 孤児スロットの蓄積を防ぐ。
 window.addEventListener('beforeunload',()=>{
   if(isMulti&&!isHost&&myMemberId&&roomId){
+    const m = lobbyMembers[myMemberId];
+    const assigned = m && m.team && m.team!=='unassigned';
+    if(assigned) return; // 割当済みは保持（再参加で復帰可能にする）
     navigator.sendBeacon(
       `https://splatoon-draft-54bf8-default-rtdb.firebaseio.com/rooms/${roomId}/lobby/members/${myMemberId}.json`,
       JSON.stringify(null)
