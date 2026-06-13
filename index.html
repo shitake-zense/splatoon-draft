@@ -943,6 +943,8 @@ const STAGES_DATA  = [
   "ナンプラー遺跡","コンブトラック","タカアシ経済特区","オヒョウ海運","マンタマリア号",
 ];
 const RULES = ["ガチエリア","ガチヤグラ","ガチホコ","ガチアサリ"];
+// 武器カテゴリの表示順（グリッド・カテゴリボタン・絞り込みUIで共通）
+const CATEGORY_ORDER = ["シューター","ローラー","チャージャー","スロッシャー","スピナー","マニューバー","シェルター","ブラスター","フデ","ストリンガー","ワイパー"];
 
 // ===== 状態変数 =====
 let WEAPONS    = [];
@@ -1048,6 +1050,11 @@ async function loadData(){
     if(!res.ok) throw new Error('weapons.json 読み込み失敗: '+res.status);
     const data = await res.json();
     WEAPONS = data.map(w=>({key:w.key,name:w.name,cat:w.cat,imgUrl:WEAPONS_IMG+w.imgFile,imgFile:w.imgFile,sub:w.sub||null,special:w.special||null}));
+    // カテゴリ表示順に並べ替え（同一カテゴリ内の順序は既存のまま＝安定ソート）
+    WEAPONS.sort((a,b)=>{
+      const ia=CATEGORY_ORDER.indexOf(a.cat), ib=CATEGORY_ORDER.indexOf(b.cat);
+      return (ia<0?99:ia)-(ib<0?99:ib);
+    });
     buildWeaponFilterUI();
 
     // ステージ選択肢を全selectに追加
