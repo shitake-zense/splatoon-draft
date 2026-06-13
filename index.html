@@ -208,6 +208,21 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .pf-pair span{font-size:9px;line-height:1.15;text-align:center;letter-spacing:.5px;}
 .pf-pair .pf-pa{color:var(--a);}
 .pf-pair .pf-pb{color:var(--b);}
+/* 武器絞り込みパネル */
+#weapon-filter-toggle{cursor:pointer;}
+#weapon-filter-caret{color:var(--mu);font-size:12px;transition:transform .15s;}
+#weapon-filter-caret.open{transform:rotate(180deg);}
+#weapon-filter-panel{background:#0d1730;border:1px solid #2a3a5a;border-radius:8px;padding:10px 12px;margin-bottom:12px;}
+.wf-section{margin-bottom:10px;}
+.wf-section:last-of-type{margin-bottom:0;}
+.wf-head{font-size:11px;color:var(--y);font-weight:bold;margin-bottom:6px;border-left:3px solid var(--y);padding-left:6px;}
+.wf-list{display:flex;flex-wrap:wrap;gap:5px;}
+.wf-item{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--tx);background:#0a1120;border:1px solid #2a3a5a;border-radius:5px;padding:3px 7px;cursor:pointer;user-select:none;}
+.wf-item input{margin:0;cursor:pointer;}
+.wf-item.on{border-color:var(--bn);color:var(--bn);background:#2a1414;}
+.wf-actions{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px;}
+.wf-clear{font-size:10px;color:var(--mu);background:#0a1120;border:1px solid #2a3a5a;border-radius:5px;padding:4px 10px;cursor:pointer;}
+.wf-count{font-size:10px;color:var(--pk);}
 
 /* ===== 標準武器トグル ===== */
 .toggle-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid #2a3a5a;}
@@ -480,6 +495,31 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <input type="checkbox" id="std-only" onchange="onSettingChange()">
           <span class="tgl-sl"></span>
         </label>
+      </div>
+      <div class="toggle-row" id="weapon-filter-toggle" onclick="toggleWeaponFilterPanel()">
+        <div class="toggle-label">
+          🚫 武器の絞り込み
+          <small id="weapon-filter-summary">チェックした要素を持つ武器を除外</small>
+        </div>
+        <span id="weapon-filter-caret">▼</span>
+      </div>
+      <div id="weapon-filter-panel" style="display:none;">
+        <div class="wf-section">
+          <div class="wf-head">武器種</div>
+          <div class="wf-list" id="wf-list-cat"></div>
+        </div>
+        <div class="wf-section">
+          <div class="wf-head">サブウェポン</div>
+          <div class="wf-list" id="wf-list-sub"></div>
+        </div>
+        <div class="wf-section">
+          <div class="wf-head">スペシャルウェポン</div>
+          <div class="wf-list" id="wf-list-special"></div>
+        </div>
+        <div class="wf-actions">
+          <button type="button" class="wf-clear" onclick="clearWeaponFilter()">選択をクリア</button>
+          <span class="wf-count" id="weapon-filter-count"></span>
+        </div>
       </div>
       <div class="div"></div>
       <div class="row">
@@ -861,6 +901,7 @@ function applyLobbySettingsToForm(s){
   const tlRow=document.getElementById('time-limit-row');
   if(tlRow) tlRow.style.display = s.timeLimitEnabled ? '' : 'none';
   updatePickOrderDesc('pick-order','pick-order-desc');
+  applyWeaponFilterToUI(s.excludeFilter);
 }
 
 async function initAuth(){
@@ -911,6 +952,8 @@ let fbIndividualBanUnsub = null;  // 個人BAN監視
 let lobbyMembers        = {};   // {memberId: {name,team,isHost,...}}
 let lobbyPickOrderAlpha = [];   // memberIdの配列（アルファチームのピック順）
 let lobbyPickOrderBravo = [];   // memberIdの配列（ブラボーチームのピック順）
+// 武器絞り込み（ホスト設定）: チェックした要素を持つ武器をドラフトから除外する
+let lobbyExcludeFilter  = {cats:[], subs:[], specials:[]};
 
 // --- BAN フェーズ ---
 let banPending        = {alpha:[], bravo:[]};
@@ -990,7 +1033,8 @@ async function loadData(){
     const res = await fetch(WEAPONS_JSON);
     if(!res.ok) throw new Error('weapons.json 読み込み失敗: '+res.status);
     const data = await res.json();
-    WEAPONS = data.map(w=>({key:w.key,name:w.name,cat:w.cat,imgUrl:WEAPONS_IMG+w.imgFile,imgFile:w.imgFile}));
+    WEAPONS = data.map(w=>({key:w.key,name:w.name,cat:w.cat,imgUrl:WEAPONS_IMG+w.imgFile,imgFile:w.imgFile,sub:w.sub||null,special:w.special||null}));
+    buildWeaponFilterUI();
 
     // ステージ選択肢を全selectに追加
     ['sm','solo-sm'].forEach(id=>{
@@ -1716,8 +1760,9 @@ function getAvailableWeapons(S){
   const bannedKeys = [...(S.bans.alpha||[]),...(S.bans.bravo||[])].map(w=>w.key);
   const pickedKeys = [...(S.picks.alpha||[]),...(S.picks.bravo||[])].map(w=>w.key);
   const usedKeys   = new Set([...bannedKeys,...pickedKeys]);
+  const ef = S.excludeFilter;
   const src = (S.stdOnly ? WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')) : WEAPONS);
-  return src.filter(w=>!usedKeys.has(w.key));
+  return src.filter(w=>!usedKeys.has(w.key) && !isWeaponExcluded(w, ef));
 }
 
 // 配列からランダム1件取得
@@ -1736,6 +1781,92 @@ window.onSettingChange = function(){
   updateStartButton();
 };
 
+// ===== 武器絞り込み（武器種/サブ/スペシャル） =====
+// チェックした要素のいずれかを持つ武器はドラフト（グリッド・ランダム自動選択）から除外される。
+function isWeaponExcluded(w, ef){
+  if(!ef) return false;
+  if(ef.cats && ef.cats.includes(w.cat)) return true;
+  if(ef.subs && w.sub && ef.subs.includes(w.sub)) return true;
+  if(ef.specials && w.special && ef.specials.includes(w.special)) return true;
+  return false;
+}
+function buildWeaponFilterUI(){
+  if(!WEAPONS || WEAPONS.length===0) return;
+  const cats = [...new Set(WEAPONS.map(w=>w.cat))];
+  const subs = [...new Set(WEAPONS.map(w=>w.sub).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ja'));
+  const specials = [...new Set(WEAPONS.map(w=>w.special).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ja'));
+  renderWfList('wf-list-cat','cat',cats);
+  renderWfList('wf-list-sub','sub',subs);
+  renderWfList('wf-list-special','special',specials);
+  updateWeaponFilterSummary();
+}
+function renderWfList(containerId, type, values){
+  const el=document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML='';
+  values.forEach(v=>{
+    const label=document.createElement('label');
+    label.className='wf-item';
+    const cb=document.createElement('input');
+    cb.type='checkbox'; cb.setAttribute('data-wf-type',type); cb.value=v;
+    cb.onchange=()=>{ label.classList.toggle('on',cb.checked); onWeaponFilterChange(); };
+    const span=document.createElement('span'); span.textContent=v;
+    label.appendChild(cb); label.appendChild(span);
+    el.appendChild(label);
+  });
+}
+function readWeaponFilterFromUI(){
+  const grab=type=>[...document.querySelectorAll(`#weapon-filter-panel input[data-wf-type="${type}"]:checked`)].map(c=>c.value);
+  return {cats:grab('cat'), subs:grab('sub'), specials:grab('special')};
+}
+window.onWeaponFilterChange=function(){
+  lobbyExcludeFilter=readWeaponFilterFromUI();
+  updateWeaponFilterSummary();
+  onSettingChange();
+};
+window.toggleWeaponFilterPanel=function(){
+  const panel=document.getElementById('weapon-filter-panel');
+  const caret=document.getElementById('weapon-filter-caret');
+  if(!panel) return;
+  const open=panel.style.display==='none';
+  panel.style.display=open?'':'none';
+  if(caret) caret.classList.toggle('open',open);
+};
+window.clearWeaponFilter=function(){
+  document.querySelectorAll('#weapon-filter-panel input[data-wf-type]').forEach(c=>{
+    c.checked=false; const item=c.closest('.wf-item'); if(item) item.classList.remove('on');
+  });
+  lobbyExcludeFilter={cats:[],subs:[],specials:[]};
+  updateWeaponFilterSummary();
+  onSettingChange();
+};
+function updateWeaponFilterSummary(){
+  const ef=lobbyExcludeFilter||{cats:[],subs:[],specials:[]};
+  const total=(ef.cats?.length||0)+(ef.subs?.length||0)+(ef.specials?.length||0);
+  const sum=document.getElementById('weapon-filter-summary');
+  if(sum) sum.textContent = total>0
+    ? `除外: 武器種${ef.cats.length}・サブ${ef.subs.length}・スペシャル${ef.specials.length}`
+    : 'チェックした要素を持つ武器を除外';
+  const cnt=document.getElementById('weapon-filter-count');
+  if(cnt && WEAPONS.length){
+    const remain=WEAPONS.filter(w=>!isWeaponExcluded(w,ef)).length;
+    cnt.textContent=`ピック可能: ${remain} / ${WEAPONS.length} 種`;
+    cnt.style.color = remain<8 ? 'var(--bn)' : 'var(--pk)';
+  }
+}
+// 保存済みフィルタをUIに反映（ホスト再参加時）
+function applyWeaponFilterToUI(ef){
+  ef = ef||{cats:[],subs:[],specials:[]};
+  lobbyExcludeFilter = {cats:ef.cats||[], subs:ef.subs||[], specials:ef.specials||[]};
+  document.querySelectorAll('#weapon-filter-panel input[data-wf-type]').forEach(c=>{
+    const t=c.getAttribute('data-wf-type');
+    const arr = t==='cat'?lobbyExcludeFilter.cats : t==='sub'?lobbyExcludeFilter.subs : lobbyExcludeFilter.specials;
+    const on = arr.includes(c.value);
+    c.checked=on; const item=c.closest('.wf-item'); if(item) item.classList.toggle('on',on);
+  });
+  updateWeaponFilterSummary();
+}
+
 function getLobbySettings(){
   return {
     an:  document.getElementById('n-a')?.value||'アルファ',
@@ -1753,6 +1884,11 @@ function getLobbySettings(){
     pickOrderBravo: [...lobbyPickOrderBravo],
     timeLimitEnabled: document.getElementById('time-limit-enabled')?.checked||false,
     timeLimitSec: parseInt(document.getElementById('time-limit-sec')?.value||30),
+    excludeFilter: {
+      cats: [...(lobbyExcludeFilter.cats||[])],
+      subs: [...(lobbyExcludeFilter.subs||[])],
+      specials: [...(lobbyExcludeFilter.specials||[])],
+    },
   };
 }
 
@@ -1804,6 +1940,7 @@ window.startDraft = function(){
     members:membersForState,
     timeLimitEnabled:s.timeLimitEnabled,
     timeLimitSec:s.timeLimitSec,
+    excludeFilter:s.excludeFilter,
   });
 };
 
@@ -1899,7 +2036,7 @@ function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec, simOrder
   return seq;
 }
 
-function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec}){
+function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter}){
   const rule    = rm==='random'?RULES[Math.floor(Math.random()*RULES.length)]:rm;
   const stageJa = sm==='random'?STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)]:sm;
   const first   = ft==='random'?(Math.random()<.5?'alpha':'bravo'):ft;
@@ -1979,6 +2116,7 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,pi
     timeLimitEnabled: !!timeLimitEnabled,
     timeLimitSec: timeLimitSec||30,
     deadline: null,
+    excludeFilter: excludeFilter||{cats:[],subs:[],specials:[]},
   };
   banPending={alpha:[],bravo:[]}; banActiveTeam='alpha';
   bravoBanSubmitted=false; alphaBanSubmitted=false; activeCat='すべて';
@@ -2298,6 +2436,7 @@ function normalizeState(s){
   if(!s.timeLimitSec) s.timeLimitSec=30;
   if(s.representativeAlpha===undefined) s.representativeAlpha=null;
   if(s.representativeBravo===undefined) s.representativeBravo=null;
+  if(!s.excludeFilter) s.excludeFilter={cats:[],subs:[],specials:[]};
   return s;
 }
 
@@ -2849,7 +2988,8 @@ function renderSlots(team){
 function renderGrid(){
   const S=state, step=S.seq[S.idx], isBan=step&&step.phase==='ban';
   const isSimPick=step&&step.phase==='pick'&&step.team==='both';
-  const basePool2=state.stdOnly?WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')):WEAPONS;
+  const ef=S.excludeFilter;
+  const basePool2=(state.stdOnly?WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')):WEAPONS).filter(w=>!isWeaponExcluded(w,ef));
   const cats=['すべて',...new Set(basePool2.map(w=>w.cat))];
   const cf=document.getElementById('cf'); cf.innerHTML='';
   cats.forEach(c=>{
@@ -2861,7 +3001,7 @@ function renderGrid(){
 
   const allBanned=[...(S.bans.alpha||[]),...(S.bans.bravo||[]),...banPending.alpha,...banPending.bravo].map(w=>w.key);
   const allPicked=[...(S.picks.alpha||[]),...(S.picks.bravo||[])].map(w=>w.key);
-  const basePool=state.stdOnly?WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')):WEAPONS;
+  const basePool=(state.stdOnly?WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')):WEAPONS).filter(w=>!isWeaponExcluded(w,ef));
   const filtered=activeCat==='すべて'?basePool:basePool.filter(w=>w.cat===activeCat);
   const grid=document.getElementById('wg'); grid.innerHTML='';
 
