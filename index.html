@@ -2024,6 +2024,29 @@ function pushState(){
   set(ref(db,`rooms/${roomId}/state`), JSON.parse(JSON.stringify(state)));
 }
 
+// ドラフト中の一時状態（BAN/PICK の pending・送信フラグ・同期ガード・仮選択など）を
+// 初期化する。ロビー復帰・再ドラフト・state削除受信で同一のフルリセットが必要なため集約。
+// state 自体の null 化や clearTimer・prevIdx 等の文脈依存処理は呼び出し側で行う。
+function resetTransientDraftState(){
+  banPending = {alpha:[], bravo:[]};
+  banActiveTeam = 'alpha';
+  alphaBanSubmitted = false;
+  bravoBanSubmitted = false;
+  banPendingIndividual = {};
+  myBanSubmitted = false;
+  myConfirmedBan = null;
+  _checkBansInProgress = false;
+  simPickPending = {alpha:null, bravo:null};
+  alphaPickSubmitted = false;
+  bravoPickSubmitted = false;
+  simPickRound = 0;
+  _checkPicksInProgress = false;
+  pendingSelect = null;
+  _lastPushedIdx = -1;
+  _pickHandledBySelf = false;
+  activeCat = 'すべて';
+}
+
 function subscribeRoom(){
   if(fbUnsub){fbUnsub();fbUnsub=null;}
   let prevIdx=-1;
@@ -2036,15 +2059,8 @@ function subscribeRoom(){
         // ローカルの全一時変数をリセット
         clearTimer();
         state = null;
-        banPending = {alpha:[], bravo:[]}; banActiveTeam = 'alpha';
-        alphaBanSubmitted = false; bravoBanSubmitted = false;
-        banPendingIndividual = {}; myBanSubmitted = false; myConfirmedBan = null;
-        _checkBansInProgress = false;
-        simPickPending = {alpha:null, bravo:null};
-        alphaPickSubmitted = false; bravoPickSubmitted = false;
-        simPickRound = 0; _checkPicksInProgress = false;
-        pendingSelect = null; _lastPushedIdx = -1; _pickHandledBySelf = false;
-        activeCat = 'すべて'; prevIdx = -1;
+        resetTransientDraftState();
+        prevIdx = -1;
         // ロビー監視を再開してロビー待機画面へ
         subscribeLobby();
         showLobbyWait();
@@ -2222,23 +2238,7 @@ window.backToLobby = async function(){
 
   // ローカルの全一時変数をリセット
   state = null;
-  banPending = {alpha:[], bravo:[]};
-  banActiveTeam = 'alpha';
-  alphaBanSubmitted = false;
-  bravoBanSubmitted = false;
-  banPendingIndividual = {};
-  myBanSubmitted = false;
-  myConfirmedBan = null;
-  _checkBansInProgress = false;
-  simPickPending = {alpha:null, bravo:null};
-  alphaPickSubmitted = false;
-  bravoPickSubmitted = false;
-  simPickRound = 0;
-  _checkPicksInProgress = false;
-  pendingSelect = null;
-  _lastPushedIdx = -1;
-  _pickHandledBySelf = false;
-  activeCat = 'すべて';
+  resetTransientDraftState();
 
   // Firebase からメンバー情報を最新取得してロビーへ戻る
   const lobbySnap = await get(ref(db, `rooms/${roomId}/lobby`));
@@ -3281,23 +3281,7 @@ window.redraftWithSameMembers = async function(){
 
   // ④ ローカルの全一時変数をリセット（前回ドラフトのデータが混入しないように）
   state = null;
-  banPending = {alpha:[], bravo:[]};
-  banActiveTeam = 'alpha';
-  alphaBanSubmitted = false;
-  bravoBanSubmitted = false;
-  banPendingIndividual = {};
-  myBanSubmitted = false;
-  myConfirmedBan = null;
-  _checkBansInProgress = false;
-  simPickPending = {alpha:null, bravo:null};
-  alphaPickSubmitted = false;
-  bravoPickSubmitted = false;
-  simPickRound = 0;
-  _checkPicksInProgress = false;
-  pendingSelect = null;
-  _lastPushedIdx = -1;
-  _pickHandledBySelf = false;
-  activeCat = 'すべて';
+  resetTransientDraftState();
 
   // ⑤ lobbyメンバー情報を再取得してロビー画面へ戻る
   // lobbyMembers は既にキャッシュされているが、Firebase から最新を取り直す
