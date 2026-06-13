@@ -452,7 +452,9 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <select id="bc" onchange="onSettingChange()">
           <option value="0">Banなし</option><option value="1">Ban数1</option>
           <option value="2">Ban数2</option><option value="3" selected>Ban数3</option>
-          <option value="4">Ban数4</option>
+          <option value="4">Ban数4</option><option value="5">Ban数5</option>
+          <option value="6">Ban数6</option><option value="7">Ban数7</option>
+          <option value="8">Ban数8</option>
         </select>
       </div>
       <div class="row">
@@ -635,7 +637,9 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <select id="solo-bc">
           <option value="0">Banなし</option><option value="1">各1Ban</option>
           <option value="2">各2Ban</option><option value="3" selected>各3Ban</option>
-          <option value="4">各4Ban</option>
+          <option value="4">各4Ban</option><option value="5">各5Ban</option>
+          <option value="6">各6Ban</option><option value="7">各7Ban</option>
+          <option value="8">各8Ban</option>
         </select>
       </div>
       <div class="row">
@@ -2860,6 +2864,8 @@ function renderBanPanel(){
 // ===== 個人BANパネル描画 =====
 function renderIndividualBanPanel(S, bc){
   const banners = S.bannerIds||{alpha:[],bravo:[]};
+  // 自分のチーム（味方のBANは公開、相手のBANは伏せる）
+  const myTeam = (S.members||{})[myMemberId]?.team || (isHost?'alpha':'bravo');
 
   ['alpha','bravo'].forEach(team=>{
     const el=document.getElementById('ban-slots-'+(team==='alpha'?'a':'b'));
@@ -2883,7 +2889,10 @@ function renderIndividualBanPanel(S, bc){
       if(alreadyConfirmed){
         slotHtml = `<div class="bsl filled" style="flex:1">${alreadyConfirmed.name}</div>`;
       } else if(submitted){
-        slotHtml = `<div class="bsl pending" style="flex:1">${isMe?'▶ '+submitted.name:'送信済み ✓'}</div>`;
+        // 自分=▶武器名 / 味方=武器名（公開）/ 相手=送信済み（伏せる）
+        const label = isMe ? '▶ '+submitted.name
+          : (team===myTeam ? submitted.name+' ✓' : '送信済み ✓');
+        slotHtml = `<div class="bsl pending" style="flex:1">${label}</div>`;
       } else if(isMe){
         // 自分の担当スロットのうち、現在操作中のスロット（getMyBannerInfo が返すもの）
         const activeSlot = getMyBannerInfo(S);
