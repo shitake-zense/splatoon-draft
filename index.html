@@ -1541,8 +1541,10 @@ function handleTimeoutSelf(expectedIdx){
     const mySubmitted = myTeam==='alpha' ? alphaPickSubmitted : bravoPickSubmitted;
     if(mySubmitted) return;
     const allWeapons = getAvailableWeapons(S);
-    const chosen = (pendingSelect && pendingSelect.phase==='simpick' && pendingSelect.team===myTeam)
-      ? pendingSelect.w : pickRandom(allWeapons);
+    // 確定済み(2タップ・未送信) > 仮選択(1タップ) > ランダム の優先順
+    const chosen = simPickPending[myTeam]
+      || ((pendingSelect && pendingSelect.phase==='simpick' && pendingSelect.team===myTeam) ? pendingSelect.w : null)
+      || pickRandom(allWeapons);
     if(!chosen) return;
     pendingSelect = null;
     const myKey = myTeam==='alpha' ? 'pending_alpha_pick' : 'pending_bravo_pick';
@@ -1691,8 +1693,12 @@ async function handleTimeout(expectedIdx){
     // 同時ピック: 仮選択があれば優先、なければランダム
     let mutable = [...allWeapons];
     if(!alphaPickSubmitted){
+      // 仮選択(1タップ) > 確定済み(2タップ未送信, マルチのみ) > ランダム。
+      // ソロは alpha 選択済みなら維持（null=スキップ）。
       const chosen = (pendingSelect && pendingSelect.phase==='simpick' && pendingSelect.team==='alpha')
-        ? pendingSelect.w : (!isMulti && simPickPending.alpha ? null : pickRandom(mutable));
+        ? pendingSelect.w
+        : (isMulti ? (simPickPending.alpha || pickRandom(mutable))
+                   : (simPickPending.alpha ? null : pickRandom(mutable)));
       if(chosen){
         mutable=mutable.filter(x=>x.key!==chosen.key);
         if(isMulti){
@@ -1706,7 +1712,9 @@ async function handleTimeout(expectedIdx){
     }
     if(!bravoPickSubmitted){
       const chosen = (pendingSelect && pendingSelect.phase==='simpick' && pendingSelect.team==='bravo')
-        ? pendingSelect.w : (!isMulti && simPickPending.bravo ? null : pickRandom(mutable));
+        ? pendingSelect.w
+        : (isMulti ? (simPickPending.bravo || pickRandom(mutable))
+                   : (simPickPending.bravo ? null : pickRandom(mutable)));
       if(chosen){
         if(isMulti){
           set(ref(db,`rooms/${roomId}/pending_bravo_pick`),
