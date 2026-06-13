@@ -1097,6 +1097,8 @@ window.enterMultiCreate = async function(){
     settings: getLobbySettings(),
     members:{ [myMemberId]:{ name:(document.getElementById('host-name-input')?.value.trim()||'ホスト'), team:'alpha', isHost:true, joinedAt:Date.now() } }
   });
+  // ルーム作成時刻を明示保存（cleanup-rooms.js が members 推定に頼らず正確に判定できるように）
+  set(ref(db,`rooms/${roomId}/createdAt`), Date.now());
   saveMemberId(roomId, myMemberId); // 同一デバイス再参加のため保存
   showLobbyHost();
   subscribeLobby();
