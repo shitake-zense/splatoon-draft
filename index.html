@@ -531,6 +531,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <select id="pick-mode" onchange="onPickModeChange()">
           <option value="individual">👥 個人ピック</option>
           <option value="team">🤝 代表者ピック</option>
+          <option value="enemy">🆚 相手ピック（相手の武器を選ぶ）</option>
         </select>
       </div>
       <div class="row" id="ban-mode-row">
@@ -643,6 +644,13 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <option value="alpha">アルファ先攻</option>
           <option value="bravo">ブラボー先攻</option>
           <option value="random">ランダム</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>ピックモード</label>
+        <select id="solo-pick-mode">
+          <option value="team">🤝 通常ピック</option>
+          <option value="enemy">🆚 相手ピック（相手の武器を選ぶ）</option>
         </select>
       </div>
       <div class="row" id="solo-pick-order-row">
@@ -1084,6 +1092,7 @@ window.startSoloDraft = function(){
     bc: parseInt(document.getElementById('solo-bc').value),
     ft: document.getElementById('solo-ft').value,
     po: document.getElementById('solo-pick-order')?.value||'snake',
+    pickMode: document.getElementById('solo-pick-mode')?.value||'team',
     rm: document.getElementById('solo-rm').value,
     sm: document.getElementById('solo-sm').value,
     stdOnly: document.getElementById('solo-std-only')?.checked||false,
@@ -1235,7 +1244,7 @@ function subscribeLobby(){
       const s=lobby.settings||{};
       const ruleStr=s.rule==='random'?'ランダム':(s.rule||'ランダム');
       const stageStr=s.stageJa==='random'?'ランダム':(s.stageJa||'ランダム');
-      const modeStr=s.pickMode==='individual'?'👥 個人ピック':'🤝 代表者ピック';
+      const modeStr=s.pickMode==='individual'?'👥 個人ピック':(s.pickMode==='enemy'?'🆚 相手ピック':'🤝 代表者ピック');
       const el=document.getElementById('lobby-wait-settings');
       if(el) el.innerHTML=
         `<span style="color:var(--a)">チーム: ${s.an||'アルファ'} vs ${s.bn||'ブラボー'}</span><br>`+
@@ -1534,7 +1543,8 @@ function handleTimeoutSelf(expectedIdx){
     if(!w) return;
     const pickObj = {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat};
     if(step.memberId) pickObj.memberId = step.memberId;
-    (S.picks[step.team] = S.picks[step.team]||[]).push(pickObj);
+    const storeSelf = pickStoreTeam(S, step.team); // enemy: 相手チームへ格納
+    (S.picks[storeSelf] = S.picks[storeSelf]||[]).push(pickObj);
     state.deadline = null;
     S.idx++;
     _pickHandledBySelf = true; // handleTimeout に「処理済み」を伝える
@@ -1761,13 +1771,20 @@ async function handleTimeout(expectedIdx){
     if(!w) return;
     const pickObj = {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat};
     if(step.memberId) pickObj.memberId = step.memberId;
-    (S.picks[step.team]=S.picks[step.team]||[]).push(pickObj);
+    const storeHost = pickStoreTeam(S, step.team); // enemy: 相手チームへ格納
+    (S.picks[storeHost]=S.picks[storeHost]||[]).push(pickObj);
     // idxを進めて再描画（soloAdvanceを使わず直接処理してdeadlineを確実にリセット）
     state.deadline=null;
     S.idx++;
     if(isMulti){ pushState(); renderDraft(); }
     else renderDraft();
   }
+}
+
+// PICK の格納先チームを返す。相手ピックモード(enemy)では「行動チームが選んだ武器を
+// 相手チームのロードアウトに入れる」ため格納先を反転する。それ以外は行動チームのまま。
+function pickStoreTeam(S, actingTeam){
+  return (S && S.pickMode==='enemy') ? (actingTeam==='alpha'?'bravo':'alpha') : actingTeam;
 }
 
 // 利用可能な武器リストを返す（BAN済・ピック済を除外）
@@ -2631,6 +2648,11 @@ function renderDraft(){
         document.getElementById('tprompt').innerHTML=
           `<strong style="color:${col}">${memberName}</strong> が選択中…`;
       }
+    } else if(S.pickMode==='enemy'){
+      // 相手ピック: 行動チームが「相手チームに使わせる武器」を選ぶ
+      const otherTn = step.team==='alpha'?S.bn:S.an;
+      const otherCol= step.team==='alpha'?'var(--b)':'var(--a)';
+      document.getElementById('tprompt').innerHTML=`<strong style="color:${col}">${tn}</strong> のターン — <strong style="color:${otherCol}">${otherTn}</strong> に使わせる武器を選んでください`;
     } else {
       document.getElementById('tprompt').innerHTML=`<strong style="color:${col}">${tn}</strong> の <strong>PICKターン</strong> — 武器を選んでください`;
     }
@@ -3184,7 +3206,8 @@ function pickWeapon(w){
         // 2タップ目: 確定（memberIdも付与）
         const pickObj = {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat};
         if(step.memberId) pickObj.memberId = step.memberId;
-        (S.picks[it]=S.picks[it]||[]).push(pickObj);
+        const store=pickStoreTeam(S, it); // enemy: 相手チームへ格納
+        (S.picks[store]=S.picks[store]||[]).push(pickObj);
         pendingSelect=null;
         if(isMulti){ S.idx++; pushState(); renderDraft(); }
         else soloAdvance();
@@ -3203,8 +3226,9 @@ function pickWeapon(w){
 function renderSlotsWithPending(){
   renderSlots('alpha'); renderSlots('bravo');
   if(!pendingSelect || pendingSelect.phase!=='pick') return;
-  const {w, team}=pendingSelect;
+  const {w}=pendingSelect;
   const S=state;
+  const team=pickStoreTeam(S, pendingSelect.team); // enemy: 相手チームのスロットに仮表示
   const c=document.getElementById('sl'+team[0]);
   const picked=(S.picks[team]||[]).length;
   // picked番目のスロットを仮選択表示に書き換え
