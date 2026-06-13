@@ -472,7 +472,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <option value="snake_mid">ミドルスネーク (1-2-2-2-1)</option>
           <option value="a121">バランス (先1-2-1 / 後1-2-1)</option>
           <option value="a211">前重ね (先2-1-1 / 後1-2-1)</option>
-          <option value="sim">同時ピック (4回同時公開)</option>
+          <option value="sim" id="pick-order-sim-opt">同時ピック (4回同時公開)</option>
         </select>
       </div>
       <div id="pick-order-desc" style="font-size:10px;color:var(--mu);margin-top:-4px;margin-bottom:6px;padding-left:80px;line-height:1.6;"></div>
@@ -915,6 +915,7 @@ function applyLobbySettingsToForm(s){
   if(tlRow) tlRow.style.display = s.timeLimitEnabled ? '' : 'none';
   updatePickOrderDesc('pick-order','pick-order-desc');
   applyWeaponFilterToUI(s.excludeFilter);
+  syncEnemySimGuard();
 }
 
 async function initAuth(){
@@ -1352,9 +1353,25 @@ window.onPickModeChange = function(){
   const isIndividual = document.getElementById('pick-mode')?.value === 'individual';
   document.getElementById('pick-order-card').style.display  = isIndividual ? 'block' : 'none';
   document.getElementById('ban-mode-row').style.display     = isIndividual ? '' : 'none';
+  syncEnemySimGuard();
   onSettingChange();
   updateStartButton();
 };
+
+// 相手ピック(enemy)と同時ピック(sim)の併用は v1 非対応。enemy 選択時は
+// 同時ピックの選択肢を無効化し、既に sim ならスネークへ戻す。
+function syncEnemySimGuard(){
+  const pm = document.getElementById('pick-mode')?.value;
+  const po = document.getElementById('pick-order');
+  const simOpt = document.getElementById('pick-order-sim-opt');
+  if(!po || !simOpt) return;
+  const isEnemy = pm==='enemy';
+  simOpt.disabled = isEnemy;
+  if(isEnemy && po.value==='sim'){
+    po.value='snake';
+    updatePickOrderDesc('pick-order','pick-order-desc');
+  }
+}
 
 // ===== ピック順UI =====
 function renderPickOrderUI(){
@@ -2073,8 +2090,9 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,pi
   const stageJa = sm==='random'?STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)]:sm;
   const first   = ft==='random'?(Math.random()<.5?'alpha':'bravo'):ft;
   const sec     = first==='alpha'?'bravo':'alpha';
-  const pickOrder = po||'snake';
   const pMode   = pickMode||'team';
+  // enemy×sim は v1 非対応。万一その組み合わせが渡ってもスネークにフォールバック（防御）。
+  const pickOrder = (pMode==='enemy' && po==='sim') ? 'snake' : (po||'snake');
   const bMode   = banMode||'representative';
 
   // 個人モード時のピック順（先攻/後攻に合わせて整列）
