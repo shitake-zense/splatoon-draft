@@ -482,7 +482,8 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       <div class="row">
         <label>ルール</label>
         <select id="rm" onchange="onSettingChange()">
-          <option value="random">ランダム</option>
+          <option value="random">ランダム（ガチルールから）</option>
+          <option value="ナワバリバトル">ナワバリバトル</option>
           <option value="ガチエリア">ガチエリア</option><option value="ガチヤグラ">ガチヤグラ</option>
           <option value="ガチホコ">ガチホコ</option><option value="ガチアサリ">ガチアサリ</option>
         </select>
@@ -673,7 +674,8 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       <div class="row">
         <label>ルール</label>
         <select id="solo-rm">
-          <option value="random">ランダム</option>
+          <option value="random">ランダム（ガチルールから）</option>
+          <option value="ナワバリバトル">ナワバリバトル</option>
           <option value="ガチエリア">ガチエリア</option><option value="ガチヤグラ">ガチヤグラ</option>
           <option value="ガチホコ">ガチホコ</option><option value="ガチアサリ">ガチアサリ</option>
         </select>
@@ -2177,6 +2179,7 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,pi
     picks:{alpha:[],bravo:[]},
     stdOnly:!!stdOnly,
     pickMode: pMode,
+    pickOrder: pickOrder,
     banMode:  bMode,
     members:  members||{},
     bannerIds: bannerIds,
@@ -3421,8 +3424,17 @@ window.closeSimReveal = function(){
   const S=state;
   // 相手ピック併用時は格納先を反転（アルファの選択はブラボーのロードアウト、逆も同様）
   const enemyMode = S.pickMode==='enemy';
-  (S.picks.alpha=S.picks.alpha||[]).push(enemyMode?wB:wA);
-  (S.picks.bravo=S.picks.bravo||[]).push(enemyMode?wA:wB);
+  const step = S.seq[S.idx];
+  // 各チームのロードアウトに入る武器に「所有者(そのラウンドの担当選手)」を付与し、
+  // 結果画面・結果画像にプレイヤー名を表示できるようにする。
+  const aWeapon = enemyMode ? wB : wA;
+  const bWeapon = enemyMode ? wA : wB;
+  const aPick = {key:aWeapon.key, name:aWeapon.name, imgUrl:aWeapon.imgUrl, cat:aWeapon.cat};
+  const bPick = {key:bWeapon.key, name:bWeapon.name, imgUrl:bWeapon.imgUrl, cat:bWeapon.cat};
+  if(step && step.alphaMemberId) aPick.memberId = step.alphaMemberId;
+  if(step && step.bravoMemberId) bPick.memberId = step.bravoMemberId;
+  (S.picks.alpha=S.picks.alpha||[]).push(aPick);
+  (S.picks.bravo=S.picks.bravo||[]).push(bPick);
   simPickPending={alpha:null,bravo:null};
   alphaPickSubmitted=false; bravoPickSubmitted=false;
   _checkPicksInProgress=false;
@@ -3447,8 +3459,9 @@ function showResult(){
   document.getElementById('rna').textContent=S.an;
   document.getElementById('rnb').textContent=S.bn;
 
-  // 個人ピック・相手ピックは所有者(プレイヤー名)付きで表示
-  const isIndividual = S.pickMode==='individual' || S.pickMode==='enemy';
+  // 個人/相手ピックはピック順に整列。プレイヤー名は所有者(memberId)があれば常に表示
+  // （同時ピックも所有者付きなので名前が出る）。
+  const sortByOrder = S.pickMode==='individual' || S.pickMode==='enemy';
 
   ['alpha','bravo'].forEach(t=>{
     const sfx=t==='alpha'?'a':'b';
@@ -3463,31 +3476,22 @@ function showResult(){
       be.appendChild(d);
     });
 
-    if(isIndividual){
-      // 個人ピックモード: memberId で誰のピックか表示
-      const pickOrderForTeam = t==='alpha' ? (S.pickOrderAlpha||[]) : (S.pickOrderBravo||[]);
-      // ピック順にソート
-      const picks = S.picks[t]||[];
-      const orderMap = {};
-      pickOrderForTeam.forEach((id,i)=>orderMap[id]=i);
-      const sorted = [...picks].sort((a,b)=>{
+    let picks = S.picks[t]||[];
+    if(sortByOrder){
+      const order = t==='alpha' ? (S.pickOrderAlpha||[]) : (S.pickOrderBravo||[]);
+      const orderMap = {}; order.forEach((id,i)=>orderMap[id]=i);
+      picks = [...picks].sort((a,b)=>{
         const ia = a.memberId?((orderMap[a.memberId]??99)):99;
         const ib = b.memberId?((orderMap[b.memberId]??99)):99;
         return ia-ib;
       });
-      sorted.forEach(w=>{
-        const d=document.createElement('div'); d.className='rt';
-        const playerName = w.memberId && (S.members||{})[w.memberId]?.name;
-        d.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">${playerName?`<span style="font-size:10px;color:var(--mu)">${playerName}:</span> `:''}${w.name}`;
-        pe.appendChild(d);
-      });
-    } else {
-      (S.picks[t]||[]).forEach(w=>{
-        const d=document.createElement('div'); d.className='rt';
-        d.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">${w.name}`;
-        pe.appendChild(d);
-      });
     }
+    picks.forEach(w=>{
+      const d=document.createElement('div'); d.className='rt';
+      const playerName = w.memberId && (S.members||{})[w.memberId]?.name;
+      d.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">${playerName?`<span style="font-size:10px;color:var(--mu)">${playerName}:</span> `:''}${w.name}`;
+      pe.appendChild(d);
+    });
   });
   // マルチプレイ時のみ再ドラフトボタンを表示（ホストのみ操作可能）
   const btnRedraft = document.getElementById('btn-redraft');
@@ -3521,7 +3525,7 @@ window.downloadResultImage = async function(){
   if(btn){ btn.disabled=true; btn.textContent='生成中…'; }
   try {
     if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
-    const isIndividual = S.pickMode==='individual' || S.pickMode==='enemy';
+    const sortByOrder = S.pickMode==='individual' || S.pickMode==='enemy';
     const playerName = id => (id && (S.members||{})[id] && (S.members||{})[id].name) || null;
 
     // 各チームの行データ（enemyモードでも S.picks は各チームの使用ロードアウトなのでそのまま描画）
@@ -3534,13 +3538,13 @@ window.downloadResultImage = async function(){
       else bans.forEach(w=>rows.push({type:'item', img:w.imgUrl, name:w.name, prefix:playerName(w.memberId), ban:true}));
       rows.push({type:'label', text:'PICK'});
       let picks=S.picks[t]||[];
-      if(isIndividual){
+      if(sortByOrder){
         const order=t==='alpha'?(S.pickOrderAlpha||[]):(S.pickOrderBravo||[]);
         const om={}; order.forEach((id,i)=>om[id]=i);
         picks=[...picks].sort((a,b)=>((a.memberId?(om[a.memberId]??99):99)-(b.memberId?(om[b.memberId]??99):99)));
       }
       if(!picks.length) rows.push({type:'none'});
-      else picks.forEach(w=>rows.push({type:'item', img:w.imgUrl, name:w.name, prefix:isIndividual?playerName(w.memberId):null}));
+      else picks.forEach(w=>rows.push({type:'item', img:w.imgUrl, name:w.name, prefix:playerName(w.memberId)}));
       return rows;
     };
     const colA=buildRows('alpha'), colB=buildRows('bravo');
@@ -3585,7 +3589,23 @@ window.downloadResultImage = async function(){
     ctx.fillStyle='#ffffff'; ctx.font="bold 22px 'M PLUS Rounded 1c', sans-serif";
     ctx.fillText(S.rule||'', W/2, 102);
     ctx.fillStyle='#e0e0e0'; ctx.font="16px 'M PLUS Rounded 1c', sans-serif";
-    ctx.fillText('📍 '+(S.stageJa||''), W/2, 132);
+    ctx.fillText('📍 '+(S.stageJa||''), W/2, 130);
+
+    // ルーム設定の概要（小さめ）
+    const PO_LABELS={alt:'交互',snake:'スネーク',snake_classic:'クラシックスネーク',snake_mid:'ミドルスネーク',a121:'バランス',a211:'前重ね',sim:'同時ピック'};
+    const PM_LABELS={individual:'個人ピック',team:'代表者ピック',enemy:'相手ピック'};
+    const isSim=(S.seq||[]).some(st=>st.team==='both');
+    const poLabel=PO_LABELS[S.pickOrder] || (isSim?'同時ピック':'');
+    const effIndividualBan=(S.pickMode==='individual' && S.banMode==='individual');
+    const banLabel=(S.bc>0)?(effIndividualBan?`個人BAN×${S.bc}`:`代表者BAN×${S.bc}`):'BANなし';
+    const efc=S.excludeFilter?((S.excludeFilter.cats||[]).length+(S.excludeFilter.subs||[]).length+(S.excludeFilter.specials||[]).length):0;
+    const parts=[`${S.ts}vs${S.ts}`, PM_LABELS[S.pickMode], poLabel, banLabel];
+    if(S.timeLimitEnabled) parts.push(`制限${S.timeLimitSec}秒`);
+    if(S.stdOnly) parts.push('標準のみ');
+    if(efc>0) parts.push(`絞り込み${efc}件`);
+    const settingsLine=parts.filter(Boolean).join('  ・  ');
+    ctx.fillStyle='#9aa3bd'; ctx.font="12px 'M PLUS Rounded 1c', sans-serif";
+    ctx.fillText(_wmTruncate(ctx, settingsLine, W-48), W/2, 154);
 
     const drawCol=(rows,x)=>{
       let y=headerH+12; ctx.textAlign='left';
