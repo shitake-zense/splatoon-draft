@@ -5,6 +5,8 @@
 
 🔗 **[ツールを開く](https://shitake-zense.github.io/splatoon-draft/)**
 
+> 設計の意図やトレードオフ、既知の課題、今後の展望については [DEVELOPMENT.md](./DEVELOPMENT.md) を参照してください。
+
 ---
 
 ## 機能
