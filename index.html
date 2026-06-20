@@ -93,6 +93,10 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .btn-assign.to-b{background:var(--b);color:#fff;}
 .btn-assign.to-un{background:#2a3a5a;color:var(--mu);}
 .unassigned-area{margin-top:8px;}
+.team-assign-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;}
+.team-assign-head h3{margin-bottom:0;}
+.btn-shuffle{padding:6px 12px;border:1.5px solid var(--y);border-radius:6px;background:transparent;color:var(--y);font-size:11px;font-family:inherit;font-weight:700;cursor:pointer;letter-spacing:.5px;white-space:nowrap;transition:background .1s,color .1s;}
+.btn-shuffle:hover{background:var(--y);color:#1a1a2e;}
 
 /* JOIN */
 .join-wrap{max-width:360px;margin:40px auto 0;}
@@ -392,7 +396,10 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
   </div>
 
   <div class="team-assign-card" id="team-assign-card" style="display:none">
-    <h3>⚔️ TEAM ASSIGNMENT</h3>
+    <div class="team-assign-head">
+      <h3>⚔️ TEAM ASSIGNMENT</h3>
+      <button class="btn-shuffle" id="btn-shuffle-teams" onclick="shuffleTeams()">🎲 ランダム振り分け</button>
+    </div>
     <div class="team-cols">
       <div class="team-col">
         <div class="team-col-head a" id="assign-head-a">アルファ</div>
@@ -1330,6 +1337,27 @@ function renderTeamAssign(members){
 
 window.assignMember = function(memberId, team){
   set(ref(db,`rooms/${roomId}/lobby/members/${memberId}/team`), team);
+};
+
+// ===== チームのランダム振り分け（ホスト操作・再振り分けも同ボタン） =====
+window.shuffleTeams = async function(){
+  if(!isHost) return;
+  const snap = await get(ref(db,`rooms/${roomId}/lobby/members`));
+  const members = snap.val()||{};
+  const ids = Object.keys(members);
+  if(ids.length<=1) return;
+  // 既割り当て・未割り当てを問わず全員を対象にシャッフル
+  for(let i=ids.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [ids[i],ids[j]]=[ids[j],ids[i]];
+  }
+  // できるだけ均等に二分（奇数なら先頭のアルファが1人多くなる）
+  const half=Math.ceil(ids.length/2);
+  const updates={};
+  ids.forEach((id,i)=>{
+    updates[`rooms/${roomId}/lobby/members/${id}/team`] = i<half?'alpha':'bravo';
+  });
+  await update(ref(db), updates);
 };
 
 // ===== 参加者キック（ホスト操作） =====
