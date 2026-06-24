@@ -6,6 +6,7 @@
 🔗 **[ツールを開く](https://shitake-zense.github.io/splatoon-draft/)**
 
 > 設計の意図やトレードオフ、既知の課題、今後の展望については [DEVELOPMENT.md](./DEVELOPMENT.md) を参照してください。
+> 新機能の開発計画・進捗・再開手順は [ROADMAP.md](./ROADMAP.md) にまとめています。
 
 ---
 
