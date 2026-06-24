@@ -557,7 +557,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         </select>
       </div>
       <div class="row" id="ban-genre-row" style="align-items:flex-start">
-        <label>ジャンルBAN<br><small style="color:var(--mu);font-weight:normal;font-size:9px">代表者BANのとき、武器種/サブ/スペシャル単位でもBAN（武器BANとは別枠で各数を設定）</small></label>
+        <label>ジャンルBAN<br><small style="color:var(--mu);font-weight:normal;font-size:9px">武器種/サブ/スペシャル単位でもBAN（武器BANとは別枠で各数を設定）</small></label>
         <div class="genre-ban-grid" style="flex:1">
           <div class="gb-item"><span>武器種</span><select id="ban-genre-cat" onchange="onSettingChange()"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
           <div class="gb-item"><span>サブ</span><select id="ban-genre-sub" onchange="onSettingChange()"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
@@ -1894,8 +1894,19 @@ function isWeaponExcluded(w, ef){
 // ===== ジャンルBAN（カテゴリ/サブ/スペシャル単位のBAN・代表者BAN限定） =====
 // BANエントリは「武器オブジェクト(.key 有)」または「ジャンルオブジェクト(.banType 有)」のいずれか。
 function subspeImgUrl(name){ const f=SUBSPE_IMG_MAP[name]; return f?SUBSPE_IMG+f:''; }
-// カテゴリ代表画像 = そのカテゴリの先頭武器（1武器目）のアイコン
-function catRepImgUrl(cat){ const w=WEAPONS.find(x=>x.cat===cat); return w?w.imgUrl:''; }
+// 武器種BANタイルの代表ブキ（カテゴリ→武器key）。指定が無ければ先頭武器を使う。
+const CAT_REP_KEY = {
+  'シューター':'sshooter','ローラー':'splatroller','チャージャー':'splatcharger',
+  'スロッシャー':'bucketslosher','スピナー':'splaspinner','マニューバー':'maneuver',
+  'シェルター':'parashelter','ブラスター':'hotblaster','フデ':'pablo',
+  'ストリンガー':'tristringer','ワイパー':'drivewiper',
+};
+// カテゴリ代表画像 = 指定の代表ブキ（無ければそのカテゴリの先頭武器）のアイコン
+function catRepImgUrl(cat){
+  const key=CAT_REP_KEY[cat];
+  const w=(key&&WEAPONS.find(x=>x.key===key)) || WEAPONS.find(x=>x.cat===cat);
+  return w?w.imgUrl:'';
+}
 // ジャンルBANオブジェクトを生成（banType: 'cat'|'sub'|'special'）
 function makeGenreBan(banType, value){
   const imgUrl = banType==='cat' ? catRepImgUrl(value) : subspeImgUrl(value);
