@@ -172,6 +172,8 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .cf{display:flex;flex-wrap:wrap;gap:5px;}
 .cb{background:#0f1729;border:1px solid #2a3a5a;border-radius:5px;color:var(--mu);font-size:10px;padding:3px 8px;cursor:pointer;font-family:inherit;}
 .cb.on{background:var(--y);color:#1a1a2e;border-color:var(--y);}
+.cb.gtab{border-color:var(--bn);color:var(--bn);font-weight:bold;}
+.cb.gtab.on{background:var(--bn);color:#fff;border-color:var(--bn);}
 .wg{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px;max-height:340px;overflow-y:auto;}
 .wb{background:#0f1729;border:1.5px solid #1a2a4a;border-radius:8px;padding:6px 4px;cursor:pointer;text-align:center;transition:border-color .1s;position:relative;}
 .wb:hover:not(:disabled){border-color:var(--y);}
@@ -551,6 +553,14 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <option value="representative">🤝 代表者BAN</option>
         </select>
       </div>
+      <div class="row" id="ban-genre-row" style="align-items:flex-start">
+        <label>ジャンルBAN<br><small style="color:var(--mu);font-weight:normal;font-size:9px">代表者BAN時のみ有効。同じBAN枠で武器種/サブ/スペシャルもBANできます</small></label>
+        <div class="wf-list" style="flex:1">
+          <label class="wf-item"><input type="checkbox" id="ban-genre-cat" onchange="onBanGenreToggle(this)"><span>武器種</span></label>
+          <label class="wf-item"><input type="checkbox" id="ban-genre-sub" onchange="onBanGenreToggle(this)"><span>サブ</span></label>
+          <label class="wf-item"><input type="checkbox" id="ban-genre-special" onchange="onBanGenreToggle(this)"><span>スペシャル</span></label>
+        </div>
+      </div>
       <div class="div"></div>
       <div class="toggle-row">
         <div class="toggle-label">
@@ -649,6 +659,14 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <option value="6">各6Ban</option><option value="7">各7Ban</option>
           <option value="8">各8Ban</option>
         </select>
+      </div>
+      <div class="row" id="solo-ban-genre-row" style="align-items:flex-start">
+        <label>ジャンルBAN<br><small style="color:var(--mu);font-weight:normal;font-size:9px">同じBAN枠で武器種/サブ/スペシャルもBANできます</small></label>
+        <div class="wf-list" style="flex:1">
+          <label class="wf-item"><input type="checkbox" id="solo-ban-genre-cat" onchange="onBanGenreToggle(this)"><span>武器種</span></label>
+          <label class="wf-item"><input type="checkbox" id="solo-ban-genre-sub" onchange="onBanGenreToggle(this)"><span>サブ</span></label>
+          <label class="wf-item"><input type="checkbox" id="solo-ban-genre-special" onchange="onBanGenreToggle(this)"><span>スペシャル</span></label>
+        </div>
       </div>
       <div class="row">
         <label>先攻</label>
@@ -928,6 +946,7 @@ function applyLobbySettingsToForm(s){
   if(tlRow) tlRow.style.display = s.timeLimitEnabled ? '' : 'none';
   updatePickOrderDesc('pick-order','pick-order-desc');
   applyWeaponFilterToUI(s.excludeFilter);
+  applyBanGenresToUI(s.banGenres);
   // ピックモードに応じた派生UIの表示状態を復元
   const pmv = s.pickMode || 'individual';
   const needsPO = (pmv==='individual' || pmv==='enemy');
@@ -950,6 +969,22 @@ async function initAuth(){
 // ===== 定数 =====
 const WEAPONS_JSON = "data/weapons.json";
 const WEAPONS_IMG  = "images/weapons/";
+const SUBSPE_IMG   = "images/subspe/";
+// サブ/スペシャル名 → アイコン画像ファイル（ローカル同梱・leanny 由来。scripts/4_download_subspecial.py で取得）
+const SUBSPE_IMG_MAP = {
+  "カーリングボム":"Wsb_Bomb_Curling00.png","キューバンボム":"Wsb_Bomb_Suction00.png","クイックボム":"Wsb_Bomb_Quick00.png",
+  "ジャンプビーコン":"Wsb_Beacon00.png","スプラッシュシールド":"Wsb_Shield00.png","スプラッシュボム":"Wsb_Bomb_Splash00.png",
+  "スプリンクラー":"Wsb_Sprinkler00.png","タンサンボム":"Wsb_Bomb_Fizzy00.png","トラップ":"Wsb_Trap00.png",
+  "トーピード":"Wsb_Bomb_Torpedo00.png","ポイズンミスト":"Wsb_PoisonMist00.png","ポイントセンサー":"Wsb_PointSensor00.png",
+  "ラインマーカー":"Wsb_LineMarker00.png","ロボットボム":"Wsb_Bomb_Robot00.png",
+  "アメフラシ":"Wsp_SpInkStorm00.png","ウルトラショット":"Wsp_SpUltraShot00.png","ウルトラチャクチ":"Wsp_SpPogo00.png",
+  "ウルトラハンコ":"Wsp_SpUltraStamp00.png","エナジースタンド":"Wsp_SpEnergyStand00.png","カニタンク":"Wsp_SpChariot00.png",
+  "キューインキ":"Wsp_SpBlower00.png","グレートバリア":"Wsp_SpGreatBarrier00.png","サメライド":"Wsp_SpSkewer00.png",
+  "ショクワンダー":"Wsp_SpSuperHook00.png","ジェットパック":"Wsp_SpJetpack00.png","スミナガシート":"Wsp_SpChimney00.png",
+  "テイオウイカ":"Wsp_SpCastle00.png","デコイチラシ":"Wsp_SpFirework00.png","トリプルトルネード":"Wsp_SpTripleTornado00.png",
+  "ナイスダマ":"Wsp_SpNiceBall00.png","ホップソナー":"Wsp_SpShockSonar00.png","マルチミサイル":"Wsp_SpMultiMissile00.png",
+  "メガホンレーザー5.1ch":"Wsp_SpMicroLaser00.png",
+};
 const STAGES_IMG   = "images/stages/";
 const STAGES_DATA  = [
   "ユノハナ大渓谷","ゴンズイ地区","ヤガラ市場","マテガイ放水路",
@@ -967,6 +1002,7 @@ const CATEGORY_ORDER = ["シューター","ローラー","チャージャー","�
 let WEAPONS    = [];
 let state      = {};
 let activeCat  = 'すべて';
+let activeBanGran = 'weapon'; // BANグリッドの粒度タブ: 'weapon'|'sub'|'special'|'cat'
 
 // --- セッション ---
 let isMulti    = false;
@@ -1118,6 +1154,12 @@ window.startSoloDraft = function(){
     ft: document.getElementById('solo-ft').value,
     po: document.getElementById('solo-pick-order')?.value||'snake',
     pickMode: document.getElementById('solo-pick-mode')?.value||'team',
+    banMode: 'representative',
+    banGenres: {
+      cat:     document.getElementById('solo-ban-genre-cat')?.checked||false,
+      sub:     document.getElementById('solo-ban-genre-sub')?.checked||false,
+      special: document.getElementById('solo-ban-genre-special')?.checked||false,
+    },
     rm: document.getElementById('solo-rm').value,
     sm: document.getElementById('solo-sm').value,
     stdOnly: document.getElementById('solo-std-only')?.checked||false,
@@ -1554,7 +1596,7 @@ function handleTimeoutSelf(expectedIdx){
         banPending.bravo.push(w); bravoUsedRep.push(w.key);
       }
       set(ref(db,`rooms/${roomId}/pending_bravo_bans`),
-        banPending.bravo.map(w=>({key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat})));
+        banPending.bravo.map(serializeBan));
       bravoBanSubmitted=true;
       renderBanPanel();
       return;
@@ -1697,7 +1739,7 @@ async function handleTimeout(expectedIdx){
           banPending.alpha.push(w); alphaUsed.push(w.key);
         }
         set(ref(db,`rooms/${roomId}/pending_alpha_bans`),
-          banPending.alpha.map(w=>({key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat})));
+          banPending.alpha.map(serializeBan));
         alphaBanSubmitted=true;
       }
       // Firebaseのpending_bravo_bansを確認してから書き込む（参加者が既に送信済みなら上書きしない）
@@ -1719,7 +1761,7 @@ async function handleTimeout(expectedIdx){
           banPending.bravo.push(w); bravoUsed.push(w.key);
         }
         set(ref(db,`rooms/${roomId}/pending_bravo_bans`),
-          banPending.bravo.map(w=>({key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat})));
+          banPending.bravo.map(serializeBan));
         bravoBanSubmitted=true;
       }
       checkBothBansReady();
@@ -1850,8 +1892,9 @@ function getAvailableWeapons(S){
   const pickedKeys = [...(S.picks.alpha||[]),...(S.picks.bravo||[])].map(w=>w.key);
   const usedKeys   = new Set([...bannedKeys,...pickedKeys]);
   const ef = S.excludeFilter;
+  const genreBans  = [...(S.bans.alpha||[]),...(S.bans.bravo||[])].filter(b=>b&&b.banType);
   const src = (S.stdOnly ? WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')) : WEAPONS);
-  return src.filter(w=>!usedKeys.has(w.key) && !isWeaponExcluded(w, ef));
+  return src.filter(w=>!usedKeys.has(w.key) && !isWeaponExcluded(w, ef) && !weaponBannedByGenres(w, genreBans));
 }
 
 // 配列からランダム1件取得
@@ -1870,6 +1913,26 @@ window.onSettingChange = function(){
   updateStartButton();
 };
 
+// ジャンルBANのチェックボックス（武器種/サブ/スペシャル）切替
+window.onBanGenreToggle = function(cb){
+  const item=cb.closest('.wf-item'); if(item) item.classList.toggle('on',cb.checked);
+  onSettingChange();
+};
+function readBanGenresFromUI(){
+  return {
+    cat:     document.getElementById('ban-genre-cat')?.checked||false,
+    sub:     document.getElementById('ban-genre-sub')?.checked||false,
+    special: document.getElementById('ban-genre-special')?.checked||false,
+  };
+}
+function applyBanGenresToUI(bg){
+  bg = bg||{cat:false,sub:false,special:false};
+  [['ban-genre-cat',!!bg.cat],['ban-genre-sub',!!bg.sub],['ban-genre-special',!!bg.special]].forEach(([id,on])=>{
+    const cb=document.getElementById(id); if(!cb) return;
+    cb.checked=on; const item=cb.closest('.wf-item'); if(item) item.classList.toggle('on',on);
+  });
+}
+
 // ===== 武器絞り込み（武器種/サブ/スペシャル） =====
 // チェックした要素のいずれかを持つ武器はドラフト（グリッド・ランダム自動選択）から除外される。
 function isWeaponExcluded(w, ef){
@@ -1879,6 +1942,51 @@ function isWeaponExcluded(w, ef){
   if(ef.specials && w.special && ef.specials.includes(w.special)) return true;
   return false;
 }
+
+// ===== ジャンルBAN（カテゴリ/サブ/スペシャル単位のBAN・代表者BAN限定） =====
+// BANエントリは「武器オブジェクト(.key 有)」または「ジャンルオブジェクト(.banType 有)」のいずれか。
+function subspeImgUrl(name){ const f=SUBSPE_IMG_MAP[name]; return f?SUBSPE_IMG+f:''; }
+// カテゴリ代表画像 = そのカテゴリの先頭武器（1武器目）のアイコン
+function catRepImgUrl(cat){ const w=WEAPONS.find(x=>x.cat===cat); return w?w.imgUrl:''; }
+// ジャンルBANオブジェクトを生成（banType: 'cat'|'sub'|'special'）
+function makeGenreBan(banType, value){
+  const imgUrl = banType==='cat' ? catRepImgUrl(value) : subspeImgUrl(value);
+  return {banType, value, name:value, imgUrl};
+}
+// BANエントリの一意ID（武器とジャンルを区別して比較・重複判定に使う）
+function banIdOf(x){ return x&&x.banType ? (x.banType+':'+x.value) : ('w:'+(x&&x.key)); }
+// 武器 w がジャンルBan g に該当するか
+function weaponMatchesGenreBan(w, g){
+  if(!g||!g.banType) return false;
+  if(g.banType==='cat')     return w.cat===g.value;
+  if(g.banType==='sub')     return w.sub===g.value;
+  if(g.banType==='special') return w.special===g.value;
+  return false;
+}
+// 武器 w が banList 内のいずれかのジャンルBANで消えるか
+function weaponBannedByGenres(w, banList){
+  return (banList||[]).some(b=>b&&b.banType&&weaponMatchesGenreBan(w,b));
+}
+// 代表者BAN時に有効なジャンル粒度の配列（'sub'|'special'|'cat'）
+function enabledBanGrans(S){
+  const g=S&&S.banGenres; if(!g) return [];
+  const out=[]; if(g.sub)out.push('sub'); if(g.special)out.push('special'); if(g.cat)out.push('cat');
+  return out;
+}
+// 表示用: ジャンルBANは種別を前置（武器はそのまま）
+function banDispName(w){
+  if(!w) return '';
+  if(w.banType==='cat')     return '武器種：'+w.name;
+  if(w.banType==='sub')     return 'サブ：'+w.name;
+  if(w.banType==='special') return 'スペ：'+w.name;
+  return w.name;
+}
+// BANエントリをFirebase送信用に整形（undefinedを混ぜない）
+function serializeBan(w){
+  if(w&&w.banType) return {banType:w.banType, value:w.value, name:w.name, imgUrl:w.imgUrl||''};
+  return {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat};
+}
+
 function buildWeaponFilterUI(){
   if(!WEAPONS || WEAPONS.length===0) return;
   const cats = [...new Set(WEAPONS.map(w=>w.cat))];
@@ -1969,6 +2077,7 @@ function getLobbySettings(){
     stdOnly: document.getElementById('std-only')?.checked||false,
     pickMode: document.getElementById('pick-mode')?.value||'individual',
     banMode:  document.getElementById('ban-mode')?.value||'individual',
+    banGenres: readBanGenresFromUI(),
     pickOrderAlpha: [...lobbyPickOrderAlpha],
     pickOrderBravo: [...lobbyPickOrderBravo],
     timeLimitEnabled: document.getElementById('time-limit-enabled')?.checked||false,
@@ -2026,7 +2135,7 @@ window.startDraft = function(){
   buildAndStartDraft({
     an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:s.ft, po:s.po,
     rm:s.rule, sm:s.stageJa, stdOnly:s.stdOnly,
-    pickMode:s.pickMode, banMode:s.banMode,
+    pickMode:s.pickMode, banMode:s.banMode, banGenres:s.banGenres,
     pickOrderAlpha:s.pickOrderAlpha, pickOrderBravo:s.pickOrderBravo,
     members:membersForState,
     timeLimitEnabled:s.timeLimitEnabled,
@@ -2131,7 +2240,7 @@ function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec, simOrder
   return seq;
 }
 
-function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter}){
+function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter}){
   const rule    = rm==='random'?RULES[Math.floor(Math.random()*RULES.length)]:rm;
   const stageJa = sm==='random'?STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)]:sm;
   const first   = ft==='random'?(Math.random()<.5?'alpha':'bravo'):ft;
@@ -2209,6 +2318,9 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,pi
     pickMode: pMode,
     pickOrder: pickOrder,
     banMode:  bMode,
+    // 実効的に代表者BAN（＝個人ピック×個人BANの組み合わせ以外）のときだけジャンルBANを有効化
+    banGenres: !(pMode==='individual' && bMode==='individual')
+      ? (banGenres||{cat:false,sub:false,special:false}) : {cat:false,sub:false,special:false},
     members:  members||{},
     bannerIds: bannerIds,
     representativeAlpha,
@@ -2219,7 +2331,7 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,pi
     excludeFilter: excludeFilter||{cats:[],subs:[],specials:[]},
   };
   banPending={alpha:[],bravo:[]}; banActiveTeam='alpha';
-  bravoBanSubmitted=false; alphaBanSubmitted=false; activeCat='すべて';
+  bravoBanSubmitted=false; alphaBanSubmitted=false; activeCat='すべて'; activeBanGran='weapon';
   banPendingIndividual={}; myBanSubmitted=false; myConfirmedBan=null;
   simPickPending={alpha:null,bravo:null};
   alphaPickSubmitted=false; bravoPickSubmitted=false; simPickRound=0;
@@ -2531,6 +2643,7 @@ function normalizeState(s){
   if(s.stdOnly===undefined) s.stdOnly=false;
   if(!s.pickMode) s.pickMode='team';
   if(!s.banMode)  s.banMode='representative';
+  if(!s.banGenres) s.banGenres={cat:false,sub:false,special:false};
   if(!s.members)  s.members={};
   if(s.timeLimitEnabled===undefined) s.timeLimitEnabled=false;
   if(!s.timeLimitSec) s.timeLimitSec=30;
@@ -2832,17 +2945,17 @@ function renderBanPanel(){
     const el=document.getElementById('ban-slots-'+(team==='alpha'?'a':'b'));
     el.innerHTML='';
     (S.bans[team]||[]).forEach(w=>{
-      const d=document.createElement('div'); d.className='bsl filled'; d.textContent=w.name; el.appendChild(d);
+      const d=document.createElement('div'); d.className='bsl filled'; d.textContent=banDispName(w); el.appendChild(d);
     });
     const confirmed=(S.bans[team]||[]).length;
     const pending=banPending[team].length;
     const isMyTeam=!isMulti||(isHost?team==='alpha':team==='bravo');
     if(isMyTeam){
       banPending[team].forEach(w=>{
-        const d=document.createElement('div'); d.className='bsl pending'; d.textContent='▶ '+w.name; el.appendChild(d);
+        const d=document.createElement('div'); d.className='bsl pending'; d.textContent='▶ '+banDispName(w); el.appendChild(d);
       });
       if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.team===team){
-        const d=document.createElement('div'); d.className='bsl'; d.style.borderColor='var(--y)'; d.style.color='var(--y)'; d.textContent='▷ '+pendingSelect.w.name; el.appendChild(d);
+        const d=document.createElement('div'); d.className='bsl'; d.style.borderColor='var(--y)'; d.style.color='var(--y)'; d.textContent='▷ '+banDispName(pendingSelect.w); el.appendChild(d);
       }
     } else {
       for(let i=0;i<pending;i++){
@@ -3009,7 +3122,7 @@ window.confirmBans = function(){
   // マルチ代表者BAN: 自分のBANをFirebaseに送信
   const myTeam=isHost?'alpha':'bravo';
   const myKey=isHost?'pending_alpha_bans':'pending_bravo_bans';
-  const myBans=banPending[myTeam].map(w=>({key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat}));
+  const myBans=banPending[myTeam].map(serializeBan);
   set(ref(db,`rooms/${roomId}/${myKey}`), myBans);
   if(isHost){ alphaBanSubmitted=true; }
   else      { bravoBanSubmitted=true; banPending.bravo=[]; }
@@ -3092,7 +3205,7 @@ function renderSlots(team){
     const w=(S.bans[team]||[])[i], d=document.createElement('div');
     d.className='ws '+(w?'banned':'empty');
     d.innerHTML=w
-      ?`<span class="sl">BAN${i+1}</span><img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.display='none'"><span class="sn">${w.name}</span>`
+      ?`<span class="sl">BAN${i+1}</span><img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.display='none'"><span class="sn">${banDispName(w)}</span>`
       :`<span class="sl">BAN${i+1}</span><span class="sn">未選択</span>`;
     c.appendChild(d);
   }
@@ -3114,6 +3227,34 @@ function renderGrid(){
   const basePool2=(state.stdOnly?WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')):WEAPONS).filter(w=>!isWeaponExcluded(w,ef));
   const cats=['すべて',...new Set(basePool2.map(w=>w.cat))];
   const cf=document.getElementById('cf'); cf.innerHTML='';
+  const grid=document.getElementById('wg'); grid.innerHTML='';
+
+  // ジャンルBAN（代表者BAN限定）の粒度タブ
+  const isIndividualBan0 = S.pickMode==='individual' && S.banMode==='individual' && isMulti;
+  const repIt = !isMulti?banActiveTeam:(isHost?'alpha':'bravo');
+  const repEligible = isBan && !isIndividualBan0
+    && (!isMulti || (isRepBanRepresentative(S) && !(isHost?alphaBanSubmitted:bravoBanSubmitted)));
+  const grans = (isBan && !isIndividualBan0) ? enabledBanGrans(S) : [];
+  if(activeBanGran!=='weapon' && !grans.includes(activeBanGran)) activeBanGran='weapon';
+  if(grans.length){
+    const GLAB={weapon:'ブキ',sub:'サブ',special:'スペシャル',cat:'武器種'};
+    ['weapon',...grans].forEach(val=>{
+      const b=document.createElement('button');
+      b.className='cb gtab'+(activeBanGran===val?' on':'');
+      b.textContent=GLAB[val];
+      b.onclick=()=>{activeBanGran=val;activeCat='すべて';renderGrid();};
+      cf.appendChild(b);
+    });
+  }
+
+  // ジャンルタイルモード（サブ/スペシャル/武器種をタップしてBAN）
+  if(activeBanGran!=='weapon' && grans.includes(activeBanGran)){
+    renderBanGenreTiles(S, activeBanGran, repIt, repEligible, grid);
+    return;
+  }
+
+  // ===== 武器グリッド（既存） =====
+  if(grans.length){ const sp=document.createElement('span'); sp.style.cssText='flex-basis:100%;height:0'; cf.appendChild(sp); }
   cats.forEach(c=>{
     const btn=document.createElement('button');
     btn.className='cb'+(c===activeCat?' on':'');
@@ -3123,12 +3264,13 @@ function renderGrid(){
 
   const allBanned=[...(S.bans.alpha||[]),...(S.bans.bravo||[]),...banPending.alpha,...banPending.bravo].map(w=>w.key);
   const allPicked=[...(S.picks.alpha||[]),...(S.picks.bravo||[])].map(w=>w.key);
+  // ジャンルBANで消える武器（武器グリッド側でもグレーアウト表示する）
+  const genreBanList=[...(S.bans.alpha||[]),...(S.bans.bravo||[]),...banPending.alpha,...banPending.bravo].filter(b=>b&&b.banType);
   const basePool=(state.stdOnly?WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')):WEAPONS).filter(w=>!isWeaponExcluded(w,ef));
   const filtered=activeCat==='すべて'?basePool:basePool.filter(w=>w.cat===activeCat);
-  const grid=document.getElementById('wg'); grid.innerHTML='';
 
   filtered.forEach(w=>{
-    const isBanW=allBanned.includes(w.key), isPickW=allPicked.includes(w.key), unavail=isBanW||isPickW;
+    const isBanW=allBanned.includes(w.key)||weaponBannedByGenres(w,genreBanList), isPickW=allPicked.includes(w.key), unavail=isBanW||isPickW;
     const btn=document.createElement('button');
     btn.className='wb'+(isBanW?' is-bn':'')+(isPickW?' is-pk':'');
     let clickable=false;
@@ -3178,10 +3320,49 @@ function renderGrid(){
       <div class="wn">${w.name}</div>
       ${isBanW?'<span class="wst b">BAN</span>':''}${isPickW?'<span class="wst p">PICK</span>':''}`;
     if(clickable&&!unavail){
-      const isSelW = pendingSelect && pendingSelect.w.key===w.key;
+      const isSelW = pendingSelect && pendingSelect.phase==='ban' && banIdOf(pendingSelect.w)===banIdOf(w);
       if(isSelW) btn.classList.add('is-sel');
       btn.onclick=()=>pickWeapon(w);
     }
+    grid.appendChild(btn);
+  });
+}
+
+// ジャンルBANタイル描画（サブ/スペシャル/武器種）
+function renderBanGenreTiles(S, gran, repIt, repEligible, grid){
+  const ef=S.excludeFilter;
+  const basePool=(S.stdOnly?WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')):WEAPONS).filter(w=>!isWeaponExcluded(w,ef));
+  let values;
+  if(gran==='cat')        values=CATEGORY_ORDER.filter(c=>basePool.some(w=>w.cat===c));
+  else if(gran==='sub')   values=[...new Set(basePool.map(w=>w.sub).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ja'));
+  else                    values=[...new Set(basePool.map(w=>w.special).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ja'));
+
+  const banList=[...(S.bans.alpha||[]),...(S.bans.bravo||[]),...banPending.alpha,...banPending.bravo];
+  const bannedIds=new Set(banList.map(banIdOf));
+  const selOffset=(pendingSelect&&pendingSelect.phase==='ban'&&pendingSelect.team===repIt)?1:0;
+  const remaining=S.bc-(S.bans[repIt]||[]).length-banPending[repIt].length-selOffset;
+
+  // プール枯渇ガード: 確定/送信予定のBANを差し引いた残プールがピック必要数を割る選択は禁止
+  const removedKeys=new Set(banList.filter(b=>b&&!b.banType).map(b=>b.key));
+  const activeGenres=banList.filter(b=>b&&b.banType);
+  const poolNow=basePool.filter(w=>!removedKeys.has(w.key)&&!weaponBannedByGenres(w,activeGenres));
+  const floor=2*(S.ts||4); // 両チームのピック数（ピックは全体で一意）
+
+  values.forEach(val=>{
+    const g=makeGenreBan(gran,val), id=banIdOf(g);
+    const isBanned=bannedIds.has(id);
+    const isSel=pendingSelect&&pendingSelect.phase==='ban'&&banIdOf(pendingSelect.w)===id;
+    const cnt=basePool.filter(w=>weaponMatchesGenreBan(w,g)).length;
+    const poolAfter=poolNow.filter(w=>!weaponMatchesGenreBan(w,g)).length;
+    const wouldStarve=!isBanned && poolAfter<floor;
+    const clickable=repEligible&&!isBanned&&!wouldStarve&&(remaining>0||isSel);
+    const btn=document.createElement('button');
+    btn.className='wb'+(isBanned?' is-bn':'')+(isSel?' is-sel':'');
+    btn.disabled=!clickable;
+    btn.innerHTML=`<img src="${g.imgUrl}" alt="${val}" onerror="this.style.height='38px';this.style.opacity='.2'">
+      <div class="wn">${val}<span style="color:var(--mu);font-size:9px"> ${cnt}種</span></div>
+      ${isBanned?'<span class="wst b">BAN</span>':''}`;
+    if(clickable) btn.onclick=()=>pickWeapon(g);
     grid.appendChild(btn);
   });
 }
@@ -3237,7 +3418,7 @@ function pickWeapon(w){
     if((S.bc-(S.bans[it]||[]).length-banPending[it].length)<=0) return;
 
     if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.team===it){
-      if(pendingSelect.w.key===w.key){
+      if(banIdOf(pendingSelect.w)===banIdOf(w)){
         banPending[it].push(w);
         pendingSelect=null;
         if(!isMulti){
@@ -3500,7 +3681,7 @@ function showResult(){
     else bans.forEach(w=>{
       const d=document.createElement('div'); d.className='rt bnt';
       const bannerName = w.memberId && (S.members||{})[w.memberId]?.name;
-      d.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">${bannerName?`<span style="font-size:10px;color:var(--mu)">${bannerName}:</span> `:''}${w.name}`;
+      d.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">${bannerName?`<span style="font-size:10px;color:var(--mu)">${bannerName}:</span> `:''}${banDispName(w)}`;
       be.appendChild(d);
     });
 
@@ -3563,7 +3744,7 @@ window.downloadResultImage = async function(){
       rows.push({type:'label', text:'BAN'});
       const bans=S.bans[t]||[];
       if(!bans.length) rows.push({type:'none'});
-      else bans.forEach(w=>rows.push({type:'item', img:w.imgUrl, name:w.name, prefix:playerName(w.memberId), ban:true}));
+      else bans.forEach(w=>rows.push({type:'item', img:w.imgUrl, name:banDispName(w), prefix:playerName(w.memberId), ban:true}));
       rows.push({type:'label', text:'PICK'});
       let picks=S.picks[t]||[];
       if(sortByOrder){
