@@ -174,6 +174,9 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .cb.on{background:var(--y);color:#1a1a2e;border-color:var(--y);}
 .cb.gtab{border-color:var(--bn);color:var(--bn);font-weight:bold;}
 .cb.gtab.on{background:var(--bn);color:#fff;border-color:var(--bn);}
+.genre-ban-grid{display:flex;flex-direction:column;gap:5px;}
+.gb-item{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#0a1120;border:1px solid #2a3a5a;border-radius:5px;padding:4px 8px;font-size:11px;color:var(--tx);}
+.gb-item select{background:#0f1729;border:1px solid #2a3a5a;border-radius:4px;color:var(--tx);font-family:inherit;font-size:11px;padding:2px 6px;}
 .wg{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px;max-height:340px;overflow-y:auto;}
 .wb{background:#0f1729;border:1.5px solid #1a2a4a;border-radius:8px;padding:6px 4px;cursor:pointer;text-align:center;transition:border-color .1s;position:relative;}
 .wb:hover:not(:disabled){border-color:var(--y);}
@@ -548,17 +551,17 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       </div>
       <div class="row" id="ban-mode-row">
         <label>BANモード</label>
-        <select id="ban-mode" onchange="onSettingChange()">
+        <select id="ban-mode" onchange="onBanModeChange()">
           <option value="individual">👤 個人BAN</option>
           <option value="representative">🤝 代表者BAN</option>
         </select>
       </div>
       <div class="row" id="ban-genre-row" style="align-items:flex-start">
-        <label>ジャンルBAN<br><small style="color:var(--mu);font-weight:normal;font-size:9px">代表者BAN時のみ有効。同じBAN枠で武器種/サブ/スペシャルもBANできます</small></label>
-        <div class="wf-list" style="flex:1">
-          <label class="wf-item"><input type="checkbox" id="ban-genre-cat" onchange="onBanGenreToggle(this)"><span>武器種</span></label>
-          <label class="wf-item"><input type="checkbox" id="ban-genre-sub" onchange="onBanGenreToggle(this)"><span>サブ</span></label>
-          <label class="wf-item"><input type="checkbox" id="ban-genre-special" onchange="onBanGenreToggle(this)"><span>スペシャル</span></label>
+        <label>ジャンルBAN<br><small style="color:var(--mu);font-weight:normal;font-size:9px">代表者BANのとき、武器種/サブ/スペシャル単位でもBAN（武器BANとは別枠で各数を設定）</small></label>
+        <div class="genre-ban-grid" style="flex:1">
+          <div class="gb-item"><span>武器種</span><select id="ban-genre-cat" onchange="onSettingChange()"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+          <div class="gb-item"><span>サブ</span><select id="ban-genre-sub" onchange="onSettingChange()"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+          <div class="gb-item"><span>スペシャル</span><select id="ban-genre-special" onchange="onSettingChange()"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
         </div>
       </div>
       <div class="div"></div>
@@ -661,11 +664,11 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         </select>
       </div>
       <div class="row" id="solo-ban-genre-row" style="align-items:flex-start">
-        <label>ジャンルBAN<br><small style="color:var(--mu);font-weight:normal;font-size:9px">同じBAN枠で武器種/サブ/スペシャルもBANできます</small></label>
-        <div class="wf-list" style="flex:1">
-          <label class="wf-item"><input type="checkbox" id="solo-ban-genre-cat" onchange="onBanGenreToggle(this)"><span>武器種</span></label>
-          <label class="wf-item"><input type="checkbox" id="solo-ban-genre-sub" onchange="onBanGenreToggle(this)"><span>サブ</span></label>
-          <label class="wf-item"><input type="checkbox" id="solo-ban-genre-special" onchange="onBanGenreToggle(this)"><span>スペシャル</span></label>
+        <label>ジャンルBAN<br><small style="color:var(--mu);font-weight:normal;font-size:9px">武器種/サブ/スペシャル単位のBAN（武器BANとは別枠で各数を設定）</small></label>
+        <div class="genre-ban-grid" style="flex:1">
+          <div class="gb-item"><span>武器種</span><select id="solo-ban-genre-cat"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+          <div class="gb-item"><span>サブ</span><select id="solo-ban-genre-sub"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+          <div class="gb-item"><span>スペシャル</span><select id="solo-ban-genre-special"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
         </div>
       </div>
       <div class="row">
@@ -952,6 +955,7 @@ function applyLobbySettingsToForm(s){
   const needsPO = (pmv==='individual' || pmv==='enemy');
   const poc=document.getElementById('pick-order-card'); if(poc) poc.style.display = needsPO ? 'block' : 'none';
   const bmr=document.getElementById('ban-mode-row');     if(bmr) bmr.style.display = (pmv==='individual') ? '' : 'none';
+  updateBanGenreRowVisibility();
 }
 
 async function initAuth(){
@@ -1109,6 +1113,7 @@ async function loadData(){
       return (ia<0?99:ia)-(ib<0?99:ib);
     });
     buildWeaponFilterUI();
+    updateBanGenreRowVisibility();
 
     // ステージ選択肢を全selectに追加
     ['sm','solo-sm'].forEach(id=>{
@@ -1156,9 +1161,9 @@ window.startSoloDraft = function(){
     pickMode: document.getElementById('solo-pick-mode')?.value||'team',
     banMode: 'representative',
     banGenres: {
-      cat:     document.getElementById('solo-ban-genre-cat')?.checked||false,
-      sub:     document.getElementById('solo-ban-genre-sub')?.checked||false,
-      special: document.getElementById('solo-ban-genre-special')?.checked||false,
+      cat:     parseInt(document.getElementById('solo-ban-genre-cat')?.value||0)||0,
+      sub:     parseInt(document.getElementById('solo-ban-genre-sub')?.value||0)||0,
+      special: parseInt(document.getElementById('solo-ban-genre-special')?.value||0)||0,
     },
     rm: document.getElementById('solo-rm').value,
     sm: document.getElementById('solo-sm').value,
@@ -1443,8 +1448,15 @@ window.onPickModeChange = function(){
   const needsPickOrder = isIndividual || pm === 'enemy';
   document.getElementById('pick-order-card').style.display  = needsPickOrder ? 'block' : 'none';
   document.getElementById('ban-mode-row').style.display     = isIndividual ? '' : 'none';
+  updateBanGenreRowVisibility();
   onSettingChange();
   updateStartButton();
+};
+
+// BANモード変更時: ジャンルBAN行の表示も更新
+window.onBanModeChange = function(){
+  updateBanGenreRowVisibility();
+  onSettingChange();
 };
 
 // ===== ピック順UI =====
@@ -1577,24 +1589,8 @@ function handleTimeoutSelf(expectedIdx){
       // 参加者（ブラボー）は仮選択をFirebaseに送信しておく
       if(isHost) return;
       if(bravoBanSubmitted) return;
-      // 仮選択中の武器 > ランダム の優先順で選択
-      const allWeaponsRep = getAvailableWeapons(S);
-      const alreadyBravo = [...(S.bans.bravo||[]),...banPending.bravo];
-      const neededRep = S.bc - alreadyBravo.length;
-      if(neededRep <= 0){ bravoBanSubmitted=true; return; }
-      if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.team==='bravo'){
-        if(!banPending.bravo.find(b=>b.key===pendingSelect.w.key)){
-          banPending.bravo.push(pendingSelect.w);
-        }
-        pendingSelect=null;
-      }
-      const bravoUsedRep = banPending.bravo.map(b=>b.key);
-      const alphaUsedRep = banPending.alpha.map(b=>b.key);
-      while(banPending.bravo.length < S.bc - (S.bans.bravo||[]).length){
-        const w = pickRandom(allWeaponsRep.filter(x=>!alphaUsedRep.includes(x.key)&&!bravoUsedRep.includes(x.key)));
-        if(!w) break;
-        banPending.bravo.push(w); bravoUsedRep.push(w.key);
-      }
+      // 仮選択 > ランダム で武器BAN・各ジャンルBANを上限まで自動補完
+      autoCompleteBanPending(S, 'bravo');
       set(ref(db,`rooms/${roomId}/pending_bravo_bans`),
         banPending.bravo.map(serializeBan));
       bravoBanSubmitted=true;
@@ -1721,23 +1717,9 @@ async function handleTimeout(expectedIdx){
       myBanSubmitted = true;
       Promise.all(promises).then(()=>checkIndividualBansReady());
     } else if(isMulti){
-      // マルチ代表者BAN: 未送信チームをランダムBAN（仮選択があれば優先）
-      let mutable = [...allWeapons];
+      // マルチ代表者BAN: 未送信チームを自動補完（仮選択優先・武器/各ジャンルを上限まで）
       if(!alphaBanSubmitted){
-        // 仮選択中の武器があればbanPendingに追加
-        if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.team==='alpha'){
-          if(!banPending.alpha.find(b=>b.key===pendingSelect.w.key)){
-            banPending.alpha.push(pendingSelect.w);
-          }
-          pendingSelect=null;
-        }
-        const needed = S.bc - (S.bans.alpha||[]).length - banPending.alpha.length;
-        const alphaUsed = banPending.alpha.map(b=>b.key);
-        for(let i=0;i<needed;i++){
-          const w=pickRandom(mutable.filter(x=>!alphaUsed.includes(x.key)));
-          if(!w) break;
-          banPending.alpha.push(w); alphaUsed.push(w.key);
-        }
+        autoCompleteBanPending(S, 'alpha');
         set(ref(db,`rooms/${roomId}/pending_alpha_bans`),
           banPending.alpha.map(serializeBan));
         alphaBanSubmitted=true;
@@ -1746,49 +1728,16 @@ async function handleTimeout(expectedIdx){
       const bravoSnapForHost = await get(ref(db,`rooms/${roomId}/pending_bravo_bans`));
       const bravoAlreadySent = bravoSnapForHost.exists() && Array.isArray(bravoSnapForHost.val()) && bravoSnapForHost.val().length > 0;
       if(!bravoBanSubmitted && !bravoAlreadySent){
-        if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.team==='bravo'){
-          if(!banPending.bravo.find(b=>b.key===pendingSelect.w.key)){
-            banPending.bravo.push(pendingSelect.w);
-          }
-          pendingSelect=null;
-        }
-        const needed = S.bc - (S.bans.bravo||[]).length - banPending.bravo.length;
-        const bravoUsed = banPending.bravo.map(b=>b.key);
-        const alphaUsed2 = banPending.alpha.map(b=>b.key);
-        for(let i=0;i<needed;i++){
-          const w=pickRandom(mutable.filter(x=>!alphaUsed2.includes(x.key)&&!bravoUsed.includes(x.key)));
-          if(!w) break;
-          banPending.bravo.push(w); bravoUsed.push(w.key);
-        }
+        autoCompleteBanPending(S, 'bravo');
         set(ref(db,`rooms/${roomId}/pending_bravo_bans`),
           banPending.bravo.map(serializeBan));
         bravoBanSubmitted=true;
       }
       checkBothBansReady();
     } else {
-      // ソロBAN: 仮選択があれば優先してbanPendingに追加、なければランダム
-      if(pendingSelect && pendingSelect.phase==='ban'){
-        const team = pendingSelect.team;
-        if(!(banPending[team]||[]).find(b=>b.key===pendingSelect.w.key)){
-          (banPending[team]=banPending[team]||[]).push(pendingSelect.w);
-        }
-        pendingSelect=null;
-      }
-      const alphaUsed = banPending.alpha.map(b=>b.key);
-      const needed = S.bc - (S.bans.alpha||[]).length;
-      for(let i=banPending.alpha.length; i<needed; i++){
-        const w=pickRandom(allWeapons.filter(x=>!alphaUsed.includes(x.key)));
-        if(!w) break;
-        banPending.alpha.push(w); alphaUsed.push(w.key);
-      }
-      const bravoUsed = banPending.bravo.map(b=>b.key);
-      const bravoNeeded = S.bc - (S.bans.bravo||[]).length;
-      for(let i=banPending.bravo.length; i<bravoNeeded; i++){
-        const w=pickRandom(allWeapons.filter(x=>!alphaUsed.includes(x.key)&&!bravoUsed.includes(x.key)));
-        if(!w) break;
-        banPending.bravo.push(w); bravoUsed.push(w.key);
-      }
-      // ソロBANは即確定
+      // ソロBAN: 両チームを自動補完（仮選択優先）して即確定
+      autoCompleteBanPending(S, 'alpha');
+      autoCompleteBanPending(S, 'bravo');
       S.bans.alpha.push(...banPending.alpha);
       S.bans.bravo.push(...banPending.bravo);
       banPending={alpha:[],bravo:[]};
@@ -1913,24 +1862,23 @@ window.onSettingChange = function(){
   updateStartButton();
 };
 
-// ジャンルBANのチェックボックス（武器種/サブ/スペシャル）切替
-window.onBanGenreToggle = function(cb){
-  const item=cb.closest('.wf-item'); if(item) item.classList.toggle('on',cb.checked);
-  onSettingChange();
-};
+// ジャンルBANのBAN数（武器種/サブ/スペシャル）を読む
 function readBanGenresFromUI(){
-  return {
-    cat:     document.getElementById('ban-genre-cat')?.checked||false,
-    sub:     document.getElementById('ban-genre-sub')?.checked||false,
-    special: document.getElementById('ban-genre-special')?.checked||false,
-  };
+  const n=id=>parseInt(document.getElementById(id)?.value||0)||0;
+  return { cat:n('ban-genre-cat'), sub:n('ban-genre-sub'), special:n('ban-genre-special') };
 }
 function applyBanGenresToUI(bg){
-  bg = bg||{cat:false,sub:false,special:false};
-  [['ban-genre-cat',!!bg.cat],['ban-genre-sub',!!bg.sub],['ban-genre-special',!!bg.special]].forEach(([id,on])=>{
-    const cb=document.getElementById(id); if(!cb) return;
-    cb.checked=on; const item=cb.closest('.wf-item'); if(item) item.classList.toggle('on',on);
-  });
+  bg = bg||{cat:0,sub:0,special:0};
+  const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=String(v||0); };
+  set('ban-genre-cat',bg.cat); set('ban-genre-sub',bg.sub); set('ban-genre-special',bg.special);
+}
+// ジャンルBAN設定行の表示制御（代表者BAN/代表者ピックのときだけ表示。個人ピック×個人BANでは隠す）
+function updateBanGenreRowVisibility(){
+  const row=document.getElementById('ban-genre-row'); if(!row) return;
+  const pm=document.getElementById('pick-mode')?.value||'individual';
+  const bm=document.getElementById('ban-mode')?.value||'individual';
+  const show = !(pm==='individual' && bm==='individual'); // 個人ピック×個人BAN以外＝実効的に代表者BAN
+  row.style.display = show ? '' : 'none';
 }
 
 // ===== 武器絞り込み（武器種/サブ/スペシャル） =====
@@ -1967,11 +1915,57 @@ function weaponMatchesGenreBan(w, g){
 function weaponBannedByGenres(w, banList){
   return (banList||[]).some(b=>b&&b.banType&&weaponMatchesGenreBan(w,b));
 }
-// 代表者BAN時に有効なジャンル粒度の配列（'sub'|'special'|'cat'）
+// 代表者BAN時に有効なジャンル粒度の配列（'sub'|'special'|'cat'）。BAN数1以上のものだけ。
 function enabledBanGrans(S){
   const g=S&&S.banGenres; if(!g) return [];
-  const out=[]; if(g.sub)out.push('sub'); if(g.special)out.push('special'); if(g.cat)out.push('cat');
+  const out=[]; if(g.sub>0)out.push('sub'); if(g.special>0)out.push('special'); if(g.cat>0)out.push('cat');
   return out;
+}
+// ===== ジャンル別BAN数（武器BAN=bc とは別枠。種別ごとに上限を設定） =====
+function banTypeOf(b){ return (b&&b.banType)?b.banType:'weapon'; }
+function banLimitFor(S,type){ return type==='weapon'?(S.bc||0):((S.banGenres&&S.banGenres[type])||0); }
+function banTotalLimit(S){ const g=S.banGenres||{}; return (S.bc||0)+(g.cat||0)+(g.sub||0)+(g.special||0); }
+function countBansOfType(list,type){ return (list||[]).filter(b=>banTypeOf(b)===type).length; }
+// チーム team の type 種別の残BAN数（確定+送信予定を差し引く）
+function banRemainingFor(S,team,type){
+  return banLimitFor(S,type)-countBansOfType(S.bans[team],type)-countBansOfType(banPending[team]||[],type);
+}
+// 残りBAN内訳の表示文字列（例: 武器×1・サブ×2）
+function banRemainingSummary(S, team){
+  const labels={weapon:'武器',cat:'武器種',sub:'サブ',special:'スペ'};
+  const parts=[];
+  ['weapon','cat','sub','special'].forEach(t=>{ const r=banRemainingFor(S,team,t); if(r>0) parts.push(`${labels[t]}×${r}`); });
+  return parts.join('・');
+}
+// 指定粒度のBAN候補値（現在のプールに存在するもの）
+function genreValuesFor(S, gran){
+  const ef=S.excludeFilter;
+  const basePool=(S.stdOnly?WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')):WEAPONS).filter(w=>!isWeaponExcluded(w,ef));
+  if(gran==='cat') return CATEGORY_ORDER.filter(c=>basePool.some(w=>w.cat===c));
+  if(gran==='sub') return [...new Set(basePool.map(w=>w.sub).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ja'));
+  return [...new Set(basePool.map(w=>w.special).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ja'));
+}
+// タイマー切れ時: banPending[team] を全種別の上限まで自動補完（仮選択を最優先・重複回避）
+function autoCompleteBanPending(S, team){
+  if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.team===team){
+    const id=banIdOf(pendingSelect.w);
+    if(!(banPending[team]||[]).some(b=>banIdOf(b)===id)) (banPending[team]=banPending[team]||[]).push(pendingSelect.w);
+    pendingSelect=null;
+  }
+  const allEntries=()=>[...(S.bans.alpha||[]),...(S.bans.bravo||[]),...(banPending.alpha||[]),...(banPending.bravo||[])];
+  let wneed=banRemainingFor(S,team,'weapon');
+  if(wneed>0){
+    const usedW=new Set(allEntries().filter(b=>banTypeOf(b)==='weapon').map(b=>b.key));
+    let wpool=getAvailableWeapons(S).filter(w=>!usedW.has(w.key));
+    for(let i=0;i<wneed;i++){ const w=pickRandom(wpool); if(!w)break; banPending[team].push(w); wpool=wpool.filter(x=>x.key!==w.key); }
+  }
+  ['cat','sub','special'].forEach(type=>{
+    let gneed=banRemainingFor(S,team,type);
+    if(gneed<=0) return;
+    const usedG=new Set(allEntries().filter(b=>b.banType).map(banIdOf));
+    let vals=genreValuesFor(S,type).filter(v=>!usedG.has(type+':'+v));
+    for(let i=0;i<gneed;i++){ const v=pickRandom(vals); if(!v)break; banPending[team].push(makeGenreBan(type,v)); vals=vals.filter(x=>x!==v); }
+  });
 }
 // 表示用: ジャンルBANは種別を前置（武器はそのまま）
 function banDispName(w){
@@ -2320,7 +2314,7 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,ba
     banMode:  bMode,
     // 実効的に代表者BAN（＝個人ピック×個人BANの組み合わせ以外）のときだけジャンルBANを有効化
     banGenres: !(pMode==='individual' && bMode==='individual')
-      ? (banGenres||{cat:false,sub:false,special:false}) : {cat:false,sub:false,special:false},
+      ? (banGenres||{cat:0,sub:0,special:0}) : {cat:0,sub:0,special:0},
     members:  members||{},
     bannerIds: bannerIds,
     representativeAlpha,
@@ -2493,7 +2487,7 @@ async function checkBothBansReady(){
   if(!snapA.exists()||!snapB.exists()) { _checkBansInProgress=false; renderBanPanel(); return; }
   const aBans=snapA.val(), bBans=snapB.val();
   if(!Array.isArray(aBans)||!Array.isArray(bBans)) { _checkBansInProgress=false; renderBanPanel(); return; }
-  const needed=state.bc-(state.bans.alpha||[]).length;
+  const needed=banTotalLimit(state)-(state.bans.alpha||[]).length;
   if(aBans.length>=needed && bBans.length>=needed){
     // 両方揃った → 自動確定
     banPending.alpha=aBans.slice(0,needed);
@@ -2643,7 +2637,7 @@ function normalizeState(s){
   if(s.stdOnly===undefined) s.stdOnly=false;
   if(!s.pickMode) s.pickMode='team';
   if(!s.banMode)  s.banMode='representative';
-  if(!s.banGenres) s.banGenres={cat:false,sub:false,special:false};
+  if(!s.banGenres) s.banGenres={cat:0,sub:0,special:0};
   if(!s.members)  s.members={};
   if(s.timeLimitEnabled===undefined) s.timeLimitEnabled=false;
   if(!s.timeLimitSec) s.timeLimitSec=30;
@@ -2963,7 +2957,7 @@ function renderBanPanel(){
       }
     }
     const filled=confirmed+pending;
-    for(let i=filled;i<bc;i++){
+    for(let i=filled;i<banTotalLimit(S);i++){
       const d=document.createElement('div'); d.className='bsl'; d.textContent=`BAN${i+1}`; el.appendChild(d);
     }
   });
@@ -2972,12 +2966,14 @@ function renderBanPanel(){
   if(!isMulti){
     const col=banActiveTeam==='alpha'?'var(--a)':'var(--b)';
     const name=banActiveTeam==='alpha'?state.an:state.bn;
-    hint.innerHTML=`現在 <strong style="color:${col}">${name}</strong> のBAN選択中`;
+    const rem=banRemainingSummary(S,banActiveTeam);
+    hint.innerHTML=`現在 <strong style="color:${col}">${name}</strong> のBAN選択中`
+      +(rem?`<br><small style="color:var(--mu)">残り: ${rem}（タブで種別を切替）</small>`:'');
   } else {
     const myTeam=isHost?'alpha':'bravo';
-    const myFull=banPending[myTeam].length>=(state.bc-(state.bans[myTeam]||[]).length);
+    const myFull=banPending[myTeam].length>=(banTotalLimit(state)-(state.bans[myTeam]||[]).length);
     const otherTeam=isHost?'bravo':'alpha';
-    const otherFull=banPending[otherTeam].length>=(state.bc-(state.bans[otherTeam]||[]).length);
+    const otherFull=banPending[otherTeam].length>=(banTotalLimit(state)-(state.bans[otherTeam]||[]).length);
     const mySubmitted=isHost?alphaBanSubmitted:bravoBanSubmitted;
     if(mySubmitted && !otherFull){
       hint.innerHTML=`<span style="color:var(--pk)">✓ BANを送信しました。相手チームを待っています…</span>`;
@@ -2987,15 +2983,17 @@ function renderBanPanel(){
       hint.innerHTML=`<span style="color:var(--pk)">✓ 両チームのBANが揃いました！まもなく公開されます…</span>`;
     } else {
       const myTeamName=isHost?state.an:state.bn;
-      hint.innerHTML=`<strong style="color:${isHost?'var(--a)':'var(--b)'}">${myTeamName}</strong> — BANする武器を選択して送信してください`;
+      const rem=banRemainingSummary(state,myTeam);
+      hint.innerHTML=`<strong style="color:${isHost?'var(--a)':'var(--b)'}">${myTeamName}</strong> — BANを選択して送信してください`
+        +(rem?`<br><small style="color:var(--mu)">残り: ${rem}（タブで種別を切替）</small>`:'');
     }
   }
 
   const myTeam2=isHost?'alpha':'bravo';
-  const myFull2=banPending[myTeam2].length>=(state.bc-(state.bans[myTeam2]||[]).length);
+  const myFull2=banPending[myTeam2].length>=(banTotalLimit(state)-(state.bans[myTeam2]||[]).length);
   const mySubmitted2=isHost?alphaBanSubmitted:bravoBanSubmitted;
-  const aFull=banPending.alpha.length>=(state.bc-(state.bans.alpha||[]).length);
-  const bFull=banPending.bravo.length>=(state.bc-(state.bans.bravo||[]).length);
+  const aFull=banPending.alpha.length>=(banTotalLimit(state)-(state.bans.alpha||[]).length);
+  const bFull=banPending.bravo.length>=(banTotalLimit(state)-(state.bans.bravo||[]).length);
   const btn=document.getElementById('ban-confirm-btn');
   if(!isMulti){
     btn.textContent='BANを確定する'; btn.disabled=!(aFull&&bFull);
@@ -3201,7 +3199,8 @@ function checkIndividualBansReady(){
 function renderSlots(team){
   const S=state, c=document.getElementById('sl'+team[0]);
   c.innerHTML='';
-  for(let i=0;i<S.bc;i++){
+  const banSlots=banTotalLimit(S);
+  for(let i=0;i<banSlots;i++){
     const w=(S.bans[team]||[])[i], d=document.createElement('div');
     d.className='ws '+(w?'banned':'empty');
     d.innerHTML=w
@@ -3236,6 +3235,7 @@ function renderGrid(){
     && (!isMulti || (isRepBanRepresentative(S) && !(isHost?alphaBanSubmitted:bravoBanSubmitted)));
   const grans = (isBan && !isIndividualBan0) ? enabledBanGrans(S) : [];
   if(activeBanGran!=='weapon' && !grans.includes(activeBanGran)) activeBanGran='weapon';
+  if(activeBanGran==='weapon' && grans.length && banLimitFor(S,'weapon')===0) activeBanGran=grans[0];
   if(grans.length){
     const GLAB={weapon:'ブキ',sub:'サブ',special:'スペシャル',cat:'武器種'};
     ['weapon',...grans].forEach(val=>{
@@ -3288,8 +3288,10 @@ function renderGrid(){
           // 代表者BANモード: 非代表者はクリック不可
           const isRep = isRepBanRepresentative(S);
           if((!isMulti||(!mySubmitted && isRep))){
-            const selOffset=(pendingSelect&&pendingSelect.phase==='ban'&&pendingSelect.team===it)?1:0;
-            clickable=(S.bc-(S.bans[it]||[]).length-banPending[it].length-selOffset)>0 || (pendingSelect&&pendingSelect.phase==='ban'&&pendingSelect.team===it);
+            // 武器BANは weapon 種別の残数のみで判定（ジャンル枠とは別枠）
+            const selOffsetW=(pendingSelect&&pendingSelect.phase==='ban'&&pendingSelect.team===it&&banTypeOf(pendingSelect.w)==='weapon')?1:0;
+            const tentativeW=pendingSelect&&pendingSelect.phase==='ban'&&pendingSelect.team===it&&banTypeOf(pendingSelect.w)==='weapon';
+            clickable=(banRemainingFor(S,it,'weapon')-selOffsetW)>0 || tentativeW;
           }
         }
       } else if(isSimPick){
@@ -3339,23 +3341,16 @@ function renderBanGenreTiles(S, gran, repIt, repEligible, grid){
 
   const banList=[...(S.bans.alpha||[]),...(S.bans.bravo||[]),...banPending.alpha,...banPending.bravo];
   const bannedIds=new Set(banList.map(banIdOf));
-  const selOffset=(pendingSelect&&pendingSelect.phase==='ban'&&pendingSelect.team===repIt)?1:0;
-  const remaining=S.bc-(S.bans[repIt]||[]).length-banPending[repIt].length-selOffset;
-
-  // プール枯渇ガード: 確定/送信予定のBANを差し引いた残プールがピック必要数を割る選択は禁止
-  const removedKeys=new Set(banList.filter(b=>b&&!b.banType).map(b=>b.key));
-  const activeGenres=banList.filter(b=>b&&b.banType);
-  const poolNow=basePool.filter(w=>!removedKeys.has(w.key)&&!weaponBannedByGenres(w,activeGenres));
-  const floor=2*(S.ts||4); // 両チームのピック数（ピックは全体で一意）
+  // この粒度（gran）の残BAN数のみで判定（武器BAN・他ジャンルとは別枠）
+  const selOffset=(pendingSelect&&pendingSelect.phase==='ban'&&pendingSelect.team===repIt&&banTypeOf(pendingSelect.w)===gran)?1:0;
+  const remaining=banRemainingFor(S,repIt,gran)-selOffset;
 
   values.forEach(val=>{
     const g=makeGenreBan(gran,val), id=banIdOf(g);
     const isBanned=bannedIds.has(id);
     const isSel=pendingSelect&&pendingSelect.phase==='ban'&&banIdOf(pendingSelect.w)===id;
     const cnt=basePool.filter(w=>weaponMatchesGenreBan(w,g)).length;
-    const poolAfter=poolNow.filter(w=>!weaponMatchesGenreBan(w,g)).length;
-    const wouldStarve=!isBanned && poolAfter<floor;
-    const clickable=repEligible&&!isBanned&&!wouldStarve&&(remaining>0||isSel);
+    const clickable=repEligible&&!isBanned&&(remaining>0||isSel);
     const btn=document.createElement('button');
     btn.className='wb'+(isBanned?' is-bn':'')+(isSel?' is-sel':'');
     btn.disabled=!clickable;
@@ -3415,17 +3410,18 @@ function pickWeapon(w){
     const mySubmitted=isHost?alphaBanSubmitted:bravoBanSubmitted;
     if(isMulti&&mySubmitted) return;
     if(isMulti && !isRepBanRepresentative(S)) return; // 非代表者はBAN操作不可
-    if((S.bc-(S.bans[it]||[]).length-banPending[it].length)<=0) return;
+    // この武器/ジャンルの種別の残数のみで判定（武器・各ジャンルは別枠）
+    if(banRemainingFor(S,it,banTypeOf(w))<=0) return;
 
     if(pendingSelect && pendingSelect.phase==='ban' && pendingSelect.team===it){
       if(banIdOf(pendingSelect.w)===banIdOf(w)){
         banPending[it].push(w);
         pendingSelect=null;
         if(!isMulti){
-          const nr=S.bc-(S.bans[it]||[]).length-banPending[it].length;
-          if(nr===0){
+          const totLeft=banTotalLimit(S)-(S.bans[it]||[]).length-banPending[it].length;
+          if(totLeft===0){
             const other=it==='alpha'?'bravo':'alpha';
-            if((S.bc-(S.bans[other]||[]).length-banPending[other].length)>0) banActiveTeam=other;
+            if(banTotalLimit(S)-(S.bans[other]||[]).length-banPending[other].length>0) banActiveTeam=other;
           }
         }
         renderBanPanel(); renderGrid();
@@ -3500,7 +3496,7 @@ function renderSlotsWithPending(){
   const picked=(S.picks[team]||[]).length;
   // picked番目のスロットを仮選択表示に書き換え
   const slots=c.querySelectorAll('.ws');
-  const slotIdx=S.bc+picked; // BAN分オフセット
+  const slotIdx=banTotalLimit(S)+picked; // BAN分オフセット（ジャンルBAN含む総数）
   if(slots[slotIdx]){
     slots[slotIdx].className='ws picked';
     slots[slotIdx].innerHTML=`<span class="sl">P${picked+1}</span><img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.display='none'"><span class="sn" style="color:var(--y)">▶ ${w.name}</span>`;
@@ -3806,7 +3802,11 @@ window.downloadResultImage = async function(){
     const isSim=(S.seq||[]).some(st=>st.team==='both');
     const poLabel=PO_LABELS[S.pickOrder] || (isSim?'同時ピック':'');
     const effIndividualBan=(S.pickMode==='individual' && S.banMode==='individual');
-    const banLabel=(S.bc>0)?(effIndividualBan?`個人BAN×${S.bc}`:`代表者BAN×${S.bc}`):'BANなし';
+    const _bg=S.banGenres||{};
+    const _gp=[]; if(_bg.cat>0)_gp.push(`武器種${_bg.cat}`); if(_bg.sub>0)_gp.push(`サブ${_bg.sub}`); if(_bg.special>0)_gp.push(`スペ${_bg.special}`);
+    const banLabel=(banTotalLimit(S)>0)
+      ?((effIndividualBan?`個人BAN×${S.bc}`:`代表者BAN×${S.bc}`)+(_gp.length?`(+${_gp.join('・')})`:''))
+      :'BANなし';
     const efc=S.excludeFilter?((S.excludeFilter.cats||[]).length+(S.excludeFilter.subs||[]).length+(S.excludeFilter.specials||[]).length):0;
     const parts=[`${S.ts}vs${S.ts}`, PM_LABELS[S.pickMode], poLabel, banLabel];
     if(S.timeLimitEnabled) parts.push(`制限${S.timeLimitSec}秒`);
