@@ -129,6 +129,11 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .guide-list li b{color:var(--y);font-weight:bold;}
 .guide-note{font-size:11px;color:var(--mu);line-height:1.6;margin-top:10px;padding-top:10px;border-top:1px solid #2a2a4a;}
 .guide-note b{color:var(--tx);}
+.guide-dl{margin:0;}
+.guide-dl dt{font-size:12px;color:var(--y);font-weight:bold;margin-top:11px;}
+.guide-dl dt:first-of-type{margin-top:0;}
+.guide-dl dd{font-size:11.5px;color:var(--tx);line-height:1.7;margin:3px 0 0;}
+.guide-dl dd b{color:var(--y);font-weight:bold;}
 
 /* DRAFT */
 .dh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
@@ -420,6 +425,31 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <li><b>「ドラフト開始」</b>で全員の画面が一斉にドラフトへ進みます。</li>
         </ol>
         <p class="guide-note">ホストは<b>アルファ側</b>の送信担当 兼 進行役です。代表者BAN／代表者ピックでは、ホストがアルファ全員分をまとめて選びます。</p>
+      </div>
+      <div class="guide-card">
+        <h3>設定項目の説明（特に分かりにくいもの）</h3>
+        <dl class="guide-dl">
+          <dt>人数 / BAN数</dt>
+          <dd>人数は 1v1〜4v4。<b>BAN数</b>は各チームがBANする武器の数（なし〜各8・既定は各4）。両チーム同じ数です。</dd>
+
+          <dt>ジャンルBAN（武器BANとは別枠）</dt>
+          <dd>武器単位とは<b>別の枠</b>で、<b>武器種・サブ・スペシャル単位</b>でまとめてBANできます（例: 「サブ=2」ならサブを2種類まるごと禁止＝そのサブを持つ武器が全て消える）。設定した数は<b>必ずその数だけBAN</b>します。代表者BAN相当のとき（個人ピック×個人BAN以外）だけ表示されます。</dd>
+
+          <dt>ピックモード（3種・最重要）</dt>
+          <dd><b>個人ピック</b>＝各自が自分の番に自分の武器を選ぶ。<b>代表者ピック</b>＝チーム代表が全員分をまとめて選ぶ。<b>相手ピック</b>＝対になる相手選手の武器を<b>自分が決めて押し付ける</b>（アルファ[N]↔ブラボー[N]がペア）。普段使わない武器を持たされる遊びです。<br><span style="color:var(--mu)">※ソロでは「通常ピック（＝代表者ピック相当）」と「相手ピック」の2つ。</span></dd>
+
+          <dt>ピック順</dt>
+          <dd>誰が何番目に選ぶかの並び。<b>交互</b>＝1枚ずつ交互。<b>スネーク</b>＝折り返しで偏りを抑える競技寄りの既定。クラシック／ミドルは折り返し幅違い。<b>バランス／前重ね</b>は 1-2-1 等の固定配分。<b>同時ピック</b>はマルチ専用で、ペアが同時に選んで一斉公開（チーム間は被りOK）。</dd>
+
+          <dt>先攻</dt>
+          <dd>最初にピックするチーム。<b>ランダム</b>は開始時に抽選します。</dd>
+
+          <dt>標準武器のみ / 武器の絞り込み</dt>
+          <dd><b>標準武器のみ</b>＝無印だけにし、デコ等のバリアントを除外。<b>武器の絞り込み</b>＝指定した武器種・サブ・スペシャルを<b>持つ武器を候補から消す</b>（例: 強いスペシャルを外してエンジョイ寄りに調整）。どちらも候補が減り、残り数が表示されます。</dd>
+
+          <dt>お題カード / 制限時間</dt>
+          <dd><b>お題カード</b>＝開始時に縛りを1枚抽選（両チーム共通・<b>非強制</b>で、結果に達成○×を表示）。<b>制限時間</b>＝5〜100秒。時間切れは「確定済み→仮選択中→ランダム」の順で自動送信します。</dd>
+        </dl>
       </div>
       <div class="guide-card">
         <h3>ソロモードについて</h3>
