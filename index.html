@@ -313,6 +313,29 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 
 /* ===== ドラフト画面プレイヤー表示 ===== */
 .player-indicator{font-size:10px;color:var(--mu);margin-top:2px;}
+
+/* ===== お題カード / 縛りルーレット ===== */
+#challenge-overlay{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;
+  background:rgba(8,8,24,.86);backdrop-filter:blur(3px);padding:20px;}
+#challenge-overlay.show{display:flex;}
+.cr-card{background:linear-gradient(160deg,#1f2244,#14152b);border:2px solid var(--y);border-radius:16px;
+  padding:26px 22px;max-width:360px;width:100%;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.5);}
+.cr-title{font-size:13px;letter-spacing:2px;color:var(--y);font-weight:700;margin-bottom:14px;}
+.cr-slot{font-family:'Zen Dots',sans-serif;font-size:22px;line-height:1.3;color:#fff;min-height:58px;
+  display:flex;align-items:center;justify-content:center;padding:8px;border-radius:10px;background:#0f1729;
+  overflow:hidden;}
+.cr-card.settled .cr-slot{color:var(--y);animation:cr-pop .4s ease;}
+@keyframes cr-pop{0%{transform:scale(.8)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+.cr-desc{font-size:12px;color:var(--mu);margin-top:12px;min-height:18px;}
+.cr-hint{font-size:10px;color:var(--mu);margin-top:14px;opacity:.7;}
+/* 結果画面のお題表示 */
+.r-challenge{background:#0f1729;border:1px solid var(--y);border-radius:10px;padding:10px 12px;margin:10px 0;
+  text-align:center;}
+.r-challenge .rc-label{font-size:13px;font-weight:700;color:var(--y);}
+.r-challenge .rc-desc{font-size:10px;color:var(--mu);margin-top:2px;}
+.r-challenge .rc-res{display:flex;gap:14px;justify-content:center;margin-top:7px;font-size:12px;font-weight:700;}
+.r-challenge .rc-res .ok{color:var(--pk);}
+.r-challenge .rc-res .ng{color:var(--mu);}
 </style>
 </head>
 <body>
@@ -463,8 +486,8 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <label>Ban数</label>
         <select id="bc" onchange="onSettingChange()">
           <option value="0">Banなし</option><option value="1">Ban数1</option>
-          <option value="2">Ban数2</option><option value="3" selected>Ban数3</option>
-          <option value="4">Ban数4</option><option value="5">Ban数5</option>
+          <option value="2">Ban数2</option><option value="3">Ban数3</option>
+          <option value="4" selected>Ban数4</option><option value="5">Ban数5</option>
           <option value="6">Ban数6</option><option value="7">Ban数7</option>
           <option value="8">Ban数8</option>
         </select>
@@ -540,6 +563,16 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <span class="wf-count" id="weapon-filter-count"></span>
         </div>
       </div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          🎯 お題カード（縛りルーレット）
+          <small>開始時にお題を抽選。結果で達成を○×表示（ピックは制限しない）</small>
+        </div>
+        <label class="tgl">
+          <input type="checkbox" id="challenge-enabled" onchange="onSettingChange()">
+          <span class="tgl-sl"></span>
+        </label>
+      </div>
       <div class="div"></div>
       <div class="row">
         <label>ピックモード</label>
@@ -577,11 +610,10 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       </div>
       <div class="row" id="time-limit-row" style="display:none">
         <label>制限時間</label>
-        <select id="time-limit-sec" onchange="onSettingChange()">
-          <option value="15">15秒</option>
-          <option value="20">20秒</option>
-          <option value="30" selected>30秒</option>
-        </select>
+        <div style="display:flex;align-items:center;gap:6px;flex:1">
+          <input type="number" id="time-limit-sec" min="5" max="100" step="1" value="30" onchange="onSettingChange()" style="width:90px">
+          <span style="font-size:11px;color:var(--mu)">秒（5〜100）</span>
+        </div>
       </div>
     </div>
   </div>
@@ -657,8 +689,8 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <label>Banフェーズ</label>
         <select id="solo-bc">
           <option value="0">Banなし</option><option value="1">各1Ban</option>
-          <option value="2">各2Ban</option><option value="3" selected>各3Ban</option>
-          <option value="4">各4Ban</option><option value="5">各5Ban</option>
+          <option value="2">各2Ban</option><option value="3">各3Ban</option>
+          <option value="4" selected>各4Ban</option><option value="5">各5Ban</option>
           <option value="6">各6Ban</option><option value="7">各7Ban</option>
           <option value="8">各8Ban</option>
         </select>
@@ -722,6 +754,16 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <span class="tgl-sl"></span>
         </label>
       </div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          🎯 お題カード（縛りルーレット）
+          <small>開始時にお題を抽選。結果で達成を○×表示</small>
+        </div>
+        <label class="tgl">
+          <input type="checkbox" id="solo-challenge-enabled">
+          <span class="tgl-sl"></span>
+        </label>
+      </div>
       <div class="div"></div>
       <div class="toggle-row">
         <div class="toggle-label">
@@ -735,11 +777,10 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       </div>
       <div class="row" id="solo-time-limit-row" style="display:none">
         <label>制限時間</label>
-        <select id="solo-time-limit-sec">
-          <option value="15">15秒</option>
-          <option value="20">20秒</option>
-          <option value="30" selected>30秒</option>
-        </select>
+        <div style="display:flex;align-items:center;gap:6px;flex:1">
+          <input type="number" id="solo-time-limit-sec" min="5" max="100" step="1" value="30" style="width:90px">
+          <span style="font-size:11px;color:var(--mu)">秒（5〜100）</span>
+        </div>
       </div>
     </div>
   </div>
@@ -856,6 +897,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       <div class="bs" id="r-stage"></div>
     </div>
   </div>
+  <div class="r-challenge" id="r-challenge" style="display:none"></div>
   <div class="tc">
     <div class="rc alpha">
       <div class="rtt" id="rna"></div>
@@ -872,6 +914,16 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
     <button class="btn-re" id="btn-save-image" onclick="downloadResultImage()" style="background:var(--y);color:#1a1a2e;border-color:var(--y);">🖼️ 結果画像を保存</button>
     <button class="btn-re" id="btn-redraft" onclick="redraftWithSameMembers()" style="display:none;background:var(--pk);color:#1a1a2e;border-color:var(--pk);">🔄 同じメンバーで再ドラフト</button>
     <button class="btn-re" onclick="goHome()">↩ モード選択に戻る</button>
+  </div>
+</div>
+
+<!-- お題 縛りルーレット 演出オーバーレイ -->
+<div id="challenge-overlay" onclick="dismissChallengeRoulette()">
+  <div class="cr-card" id="cr-card">
+    <div class="cr-title">🎯 お題ルーレット</div>
+    <div class="cr-slot" id="cr-slot"></div>
+    <div class="cr-desc" id="cr-desc"></div>
+    <div class="cr-hint">タップで閉じる</div>
   </div>
 </div>
 
@@ -942,7 +994,8 @@ function applyLobbySettingsToForm(s){
   const setChk = (id,v)=>{ const el=document.getElementById(id); if(el) el.checked=!!v; };
   setVal('n-a',s.an); setVal('n-b',s.bn); setVal('sz',s.ts); setVal('bc',s.bc);
   setVal('ft',s.ft); setVal('pick-order',s.po); setVal('rm',s.rule); setVal('sm',s.stageJa);
-  setChk('std-only',s.stdOnly); setVal('pick-mode',s.pickMode); setVal('ban-mode',s.banMode);
+  setChk('std-only',s.stdOnly); setChk('challenge-enabled',s.challengeEnabled);
+  setVal('pick-mode',s.pickMode); setVal('ban-mode',s.banMode);
   setChk('time-limit-enabled',s.timeLimitEnabled); setVal('time-limit-sec',s.timeLimitSec);
   // 派生UI（onSettingChange を発火させず＝Firebase へ書き戻さず手動更新）
   const tlRow=document.getElementById('time-limit-row');
@@ -1051,6 +1104,7 @@ let bravoPickSubmitted     = false;
 let simPickRound           = 0;
 let _checkPicksInProgress  = false;
 let _pickHandledBySelf     = false; // handleTimeoutSelf がピックを処理済みか
+let _challengeRouletteDone = false; // お題ルーレット演出をこのドラフトで再生済みか
 
 // --- 2タップ確定用 ---
 // 武器グリッドで1タップ目に仮選択、2タップ目で確定する仕組み
@@ -1059,6 +1113,13 @@ let pendingSelect = null; // {w, team, phase}
 // ===== ユーティリティ =====
 function stageImgUrl(name){
   return STAGES_IMG + encodeURIComponent(name) + '.png';
+}
+
+// 制限時間（秒）を 5〜100 にクランプ（数値入力の範囲外・空欄・不正値に備える）。既定30。
+function clampTimeLimit(v){
+  const n=parseInt(v,10);
+  if(!Number.isFinite(n)) return 30;
+  return Math.min(100, Math.max(5, n));
 }
 
 function showScreen(n){
@@ -1168,8 +1229,9 @@ window.startSoloDraft = function(){
     rm: document.getElementById('solo-rm').value,
     sm: document.getElementById('solo-sm').value,
     stdOnly: document.getElementById('solo-std-only')?.checked||false,
+    challengeEnabled: document.getElementById('solo-challenge-enabled')?.checked||false,
     timeLimitEnabled: document.getElementById('solo-time-limit-enabled')?.checked||false,
-    timeLimitSec: parseInt(document.getElementById('solo-time-limit-sec')?.value||30),
+    timeLimitSec: clampTimeLimit(document.getElementById('solo-time-limit-sec')?.value),
   });
 };
 
@@ -1992,6 +2054,40 @@ function serializeBan(w){
   return {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat};
 }
 
+// ===== お題カード / 縛りルーレット（Phase 2・完全クライアント完結）=====
+// 開始時に1枚を抽選し両チーム共通で課す。判定は各チームのPICKロードアウト
+// （picks=武器オブジェクト配列：key/name/cat/sub/special を持つ）で行う非強制ルール。
+// ＝達成を結果画面で○×表示するのみでピックは制限しない。
+// state には {id,label,desc} のみ保存（関数は持たせない＝Firebase 同期安全）。
+// 受信側で id から CHALLENGES を引いて evaluate する。id 不明時は label のみ表示し○×は出さない。
+const BOMB_SUBS = new Set(['スプラッシュボム','キューバンボム','クイックボム','カーリングボム','ロボットボム','タンサンボム','トーピード']);
+const CHALLENGES = [
+  {id:'all_diff_cat',     label:'全員ちがう武器種',     desc:'チーム内で武器種が全員バラバラ',
+    evaluate:(p)=>{ const v=p.map(w=>w.cat);          return p.length>0 && new Set(v).size===v.length; }},
+  {id:'all_diff_special', label:'全員ちがうスペシャル', desc:'チーム内でスペシャルが全員バラバラ',
+    evaluate:(p)=>{ const v=p.map(w=>w.special);      return p.length>0 && new Set(v).size===v.length; }},
+  {id:'no_dup_sub',       label:'サブ被り禁止',         desc:'チーム内でサブウェポンが重複しない',
+    evaluate:(p)=>{ const v=p.map(w=>w.sub);          return p.length>0 && new Set(v).size===v.length; }},
+  {id:'all_bomb_sub',     label:'全員サブがボム系',     desc:'全員のサブがボム系（投げ物）',
+    evaluate:(p)=> p.length>0 && p.every(w=>BOMB_SUBS.has(w.sub)) },
+  {id:'include_charger',  label:'チャージャーを入れる', desc:'チャージャーを1人以上編成',
+    evaluate:(p)=> p.some(w=>w.cat==='チャージャー') },
+  {id:'include_roller',   label:'ローラーを入れる',     desc:'ローラーを1人以上編成',
+    evaluate:(p)=> p.some(w=>w.cat==='ローラー') },
+  {id:'no_shooter',       label:'シューター禁止',       desc:'シューターを編成しない',
+    evaluate:(p)=> p.length>0 && p.every(w=>w.cat!=='シューター') },
+  {id:'all_same_cat',     label:'全員おなじ武器種',     desc:'チーム全員を同じ武器種で固める',
+    evaluate:(p)=> p.length>0 && p.every(w=>w.cat===p[0].cat) },
+];
+function challengeDefById(id){ return CHALLENGES.find(c=>c.id===id)||null; }
+function pickRandomChallenge(){ const c=CHALLENGES[Math.floor(Math.random()*CHALLENGES.length)]; return {id:c.id,label:c.label,desc:c.desc}; }
+// チーム team がお題を達成しているか（true/false）。お題なし・id不明・picks不正は null。
+function evaluateChallenge(S, team){
+  const ch=S&&S.challenge; if(!ch||!ch.id) return null;
+  const def=challengeDefById(ch.id); if(!def||!def.evaluate) return null;
+  try{ return !!def.evaluate(S.picks[team]||[]); }catch(e){ return null; }
+}
+
 function buildWeaponFilterUI(){
   if(!WEAPONS || WEAPONS.length===0) return;
   const cats = [...new Set(WEAPONS.map(w=>w.cat))];
@@ -2080,13 +2176,14 @@ function getLobbySettings(){
     rule: document.getElementById('rm')?.value||'random',
     stageJa: document.getElementById('sm')?.value||'random',
     stdOnly: document.getElementById('std-only')?.checked||false,
+    challengeEnabled: document.getElementById('challenge-enabled')?.checked||false,
     pickMode: document.getElementById('pick-mode')?.value||'individual',
     banMode:  document.getElementById('ban-mode')?.value||'individual',
     banGenres: readBanGenresFromUI(),
     pickOrderAlpha: [...lobbyPickOrderAlpha],
     pickOrderBravo: [...lobbyPickOrderBravo],
     timeLimitEnabled: document.getElementById('time-limit-enabled')?.checked||false,
-    timeLimitSec: parseInt(document.getElementById('time-limit-sec')?.value||30),
+    timeLimitSec: clampTimeLimit(document.getElementById('time-limit-sec')?.value),
     excludeFilter: {
       cats: [...(lobbyExcludeFilter.cats||[])],
       subs: [...(lobbyExcludeFilter.subs||[])],
@@ -2139,7 +2236,7 @@ window.startDraft = function(){
   });
   buildAndStartDraft({
     an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:s.ft, po:s.po,
-    rm:s.rule, sm:s.stageJa, stdOnly:s.stdOnly,
+    rm:s.rule, sm:s.stageJa, stdOnly:s.stdOnly, challengeEnabled:s.challengeEnabled,
     pickMode:s.pickMode, banMode:s.banMode, banGenres:s.banGenres,
     pickOrderAlpha:s.pickOrderAlpha, pickOrderBravo:s.pickOrderBravo,
     members:membersForState,
@@ -2245,9 +2342,10 @@ function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec, simOrder
   return seq;
 }
 
-function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter}){
+function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter}){
   const rule    = rm==='random'?RULES[Math.floor(Math.random()*RULES.length)]:rm;
   const stageJa = sm==='random'?STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)]:sm;
+  const challenge = challengeEnabled ? pickRandomChallenge() : null;
   const first   = ft==='random'?(Math.random()<.5?'alpha':'bravo'):ft;
   const sec     = first==='alpha'?'bravo':'alpha';
   const pMode   = pickMode||'team';
@@ -2334,7 +2432,9 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,pickMode,banMode,ba
     timeLimitSec: timeLimitSec||30,
     deadline: null,
     excludeFilter: excludeFilter||{cats:[],subs:[],specials:[]},
+    challenge: challenge,
   };
+  _challengeRouletteDone=false;
   banPending={alpha:[],bravo:[]}; banActiveTeam='alpha';
   bravoBanSubmitted=false; alphaBanSubmitted=false; activeCat='すべて'; activeBanGran='weapon';
   banPendingIndividual={}; myBanSubmitted=false; myConfirmedBan=null;
@@ -2364,7 +2464,52 @@ function showDraftUI(){
   if(backWrap) backWrap.style.display = (isMulti && isHost) ? '' : 'none';
   renderDraft();
   showScreen('draft');
+  maybePlayChallengeRoulette();
 }
+
+// ===== お題 縛りルーレット 演出 =====
+// ドラフト開始時、お題があれば1回だけルーレット演出を再生（ホスト・参加者共通入口の showDraftUI から）。
+// 純粋に視覚的なオーバーレイ。タップでスキップ可能。進行はブロックしない。
+let _crTimer=null;
+function dismissChallengeRoulette(){
+  if(_crTimer){ clearTimeout(_crTimer); _crTimer=null; }
+  const ov=document.getElementById('challenge-overlay');
+  if(ov) ov.classList.remove('show');
+}
+function maybePlayChallengeRoulette(){
+  const S=state;
+  if(!S || !S.challenge || _challengeRouletteDone) return;
+  _challengeRouletteDone=true;
+  const ov=document.getElementById('challenge-overlay');
+  const card=document.getElementById('cr-card');
+  const slot=document.getElementById('cr-slot');
+  const desc=document.getElementById('cr-desc');
+  if(!ov||!slot){ return; }
+  const finalLabel=S.challenge.label||'';
+  const finalDesc=S.challenge.desc||'';
+  card.classList.remove('settled');
+  desc.textContent='';
+  ov.classList.add('show');
+  const labels=CHALLENGES.map(c=>c.label);
+  if(_crTimer){ clearInterval(_crTimer); _crTimer=null; }
+  const start=Date.now(), total=1500; // 約1.5秒回す。経過に応じて間隔を伸ばし減速感を出す
+  const schedule=()=>{
+    const t=Date.now()-start;
+    if(t>=total){
+      _crTimer=null;
+      slot.textContent=finalLabel;
+      desc.textContent=finalDesc;
+      card.classList.add('settled');
+      setTimeout(()=>{ const o=document.getElementById('challenge-overlay'); if(o) o.classList.remove('show'); }, 1800);
+      return;
+    }
+    slot.textContent=labels[Math.floor(Math.random()*labels.length)];
+    const delay=60+Math.round(160*(t/total)); // 60ms→220ms へ徐々に減速
+    _crTimer=setTimeout(schedule, delay);
+  };
+  schedule();
+}
+window.dismissChallengeRoulette=dismissChallengeRoulette;
 
 // ===== Firebase state管理 =====
 function pushState(){
@@ -2400,6 +2545,7 @@ function resetTransientDraftState(){
   _lastPushedIdx = -1;
   _pickHandledBySelf = false;
   activeCat = 'すべて';
+  _challengeRouletteDone = false;
 }
 
 function subscribeRoom(){
@@ -2655,6 +2801,7 @@ function normalizeState(s){
   if(s.representativeAlpha===undefined) s.representativeAlpha=null;
   if(s.representativeBravo===undefined) s.representativeBravo=null;
   if(!s.excludeFilter) s.excludeFilter={cats:[],subs:[],specials:[]};
+  if(s.challenge===undefined) s.challenge=null;
   return s;
 }
 
@@ -3709,6 +3856,20 @@ function showResult(){
       pe.appendChild(d);
     });
   });
+  // お題（あれば）：両チーム共通のお題と各チームの達成○×を表示
+  const chEl=document.getElementById('r-challenge');
+  if(chEl){
+    if(S.challenge){
+      const ra=evaluateChallenge(S,'alpha'), rb=evaluateChallenge(S,'bravo');
+      const badge=(r)=> r===null?'<span class="ng">―</span>':(r?'<span class="ok">○ 達成</span>':'<span class="ng">× 未達成</span>');
+      chEl.innerHTML=`<div class="rc-label">🎯 お題：${S.challenge.label}</div>`
+        +`<div class="rc-desc">${S.challenge.desc||''}</div>`
+        +`<div class="rc-res"><span>${S.an}：${badge(ra)}</span><span>${S.bn}：${badge(rb)}</span></div>`;
+      chEl.style.display='';
+    } else {
+      chEl.style.display='none';
+    }
+  }
   // マルチプレイ時のみ再ドラフトボタンを表示（ホストのみ操作可能）
   const btnRedraft = document.getElementById('btn-redraft');
   if(btnRedraft){
@@ -3774,10 +3935,11 @@ window.downloadResultImage = async function(){
 
     // レイアウト（論理px）
     const W=900, P=28, headerH=170;
+    const chBand = S.challenge ? 44 : 0; // お題バンドの高さ
     const colW=(W-P*3)/2;
     const rowH=ty=>ty==='team'?34:ty==='label'?26:ty==='item'?38:ty==='none'?28:30;
     const colHeight=rows=>rows.reduce((h,r)=>h+rowH(r.type),0);
-    const H=headerH+Math.max(colHeight(colA),colHeight(colB))+P;
+    const H=headerH+chBand+Math.max(colHeight(colA),colHeight(colB))+P;
 
     const scale=2;
     const canvas=document.createElement('canvas');
@@ -3827,8 +3989,23 @@ window.downloadResultImage = async function(){
     ctx.fillStyle='#9aa3bd'; ctx.font="12px 'M PLUS Rounded 1c', sans-serif";
     ctx.fillText(_wmTruncate(ctx, settingsLine, W-48), W/2, 154);
 
+    // お題バンド（あれば）：お題ラベル＋両チームの達成○×
+    if(chBand>0){
+      const by=headerH, bh=chBand;
+      ctx.fillStyle='#0f1729'; ctx.fillRect(0,by,W,bh);
+      ctx.fillStyle='#F5E642'; ctx.fillRect(0,by,4,bh);
+      const ra=evaluateChallenge(S,'alpha'), rb=evaluateChallenge(S,'bravo');
+      const mark=r=> r===null?'―':(r?'○':'×');
+      ctx.textAlign='left';
+      ctx.fillStyle='#F5E642'; ctx.font="bold 15px 'M PLUS Rounded 1c', sans-serif";
+      ctx.fillText(_wmTruncate(ctx, '🎯 お題：'+(S.challenge.label||''), W-360), P, by+27);
+      ctx.textAlign='right';
+      ctx.fillStyle='#e0e0e0'; ctx.font="13px 'M PLUS Rounded 1c', sans-serif";
+      ctx.fillText(`${_wmTruncate(ctx,S.an,90)} ${mark(ra)}   ${_wmTruncate(ctx,S.bn,90)} ${mark(rb)}`, W-P, by+27);
+    }
+
     const drawCol=(rows,x)=>{
-      let y=headerH+12; ctx.textAlign='left';
+      let y=headerH+chBand+12; ctx.textAlign='left';
       rows.forEach(r=>{
         if(r.type==='team'){
           ctx.fillStyle=r.team==='alpha'?'#4A90E2':'#E8630A';

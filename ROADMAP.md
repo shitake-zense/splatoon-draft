@@ -34,10 +34,15 @@
 - [x] 除外（グリッド/ピック/タイマー自動補完）・結果画面/結果画像・残り内訳ヒント対応。
 - **未決（次回確認候補）**: ジャンルBAN数は現状「**必須数**」（その数だけ必ずBANする）。「**最大N（任意）**」にしたい場合は完了条件の作り直しが要る。相手ピックでも表示している。
 
-### ▶ Phase 2 — お題カード / 縛りルーレット（§3）← 次の本命
-- 完全クライアント完結（DB無風）。`cat`/`sub`/`special` で達成判定し○×表示。Phase 1 の判定ヘルパー（`weaponMatchesGenreBan` 等）が流用可。
-- 縛りルーレットはお題カードの演出強化版。ハンデは任意で同梱。
-- 着手メモ: お題定義の配列＋判定関数を新設。開始時に抽選して `state` に保持（スキーマ追加）。結果表示に○×。
+### ✅ Phase 2 — お題カード / 縛りルーレット（§3）（完了）
+- 決定（2026-06-25 オーナー確認）: **両チーム共通1枚** / **非強制（○×表示のみ）** / **縛りルーレット演出を同梱** / **ON-OFFトグル（既定OFF）**。
+- 完全クライアント完結（DB無風）。`state.challenge={id,label,desc}` を**追加のみ**で同期（後方互換）。`normalizeState` に既定 `challenge:null`。
+- [x] `CHALLENGES`（8種：全員ちがう武器種/全員ちがうスペシャル/サブ被り禁止/全員サブがボム系/チャージャー入れる/ローラー入れる/シューター禁止/全員おなじ武器種）＋`BOMB_SUBS`、`evaluate(picks)`／`evaluateChallenge(S,team)`／`pickRandomChallenge`／`challengeDefById`（`serializeBan` 直後）。
+- [x] 設定UIトグル：マルチ `#challenge-enabled`（`onSettingChange` で lobby 同期）／ソロ `#solo-challenge-enabled`。`getLobbySettings`/`startSoloDraft`/`applyLobbySettingsToForm`/`buildAndStartDraft` に `challengeEnabled` を配線。
+- [x] 開始時抽選 → `state.challenge`。ルーレット演出 `maybePlayChallengeRoulette()`（`showDraftUI` 末尾・ホスト/参加者共通入口）、ガード `_challengeRouletteDone`（`resetTransientDraftState` でリセット）。オーバーレイ `#challenge-overlay`、タップで `dismissChallengeRoulette()`。
+- [x] 結果画面 `#r-challenge`（`showResult`）＋結果画像のお題バンド（`downloadResultImage` の `chBand`）。各チーム ○/× は `evaluateChallenge` で算出（enemy モードは `picks[team]`＝使うロードアウトで判定）。
+- [x] 検証：scriptブロック `node --check` OK／判定ロジック単体 18件パス（`scratchpad/challenge.test.mjs`）／smoke `S14` 追記。
+- **未決（次回確認候補）**: お題の追加・難易度バランス（現状は固定8種・等確率抽選）。ハンデ（§3「弱い側にBAN+1」等）は未着手。チーム別お題・強制ルール化は今回スコープ外（共通1枚・非強制で確定）。
 
 ### Phase 3 — ガチャ/運命ピック → ドラフト後トレード（§2）
 - ガチャ＝ランダム配布＋リロール（既存 `pickRandom` 流用）。トレード＝ピック後に交換提案→相手承認（`pending_*` 同期パターンの延長）。
