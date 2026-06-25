@@ -191,6 +191,10 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .genre-ban-grid{display:flex;flex-direction:column;gap:5px;}
 .gb-item{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#0a1120;border:1px solid #2a3a5a;border-radius:5px;padding:4px 8px;font-size:11px;color:var(--tx);}
 .gb-item select{background:#0f1729;border:1px solid #2a3a5a;border-radius:4px;color:var(--tx);font-family:inherit;font-size:11px;padding:2px 6px;}
+/* ジャンルBAN行: 説明で横幅が潰れないよう縦積み（説明を上・各数の選択を全幅で下に） */
+.genre-ban-row{flex-direction:column;align-items:stretch;gap:6px;}
+.genre-ban-row>label{min-width:0;}
+.genre-ban-row .gb-item{padding:5px 10px;}
 .wg{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px;max-height:340px;overflow-y:auto;}
 .wb{background:#0f1729;border:1.5px solid #1a2a4a;border-radius:8px;padding:6px 4px;cursor:pointer;text-align:center;transition:border-color .1s;position:relative;}
 .wb:hover:not(:disabled){border-color:var(--y);}
@@ -677,7 +681,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <option value="representative">🤝 代表者BAN</option>
         </select>
       </div>
-      <div class="row" id="ban-genre-row" style="align-items:flex-start">
+      <div class="row genre-ban-row" id="ban-genre-row">
         <label>ジャンルBAN<br><small style="color:var(--mu);font-weight:normal;font-size:9px">武器種/サブ/スペシャル単位でもBAN（武器BANとは別枠で各数を設定）</small></label>
         <div class="genre-ban-grid" style="flex:1">
           <div class="gb-item"><span>武器種</span><select id="ban-genre-cat" onchange="onSettingChange()"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
@@ -783,7 +787,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <option value="8">各8Ban</option>
         </select>
       </div>
-      <div class="row" id="solo-ban-genre-row" style="align-items:flex-start">
+      <div class="row genre-ban-row" id="solo-ban-genre-row">
         <label>ジャンルBAN<br><small style="color:var(--mu);font-weight:normal;font-size:9px">武器種/サブ/スペシャル単位のBAN（武器BANとは別枠で各数を設定）</small></label>
         <div class="genre-ban-grid" style="flex:1">
           <div class="gb-item"><span>武器種</span><select id="solo-ban-genre-cat"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
