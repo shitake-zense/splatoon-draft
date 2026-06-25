@@ -117,6 +117,18 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .btn-start:disabled{opacity:.35;cursor:not-allowed;}
 .btn-re{width:100%;padding:11px;background:var(--s1);border:1.5px solid #2a2a4a;border-radius:var(--r);color:var(--mu);font-family:'Zen Dots',sans-serif;font-size:12px;cursor:pointer;margin-top:8px;}
 .btn-re:hover{background:var(--y);color:#1a1a2e;}
+.guide-wrap{max-width:560px;margin:24px auto 0;}
+.guide-tabs{display:flex;gap:6px;margin-bottom:14px;}
+.guide-tab{flex:1;padding:9px 4px;background:var(--s1);border:1.5px solid #2a2a4a;border-radius:8px;color:var(--mu);font-size:12px;cursor:pointer;font-family:inherit;}
+.guide-tab.on{background:var(--y);color:#1a1a2e;border-color:var(--y);font-weight:bold;}
+.guide-sec{display:none;}.guide-sec.on{display:block;}
+.guide-card{background:var(--s1);border:1px solid #2a2a4a;border-radius:10px;padding:14px 16px;margin-bottom:12px;}
+.guide-card h3{font-size:13px;color:var(--y);margin-bottom:10px;}
+.guide-list{margin:0;padding-left:18px;}
+.guide-list li{font-size:12px;color:var(--tx);line-height:1.7;margin-bottom:7px;}
+.guide-list li b{color:var(--y);font-weight:bold;}
+.guide-note{font-size:11px;color:var(--mu);line-height:1.6;margin-top:10px;padding-top:10px;border-top:1px solid #2a2a4a;}
+.guide-note b{color:var(--tx);}
 
 /* DRAFT */
 .dh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
@@ -379,6 +391,69 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
     <h2>🚪 部屋に入る</h2>
     <p>部屋番号を入力して参加</p>
   </button>
+  <button class="btn-re" style="max-width:360px;margin:14px auto 0;display:block;" onclick="showScreen('guide')">📖 使い方 / ドラフトの流れ</button>
+</div>
+
+<!-- GUIDE (使い方) -->
+<div id="s-guide" class="screen">
+  <div class="logo"><h1>SPLATOON DRAFT</h1><p>使い方ガイド</p></div>
+  <div class="guide-wrap">
+    <div class="guide-tabs">
+      <button class="guide-tab on" data-gt="host" onclick="showGuideTab('host')">👑 ホスト向け</button>
+      <button class="guide-tab" data-gt="join" onclick="showGuideTab('join')">🚪 参加者向け</button>
+      <button class="guide-tab" data-gt="flow" onclick="showGuideTab('flow')">🔀 ドラフトの流れ</button>
+    </div>
+
+    <!-- ホスト向け -->
+    <div class="guide-sec on" data-gt="host">
+      <div class="guide-card">
+        <h3>部屋を作って進行する人の操作</h3>
+        <ol class="guide-list">
+          <li><b>「👑 部屋を作る」</b>から名前を入れて部屋を作成します。</li>
+          <li>表示された<b>部屋番号（6桁）</b>か<b>共有URL</b>を参加者に渡します。</li>
+          <li>ロビーで参加者が揃ったら、<b>チーム（アルファ／ブラボー）への割り当て</b>と<b>ピック順</b>を決めます。</li>
+          <li><b>ルール設定</b>で 人数(1v1〜4v4)・BAN数・ピックモード・ピック順・ルール／ステージ・武器の絞り込み・お題カード・制限時間 を調整します。</li>
+          <li><b>「ドラフト開始」</b>で全員の画面が一斉にドラフトへ進みます。</li>
+        </ol>
+        <p class="guide-note">ホストは<b>アルファ側</b>の送信担当 兼 進行役です。代表者BAN／代表者ピックでは、ホストがアルファ全員分をまとめて選びます。</p>
+      </div>
+      <div class="guide-card">
+        <h3>ソロモードについて</h3>
+        <p>「🎮 ソロモード」は1人で両チーム分を操作するモードです。部屋番号は不要で、ピック順や設定の確認・練習に使えます。</p>
+      </div>
+    </div>
+
+    <!-- 参加者向け -->
+    <div class="guide-sec" data-gt="join">
+      <div class="guide-card">
+        <h3>部屋に入って遊ぶ人の操作</h3>
+        <ol class="guide-list">
+          <li>ホストから受け取った<b>共有URLを開く</b>か、<b>「🚪 部屋に入る」</b>から<b>名前</b>と<b>部屋番号（6桁）</b>を入力して参加します。</li>
+          <li><b>ロビーで待機</b>します。チームへの割り当てとピック順はホストが決めます。</li>
+          <li>ドラフトが始まったら、<b>自分の番</b>でBAN／PICKを選んで送信します。</li>
+          <li>操作できるタイミングはピックモードで変わります（個人＝自分の番／代表者＝チーム代表だけ／相手ピック＝対になる相手の武器を選ぶ）。</li>
+        </ol>
+        <p class="guide-note">制限時間が設定されている場合は時間内に送信してください。時間切れ時は<b>確定済み→仮選択→ランダム</b>の順で自動送信されます。</p>
+      </div>
+    </div>
+
+    <!-- ドラフトの流れ -->
+    <div class="guide-sec" data-gt="flow">
+      <div class="guide-card">
+        <h3>1ドラフトの進行</h3>
+        <ol class="guide-list">
+          <li><b>ロビー</b> … メンバー集合・チーム割り当て・ピック順の確認。</li>
+          <li><b>BANフェーズ</b> … 使えない武器を決めます。代表者BANは両チーム同時送信で相手の選択が伏せられます（個人BANも選択可）。武器・武器種・サブ・スペシャル単位でBANできます。</li>
+          <li><b>PICKフェーズ</b> … ピック順（交互／スネーク等）に沿って武器を選びます。同時ピックは両チームが選び一斉公開します。</li>
+          <li><b>リザルト</b> … 両チームの編成・ステージ／ルール・お題の達成（○／×）が表示されます。</li>
+          <li><b>結果画像を保存</b> … 端末内で1枚のPNGを生成してダウンロードできます。</li>
+        </ol>
+        <p class="guide-note">お題カードをONにすると開始時に縛りを1枚抽選します（両チーム共通・非強制で、達成は結果に○×表示）。</p>
+      </div>
+    </div>
+
+    <button class="btn-re" onclick="showScreen('mode')">← モード選択へ戻る</button>
+  </div>
 </div>
 
 
@@ -1138,7 +1213,7 @@ function clampTimeLimit(v){
 }
 
 function showScreen(n){
-  ['mode','create','join','lobby','lobby-wait','setup','draft','result'].forEach(s=>
+  ['mode','guide','create','join','lobby','lobby-wait','setup','draft','result'].forEach(s=>
     document.getElementById('s-'+s).classList.toggle('active',s===n)
   );
   if(roomId && ['lobby','lobby-wait','draft'].includes(n)){
@@ -1148,6 +1223,13 @@ function showScreen(n){
   }
 }
 window.showScreen = showScreen;
+
+// 使い方ガイドのタブ切替（ホスト/参加者/ドラフトの流れ）
+function showGuideTab(t){
+  document.querySelectorAll('#s-guide .guide-tab').forEach(b=>b.classList.toggle('on',b.dataset.gt===t));
+  document.querySelectorAll('#s-guide .guide-sec').forEach(s=>s.classList.toggle('on',s.dataset.gt===t));
+}
+window.showGuideTab = showGuideTab;
 
 function getRoomUrl(){
   return `${location.origin}${location.pathname}?room=${roomId}`;
