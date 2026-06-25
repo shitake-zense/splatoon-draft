@@ -174,6 +174,8 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .cb.on{background:var(--y);color:#1a1a2e;border-color:var(--y);}
 .cb.gtab{border-color:var(--bn);color:var(--bn);font-weight:bold;}
 .cb.gtab.on{background:var(--bn);color:#fff;border-color:var(--bn);}
+.cb.axtab{border-color:var(--a);color:var(--a);font-weight:bold;}
+.cb.axtab.on{background:var(--a);color:#fff;border-color:var(--a);}
 .genre-ban-grid{display:flex;flex-direction:column;gap:5px;}
 .gb-item{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#0a1120;border:1px solid #2a3a5a;border-radius:5px;padding:4px 8px;font-size:11px;color:var(--tx);}
 .gb-item select{background:#0f1729;border:1px solid #2a3a5a;border-radius:4px;color:var(--tx);font-family:inherit;font-size:11px;padding:2px 6px;}
@@ -1072,6 +1074,7 @@ let WEAPONS    = [];
 let state      = {};
 let activeCat  = 'すべて';
 let activeBanGran = 'weapon'; // BANグリッドの粒度タブ: 'weapon'|'sub'|'special'|'cat'
+let activeFilterAxis = 'cat'; // 武器グリッドの絞り込み軸: 'cat'|'sub'|'special'（activeCat が選択中の値）
 
 // --- セッション ---
 let isMulti    = false;
@@ -1288,7 +1291,7 @@ window.joinRoom = async function(){
       myMemberId = generateMemberId();
     }
     saveMemberId(input, myMemberId);
-    banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; activeCat='すべて';
+    banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; activeCat='すべて'; activeFilterAxis='cat';
     subscribeRoom();
     showDraftUI();
     return;
@@ -2467,7 +2470,7 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,pi
   };
   _challengeRouletteDone=false;
   banPending={alpha:[],bravo:[]}; banActiveTeam='alpha';
-  bravoBanSubmitted=false; alphaBanSubmitted=false; activeCat='すべて'; activeBanGran='weapon';
+  bravoBanSubmitted=false; alphaBanSubmitted=false; activeCat='すべて'; activeBanGran='weapon'; activeFilterAxis='cat';
   banPendingIndividual={}; myBanSubmitted=false; myConfirmedBan=null;
   simPickPending={alpha:null,bravo:null};
   alphaPickSubmitted=false; bravoPickSubmitted=false; simPickRound=0;
@@ -2576,6 +2579,7 @@ function resetTransientDraftState(){
   _lastPushedIdx = -1;
   _pickHandledBySelf = false;
   activeCat = 'すべて';
+  activeFilterAxis = 'cat';
   _challengeRouletteDone = false;
 }
 
@@ -3445,8 +3449,31 @@ function renderGrid(){
   }
 
   // ===== 武器グリッド（既存） =====
-  if(grans.length){ const sp=document.createElement('span'); sp.style.cssText='flex-basis:100%;height:0'; cf.appendChild(sp); }
-  cats.forEach(c=>{
+  // 絞り込み軸タブ（武器種/サブ/スペシャル）。ジャンルBANの粒度タブ表示中(grans.length)は競合回避のため出さない。
+  const showAxis = !grans.length;
+  if(!showAxis) activeFilterAxis='cat';
+  if(showAxis){
+    [['cat','武器種'],['sub','サブ'],['special','スペシャル']].forEach(([ax,lab])=>{
+      const b=document.createElement('button');
+      b.className='cb axtab'+(activeFilterAxis===ax?' on':'');
+      b.textContent=lab;
+      b.onclick=()=>{ activeFilterAxis=ax; activeCat='すべて'; renderGrid(); };
+      cf.appendChild(b);
+    });
+  }
+  if(grans.length||showAxis){ const sp=document.createElement('span'); sp.style.cssText='flex-basis:100%;height:0'; cf.appendChild(sp); }
+
+  // 絞り込み軸に応じた値チップ（すべて＋各値）
+  let filterVals;
+  if(activeFilterAxis==='sub')
+    filterVals=['すべて',...[...new Set(basePool2.map(w=>w.sub).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ja'))];
+  else if(activeFilterAxis==='special')
+    filterVals=['すべて',...[...new Set(basePool2.map(w=>w.special).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ja'))];
+  else
+    filterVals=cats;
+  // 選択中の値が現プールから消えた場合は「すべて」に戻す
+  if(activeCat!=='すべて' && !filterVals.includes(activeCat)) activeCat='すべて';
+  filterVals.forEach(c=>{
     const btn=document.createElement('button');
     btn.className='cb'+(c===activeCat?' on':'');
     btn.textContent=c; btn.onclick=()=>{activeCat=c;renderGrid();};
@@ -3458,7 +3485,7 @@ function renderGrid(){
   // ジャンルBANで消える武器（武器グリッド側でもグレーアウト表示する）
   const genreBanList=[...(S.bans.alpha||[]),...(S.bans.bravo||[]),...banPending.alpha,...banPending.bravo].filter(b=>b&&b.banType);
   const basePool=(state.stdOnly?WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')):WEAPONS).filter(w=>!isWeaponExcluded(w,ef));
-  const filtered=activeCat==='すべて'?basePool:basePool.filter(w=>w.cat===activeCat);
+  const filtered=activeCat==='すべて'?basePool:basePool.filter(w=>(w[activeFilterAxis]||'')===activeCat);
 
   filtered.forEach(w=>{
     const isBanW=allBanned.includes(w.key)||weaponBannedByGenres(w,genreBanList), isPickW=allPicked.includes(w.key), unavail=isBanW||isPickW;
