@@ -288,6 +288,25 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .sim-pick-confirm{width:100%;margin-top:10px;padding:9px;background:#1a3d2a;border:1.5px solid var(--pk);border-radius:8px;color:var(--pk);font-family:'Zen Dots',sans-serif;font-size:12px;cursor:pointer;}
 .sim-pick-confirm:hover:not(:disabled){background:#2a5a3a;}
 .sim-pick-confirm:disabled{opacity:.35;cursor:not-allowed;}
+/* ===== ガチャ/運命ピック（Phase 3a） ===== */
+.gacha-panel{background:var(--s1);border:1.5px solid var(--y);border-radius:var(--r);padding:14px;margin-bottom:12px;}
+.gacha-title{font-family:'Zen Dots',sans-serif;font-size:11px;color:var(--y);margin-bottom:10px;letter-spacing:1px;}
+.gacha-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.gacha-col{background:#0f1729;border-radius:8px;padding:10px;}
+.gacha-col-name{font-size:11px;font-weight:700;margin-bottom:8px;}
+.gacha-col-name.a{color:var(--a);}.gacha-col-name.b{color:var(--b);}
+.gacha-slots-row{display:flex;flex-wrap:wrap;gap:5px;min-height:60px;}
+.gacha-slots-row .wb{padding:5px 3px;cursor:default;flex:0 0 auto;width:64px;}
+.gacha-slots-row .wb img{width:40px;height:40px;}
+.gacha-slots-row .wb .wn{font-size:9px;}
+.gacha-actions{display:flex;gap:6px;margin-top:9px;}
+.gacha-reroll,.gacha-confirm{flex:1;padding:8px 4px;border-radius:7px;font-family:inherit;font-size:11px;cursor:pointer;}
+.gacha-reroll{background:#2a2a0a;border:1.5px solid var(--y);color:var(--y);}
+.gacha-confirm{background:#1a3d2a;border:1.5px solid var(--pk);color:var(--pk);}
+.gacha-confirm.done{background:#163a26;opacity:.85;}
+.gacha-reroll:hover:not(:disabled),.gacha-confirm:hover:not(:disabled){filter:brightness(1.25);}
+.gacha-reroll:disabled,.gacha-confirm:disabled{opacity:.35;cursor:not-allowed;}
+.gacha-hint{font-size:11px;color:var(--mu);text-align:center;margin-top:10px;line-height:1.5;}
 .sim-reveal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:999;}
 .sim-reveal-box{background:var(--s1);border:2px solid var(--pk);border-radius:16px;padding:28px 32px;text-align:center;max-width:420px;width:90%;}
 .sim-reveal-box h2{font-family:'Zen Dots',sans-serif;font-size:15px;color:var(--pk);margin-bottom:18px;letter-spacing:1px;}
@@ -835,10 +854,18 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       </div>
       <div class="row">
         <label>ピックモード</label>
-        <select id="solo-pick-mode">
+        <select id="solo-pick-mode" onchange="onSoloPickModeChange()">
           <option value="team">🤝 通常ピック</option>
           <option value="enemy">🆚 相手ピック（相手の武器を選ぶ）</option>
+          <option value="gacha">🎲 ガチャ（運命ピック）</option>
         </select>
+      </div>
+      <div class="row" id="solo-gacha-row" style="display:none">
+        <label>リロール回数<br><small style="color:var(--mu);font-weight:normal;font-size:9px">手札を引き直せる回数（チームごと）</small></label>
+        <div style="display:flex;align-items:center;gap:6px;flex:1">
+          <input type="number" id="solo-gacha-rerolls" min="0" max="9" step="1" value="2" style="width:90px">
+          <span style="font-size:11px;color:var(--mu)">回</span>
+        </div>
       </div>
       <div class="row" id="solo-pick-order-row">
         <label>ピック順</label>
@@ -966,6 +993,30 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
     <button class="sim-pick-confirm" id="sim-pick-confirm-btn" onclick="confirmSimPick()" disabled>PICKを確定する</button>
   </div>
 
+  <!-- ガチャ/運命ピック（Phase 3a） -->
+  <div id="gacha-panel" class="gacha-panel" style="display:none">
+    <div class="gacha-title">🎲 GACHA PICK — 運命の配布</div>
+    <div class="gacha-cols">
+      <div class="gacha-col">
+        <div class="gacha-col-name a" id="gacha-name-a">アルファ</div>
+        <div class="gacha-slots-row" id="gacha-slots-a"></div>
+        <div class="gacha-actions">
+          <button class="gacha-reroll" id="gacha-reroll-a" onclick="gachaReroll('alpha')">🎲 引き直す</button>
+          <button class="gacha-confirm" id="gacha-confirm-a" onclick="gachaConfirm('alpha')">✓ 確定</button>
+        </div>
+      </div>
+      <div class="gacha-col">
+        <div class="gacha-col-name b" id="gacha-name-b">ブラボー</div>
+        <div class="gacha-slots-row" id="gacha-slots-b"></div>
+        <div class="gacha-actions">
+          <button class="gacha-reroll" id="gacha-reroll-b" onclick="gachaReroll('bravo')">🎲 引き直す</button>
+          <button class="gacha-confirm" id="gacha-confirm-b" onclick="gachaConfirm('bravo')">✓ 確定</button>
+        </div>
+      </div>
+    </div>
+    <div class="gacha-hint" id="gacha-hint"></div>
+  </div>
+
   <!-- 同時ピック公開オーバーレイ -->
   <div id="sim-reveal-overlay" class="sim-reveal-overlay" style="display:none">
     <div class="sim-reveal-box">
@@ -1004,7 +1055,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
     <div class="timer-display" id="timer-display">30</div>
     <div class="timer-bar-wrap"><div class="timer-bar" id="timer-bar" style="width:100%;background:var(--pk)"></div></div>
   </div>
-  <div class="wsec">
+  <div class="wsec" id="weapon-section">
     <div class="wsh"><h3>WEAPONS</h3><div class="cf" id="cf"></div></div>
     <div class="wg" id="wg"></div>
   </div>
@@ -1363,6 +1414,7 @@ window.startSoloDraft = function(){
     challengeEnabled: document.getElementById('solo-challenge-enabled')?.checked||false,
     timeLimitEnabled: document.getElementById('solo-time-limit-enabled')?.checked||false,
     timeLimitSec: clampTimeLimit(document.getElementById('solo-time-limit-sec')?.value),
+    gachaRerolls: parseInt(document.getElementById('solo-gacha-rerolls')?.value||2)||0,
   });
 };
 
@@ -2045,8 +2097,94 @@ function pickRandom(arr){
   return arr[Math.floor(Math.random()*arr.length)];
 }
 
+// ===== ガチャ/運命ピック（Phase 3a） =====
+// 利用可能プールから ts 体を重複なしでランダム抽選。
+// チーム内は重複なし（distinct）／チーム間ミラーは許可のため各チーム独立に同一プールから引く。
+function drawGachaHand(S, ts){
+  const pool = getAvailableWeapons(S).slice();
+  for(let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+  const n = Math.min(ts, pool.length); // プールが ts 未満なら引ける分だけ
+  return pool.slice(0,n).map(w=>({key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat}));
+}
+function gachaAllConfirmed(S){
+  return !!(S && S.gacha && S.gacha.alpha && S.gacha.bravo && S.gacha.alpha.confirmed && S.gacha.bravo.confirmed);
+}
+// ガチャ未初期化なら両チームの手札を抽選（ソロ用。マルチはホストが初期化）
+function ensureGachaInit(S){
+  if(S.gacha) return;
+  S.gacha = {
+    alpha:{hand:drawGachaHand(S,S.ts), used:0, confirmed:false},
+    bravo:{hand:drawGachaHand(S,S.ts), used:0, confirmed:false},
+  };
+}
+// 両チーム確定後、手札を picks へ反映（結果画面はこれを読む）
+function finalizeGacha(S){
+  S.picks.alpha = S.gacha.alpha.hand.map(w=>({...w}));
+  S.picks.bravo = S.gacha.bravo.hand.map(w=>({...w}));
+}
+// このクライアントが team のガチャを操作できるか（ソロは両方可。マルチは代表者のみ）
+function gachaCanOperate(S, team){
+  if(!isMulti) return true;
+  const rep = team==='alpha' ? S.representativeAlpha : S.representativeBravo;
+  return rep ? rep===myMemberId : (team==='alpha'?isHost:!isHost);
+}
+window.gachaReroll = function(team){
+  const S=state; if(!S||!S.gacha) return;
+  const g=S.gacha[team]; if(!g||g.confirmed) return;
+  if(!gachaCanOperate(S,team)) return;
+  if(g.used >= (S.gachaRerolls||0)) return;
+  g.hand = drawGachaHand(S, S.ts); g.used++;
+  renderDraft();
+};
+window.gachaConfirm = function(team){
+  const S=state; if(!S||!S.gacha) return;
+  const g=S.gacha[team]; if(!g||g.confirmed) return;
+  if(!gachaCanOperate(S,team)) return;
+  g.confirmed=true;
+  if(gachaAllConfirmed(S)) finalizeGacha(S);
+  renderDraft();
+};
+function renderGachaPanel(){
+  const S=state;
+  document.getElementById('gacha-name-a').textContent=S.an;
+  document.getElementById('gacha-name-b').textContent=S.bn;
+  ['alpha','bravo'].forEach(team=>{
+    const sfx = team==='alpha'?'a':'b';
+    const g=S.gacha[team];
+    const row=document.getElementById('gacha-slots-'+sfx);
+    row.innerHTML = (g.hand||[]).map(w=>
+      `<div class="wb"><img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.height='30px';this.style.opacity='.2'"><div class="wn">${w.name}</div></div>`
+    ).join('');
+    const remain=Math.max(0,(S.gachaRerolls||0)-g.used);
+    const canOp=gachaCanOperate(S,team);
+    const rb=document.getElementById('gacha-reroll-'+sfx);
+    const cb=document.getElementById('gacha-confirm-'+sfx);
+    rb.textContent=`🎲 引き直す（残り${remain}）`;
+    rb.disabled = g.confirmed || remain<=0 || !canOp;
+    cb.textContent = g.confirmed ? '✓ 確定済み' : '✓ 確定';
+    cb.disabled = g.confirmed || !canOp;
+    cb.classList.toggle('done', g.confirmed);
+  });
+  const aC=S.gacha.alpha.confirmed, bC=S.gacha.bravo.confirmed;
+  document.getElementById('gacha-hint').textContent =
+    (aC&&bC) ? '両チーム確定！結果へ…'
+    : (aC||bC) ? 'もう一方のチームの確定を待っています…'
+    : '配られた手札を確認し、必要なら引き直して「確定」してください';
+}
+
 window.onSoloPickOrderChange = function(){
   updatePickOrderDesc('solo-pick-order','solo-pick-order-desc');
+};
+
+// ソロ: ピックモード変更時。ガチャ選択時はピック順を隠しリロール回数を表示。
+window.onSoloPickModeChange = function(){
+  const isGacha = document.getElementById('solo-pick-mode')?.value==='gacha';
+  const por = document.getElementById('solo-pick-order-row');
+  const pod = document.getElementById('solo-pick-order-desc');
+  const gr  = document.getElementById('solo-gacha-row');
+  if(por) por.style.display = isGacha ? 'none' : '';
+  if(pod) pod.style.display = isGacha ? 'none' : '';
+  if(gr)  gr.style.display  = isGacha ? '' : 'none';
 };
 
 window.onSettingChange = function(){
@@ -2492,7 +2630,7 @@ function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec, simOrder
   return seq;
 }
 
-function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter}){
+function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls}){
   const rule    = rm==='random'?RULES[Math.floor(Math.random()*RULES.length)]:rm;
   const stageJa = sm==='random'?STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)]:sm;
   const challenge = challengeEnabled ? pickRandomChallenge() : null;
@@ -2539,15 +2677,18 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,pi
   const simOrderAlpha = pickOrder==='sim' ? resolveSimOrder('alpha', pickOrderAlpha) : null;
   const simOrderBravo = pickOrder==='sim' ? resolveSimOrder('bravo', pickOrderBravo) : null;
 
-  const pickSteps = buildPickSeq(ts, pickOrder, first, sec,
-    usePickOrder ? poFirst : null,
-    usePickOrder ? poSec   : null,
-    simOrderAlpha, simOrderBravo,
-    pMode==='enemy'
-  );
-  for(const step of pickSteps){
-    if(typeof step==='object') seq.push(step);
-    else seq.push({phase:'pick',team:step});
+  // ガチャは BAN 後に専用フェーズへ入るため、通常のピックステップは積まない（seq は BAN のみ）
+  if(pMode!=='gacha'){
+    const pickSteps = buildPickSeq(ts, pickOrder, first, sec,
+      usePickOrder ? poFirst : null,
+      usePickOrder ? poSec   : null,
+      simOrderAlpha, simOrderBravo,
+      pMode==='enemy'
+    );
+    for(const step of pickSteps){
+      if(typeof step==='object') seq.push(step);
+      else seq.push({phase:'pick',team:step});
+    }
   }
 
   // 代表者BANの代表者IDを計算（マルチ・代表者BANモード時のみ）
@@ -2583,6 +2724,8 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,pi
     deadline: null,
     excludeFilter: excludeFilter||{cats:[],subs:[],specials:[]},
     challenge: challenge,
+    gachaRerolls: pMode==='gacha' ? (gachaRerolls||0) : 0,
+    gacha: null,
   };
   _challengeRouletteDone=false;
   banPending={alpha:[],bravo:[]}; banActiveTeam='alpha';
@@ -2953,6 +3096,8 @@ function normalizeState(s){
   if(s.representativeBravo===undefined) s.representativeBravo=null;
   if(!s.excludeFilter) s.excludeFilter={cats:[],subs:[],specials:[]};
   if(s.challenge===undefined) s.challenge=null;
+  if(s.gachaRerolls===undefined) s.gachaRerolls=0;
+  if(s.gacha===undefined) s.gacha=null;
   return s;
 }
 
@@ -3040,9 +3185,12 @@ function renderDraft(){
   normalizeState(state);
   const S=state, step=S.seq[S.idx], done=!step, isBan=!done&&step.phase==='ban';
   const isSimPick=!done&&step.phase==='pick'&&step.team==='both';
+  // ガチャ: BAN 後（seq 終端）かつ両チーム未確定の間は専用フェーズ
+  const gachaPhase = done && S.pickMode==='gacha' && !gachaAllConfirmed(S);
 
   const badge=document.getElementById('pbadge');
-  if(done)           {badge.textContent='COMPLETE';       badge.className='ph ph-done';}
+  if(gachaPhase)     {badge.textContent='GACHA PICK';     badge.className='ph ph-pick';}
+  else if(done)      {badge.textContent='COMPLETE';       badge.className='ph ph-done';}
   else if(isBan)     {badge.textContent='BAN PHASE';      badge.className='ph ph-ban';}
   else if(isSimPick) {badge.textContent='SIMULTANEOUS PICK'; badge.className='ph ph-pick';}
   else               {badge.textContent='PICK PHASE';     badge.className='ph ph-pick';}
@@ -3068,6 +3216,10 @@ function renderDraft(){
 
   document.getElementById('ban-panel').style.display=isBan?'block':'none';
   document.getElementById('sim-pick-panel').style.display=isSimPick?'block':'none';
+  document.getElementById('gacha-panel').style.display=gachaPhase?'block':'none';
+  // ガチャ中は手動選択UI（武器グリッド・ピック順表示）を隠す
+  const _wsec=document.getElementById('weapon-section'); if(_wsec) _wsec.style.display=gachaPhase?'none':'';
+  const _pf=document.getElementById('pick-flow'); if(_pf) _pf.style.display=gachaPhase?'none':'';
 
   if(isBan){
     renderBanPanel();
@@ -3116,6 +3268,12 @@ function renderDraft(){
     const roundNum=(S.picks.alpha||[]).length+1;
     const simNote = S.pickMode==='enemy' ? '（相手に使わせる武器を選択）' : '（送信後に公開）';
     document.getElementById('tprompt').innerHTML=`<strong style="color:var(--pk)">ROUND ${roundNum} — 両チーム同時にピックしてください${simNote}</strong>`;
+    document.getElementById('tia').style.display='none';
+    document.getElementById('tib').style.display='none';
+  } else if(gachaPhase){
+    ensureGachaInit(S);
+    renderGachaPanel();
+    document.getElementById('tprompt').innerHTML='<strong style="color:var(--y)">🎲 運命のガチャピック</strong> — 手札を確認して各チーム「確定」してください';
     document.getElementById('tia').style.display='none';
     document.getElementById('tib').style.display='none';
   } else if(done){
