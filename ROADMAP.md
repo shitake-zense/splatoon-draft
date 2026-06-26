@@ -117,8 +117,16 @@
 - 検証: `node --check` OK／`renderSeriesBoard` 単体11件パス（編成結合・空ピック→なし・勝者🏆・XSSエスケープ・空履歴）。**実機E2E（シリーズPNG含む）はオーナーが実施予定**。使い方ガイド（ホスト向け＋流れ）更新済み／smoke `S17` に Phase 4d 項目追記。
 - **未決/次**: Phase 4 はこれで完了（4c-2 は見送り）。次は **Phase 5（UX/統計/演出の改善プール・後回し枠）**。
 
-### Phase 5 — 後回し（負債が出たら/余裕が出たら）
-- §6 グリッド検索・フィルタ（UX）／§5 BAN・ピック回数統計（まず `localStorage` でDB無風に）／§7 演出・SE・TTS。
+### Phase 5 — UX/統計/演出の改善プール（後回し枠・余裕が出たら）
+- 候補: §6 グリッド検索・フィルタ（UX）／§5 BAN・ピック回数統計（まず `localStorage` でDB無風に）。
+
+#### ✅ Phase 5 §7a — 確定演出 / SE / 武器読み上げTTS（完了）
+- 決定（2026-06-26 オーナー確認）: §7 のうち **A=確定演出＋SE** と **C=武器読み上げTTS** を採用。B(カウントダウン緊張演出)/D(リザルト祝福)・煽りスタンプ/罰ゲーム/神の手は見送り。全て **DB無風・外部依存ゼロ**（音は Web Audio 自前合成＝音声ファイル同梱なし、読み上げは Web Speech API）。
+- 仕様: ドラフト画面右上に `🔊`(確定音・既定ON)/`🗣️`(読み上げ・既定OFF) トグル（localStorage `sd_sfx`/`sd_tts` で端末保持）。PICK/BAN/同時ピック確定の**ユーザー操作タップ時**に SE＋（ON時）武器名読み上げ。スロットには新規確定ぶんだけ**ポップ入場アニメ**（描画差分 `_fxSeen` で1回のみ・タイマー再描画で再生しない・リモート視聴側にも出る）。
+- 音声は**確定タップ＝gesture 直後にのみ再生**（自動再生制限に準拠）。読み上げ音声が無い端末でも無音で安全。
+- コードの居場所: 設定/状態 `sfxEnabled`/`ttsEnabled`/`_fxSeen`/`_audioCtx`（global let）。エンジン `_audio()`/`_tone()`/`sfx{pick,ban,confirm}`/`speakWeapon()`/`window.toggleSfx`/`window.toggleTts`/`renderFxToggles()`（`resetTransientDraftState` 直後）。フック: `pickWeapon` の各確定分岐（通常ピック push 後／代表BAN push 後／同時ピック lock 後／個人BAN ローカル確定後）。アニメ: `renderSlots`（`is-new` 付与＋seen更新）。UI: `.dh` 内 `#fx-sfx`/`#fx-tts`、CSS `.fx-toggles`/`.fx-btn`/`.ws.is-new`/`@keyframes slotPop`。`showDraftUI` で `renderFxToggles()` 呼び出し。`resetTransientDraftState` で `_fxSeen={}`。
+- 検証: `node --check` OK／入場アニメ差分ロジック 単体12件パス（新規1回・再描画で非再生・BAN一括・再入場の既存非アニメ・次戦リセット）。**音/読み上げ/アニメの実機確認はオーナー実施予定**。使い方ガイド（流れタブ）更新済み／smoke `S18` 追記。
+- **未決/次**: 残りは §6 グリッド検索・フィルタ／§5 統計（いずれも未着手・任意）。
 
 ---
 

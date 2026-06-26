@@ -137,6 +137,13 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 
 /* DRAFT */
 .dh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+/* 演出（Phase5 §7）: 確定SE/読み上げトグル＋ピック/BAN 入場アニメ */
+.fx-toggles{display:flex;gap:6px;}
+.fx-btn{background:#0f1729;border:1px solid #2a3550;border-radius:7px;padding:4px 9px;font-size:14px;line-height:1;cursor:pointer;color:#e8eefc;}
+.fx-btn.on{border-color:var(--y);}
+.fx-btn:hover{filter:brightness(1.25);}
+.ws.is-new{animation:slotPop .42s cubic-bezier(.2,.8,.3,1.2);}
+@keyframes slotPop{0%{transform:scale(.72);opacity:0}55%{transform:scale(1.09);opacity:1}100%{transform:scale(1)}}
 .ph{font-family:'Zen Dots',sans-serif;font-size:11px;padding:5px 12px;border-radius:20px;letter-spacing:1px;}
 .ph-ban{background:#3d1a1a;color:var(--bn);border:1px solid var(--bn);}
 .ph-pick{background:#1a3d2a;color:var(--pk);border:1px solid var(--pk);}
@@ -574,6 +581,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         </ol>
         <p class="guide-note">お題カードをONにすると開始時に縛りを1枚抽選します（両チーム共通・非強制で、達成は結果に○×表示）。</p>
         <p class="guide-note">連戦モード（シリーズ）がONのときは、結果画面でホストが各試合の勝者を入力すると次の試合へ進みます。先取数（BO3=2／BO5=3）に達するとシリーズ終了で、戦績ボード（各試合の編成一覧）とシリーズ画像の保存ができます。ガチルールは BO3=毎回ランダム／BO5=エリア→ヤグラ→ホコ→アサリ→ランダム。「負けチームがルール設定」ONなら2試合目以降は敗者が次のガチルールを選びます。</p>
+        <p class="guide-note">ドラフト画面 右上の <b>🔊</b>＝確定音（既定ON）、<b>🗣️</b>＝武器読み上げ（既定OFF）のトグルです。BAN/PICKを確定するたびに効果音が鳴り、読み上げONなら確定した武器名を読み上げます（端末ごとの設定・音は自動生成で外部ファイルなし）。</p>
       </div>
     </div>
 
@@ -1120,6 +1128,10 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       ROOM: <span id="draft-room-id"></span>
       <button class="btn-copy" style="padding:3px 9px;font-size:10px;" id="btn-copy-draft" onclick="copyRoomId()">📋</button>
     </div>
+    <div class="fx-toggles">
+      <button id="fx-sfx" class="fx-btn" onclick="toggleSfx()" title="確定音">🔊</button>
+      <button id="fx-tts" class="fx-btn" onclick="toggleTts()" title="武器読み上げ">🗣️</button>
+    </div>
   </div>
   <div id="btn-back-to-lobby-wrap" style="display:none;margin-bottom:10px;">
     <button class="btn-re" style="width:auto;padding:7px 16px;font-size:11px;" onclick="backToLobby()">← ロビーに戻る</button>
@@ -1442,6 +1454,12 @@ let tradePending   = null;  // 現在の交換提案（ローカルキャッシ�
 let _tradeSel      = {give:null, want:null}; // トレード提案UIの選択中インデックス
 let _tradePanelOpen= false; // トレード提案ピッカーの開閉
 let _tradeApplying = false; // ホストのトレード適用の多重発火防止
+
+// --- 演出（Phase5 §7）: プリファレンスは localStorage（DB無風・端末ごと） ---
+let sfxEnabled = (localStorage.getItem('sd_sfx')!=='off'); // 確定SE（既定ON）
+let ttsEnabled = (localStorage.getItem('sd_tts')==='on');  // 武器読み上げTTS（既定OFF）
+let _fxSeen    = {};   // {team:{ban,pick}} 入場アニメ済み件数（差分検出・再描画で重複再生しない）
+let _audioCtx  = null; // Web Audio（遅延生成・ユーザー操作後に resume）
 
 // --- ロビーローカルキャッシュ ---
 let lobbyMembers        = {};   // {memberId: {name,team,isHost,...}}
@@ -3438,6 +3456,7 @@ function showDraftUI(){
   // Feature-1: ホスト専用ロビー戻りボタンの表示制御
   const backWrap = document.getElementById('btn-back-to-lobby-wrap');
   if(backWrap) backWrap.style.display = (isMulti && isHost) ? '' : 'none';
+  renderFxToggles();
   renderDraft();
   showScreen('draft');
   maybePlayChallengeRoulette();
@@ -3529,6 +3548,58 @@ function resetTransientDraftState(){
   _tradeSel = {give:null, want:null};
   _tradePanelOpen = false;
   _tradeApplying = false;
+  _fxSeen = {}; // 入場アニメ済み件数をクリア（次戦/再入場で前試合のピックを再アニメしない）
+}
+
+// ===== 演出（Phase5 §7）: 確定SE（Web Audio 自前合成・音声ファイル同梱なし）＋武器読み上げTTS（Web Speech） =====
+// 音声はユーザー操作（確定タップ）の直後にだけ鳴らす＝自動再生制限・gesture 要件を満たす。
+function _audio(){
+  if(!sfxEnabled) return null;
+  try{
+    if(!_audioCtx){ const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return null; _audioCtx=new AC(); }
+    if(_audioCtx.state==='suspended') _audioCtx.resume();
+    return _audioCtx;
+  }catch(e){ return null; }
+}
+// エンベロープ付き単音
+function _tone(ac, freq, t0, dur, type, gain){
+  const o=ac.createOscillator(), g=ac.createGain();
+  o.type=type||'sine'; o.frequency.setValueAtTime(freq, t0);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(gain||0.18, t0+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+  o.connect(g); g.connect(ac.destination);
+  o.start(t0); o.stop(t0+dur+0.03);
+}
+const sfx = {
+  pick(){ const ac=_audio(); if(!ac) return; const t=ac.currentTime; _tone(ac,660,t,0.12,'triangle',0.2); _tone(ac,990,t+0.07,0.16,'triangle',0.18); },
+  ban(){  const ac=_audio(); if(!ac) return; const t=ac.currentTime; _tone(ac,300,t,0.16,'sawtooth',0.16); _tone(ac,170,t+0.06,0.2,'sawtooth',0.14); },
+  confirm(){ const ac=_audio(); if(!ac) return; const t=ac.currentTime; _tone(ac,520,t,0.1,'square',0.13); _tone(ac,780,t+0.06,0.14,'square',0.11); },
+};
+// 武器読み上げ（既定OFF・端末の日本語音声に依存）
+function speakWeapon(name){
+  if(!ttsEnabled || !name) return;
+  try{
+    const ss=window.speechSynthesis; if(!ss) return;
+    const u=new SpeechSynthesisUtterance(String(name));
+    u.lang='ja-JP'; u.rate=1.15; u.pitch=1.0;
+    ss.cancel(); ss.speak(u);
+  }catch(e){}
+}
+window.toggleSfx = function(){
+  sfxEnabled=!sfxEnabled; localStorage.setItem('sd_sfx', sfxEnabled?'on':'off');
+  if(sfxEnabled) sfx.confirm();
+  renderFxToggles();
+};
+window.toggleTts = function(){
+  ttsEnabled=!ttsEnabled; localStorage.setItem('sd_tts', ttsEnabled?'on':'off');
+  if(ttsEnabled) speakWeapon('読み上げオン'); else { try{ window.speechSynthesis.cancel(); }catch(e){} }
+  renderFxToggles();
+};
+function renderFxToggles(){
+  const s=document.getElementById('fx-sfx'), t=document.getElementById('fx-tts');
+  if(s){ s.textContent=sfxEnabled?'🔊':'🔇'; s.title='確定音 '+(sfxEnabled?'ON':'OFF'); s.className='fx-btn'+(sfxEnabled?' on':''); }
+  if(t){ t.title='武器読み上げ '+(ttsEnabled?'ON':'OFF'); t.className='fx-btn'+(ttsEnabled?' on':''); }
 }
 
 function subscribeRoom(){
@@ -4383,10 +4454,15 @@ function checkIndividualBansReady(){
 function renderSlots(team){
   const S=state, c=document.getElementById('sl'+team[0]);
   c.innerHTML='';
+  // 入場アニメ: 前回描画時より増えた（新たに確定した）スロットだけ is-new を付ける。
+  // 初回（再入場/再参加）は既存件数を seen として記録し、過去ピックを再アニメしない。
+  const nBan=(S.bans[team]||[]).length, nPick=(S.picks[team]||[]).length;
+  if(!_fxSeen[team]) _fxSeen[team]={ban:nBan, pick:nPick};
+  const seen=_fxSeen[team];
   const banSlots=banTotalLimit(S);
   for(let i=0;i<banSlots;i++){
     const w=(S.bans[team]||[])[i], d=document.createElement('div');
-    d.className='ws '+(w?'banned':'empty');
+    d.className='ws '+(w?'banned':'empty')+(w&&i>=seen.ban?' is-new':'');
     d.innerHTML=w
       ?`<span class="sl">BAN${i+1}</span><img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.display='none'"><span class="sn">${banDispName(w)}</span>`
       :`<span class="sl">BAN${i+1}</span><span class="sn">未選択</span>`;
@@ -4394,12 +4470,13 @@ function renderSlots(team){
   }
   for(let i=0;i<S.ts;i++){
     const w=(S.picks[team]||[])[i], d=document.createElement('div');
-    d.className='ws '+(w?'picked':'empty');
+    d.className='ws '+(w?'picked':'empty')+(w&&i>=seen.pick?' is-new':'');
     d.innerHTML=w
       ?`<span class="sl">P${i+1}</span><img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.display='none'"><span class="sn">${w.name}</span>`
       :`<span class="sl">P${i+1}</span><span class="sn">未選択</span>`;
     c.appendChild(d);
   }
+  seen.ban=nBan; seen.pick=nPick; // 今回ぶんを「アニメ済み」に更新
 }
 
 // ===== 武器グリッド =====
@@ -4608,6 +4685,7 @@ function pickWeapon(w){
         // tap2: ローカル確定（Firebaseには送らない）
         myConfirmedBan = w;
         pendingSelect = null;
+        sfx.ban(); // 演出: BAN確定SE
         renderBanPanel(); renderGrid();
         return;
       }
@@ -4628,6 +4706,7 @@ function pickWeapon(w){
       if(banIdOf(pendingSelect.w)===banIdOf(w)){
         banPending[it].push(w);
         pendingSelect=null;
+        sfx.ban(); // 演出: BAN確定SE
         if(!isMulti){
           const totLeft=banTotalLimit(S)-(S.bans[it]||[]).length-banPending[it].length;
           if(totLeft===0){
@@ -4659,6 +4738,7 @@ function pickWeapon(w){
           simPickPending[myTeam]=w;
         }
         pendingSelect=null;
+        sfx.confirm(); speakWeapon(w.name); // 演出: 同時ピックのロックSE＋読み上げ
         renderSimPickPanel(); renderGrid();
         return;
       }
@@ -4683,6 +4763,7 @@ function pickWeapon(w){
         const store=pickStoreTeam(S, it); // enemy: 相手チームへ格納
         (S.picks[store]=S.picks[store]||[]).push(pickObj);
         pendingSelect=null;
+        sfx.pick(); speakWeapon(pickObj.name); // 演出: 確定SE＋読み上げ
         if(isMulti){ S.idx++; pushState(); renderDraft(); }
         else soloAdvance();
         return;
