@@ -208,9 +208,10 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .wn{font-size:9px;color:var(--mu);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .wb.is-bn{border-color:var(--bn);background:#1a0f0f;}
 .wb.is-pk{border-color:var(--pk);background:#0f1a14;}
+.wb.is-locked{border-color:var(--y);background:#1a1708;opacity:.5;}
 .wb.is-sel{border-color:var(--y);background:#2a2a0a;box-shadow:0 0 8px var(--y);}
 .wst{position:absolute;top:2px;right:2px;font-size:8px;padding:1px 4px;border-radius:3px;}
-.wst.b{background:var(--bn);color:#fff;}.wst.p{background:var(--pk);color:#1a1a2e;}
+.wst.b{background:var(--bn);color:#fff;}.wst.p{background:var(--pk);color:#1a1a2e;}.wst.l{background:var(--y);color:#1a1a2e;}
 
 /* RESULT */
 .rm{position:relative;border-radius:var(--r);overflow:hidden;margin-bottom:14px;height:120px;background:#0a0a2e;}
@@ -345,6 +346,9 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .series-win:hover{filter:brightness(1.3);}
 .series-hist{list-style:none;margin:8px 0 0;padding:8px 0 0;border-top:1px solid #2a3550;font-size:11px;line-height:1.8;}
 .series-hist li{color:var(--tx,#e8eefc);}
+.series-lock{font-size:11px;color:var(--y);text-align:center;margin-top:8px;}
+/* ロックアウト・ドラフト中バナー */
+.d-lockout{background:#241f08;border:1px solid var(--y);border-radius:8px;padding:7px 10px;margin-bottom:9px;font-size:11px;color:var(--y);line-height:1.5;}
 .sim-reveal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:999;}
 .sim-reveal-box{background:var(--s1);border:2px solid var(--pk);border-radius:16px;padding:28px 32px;text-align:center;max-width:420px;width:90%;}
 .sim-reveal-box h2{font-family:'Zen Dots',sans-serif;font-size:15px;color:var(--pk);margin-bottom:18px;letter-spacing:1px;}
@@ -515,6 +519,9 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 
           <dt>連戦モード（シリーズ）</dt>
           <dd>1ルームで<b>複数試合を連続</b>で行います。<b>シリーズ長</b>＝BO3（先取2）／BO5（先取3）。各試合のドラフトが終わったら結果画面で<b>ホストが勝者を入力</b>すると、ステージ／ルールが<b>自動で変わって</b>次の試合のドラフトが始まります。先取数に達するとシリーズ終了で、勝敗の経過（各試合の勝者・ステージ）が表示されます。</dd>
+
+          <dt>武器ロックアウト（連戦のオプション）</dt>
+          <dd>連戦モードONのときに選べます。<b>一度ピックされた武器は、そのシリーズの次の試合以降ずっと使えなくなります</b>（両チーム共有でプールが枯れていく＝後半ほど選択肢が減る独特のメタ）。BANは各試合ごとにリセットされ、ロックアウトの対象は<b>ピックされた武器だけ</b>です。ドラフト中はロックされた武器が🔒でグレー表示され選べません。</dd>
         </dl>
       </div>
       <div class="guide-card">
@@ -790,6 +797,16 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <option value="bo5">BO5（先取3）</option>
         </select>
       </div>
+      <div class="toggle-row" id="series-lockout-row" style="display:none">
+        <div class="toggle-label">
+          🔒 武器ロックアウト
+          <small>一度ピックした武器はシリーズ中の次戦以降ずっと使用不可（プール枯渇）</small>
+        </div>
+        <label class="tgl">
+          <input type="checkbox" id="series-lockout" onchange="onSettingChange()">
+          <span class="tgl-sl"></span>
+        </label>
+      </div>
       <div class="div"></div>
       <div class="row">
         <label>ピックモード</label>
@@ -1024,6 +1041,16 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <option value="bo5">BO5（先取3）</option>
         </select>
       </div>
+      <div class="toggle-row" id="solo-series-lockout-row" style="display:none">
+        <div class="toggle-label">
+          🔒 武器ロックアウト
+          <small>一度ピックした武器はシリーズ中の次戦以降ずっと使用不可</small>
+        </div>
+        <label class="tgl">
+          <input type="checkbox" id="solo-series-lockout">
+          <span class="tgl-sl"></span>
+        </label>
+      </div>
       <div class="div"></div>
       <div class="toggle-row">
         <div class="toggle-label">
@@ -1168,6 +1195,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
   </div>
   <div class="wsec" id="weapon-section">
     <div class="wsh"><h3>WEAPONS</h3><div class="cf" id="cf"></div></div>
+    <div class="d-lockout" id="d-lockout" style="display:none"></div>
     <div class="wg" id="wg"></div>
   </div>
 </div>
@@ -1284,7 +1312,9 @@ function applyLobbySettingsToForm(s){
   setChk('std-only',s.stdOnly); setChk('challenge-enabled',s.challengeEnabled);
   setChk('trade-enabled',s.tradeEnabled);
   setChk('series-enabled',s.seriesEnabled); setVal('series-mode',s.seriesMode||'bo3');
+  setChk('series-lockout',s.seriesLockout);
   const smr=document.getElementById('series-mode-row'); if(smr) smr.style.display = s.seriesEnabled ? '' : 'none';
+  const slr=document.getElementById('series-lockout-row'); if(slr) slr.style.display = s.seriesEnabled ? '' : 'none';
   setVal('pick-mode',s.pickMode); setVal('ban-mode',s.banMode);
   if(s.gachaRerolls!==undefined) setVal('gacha-rerolls',s.gachaRerolls);
   setChk('time-limit-enabled',s.timeLimitEnabled); setVal('time-limit-sec',s.timeLimitSec);
@@ -1541,6 +1571,7 @@ window.startSoloDraft = function(){
     tradeEnabled: document.getElementById('solo-trade-enabled')?.checked||false,
     seriesEnabled: document.getElementById('solo-series-enabled')?.checked||false,
     seriesMode: document.getElementById('solo-series-mode')?.value||'bo3',
+    seriesLockout: document.getElementById('solo-series-lockout')?.checked||false,
     timeLimitEnabled: document.getElementById('solo-time-limit-enabled')?.checked||false,
     timeLimitSec: clampTimeLimit(document.getElementById('solo-time-limit-sec')?.value),
     gachaRerolls: parseInt(document.getElementById('solo-gacha-rerolls')?.value||2)||0,
@@ -2214,7 +2245,9 @@ function pickOwnerId(S, step){
 function getAvailableWeapons(S){
   const bannedKeys = [...(S.bans.alpha||[]),...(S.bans.bravo||[])].map(w=>w.key);
   const pickedKeys = [...(S.picks.alpha||[]),...(S.picks.bravo||[])].map(w=>w.key);
-  const usedKeys   = new Set([...bannedKeys,...pickedKeys]);
+  // 連戦の武器ロックアウト: シリーズの過去試合で使われた武器は次戦以降プールから除外
+  const lockedKeys = (S.series && S.series.lockout && Array.isArray(S.series.lockedKeys)) ? S.series.lockedKeys : [];
+  const usedKeys   = new Set([...bannedKeys,...pickedKeys,...lockedKeys]);
   const ef = S.excludeFilter;
   const genreBans  = [...(S.bans.alpha||[]),...(S.bans.bravo||[])].filter(b=>b&&b.banType);
   const src = (S.stdOnly ? WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')) : WEAPONS);
@@ -2565,6 +2598,13 @@ function recordSeriesWinnerAndAdvance(winner){
     picks:{alpha:(S.picks.alpha||[]).map(w=>({...w})), bravo:(S.picks.bravo||[]).map(w=>({...w}))},
     bans:{alpha:(S.bans.alpha||[]).map(w=>({...w})), bravo:(S.bans.bravo||[]).map(w=>({...w}))},
   });
+  // 武器ロックアウト: この試合でピックされた武器を以後使用不可リストへ累積（両チーム共有・重複排除）
+  if(sr.lockout){
+    if(!Array.isArray(sr.lockedKeys)) sr.lockedKeys=[];
+    const used=new Set(sr.lockedKeys);
+    [...(S.picks.alpha||[]),...(S.picks.bravo||[])].forEach(w=>{ if(w&&w.key) used.add(w.key); });
+    sr.lockedKeys=[...used];
+  }
   if(winner==='alpha') sr.scoreA++; else sr.scoreB++;
   const finished = sr.scoreA>=sr.target || sr.scoreB>=sr.target;
   if(finished){
@@ -2622,7 +2662,9 @@ function renderSeriesArea(){
       body=head + `<div class="series-note">ホストが勝敗を入力するのを待っています…</div>` + renderSeriesHistory(sr,S);
     }
   }
-  area.innerHTML=`<div class="series-box"><div class="series-title">🔁 連戦シリーズ</div>${score}${body}</div>`;
+  const lockNote = (sr.lockout && Array.isArray(sr.lockedKeys) && sr.lockedKeys.length)
+    ? `<div class="series-lock">🔒 武器ロックアウト：${sr.lockedKeys.length} 種が使用済み（次戦以降は選べません）</div>` : '';
+  area.innerHTML=`<div class="series-box"><div class="series-title">🔁 連戦シリーズ</div>${score}${body}${lockNote}</div>`;
 }
 
 window.onSoloPickOrderChange = function(){
@@ -2829,6 +2871,18 @@ function renderChallengeBanner(){
   el.style.display='';
 }
 
+// 連戦の武器ロックアウト: ドラフト中、過去試合で使われ使用不可になっている武器数を表示
+function renderLockoutBanner(){
+  const el=document.getElementById('d-lockout');
+  if(!el) return;
+  const S=state;
+  const sr=S&&S.series;
+  const n=(sr&&sr.lockout&&Array.isArray(sr.lockedKeys))?sr.lockedKeys.length:0;
+  if(!n){ el.style.display='none'; el.innerHTML=''; return; }
+  el.innerHTML=`🔒 武器ロックアウト中：これまでのシリーズで使われた <b>${n}</b> 種の武器は選べません`;
+  el.style.display='';
+}
+
 function buildWeaponFilterUI(){
   if(!WEAPONS || WEAPONS.length===0) return;
   const cats = [...new Set(WEAPONS.map(w=>w.cat))];
@@ -2921,6 +2975,7 @@ function getLobbySettings(){
     tradeEnabled: document.getElementById('trade-enabled')?.checked||false,
     seriesEnabled: document.getElementById('series-enabled')?.checked||false,
     seriesMode: document.getElementById('series-mode')?.value||'bo3',
+    seriesLockout: document.getElementById('series-lockout')?.checked||false,
     pickMode: document.getElementById('pick-mode')?.value||'individual',
     banMode:  document.getElementById('ban-mode')?.value||'individual',
     banGenres: readBanGenresFromUI(),
@@ -2969,13 +3024,17 @@ window.onSoloTimeLimitChange = function(){
 window.onSeriesToggle = function(){
   const enabled = document.getElementById('series-enabled')?.checked;
   const row = document.getElementById('series-mode-row');
+  const lk  = document.getElementById('series-lockout-row');
   if(row) row.style.display = enabled ? '' : 'none';
+  if(lk)  lk.style.display  = enabled ? '' : 'none';
   onSettingChange();
 };
 window.onSoloSeriesToggle = function(){
   const enabled = document.getElementById('solo-series-enabled')?.checked;
   const row = document.getElementById('solo-series-mode-row');
+  const lk  = document.getElementById('solo-series-lockout-row');
   if(row) row.style.display = enabled ? '' : 'none';
+  if(lk)  lk.style.display  = enabled ? '' : 'none';
 };
 
 window.onTimeLimitChange = function(){
@@ -2995,7 +3054,7 @@ window.startDraft = function(){
   buildAndStartDraft({
     an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:s.ft, po:s.po,
     rm:s.rule, sm:s.stageJa, stdOnly:s.stdOnly, challengeEnabled:s.challengeEnabled,
-    tradeEnabled:s.tradeEnabled, seriesEnabled:s.seriesEnabled, seriesMode:s.seriesMode,
+    tradeEnabled:s.tradeEnabled, seriesEnabled:s.seriesEnabled, seriesMode:s.seriesMode, seriesLockout:s.seriesLockout,
     pickMode:s.pickMode, banMode:s.banMode, banGenres:s.banGenres,
     pickOrderAlpha:s.pickOrderAlpha, pickOrderBravo:s.pickOrderBravo,
     members:membersForState,
@@ -3102,7 +3161,7 @@ function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec, simOrder
   return seq;
 }
 
-function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tradeEnabled,seriesEnabled,seriesMode,series,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls}){
+function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tradeEnabled,seriesEnabled,seriesMode,seriesLockout,series,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls}){
   const rule    = rm==='random'?RULES[Math.floor(Math.random()*RULES.length)]:rm;
   const stageJa = sm==='random'?STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)]:sm;
   const challenge = challengeEnabled ? pickRandomChallenge() : null;
@@ -3117,9 +3176,10 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tr
     const target = seriesMode==='bo5' ? 3 : 2;
     seriesObj = {
       mode: seriesMode||'bo3', target, game:1, scoreA:0, scoreB:0, history:[], done:false,
+      lockout: !!seriesLockout, lockedKeys: [], // 武器ロックアウト（過去試合で使われた key の累積）
       // 次戦を組み立てるための設定スナップショット（members は state.members を使う）
       config: {an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tradeEnabled,pickMode,banMode,
-        banGenres,pickOrderAlpha,pickOrderBravo,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls},
+        banGenres,pickOrderAlpha,pickOrderBravo,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls,seriesLockout},
     };
   }
   // 相手ピックは個人粒度（各選手が相手の対になる選手の武器を選ぶ）。memberId/targetMemberId 割当のため
@@ -3605,7 +3665,11 @@ function normalizeState(s){
   if(s.gacha===undefined) s.gacha=null;
   if(s.tradeEnabled===undefined) s.tradeEnabled=false;
   if(s.series===undefined) s.series=null;
-  if(s.series){ if(!Array.isArray(s.series.history)) s.series.history=[]; }
+  if(s.series){
+    if(!Array.isArray(s.series.history)) s.series.history=[];
+    if(s.series.lockout===undefined) s.series.lockout=false;
+    if(!Array.isArray(s.series.lockedKeys)) s.series.lockedKeys=[];
+  }
   return s;
 }
 
@@ -3712,6 +3776,7 @@ function renderDraft(){
   imgEl.src=stageImgUrl(S.stageJa);
 
   renderChallengeBanner();
+  renderLockoutBanner();
 
   document.getElementById('da').textContent=S.an;
   document.getElementById('db').textContent=S.bn;
@@ -4265,15 +4330,17 @@ function renderGrid(){
 
   const allBanned=[...(S.bans.alpha||[]),...(S.bans.bravo||[]),...banPending.alpha,...banPending.bravo].map(w=>w.key);
   const allPicked=[...(S.picks.alpha||[]),...(S.picks.bravo||[])].map(w=>w.key);
+  // 連戦ロックアウト: 過去試合で使われた武器はグリッドでもグレーアウト＆選択不可
+  const lockedSet=new Set((S.series&&S.series.lockout&&Array.isArray(S.series.lockedKeys))?S.series.lockedKeys:[]);
   // ジャンルBANで消える武器（武器グリッド側でもグレーアウト表示する）
   const genreBanList=[...(S.bans.alpha||[]),...(S.bans.bravo||[]),...banPending.alpha,...banPending.bravo].filter(b=>b&&b.banType);
   const basePool=(state.stdOnly?WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')):WEAPONS).filter(w=>!isWeaponExcluded(w,ef));
   const filtered=activeCat==='すべて'?basePool:basePool.filter(w=>(w[activeFilterAxis]||'')===activeCat);
 
   filtered.forEach(w=>{
-    const isBanW=allBanned.includes(w.key)||weaponBannedByGenres(w,genreBanList), isPickW=allPicked.includes(w.key), unavail=isBanW||isPickW;
+    const isBanW=allBanned.includes(w.key)||weaponBannedByGenres(w,genreBanList), isPickW=allPicked.includes(w.key), isLockW=lockedSet.has(w.key), unavail=isBanW||isPickW||isLockW;
     const btn=document.createElement('button');
-    btn.className='wb'+(isBanW?' is-bn':'')+(isPickW?' is-pk':'');
+    btn.className='wb'+(isBanW?' is-bn':'')+(isPickW?' is-pk':'')+(isLockW&&!isBanW&&!isPickW?' is-locked':'');
     let clickable=false;
     if(!unavail&&step){
       const S=state;
@@ -4321,7 +4388,7 @@ function renderGrid(){
     btn.disabled=unavail||!clickable;
     btn.innerHTML=`<img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.height='38px';this.style.opacity='.2'">
       <div class="wn">${w.name}</div>
-      ${isBanW?'<span class="wst b">BAN</span>':''}${isPickW?'<span class="wst p">PICK</span>':''}`;
+      ${isBanW?'<span class="wst b">BAN</span>':''}${isPickW?'<span class="wst p">PICK</span>':''}${isLockW&&!isBanW&&!isPickW?'<span class="wst l">🔒</span>':''}`;
     if(clickable&&!unavail){
       const isSelW = pendingSelect && pendingSelect.phase==='ban' && banIdOf(pendingSelect.w)===banIdOf(w);
       if(isSelW) btn.classList.add('is-sel');
@@ -4366,6 +4433,8 @@ function renderBanGenreTiles(S, gran, repIt, repEligible, grid){
 function pickWeapon(w){
   const S=state, step=S.seq[S.idx];
   if(!step) return;
+  // 連戦ロックアウト中の武器は選べない（防御的ガード。グリッドでも無効化済み）
+  if(w&&w.key&&S.series&&S.series.lockout&&Array.isArray(S.series.lockedKeys)&&S.series.lockedKeys.includes(w.key)) return;
 
   if(step.phase==='ban'){
     const isIndividualBan = S.pickMode==='individual' && S.banMode==='individual' && isMulti;

@@ -91,7 +91,15 @@
 - 重要修正: `buildAndStartDraft` の一時リセットを `resetTransientDraftState()` 呼び出しに統一（連戦の次戦で**ガチャ `_gachaFinalized`／トレード／お題ルーレットのフラグも確実にクリア**）。`subscribeRoom` の draft 入場時も同関数で全リセット。
 - コードの居場所: `recordSeriesWinnerAndAdvance`／`renderSeriesArea`／`renderSeriesHistory`／`seriesIsOperator`／`window.seriesWinner`。設定 `#series-enabled`/`#series-mode`（マルチ）・`#solo-series-enabled`/`#solo-series-mode`（ソロ）→`onSeriesToggle`/`onSoloSeriesToggle`。`buildAndStartDraft` に `seriesEnabled/seriesMode/series` を配線。結果UI `#series-area`（trade-area の下）。
 - 検証: `node --check` OK／スコア・終了判定 単体13件パス／**ローカル実機でソロ BO3 をE2E**（2-0 で第1→第2試合へ自動進行・ステージ自動変更・履歴・終了表示を確認）／使い方ガイド更新済み／smoke `S17` 追記。
-- **未決/次**: マルチ2クライアントE2Eは本番要スモーク。**Phase 4b＝武器ロックアウト**（シリーズ中、一度ピックした武器を次戦以降プールから除外。`series.config.excludeFilter` ではなく毎戦の累積除外として `getAvailableWeapons` に反映）に進む。4c=勝者ペナルティ/敗者特権・負けチームがルール設定、4d=戦績ボード/シリーズPNG。
+- **未決/次**: マルチ2クライアントE2Eは本番要スモーク。次は 4b（武器ロックアウト）。
+
+#### ✅ Phase 4b — 武器ロックアウト（完了）
+- 仕様（draft-ideas §4「プール枯渇制」）: 連戦のオプション（トグル既定OFF・連戦ON時のみ表示）。**一度ピックされた武器は同シリーズの次戦以降ずっと使用不可**。両チーム共有でプールが枯れる。対象は**ピックのみ**（BANは各試合リセット）。
+- 状態: `state.series.lockout`(bool) と `state.series.lockedKeys`[]（過去試合のピック key 累積・重複排除）を追加のみ。`normalizeState` で既定 false/[]。`buildAndStartDraft` の series 初期化で `lockout/lockedKeys` 設定。`recordSeriesWinnerAndAdvance` で各試合のピック key を `lockedKeys` へ累積→次戦 series に引き継ぎ。
+- プール反映: **単一チョークポイント `getAvailableWeapons`** に lockedKeys 除外を追加（グリッド・ガチャ `drawGachaHand`・タイマー自動補完に自動波及）。グリッド表示は `renderGrid` でロック武器を `is-locked`（🔒バッジ・グレー・disabled）化、`pickWeapon` 先頭に防御ガード。
+- UI: ドラフト中バナー `#d-lockout`（`renderLockoutBanner`・残ロック数）／結果 series-area にロック数ノート。設定 `#series-lockout`/`#solo-series-lockout`（連戦トグルと連動表示）。
+- 検証: `node --check` OK／累積＋除外ロジック 単体7件パス／**ローカル実機でソロ BO3 ロックアウトE2E**（第1試合のピック2種が第2試合で🔒disabled＋バナー「2種」を確認）／使い方ガイド更新済み／smoke `S17` にロックアウト項目追記。
+- **未決/次**: プール枯渇でピック不能になる極端ケース（BO5×大量フィルタ）は未ガード（実用上は十分広い）。次は **4c＝勝者ペナルティ/敗者特権・負けチームがルール設定**、4d=戦績ボード/シリーズPNG。
 
 ### Phase 5 — 後回し（負債が出たら/余裕が出たら）
 - §6 グリッド検索・フィルタ（UX）／§5 BAN・ピック回数統計（まず `localStorage` でDB無風に）／§7 演出・SE・TTS。
