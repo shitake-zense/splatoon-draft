@@ -454,8 +454,11 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <dt>ジャンルBAN（武器BANとは別枠）</dt>
           <dd>武器単位とは<b>別の枠</b>で、<b>武器種・サブ・スペシャル単位</b>でまとめてBANできます（例: 「サブ=2」ならサブを2種類まるごと禁止＝そのサブを持つ武器が全て消える）。設定した数は<b>必ずその数だけBAN</b>します。代表者BAN相当のとき（個人ピック×個人BAN以外）だけ表示されます。</dd>
 
-          <dt>ピックモード（3種・最重要）</dt>
-          <dd><b>個人ピック</b>＝各自が自分の番に自分の武器を選ぶ。<b>代表者ピック</b>＝チーム代表が全員分をまとめて選ぶ。<b>相手ピック</b>＝対になる相手選手の武器を<b>自分が決めて押し付ける</b>（アルファ[N]↔ブラボー[N]がペア）。普段使わない武器を持たされる遊びです。<br><span style="color:var(--mu)">※ソロでは「通常ピック（＝代表者ピック相当）」と「相手ピック」の2つ。</span></dd>
+          <dt>ピックモード（4種・最重要）</dt>
+          <dd><b>個人ピック</b>＝各自が自分の番に自分の武器を選ぶ。<b>代表者ピック</b>＝チーム代表が全員分をまとめて選ぶ。<b>相手ピック</b>＝対になる相手選手の武器を<b>自分が決めて押し付ける</b>（アルファ[N]↔ブラボー[N]がペア）。普段使わない武器を持たされる遊びです。<b>🎲 ガチャ（運命ピック）</b>＝BAN後に各チームへ人数分の武器が<b>ランダムで一括配布</b>され、引き直して「確定」するだけ。選ぶ自由のないお祭りモードです。<br><span style="color:var(--mu)">※ソロでは「通常ピック（＝代表者ピック相当）」「相手ピック」「ガチャ」の3つ。</span></dd>
+
+          <dt>リロール回数（ガチャ専用）</dt>
+          <dd>ガチャで配られた手札を<b>引き直せる回数</b>（チームごと・既定2回）。0にすると引き直し不可＝完全に運だけの配布になります。両チームが「確定」すると即リザルトへ進みます。</dd>
 
           <dt>ピック順</dt>
           <dd>誰が何番目に選ぶかの並び。<b>交互</b>＝1枚ずつ交互。<b>スネーク</b>＝折り返しで偏りを抑える競技寄りの既定。クラシック／ミドルは折り返し幅違い。<b>バランス／前重ね</b>は 1-2-1 等の固定配分。<b>同時ピック</b>はマルチ専用で、ペアが同時に選んで一斉公開（チーム間は被りOK）。</dd>
@@ -484,7 +487,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <li>ホストから受け取った<b>共有URLを開く</b>か、<b>「🚪 部屋に入る」</b>から<b>名前</b>と<b>部屋番号（6桁）</b>を入力して参加します。</li>
           <li><b>ロビーで待機</b>します。チームへの割り当てとピック順はホストが決めます。</li>
           <li>ドラフトが始まったら、<b>自分の番</b>でBAN／PICKを選んで送信します。</li>
-          <li>操作できるタイミングはピックモードで変わります（個人＝自分の番／代表者＝チーム代表だけ／相手ピック＝対になる相手の武器を選ぶ）。</li>
+          <li>操作できるタイミングはピックモードで変わります（個人＝自分の番／代表者＝チーム代表だけ／相手ピック＝対になる相手の武器を選ぶ／🎲ガチャ＝チーム代表が引き直し・確定を担当）。</li>
         </ol>
         <p class="guide-note">制限時間が設定されている場合は時間内に送信してください。時間切れ時は<b>確定済み→仮選択→ランダム</b>の順で自動送信されます。</p>
       </div>
@@ -497,7 +500,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <ol class="guide-list">
           <li><b>ロビー</b> … メンバー集合・チーム割り当て・ピック順の確認。</li>
           <li><b>BANフェーズ</b> … 使えない武器を決めます。代表者BANは両チーム同時送信で相手の選択が伏せられます（個人BANも選択可）。武器・武器種・サブ・スペシャル単位でBANできます。</li>
-          <li><b>PICKフェーズ</b> … ピック順（交互／スネーク等）に沿って武器を選びます。同時ピックは両チームが選び一斉公開します。</li>
+          <li><b>PICKフェーズ</b> … ピック順（交互／スネーク等）に沿って武器を選びます。同時ピックは両チームが選び一斉公開します。<b>🎲ガチャ</b>の場合はBAN後に人数分の武器がランダム配布され、各チームが引き直し→「確定」するだけで完了します。</li>
           <li><b>リザルト</b> … 両チームの編成・ステージ／ルール・お題の達成（○／×）が表示されます。</li>
           <li><b>結果画像を保存</b> … 端末内で1枚のPNGを生成してダウンロードできます。</li>
         </ol>
@@ -721,7 +724,15 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <option value="individual">👥 個人ピック</option>
           <option value="team">🤝 代表者ピック</option>
           <option value="enemy">🆚 相手ピック（相手の武器を選ぶ）</option>
+          <option value="gacha">🎲 ガチャ（運命ピック）</option>
         </select>
+      </div>
+      <div class="row" id="gacha-row" style="display:none">
+        <label>リロール回数<br><small style="color:var(--mu);font-weight:normal;font-size:9px">手札を引き直せる回数（チームごと）</small></label>
+        <div style="display:flex;align-items:center;gap:6px;flex:1">
+          <input type="number" id="gacha-rerolls" min="0" max="9" step="1" value="2" onchange="onSettingChange()" style="width:90px">
+          <span style="font-size:11px;color:var(--mu)">回</span>
+        </div>
       </div>
       <div class="row" id="ban-mode-row">
         <label>BANモード</label>
@@ -1170,6 +1181,7 @@ function applyLobbySettingsToForm(s){
   setVal('ft',s.ft); setVal('pick-order',s.po); setVal('rm',s.rule); setVal('sm',s.stageJa);
   setChk('std-only',s.stdOnly); setChk('challenge-enabled',s.challengeEnabled);
   setVal('pick-mode',s.pickMode); setVal('ban-mode',s.banMode);
+  if(s.gachaRerolls!==undefined) setVal('gacha-rerolls',s.gachaRerolls);
   setChk('time-limit-enabled',s.timeLimitEnabled); setVal('time-limit-sec',s.timeLimitSec);
   // 派生UI（onSettingChange を発火させず＝Firebase へ書き戻さず手動更新）
   const tlRow=document.getElementById('time-limit-row');
@@ -1182,6 +1194,7 @@ function applyLobbySettingsToForm(s){
   const needsPO = (pmv==='individual' || pmv==='enemy');
   const poc=document.getElementById('pick-order-card'); if(poc) poc.style.display = needsPO ? 'block' : 'none';
   const bmr=document.getElementById('ban-mode-row');     if(bmr) bmr.style.display = (pmv==='individual') ? '' : 'none';
+  const gr=document.getElementById('gacha-row');         if(gr)  gr.style.display = (pmv==='gacha') ? '' : 'none';
   updateBanGenreRowVisibility();
 }
 
@@ -1248,6 +1261,9 @@ let fbBanUnsub     = null;  // pending ban 監視
 let fbLobbyUnsub   = null;  // lobby 監視
 let fbSimPickUnsub = null;  // pending sim pick 監視
 let fbIndividualBanUnsub = null;  // 個人BAN監視
+let fbGachaUnsub   = null;  // ガチャ(運命ピック)監視
+let _gachaInitInProgress = false; // ホストのガチャ初期化の多重発火防止
+let _gachaFinalized      = false; // ガチャ最終確定（picks反映）を実行済みか
 
 // --- ロビーローカルキャッシュ ---
 let lobbyMembers        = {};   // {memberId: {name,team,isHost,...}}
@@ -1693,6 +1709,7 @@ window.onPickModeChange = function(){
   const needsPickOrder = isIndividual || pm === 'enemy';
   document.getElementById('pick-order-card').style.display  = needsPickOrder ? 'block' : 'none';
   document.getElementById('ban-mode-row').style.display     = isIndividual ? '' : 'none';
+  const gr=document.getElementById('gacha-row'); if(gr) gr.style.display = pm==='gacha' ? '' : 'none';
   updateBanGenreRowVisibility();
   onSettingChange();
   updateStartButton();
@@ -2133,21 +2150,81 @@ window.gachaReroll = function(team){
   const g=S.gacha[team]; if(!g||g.confirmed) return;
   if(!gachaCanOperate(S,team)) return;
   if(g.used >= (S.gachaRerolls||0)) return;
-  g.hand = drawGachaHand(S, S.ts); g.used++;
-  renderDraft();
+  const newHand = drawGachaHand(S, S.ts);
+  if(!isMulti){
+    g.hand=newHand; g.used++; renderDraft();
+  } else {
+    // マルチ: 自チームの手札をFirebaseへ。購読(onValue)で全員に反映される
+    set(ref(db,`rooms/${roomId}/gacha/${team}`), {hand:newHand, used:g.used+1, confirmed:false});
+  }
 };
 window.gachaConfirm = function(team){
   const S=state; if(!S||!S.gacha) return;
   const g=S.gacha[team]; if(!g||g.confirmed) return;
   if(!gachaCanOperate(S,team)) return;
-  g.confirmed=true;
-  if(gachaAllConfirmed(S)) finalizeGacha(S);
-  renderDraft();
+  if(!isMulti){
+    g.confirmed=true;
+    if(gachaAllConfirmed(S)) finalizeGacha(S);
+    renderDraft();
+  } else {
+    set(ref(db,`rooms/${roomId}/gacha/${team}`), {hand:g.hand, used:g.used, confirmed:true});
+  }
 };
+
+// ===== マルチ: ガチャ同期（rooms/{room}/gacha を真実の源とする） =====
+function subscribeGacha(){
+  if(fbGachaUnsub){fbGachaUnsub();fbGachaUnsub=null;}
+  fbGachaUnsub=onValue(ref(db,`rooms/${roomId}/gacha`),snap=>{
+    const g = snap.exists()? snap.val() : null;
+    if(g){
+      const norm = t => ({hand:(g[t]&&g[t].hand)||[], used:(g[t]&&g[t].used)||0, confirmed:!!(g[t]&&g[t].confirmed)});
+      state.gacha = {alpha:norm('alpha'), bravo:norm('bravo')};
+    } else {
+      state.gacha = null;
+    }
+    if(isHost){ maybeHostGachaInit(); maybeHostGachaFinalize(); }
+    renderDraft();
+  });
+}
+// ホスト: ガチャフェーズに入っていてノード未作成なら初期手札を配布
+function maybeHostGachaInit(){
+  if(!isHost||!isMulti) return;
+  const S=state; if(!S) return;
+  const inGacha = !S.seq[S.idx] && S.pickMode==='gacha';
+  if(!inGacha || S.gacha) return;
+  if(_gachaInitInProgress) return;
+  _gachaInitInProgress=true;
+  const g={
+    alpha:{hand:drawGachaHand(S,S.ts), used:0, confirmed:false},
+    bravo:{hand:drawGachaHand(S,S.ts), used:0, confirmed:false},
+  };
+  set(ref(db,`rooms/${roomId}/gacha`), g).finally(()=>{_gachaInitInProgress=false;});
+}
+// ホスト: 両チーム確定したら picks に反映して state を push（→ 全員リザルトへ）
+function maybeHostGachaFinalize(){
+  if(!isHost||!isMulti) return;
+  const S=state;
+  if(!gachaAllConfirmed(S)) return;
+  if(_gachaFinalized) return;
+  _gachaFinalized=true;
+  finalizeGacha(S);
+  pushState();
+}
 function renderGachaPanel(){
   const S=state;
   document.getElementById('gacha-name-a').textContent=S.an;
   document.getElementById('gacha-name-b').textContent=S.bn;
+  if(!S.gacha){
+    // マルチ: ホストの配布待ち
+    document.getElementById('gacha-slots-a').innerHTML='';
+    document.getElementById('gacha-slots-b').innerHTML='';
+    ['a','b'].forEach(sfx=>{
+      document.getElementById('gacha-reroll-'+sfx).disabled=true;
+      document.getElementById('gacha-confirm-'+sfx).disabled=true;
+    });
+    document.getElementById('gacha-hint').textContent='🎲 ガチャを配布しています…';
+    return;
+  }
   ['alpha','bravo'].forEach(team=>{
     const sfx = team==='alpha'?'a':'b';
     const g=S.gacha[team];
@@ -2472,6 +2549,7 @@ function getLobbySettings(){
     pickOrderBravo: [...lobbyPickOrderBravo],
     timeLimitEnabled: document.getElementById('time-limit-enabled')?.checked||false,
     timeLimitSec: clampTimeLimit(document.getElementById('time-limit-sec')?.value),
+    gachaRerolls: parseInt(document.getElementById('gacha-rerolls')?.value||2)||0,
     excludeFilter: {
       cats: [...(lobbyExcludeFilter.cats||[])],
       subs: [...(lobbyExcludeFilter.subs||[])],
@@ -2531,6 +2609,7 @@ window.startDraft = function(){
     timeLimitEnabled:s.timeLimitEnabled,
     timeLimitSec:s.timeLimitSec,
     excludeFilter:s.excludeFilter,
+    gachaRerolls:s.gachaRerolls,
   });
 };
 
@@ -2694,8 +2773,9 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,pi
   // 代表者BANの代表者IDを計算（マルチ・代表者BANモード時のみ）
   let representativeAlpha = null;
   let representativeBravo = null;
-  if(isMulti && bMode==='representative' && bc>0){
+  if(isMulti && (pMode==='gacha' || (bMode==='representative' && bc>0))){
     // alpha代表: buildAndStartDraft は常にホストが呼ぶため myMemberId がα代表
+    // ガチャは代表者がチーム分を引くため、BANモード/BAN数に関わらず代表者を解決する
     representativeAlpha = myMemberId;
     // bravo代表: membersForState からbravoチームの非ホストで最も早く参加したメンバー
     const bravoEntries = Object.entries(members||{})
@@ -2744,6 +2824,7 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,pi
       subscribePendingBravoBans();
     }
     subscribeSimPick();
+    if(pMode==='gacha') subscribeGacha();
   }
   showDraftUI();
 }
@@ -2840,6 +2921,8 @@ function resetTransientDraftState(){
   activeCat = 'すべて';
   activeFilterAxis = 'cat';
   _challengeRouletteDone = false;
+  _gachaInitInProgress = false;
+  _gachaFinalized = false;
 }
 
 function subscribeRoom(){
@@ -2881,6 +2964,7 @@ function subscribeRoom(){
         subscribePendingBravoBans();
       }
       subscribeSimPick();
+      if(state.pickMode==='gacha') subscribeGacha();
       showDraftUI();
     } else {
       // idxが進んだ → ローカルの一時状態を全リセット
@@ -3016,8 +3100,8 @@ window.backToLobby = async function(){
   clearTimer();
 
   // 全Firebase購読を解除（lobby監視は後で再登録）
-  [fbUnsub, fbBanUnsub, fbSimPickUnsub, fbIndividualBanUnsub].forEach(f=>{if(f){f();}});
-  fbUnsub = fbBanUnsub = fbSimPickUnsub = fbIndividualBanUnsub = null;
+  [fbUnsub, fbBanUnsub, fbSimPickUnsub, fbIndividualBanUnsub, fbGachaUnsub].forEach(f=>{if(f){f();}});
+  fbUnsub = fbBanUnsub = fbSimPickUnsub = fbIndividualBanUnsub = fbGachaUnsub = null;
   if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
 
   // Firebaseのドラフトデータを全削除（lobby/members は残す）
@@ -3029,6 +3113,7 @@ window.backToLobby = async function(){
     remove(ref(db, `rooms/${roomId}/pending_bans`)),
     remove(ref(db, `rooms/${roomId}/pending_alpha_pick`)),
     remove(ref(db, `rooms/${roomId}/pending_bravo_pick`)),
+    remove(ref(db, `rooms/${roomId}/gacha`)),
   ]);
 
   // ローカルの全一時変数をリセット
@@ -3051,8 +3136,8 @@ window.backToLobby = async function(){
 
 // ===== 退出 =====
 window.leaveLobby = function(){
-  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub].forEach(f=>{if(f){f();} });
-  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=null;
+  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub].forEach(f=>{if(f){f();} });
+  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=null;
   if(isMulti&&!isHost&&myMemberId&&roomId){
     remove(ref(db,`rooms/${roomId}/lobby/members/${myMemberId}`));
     clearSavedMemberId(roomId); // 意図的な退出: 再アタッチ情報を破棄
@@ -3062,8 +3147,8 @@ window.leaveLobby = function(){
   showScreen('mode');
 };
 window.goHome = function(){
-  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub].forEach(f=>{if(f){f();}});
-  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=null;
+  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub].forEach(f=>{if(f){f();}});
+  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=null;
   // 参加者がモード選択に戻る際も Firebase lobby から自分を削除する
   // （再ドラフト時にホストが古いメンバー情報を取得してしまうのを防ぐ）
   if(isMulti&&!isHost&&myMemberId&&roomId){
@@ -3271,7 +3356,8 @@ function renderDraft(){
     document.getElementById('tia').style.display='none';
     document.getElementById('tib').style.display='none';
   } else if(gachaPhase){
-    ensureGachaInit(S);
+    if(!isMulti) ensureGachaInit(S);
+    else if(isHost && !S.gacha) maybeHostGachaInit();
     renderGachaPanel();
     document.getElementById('tprompt').innerHTML='<strong style="color:var(--y)">🎲 運命のガチャピック</strong> — 手札を確認して各チーム「確定」してください';
     document.getElementById('tia').style.display='none';

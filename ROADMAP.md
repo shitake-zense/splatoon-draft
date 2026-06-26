@@ -59,6 +59,17 @@
 ### Phase 3 — ガチャ/運命ピック → ドラフト後トレード（§2）
 - ガチャ＝ランダム配布＋リロール（既存 `pickRandom` 流用）。トレード＝ピック後に交換提案→相手承認（`pending_*` 同期パターンの延長）。
 
+#### ✅ Phase 3a — ガチャ/運命ピック（完了）
+- 仕様: BAN後に**各チームへ人数分(ts)の武器をランダム一括配布**。チーム内は重複なし／チーム間ミラー許可。**リロール回数**（既定2・チームごと）まで引き直し可。両チーム「確定」で即リザルト。**非強制**（演出のみ、強制力なし）。
+- ピックモード `'gacha'` を追加（マルチ／ソロ両方）。`seq` は BAN のみ積み、ガチャは**BAN後の専用フェーズ**（`gachaPhase = done && pickMode==='gacha' && !gachaAllConfirmed`）。タイマーは `!done` 条件で自動的に無効。
+- コードの居場所（行番号は変動・周辺を読む）:
+  - ロジック: `drawGachaHand`/`ensureGachaInit`(ソロ)/`finalizeGacha`/`gachaAllConfirmed`/`gachaCanOperate`/`window.gachaReroll`/`window.gachaConfirm`。
+  - マルチ同期: `rooms/{room}/gacha`(alpha/bravo={hand,used,confirmed}) を真実の源に `subscribeGacha`/`maybeHostGachaInit`(ホストが初期配布)/`maybeHostGachaFinalize`(両確定で picks反映→`pushState`)。多重発火ガード `_gachaInitInProgress`/`_gachaFinalized`(`resetTransientDraftState` でリセット)。退出系(`backToLobby`/`leaveLobby`/`goHome`)で `fbGachaUnsub` 解除＋gachaノード削除。
+  - 代表者: ガチャは BANモード/BAN数に関わらず代表者を解決（`buildAndStartDraft` の `representativeAlpha/Bravo` 算出条件に `pMode==='gacha'` を追加）。操作は代表者のみ（`gachaCanOperate`）。
+  - UI: パネル `#gacha-panel`（`renderGachaPanel`）。設定 `#gacha-row`/`#gacha-rerolls`（マルチ）・`#solo-gacha-row`/`#solo-gacha-rerolls`（ソロ）。`gachaRerolls` を `getLobbySettings`/`startDraft`/`buildAndStartDraft`/`normalizeState`/`applyLobbySettingsToForm` に配線。
+  - 使い方ガイド更新済み（ピックモード4種・リロール回数・参加者の操作担当・流れ）。
+- 検証: `node --check` OK。**未決/次**: Phase 3b＝**ドラフト後トレード**（`pending_*` 延長で交換提案→承認）は未着手。お題カードとの相互作用・ガチャ専用のスモーク項目追記は要フォロー。
+
 ### Phase 4 — シリーズ/連戦（§4）★目玉・最後（最大リスク）
 - BO3/BO5 フレームを先に → 武器ロックアウト → 勝者ペナルティ/敗者特権 → **負けチームがルール設定** → 戦績ボード。
 - 1ルーム複数試合・試合間状態保持で**スキーマと状態ライフサイクルに最も踏み込む**。Phase 1〜3 で設定項目が出揃った後にやると「負けチームのルール設定」が選択肢豊富になる。
