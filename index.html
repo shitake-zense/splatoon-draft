@@ -307,6 +307,29 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .gacha-reroll:hover:not(:disabled),.gacha-confirm:hover:not(:disabled){filter:brightness(1.25);}
 .gacha-reroll:disabled,.gacha-confirm:disabled{opacity:.35;cursor:not-allowed;}
 .gacha-hint{font-size:11px;color:var(--mu);text-align:center;margin-top:10px;line-height:1.5;}
+/* ドラフト後トレード（結果画面） */
+.trade-box{background:var(--s1);border:1.5px solid var(--pk);border-radius:var(--r);padding:13px;margin:6px 0 14px;}
+.trade-title{font-family:'Zen Dots',sans-serif;font-size:11px;color:var(--pk);margin-bottom:10px;letter-spacing:1px;text-align:center;}
+.trade-title2{font-size:11px;color:var(--pk);font-weight:700;margin-bottom:8px;text-align:center;}
+.trade-open-btn{display:block;width:100%;padding:9px;border-radius:8px;background:#2a1430;border:1.5px solid var(--pk);color:var(--pk);font-family:inherit;font-size:12px;cursor:pointer;}
+.trade-open-btn:hover{filter:brightness(1.25);}
+.trade-pick-label{font-size:10px;color:var(--mu);margin:6px 0 4px;}
+.trade-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.trade-chip{display:flex;align-items:center;gap:5px;padding:4px 8px 4px 4px;border-radius:8px;background:#0f1729;border:1.5px solid transparent;color:var(--tx,#e8eefc);font-family:inherit;font-size:11px;cursor:pointer;}
+.trade-chip img{width:26px;height:26px;object-fit:contain;}
+.trade-chip:hover{border-color:var(--mu);}
+.trade-chip.sel{border-color:var(--pk);background:#241030;}
+.trade-chip.static{cursor:default;border-color:#2a3550;}
+.trade-swap-ico{text-align:center;color:var(--pk);font-size:16px;margin:6px 0;}
+.trade-deal{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.trade-arrow{color:var(--pk);font-size:18px;font-weight:700;}
+.trade-actions{display:flex;gap:8px;margin-top:11px;}
+.trade-go,.trade-cancel{flex:1;padding:9px 4px;border-radius:8px;font-family:inherit;font-size:12px;cursor:pointer;}
+.trade-go{background:#1a3d2a;border:1.5px solid var(--pk);color:var(--pk);}
+.trade-go:disabled{opacity:.35;cursor:not-allowed;}
+.trade-cancel{background:#2a1414;border:1.5px solid var(--mu);color:var(--mu);}
+.trade-go:hover:not(:disabled),.trade-cancel:hover{filter:brightness(1.25);}
+.trade-note{font-size:11px;color:var(--mu);line-height:1.6;text-align:center;}
 .sim-reveal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:999;}
 .sim-reveal-box{background:var(--s1);border:2px solid var(--pk);border-radius:16px;padding:28px 32px;text-align:center;max-width:420px;width:90%;}
 .sim-reveal-box h2{font-family:'Zen Dots',sans-serif;font-size:15px;color:var(--pk);margin-bottom:18px;letter-spacing:1px;}
@@ -471,6 +494,9 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 
           <dt>お題カード / 制限時間</dt>
           <dd><b>お題カード</b>＝開始時に縛りを1枚抽選（両チーム共通・<b>非強制</b>で、結果に達成○×を表示）。<b>制限時間</b>＝5〜100秒。時間切れは「確定済み→仮選択中→ランダム」の順で自動送信します。</dd>
+
+          <dt>ドラフト後トレード</dt>
+          <dd>ONにすると<b>結果画面</b>で武器の交換ができます。自チームの武器1枚と相手チームの武器1枚を選んで<b>交換を提案</b>→<b>相手チームの代表者が承認</b>すると成立（拒否も可）。回数は無制限です。マルチでは<b>各チームの代表者だけ</b>が提案・承認でき、ソロではアルファ⇄ブラボーをその場で入れ替えられます。</dd>
         </dl>
       </div>
       <div class="guide-card">
@@ -490,6 +516,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <li>操作できるタイミングはピックモードで変わります（個人＝自分の番／代表者＝チーム代表だけ／相手ピック＝対になる相手の武器を選ぶ／🎲ガチャ＝チーム代表が引き直し・確定を担当）。</li>
         </ol>
         <p class="guide-note">制限時間が設定されている場合は時間内に送信してください。時間切れ時は<b>確定済み→仮選択→ランダム</b>の順で自動送信されます。</p>
+        <p class="guide-note">ドラフト後トレードがONのときは、結果画面で<b>各チームの代表者</b>が武器の交換を提案・承認できます（提案が届くと結果画面に表示されます）。</p>
       </div>
     </div>
 
@@ -501,7 +528,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <li><b>ロビー</b> … メンバー集合・チーム割り当て・ピック順の確認。</li>
           <li><b>BANフェーズ</b> … 使えない武器を決めます。代表者BANは両チーム同時送信で相手の選択が伏せられます（個人BANも選択可）。武器・武器種・サブ・スペシャル単位でBANできます。</li>
           <li><b>PICKフェーズ</b> … ピック順（交互／スネーク等）に沿って武器を選びます。同時ピックは両チームが選び一斉公開します。<b>🎲ガチャ</b>の場合はBAN後に人数分の武器がランダム配布され、各チームが引き直し→「確定」するだけで完了します。</li>
-          <li><b>リザルト</b> … 両チームの編成・ステージ／ルール・お題の達成（○／×）が表示されます。</li>
+          <li><b>リザルト</b> … 両チームの編成・ステージ／ルール・お題の達成（○／×）が表示されます。<b>ドラフト後トレード</b>がONなら、ここで武器の交換を提案→相手代表者の承認で成立します。</li>
           <li><b>結果画像を保存</b> … 端末内で1枚のPNGを生成してダウンロードできます。</li>
         </ol>
         <p class="guide-note">お題カードをONにすると開始時に縛りを1枚抽選します（両チーム共通・非強制で、達成は結果に○×表示）。</p>
@@ -717,6 +744,16 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <span class="tgl-sl"></span>
         </label>
       </div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          🔄 ドラフト後トレード
+          <small>結果画面で武器1枚どうしの交換を提案→相手承認で成立（代表者のみ）</small>
+        </div>
+        <label class="tgl">
+          <input type="checkbox" id="trade-enabled" onchange="onSettingChange()">
+          <span class="tgl-sl"></span>
+        </label>
+      </div>
       <div class="div"></div>
       <div class="row">
         <label>ピックモード</label>
@@ -924,6 +961,16 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <span class="tgl-sl"></span>
         </label>
       </div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          🔄 ドラフト後トレード
+          <small>結果画面でアルファ⇄ブラボーの武器1枚を交換できる</small>
+        </div>
+        <label class="tgl">
+          <input type="checkbox" id="solo-trade-enabled">
+          <span class="tgl-sl"></span>
+        </label>
+      </div>
       <div class="div"></div>
       <div class="toggle-row">
         <div class="toggle-label">
@@ -1095,6 +1142,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       <div class="rl">PICK</div><div class="rw" id="rpb"></div>
     </div>
   </div>
+  <div id="trade-area" style="display:none"></div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
     <button class="btn-re" id="btn-save-image" onclick="downloadResultImage()" style="background:var(--y);color:#1a1a2e;border-color:var(--y);">🖼️ 結果画像を保存</button>
     <button class="btn-re" id="btn-redraft" onclick="redraftWithSameMembers()" style="display:none;background:var(--pk);color:#1a1a2e;border-color:var(--pk);">🔄 同じメンバーで再ドラフト</button>
@@ -1180,6 +1228,7 @@ function applyLobbySettingsToForm(s){
   setVal('n-a',s.an); setVal('n-b',s.bn); setVal('sz',s.ts); setVal('bc',s.bc);
   setVal('ft',s.ft); setVal('pick-order',s.po); setVal('rm',s.rule); setVal('sm',s.stageJa);
   setChk('std-only',s.stdOnly); setChk('challenge-enabled',s.challengeEnabled);
+  setChk('trade-enabled',s.tradeEnabled);
   setVal('pick-mode',s.pickMode); setVal('ban-mode',s.banMode);
   if(s.gachaRerolls!==undefined) setVal('gacha-rerolls',s.gachaRerolls);
   setChk('time-limit-enabled',s.timeLimitEnabled); setVal('time-limit-sec',s.timeLimitSec);
@@ -1264,6 +1313,11 @@ let fbIndividualBanUnsub = null;  // 個人BAN監視
 let fbGachaUnsub   = null;  // ガチャ(運命ピック)監視
 let _gachaInitInProgress = false; // ホストのガチャ初期化の多重発火防止
 let _gachaFinalized      = false; // ガチャ最終確定（picks反映）を実行済みか
+let fbTradeUnsub   = null;  // ドラフト後トレード監視（pending_trade）
+let tradePending   = null;  // 現在の交換提案（ローカルキャッシュ）
+let _tradeSel      = {give:null, want:null}; // トレード提案UIの選択中インデックス
+let _tradePanelOpen= false; // トレード提案ピッカーの開閉
+let _tradeApplying = false; // ホストのトレード適用の多重発火防止
 
 // --- ロビーローカルキャッシュ ---
 let lobbyMembers        = {};   // {memberId: {name,team,isHost,...}}
@@ -1428,6 +1482,7 @@ window.startSoloDraft = function(){
     sm: document.getElementById('solo-sm').value,
     stdOnly: document.getElementById('solo-std-only')?.checked||false,
     challengeEnabled: document.getElementById('solo-challenge-enabled')?.checked||false,
+    tradeEnabled: document.getElementById('solo-trade-enabled')?.checked||false,
     timeLimitEnabled: document.getElementById('solo-time-limit-enabled')?.checked||false,
     timeLimitSec: clampTimeLimit(document.getElementById('solo-time-limit-sec')?.value),
     gachaRerolls: parseInt(document.getElementById('solo-gacha-rerolls')?.value||2)||0,
@@ -2249,6 +2304,193 @@ function renderGachaPanel(){
     : '配られた手札を確認し、必要なら引き直して「確定」してください';
 }
 
+// ===== ドラフト後トレード（Phase 3b・結果画面での武器交換） =====
+// 設計: 1回の提案=自チームの武器1枚 ⇄ 相手チームの武器1枚。マルチは代表者のみが提案/承認でき、
+// 真実の源は rooms/{room}/pending_trade。承認後の picks 反映は単一ライターのホストが行う。
+// ソロは承認不要で即時にアルファ⇄ブラボーを入れ替える。
+
+// このクライアントが team のトレードを操作（提案/承認）できるか（ソロは常に可）
+function isTradeOperator(team){
+  if(!isMulti) return true;
+  const rep = team==='alpha' ? state.representativeAlpha : state.representativeBravo;
+  return rep ? rep===myMemberId : (team==='alpha'?isHost:!isHost);
+}
+// このクライアントが操作する側のチーム（マルチ）。どちらの代表でもなければ null
+function myTradeTeam(){
+  if(!isMulti) return 'alpha';
+  if(isTradeOperator('alpha')) return 'alpha';
+  if(isTradeOperator('bravo')) return 'bravo';
+  return null;
+}
+// 提案ピッカーの give/want 対象チーム
+function tradeTeams(){
+  if(!isMulti) return {giveTeam:'alpha', wantTeam:'bravo'};
+  const t=myTradeTeam();
+  return {giveTeam:t, wantTeam: t==='alpha'?'bravo':'alpha'};
+}
+// Firebase 保存用の武器スナップショット（undefined を含めない）
+function tradeWeaponSnap(w){
+  return {key:w.key, name:w.name, imgUrl:w.imgUrl, cat:w.cat||null, memberId:(w.memberId!==undefined?w.memberId:null)};
+}
+// picks[ta][ia] と picks[tb][ib] の武器を入れ替える（所有者 memberId は各スロットに残す）
+function applyTradeSwap(S, ta, ia, tb, ib){
+  const A=S.picks[ta], B=S.picks[tb];
+  if(!A||!B||!A[ia]||!B[ib]) return false;
+  const a=A[ia], b=B[ib];
+  const keepA=a.memberId, keepB=b.memberId;
+  const na={...b}, nb={...a};
+  if(keepA!==undefined && keepA!==null) na.memberId=keepA; else delete na.memberId;
+  if(keepB!==undefined && keepB!==null) nb.memberId=keepB; else delete nb.memberId;
+  A[ia]=na; B[ib]=nb;
+  return true;
+}
+window.toggleTradePanel = function(){
+  _tradePanelOpen = !_tradePanelOpen;
+  _tradeSel = {give:null, want:null};
+  renderTradeArea();
+};
+window.selectTradeChip = function(kind, idx){
+  _tradeSel[kind] = (_tradeSel[kind]===idx ? null : idx);
+  renderTradeArea();
+};
+// 提案を送る（ソロは即時入替）
+window.submitTrade = function(){
+  const S=state; if(!S) return;
+  if(_tradeSel.give==null || _tradeSel.want==null) return;
+  const {giveTeam,wantTeam}=tradeTeams();
+  const give=(S.picks[giveTeam]||[])[_tradeSel.give];
+  const want=(S.picks[wantTeam]||[])[_tradeSel.want];
+  if(!give||!want) return;
+  if(!isMulti){
+    applyTradeSwap(S, giveTeam, _tradeSel.give, wantTeam, _tradeSel.want);
+    _tradeSel={give:null,want:null}; _tradePanelOpen=false;
+    showResult();
+    return;
+  }
+  set(ref(db,`rooms/${roomId}/pending_trade`), {
+    from:giveTeam, fromMember:myMemberId||null,
+    giveIdx:_tradeSel.give, give:tradeWeaponSnap(give),
+    wantIdx:_tradeSel.want, want:tradeWeaponSnap(want),
+    status:'proposed', ts:Date.now(),
+  });
+  _tradeSel={give:null,want:null}; _tradePanelOpen=false;
+};
+// 受け手の応答（承認/拒否）。マルチ専用。
+window.respondTrade = function(accept){
+  if(!isMulti){ return; }
+  const p=tradePending; if(!p) return;
+  const toTeam = p.from==='alpha'?'bravo':'alpha';
+  if(!isTradeOperator(toTeam)) return; // 受け手の代表者のみ
+  if(!accept){ remove(ref(db,`rooms/${roomId}/pending_trade`)); return; }
+  if(isHost){ hostApplyTrade(p); }
+  else { set(ref(db,`rooms/${roomId}/pending_trade/status`),'accepted'); }
+};
+// 提案者が取り消す
+window.cancelTrade = function(){
+  if(isMulti) remove(ref(db,`rooms/${roomId}/pending_trade`));
+};
+// ホストのみ: 承認された提案を picks に反映し state を push（→ 全員のリザルト再描画）
+function hostApplyTrade(p){
+  if(!isHost||!isMulti||!p) return;
+  if(_tradeApplying) return;
+  _tradeApplying=true;
+  const S=state;
+  const toTeam = p.from==='alpha'?'bravo':'alpha';
+  const g=(S.picks[p.from]||[])[p.giveIdx], w=(S.picks[toTeam]||[])[p.wantIdx];
+  // 整合性チェック: 提案時の武器と現在の picks が一致するときだけ適用（多重承認・並びズレ対策）
+  const ok = g && w && g.key===p.give.key && w.key===p.want.key;
+  if(ok) applyTradeSwap(S, p.from, p.giveIdx, toTeam, p.wantIdx);
+  remove(ref(db,`rooms/${roomId}/pending_trade`)).finally(()=>{_tradeApplying=false;});
+  if(ok){ pushState(); showResult(); }
+}
+// ===== マルチ: トレード同期 =====
+function subscribeTrade(){
+  if(fbTradeUnsub){fbTradeUnsub();fbTradeUnsub=null;}
+  fbTradeUnsub=onValue(ref(db,`rooms/${roomId}/pending_trade`),snap=>{
+    tradePending = snap.exists()? snap.val() : null;
+    // ホスト: 相手（bravo代表）が承認した提案を適用
+    if(isHost && tradePending && tradePending.status==='accepted'){
+      hostApplyTrade(tradePending);
+      return;
+    }
+    if(document.getElementById('s-result').classList.contains('active')) renderTradeArea();
+  });
+}
+// ===== トレードUI（結果画面） =====
+function renderTradeArea(){
+  const area=document.getElementById('trade-area');
+  if(!area) return;
+  const S=state;
+  if(!S || !S.tradeEnabled){ area.style.display='none'; area.innerHTML=''; return; }
+  area.style.display='';
+  const pend = isMulti ? tradePending : null;
+  let inner;
+  if(pend){
+    inner = renderTradePending(pend);
+  } else if(!isMulti){
+    inner = `<div class="trade-swap-ico">⇅ アルファ ⇄ ブラボー</div>` + renderTradePicker();
+  } else {
+    const myTeam = myTradeTeam();
+    if(myTeam){
+      inner = _tradePanelOpen
+        ? renderTradePicker()
+        : `<button class="trade-open-btn" onclick="toggleTradePanel()">武器の交換を提案する</button>`;
+    } else {
+      inner = `<div class="trade-note">各チームの代表者が武器の交換を提案できます。提案が届くとここに表示されます。</div>`;
+    }
+  }
+  area.innerHTML = `<div class="trade-box"><div class="trade-title">🔄 ドラフト後トレード</div>${inner}</div>`;
+}
+function _tradeChipHtml(w, kind, i, sel){
+  const owner = w.memberId && (state.members||{})[w.memberId]?.name;
+  return `<button class="trade-chip${sel?' sel':''}" onclick="selectTradeChip('${kind}',${i})">`
+    + `<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">`
+    + `<span>${owner?owner+'：':''}${w.name}</span></button>`;
+}
+function renderTradePicker(){
+  const S=state;
+  const {giveTeam,wantTeam}=tradeTeams();
+  const giveArr=S.picks[giveTeam]||[], wantArr=S.picks[wantTeam]||[];
+  const giveLabel = giveTeam==='alpha'?S.an:S.bn;
+  const wantLabel = wantTeam==='alpha'?S.an:S.bn;
+  const giveChips = giveArr.length
+    ? giveArr.map((w,i)=>_tradeChipHtml(w,'give',i,_tradeSel.give===i)).join('')
+    : '<span class="trade-note">なし</span>';
+  const wantChips = wantArr.length
+    ? wantArr.map((w,i)=>_tradeChipHtml(w,'want',i,_tradeSel.want===i)).join('')
+    : '<span class="trade-note">なし</span>';
+  const ready = _tradeSel.give!=null && _tradeSel.want!=null;
+  const actionLabel = isMulti ? '提案を送る' : '交換する';
+  return `<div class="trade-pick-label">${giveLabel}（出す）</div><div class="trade-chips">${giveChips}</div>`
+    + `<div class="trade-swap-ico">⇅</div>`
+    + `<div class="trade-pick-label">${wantLabel}（もらう）</div><div class="trade-chips">${wantChips}</div>`
+    + `<div class="trade-actions">`
+    + `<button class="trade-go" ${ready?'':'disabled'} onclick="submitTrade()">${actionLabel}</button>`
+    + (isMulti?`<button class="trade-cancel" onclick="toggleTradePanel()">閉じる</button>`:'')
+    + `</div>`;
+}
+function renderTradePending(p){
+  const S=state;
+  const fromName = p.from==='alpha'? S.an : S.bn;
+  const toTeam = p.from==='alpha'?'bravo':'alpha';
+  const chip = w => `<span class="trade-chip static"><img src="${w.imgUrl}" alt="" onerror="this.style.display='none'"><span>${w.name}</span></span>`;
+  const deal = `<div class="trade-deal">${chip(p.give)}<span class="trade-arrow">⇄</span>${chip(p.want)}</div>`;
+  let body;
+  if(isTradeOperator(toTeam)){
+    // 受け手の代表者: 承認/拒否
+    body = `<div class="trade-note"><b>${fromName}</b> からの提案です。<b>${p.give.name}</b> を受け取り、<b>${p.want.name}</b> を渡します。</div>`
+      + `<div class="trade-actions"><button class="trade-go" onclick="respondTrade(true)">承認する</button>`
+      + `<button class="trade-cancel" onclick="respondTrade(false)">拒否する</button></div>`;
+  } else if(isTradeOperator(p.from)){
+    // 提案者: 承認待ち
+    body = `<div class="trade-note">提案中… 相手の承認を待っています。</div>`
+      + `<div class="trade-actions"><button class="trade-cancel" onclick="cancelTrade()">提案を取り消す</button></div>`;
+  } else {
+    body = `<div class="trade-note">${fromName} が武器の交換を提案中です…</div>`;
+  }
+  return `<div class="trade-title2">提案中のトレード</div>${deal}${body}`;
+}
+
 window.onSoloPickOrderChange = function(){
   updatePickOrderDesc('solo-pick-order','solo-pick-order-desc');
 };
@@ -2542,6 +2784,7 @@ function getLobbySettings(){
     stageJa: document.getElementById('sm')?.value||'random',
     stdOnly: document.getElementById('std-only')?.checked||false,
     challengeEnabled: document.getElementById('challenge-enabled')?.checked||false,
+    tradeEnabled: document.getElementById('trade-enabled')?.checked||false,
     pickMode: document.getElementById('pick-mode')?.value||'individual',
     banMode:  document.getElementById('ban-mode')?.value||'individual',
     banGenres: readBanGenresFromUI(),
@@ -2603,6 +2846,7 @@ window.startDraft = function(){
   buildAndStartDraft({
     an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:s.ft, po:s.po,
     rm:s.rule, sm:s.stageJa, stdOnly:s.stdOnly, challengeEnabled:s.challengeEnabled,
+    tradeEnabled:s.tradeEnabled,
     pickMode:s.pickMode, banMode:s.banMode, banGenres:s.banGenres,
     pickOrderAlpha:s.pickOrderAlpha, pickOrderBravo:s.pickOrderBravo,
     members:membersForState,
@@ -2709,7 +2953,7 @@ function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec, simOrder
   return seq;
 }
 
-function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls}){
+function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tradeEnabled,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls}){
   const rule    = rm==='random'?RULES[Math.floor(Math.random()*RULES.length)]:rm;
   const stageJa = sm==='random'?STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)]:sm;
   const challenge = challengeEnabled ? pickRandomChallenge() : null;
@@ -2773,9 +3017,9 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,pi
   // 代表者BANの代表者IDを計算（マルチ・代表者BANモード時のみ）
   let representativeAlpha = null;
   let representativeBravo = null;
-  if(isMulti && (pMode==='gacha' || (bMode==='representative' && bc>0))){
+  if(isMulti && (pMode==='gacha' || tradeEnabled || (bMode==='representative' && bc>0))){
     // alpha代表: buildAndStartDraft は常にホストが呼ぶため myMemberId がα代表
-    // ガチャは代表者がチーム分を引くため、BANモード/BAN数に関わらず代表者を解決する
+    // ガチャ/トレードは代表者が操作するため、BANモード/BAN数に関わらず代表者を解決する
     representativeAlpha = myMemberId;
     // bravo代表: membersForState からbravoチームの非ホストで最も早く参加したメンバー
     const bravoEntries = Object.entries(members||{})
@@ -2806,6 +3050,7 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,pi
     challenge: challenge,
     gachaRerolls: pMode==='gacha' ? (gachaRerolls||0) : 0,
     gacha: null,
+    tradeEnabled: !!tradeEnabled,
   };
   _challengeRouletteDone=false;
   banPending={alpha:[],bravo:[]}; banActiveTeam='alpha';
@@ -2825,6 +3070,7 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,pi
     }
     subscribeSimPick();
     if(pMode==='gacha') subscribeGacha();
+    if(tradeEnabled) subscribeTrade();
   }
   showDraftUI();
 }
@@ -2923,6 +3169,10 @@ function resetTransientDraftState(){
   _challengeRouletteDone = false;
   _gachaInitInProgress = false;
   _gachaFinalized = false;
+  tradePending = null;
+  _tradeSel = {give:null, want:null};
+  _tradePanelOpen = false;
+  _tradeApplying = false;
 }
 
 function subscribeRoom(){
@@ -2951,6 +3201,11 @@ function subscribeRoom(){
       _lastPushedIdx=-1; return;
     }
     state=normalizeState(remote);
+    // 既にリザルト画面 かつ 完了状態の更新（＝トレード成立など picks 変更）→ ドラフトへ戻さずリザルトのみ再描画
+    if(document.getElementById('s-result').classList.contains('active') && !state.seq[state.idx]){
+      showResult();
+      return;
+    }
     const onDraft=document.getElementById('s-draft').classList.contains('active');
     if(!onDraft){
       banPending={alpha:[],bravo:[]}; bravoBanSubmitted=false; alphaBanSubmitted=false;
@@ -2965,6 +3220,7 @@ function subscribeRoom(){
       }
       subscribeSimPick();
       if(state.pickMode==='gacha') subscribeGacha();
+      if(state.tradeEnabled) subscribeTrade();
       showDraftUI();
     } else {
       // idxが進んだ → ローカルの一時状態を全リセット
@@ -3100,8 +3356,8 @@ window.backToLobby = async function(){
   clearTimer();
 
   // 全Firebase購読を解除（lobby監視は後で再登録）
-  [fbUnsub, fbBanUnsub, fbSimPickUnsub, fbIndividualBanUnsub, fbGachaUnsub].forEach(f=>{if(f){f();}});
-  fbUnsub = fbBanUnsub = fbSimPickUnsub = fbIndividualBanUnsub = fbGachaUnsub = null;
+  [fbUnsub, fbBanUnsub, fbSimPickUnsub, fbIndividualBanUnsub, fbGachaUnsub, fbTradeUnsub].forEach(f=>{if(f){f();}});
+  fbUnsub = fbBanUnsub = fbSimPickUnsub = fbIndividualBanUnsub = fbGachaUnsub = fbTradeUnsub = null;
   if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
 
   // Firebaseのドラフトデータを全削除（lobby/members は残す）
@@ -3114,6 +3370,7 @@ window.backToLobby = async function(){
     remove(ref(db, `rooms/${roomId}/pending_alpha_pick`)),
     remove(ref(db, `rooms/${roomId}/pending_bravo_pick`)),
     remove(ref(db, `rooms/${roomId}/gacha`)),
+    remove(ref(db, `rooms/${roomId}/pending_trade`)),
   ]);
 
   // ローカルの全一時変数をリセット
@@ -3136,8 +3393,8 @@ window.backToLobby = async function(){
 
 // ===== 退出 =====
 window.leaveLobby = function(){
-  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub].forEach(f=>{if(f){f();} });
-  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=null;
+  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub,fbTradeUnsub].forEach(f=>{if(f){f();} });
+  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=fbTradeUnsub=null;
   if(isMulti&&!isHost&&myMemberId&&roomId){
     remove(ref(db,`rooms/${roomId}/lobby/members/${myMemberId}`));
     clearSavedMemberId(roomId); // 意図的な退出: 再アタッチ情報を破棄
@@ -3147,8 +3404,8 @@ window.leaveLobby = function(){
   showScreen('mode');
 };
 window.goHome = function(){
-  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub].forEach(f=>{if(f){f();}});
-  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=null;
+  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub,fbTradeUnsub].forEach(f=>{if(f){f();}});
+  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=fbTradeUnsub=null;
   // 参加者がモード選択に戻る際も Firebase lobby から自分を削除する
   // （再ドラフト時にホストが古いメンバー情報を取得してしまうのを防ぐ）
   if(isMulti&&!isHost&&myMemberId&&roomId){
@@ -3183,6 +3440,7 @@ function normalizeState(s){
   if(s.challenge===undefined) s.challenge=null;
   if(s.gachaRerolls===undefined) s.gachaRerolls=0;
   if(s.gacha===undefined) s.gacha=null;
+  if(s.tradeEnabled===undefined) s.tradeEnabled=false;
   return s;
 }
 
@@ -4295,6 +4553,7 @@ function showResult(){
   if(btnRedraft){
     btnRedraft.style.display = (isMulti && isHost) ? '' : 'none';
   }
+  renderTradeArea();
   showScreen('result');
 }
 
@@ -4482,8 +4741,8 @@ window.redraftWithSameMembers = async function(){
   clearTimer();
 
   // ② 全Firebase購読を解除
-  [fbUnsub, fbBanUnsub, fbSimPickUnsub, fbIndividualBanUnsub].forEach(f=>{if(f){f();}});
-  fbUnsub = fbBanUnsub = fbSimPickUnsub = fbIndividualBanUnsub = null;
+  [fbUnsub, fbBanUnsub, fbSimPickUnsub, fbIndividualBanUnsub, fbGachaUnsub, fbTradeUnsub].forEach(f=>{if(f){f();}});
+  fbUnsub = fbBanUnsub = fbSimPickUnsub = fbIndividualBanUnsub = fbGachaUnsub = fbTradeUnsub = null;
   // fbLobbyUnsub はここでは解除しない（再開後に subscribeLobby で張り直す）
   if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
 
@@ -4495,6 +4754,8 @@ window.redraftWithSameMembers = async function(){
     remove(ref(db, `rooms/${roomId}/pending_bans`)),
     remove(ref(db, `rooms/${roomId}/pending_alpha_pick`)),
     remove(ref(db, `rooms/${roomId}/pending_bravo_pick`)),
+    remove(ref(db, `rooms/${roomId}/gacha`)),
+    remove(ref(db, `rooms/${roomId}/pending_trade`)),
   ]);
 
   // ④ ローカルの全一時変数をリセット（前回ドラフトのデータが混入しないように）

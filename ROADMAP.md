@@ -68,7 +68,16 @@
   - 代表者: ガチャは BANモード/BAN数に関わらず代表者を解決（`buildAndStartDraft` の `representativeAlpha/Bravo` 算出条件に `pMode==='gacha'` を追加）。操作は代表者のみ（`gachaCanOperate`）。
   - UI: パネル `#gacha-panel`（`renderGachaPanel`）。設定 `#gacha-row`/`#gacha-rerolls`（マルチ）・`#solo-gacha-row`/`#solo-gacha-rerolls`（ソロ）。`gachaRerolls` を `getLobbySettings`/`startDraft`/`buildAndStartDraft`/`normalizeState`/`applyLobbySettingsToForm` に配線。
   - 使い方ガイド更新済み（ピックモード4種・リロール回数・参加者の操作担当・流れ）。
-- 検証: `node --check` OK。**未決/次**: Phase 3b＝**ドラフト後トレード**（`pending_*` 延長で交換提案→承認）は未着手。お題カードとの相互作用・ガチャ専用のスモーク項目追記は要フォロー。
+- 検証: `node --check` OK。
+
+#### ✅ Phase 3b — ドラフト後トレード（完了）
+- 決定（2026-06-26 オーナー確認）: **トグルで既定OFF** / 操作は**代表者のみ** / 成立**回数は無制限**。仕様は draft-ideas §2「この1枚を相手の1枚と交換しませんか？→相手承認で成立」。
+- 仕様: 結果画面で **自チーム武器1枚 ⇄ 相手チーム武器1枚** の交換を提案。マルチは**受け手チームの代表者が承認/拒否**、ソロは即時入替。武器の中身だけ入れ替え、**所有者(memberId)は各スロットに残す**（個人/相手ピックの担当者は変わらない）。
+- 同期: 真実の源 `rooms/{room}/pending_trade`（`{from,fromMember,giveIdx,give,wantIdx,want,status,ts}`）。承認後の `picks` 反映は**単一ライターのホスト**が `hostApplyTrade`→`pushState`。bravo代表が承認したら `status='accepted'` を立て、ホストの `subscribeTrade` が検知して適用。整合性チェック（提案時 key と現 picks の一致）＋ `_tradeApplying` ガード。
+- リザルト常駐対策: `subscribeRoom` で「**リザルト表示中 かつ done の state 更新**」は `showDraftUI` に戻さず `showResult` のみ再描画（トレード成立を全員へ反映）。
+- コードの居場所（行番号変動・周辺を読む）: ロジック `applyTradeSwap`/`isTradeOperator`/`myTradeTeam`/`tradeTeams`/`hostApplyTrade`、同期 `subscribeTrade`、UI `renderTradeArea`/`renderTradePicker`/`renderTradePending`、操作 `window.submitTrade`/`respondTrade`/`cancelTrade`/`toggleTradePanel`/`selectTradeChip`。設定 `#trade-enabled`/`#solo-trade-enabled`→`getLobbySettings`/`startSoloDraft`/`buildAndStartDraft`/`normalizeState`/`applyLobbySettingsToForm`。代表者解決条件に `tradeEnabled` を追加。退出/再ドラフトで `fbTradeUnsub` 解除＋`pending_trade` 削除（再ドラフトの gacha ノード削除漏れも同時修正）。
+- 検証: `node --check` OK／`applyTradeSwap` 単体7件パス（`scratchpad/trade.test.mjs` 相当）／ローカル実機でソロ・トレードE2E（.52⇄.96 入替）確認／使い方ガイド更新済み／smoke `S16` 追記。
+- **未決/次**: マルチ2クライアントE2Eは本番（GitHub Pages）で要スモーク。Phase 3 はこれで完了 → 次は **Phase 4（シリーズ/連戦）**。
 
 ### Phase 4 — シリーズ/連戦（§4）★目玉・最後（最大リスク）
 - BO3/BO5 フレームを先に → 武器ロックアウト → 勝者ペナルティ/敗者特権 → **負けチームがルール設定** → 戦績ボード。
