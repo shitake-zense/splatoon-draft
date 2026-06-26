@@ -122,6 +122,16 @@
 ### Phase 5 — UX/統計/演出の改善プール（後回し枠・余裕が出たら）
 - 候補: §6 グリッド検索・フィルタ（UX）／§5 BAN・ピック回数統計（まず `localStorage` でDB無風に）。
 
+#### ✅ Phase 5 — メンバードラフト（キャプテン選抜・マルチ専用）（完了）
+- 決定（2026-06-26 オーナー確認）: 武器ドラフト前の**チーム分けをキャプテン選抜方式**に。後回し候補のうち**ターンタイマー自動ピックのみ採用**（取り消し/やり直し・キャプテン離脱復旧・ソロ対応・演出は不採用）。**人数不足は開始不可・各チーム代表者1名ずつ選出時のみ開始可能**。
+- 位置づけ: **ロビーの「3つ目のチーム割当方式」**。出力は既存と同じ `lobby/members/{id}/team`。**武器ドラフトの `state` スキーマ／状態機械には不可侵**（Phase 4 より低リスク）。同期は `lobby/memberDraft` を**追加ノードのみ**（後方互換）。
+- 仕様: トグル `#member-draft-enabled`。チーム割当で各チーム**キャプテン1名ずつ**＋残りは未割当（プール）。開始ゲート＝`alphaCount===1 && bravoCount===1 && total>=2*ts`（**ts>=2 限定**・1v1不可）。開始後は2キャプテンが**交互にプールから指名**（先攻チーム先攻・埋まったチームはスキップ＝`nextMdTurn`）。両チーム ts 到達で `done`。余剰はサブ（未割当）。
+- 同期/単一ライター: キャプテンは `lobby/memberDraft/pick` に意図を書く → **ホストが `hostApplyMemberDraft` で `members[].team` 反映＋手番送り**（series_rule/trade と同型・`_mdApplying` ガード）。専用画面 `#s-member-draft` をホスト/参加者共通で表示（`handleMemberDraftPhase` が `subscribeLobby` から画面遷移を制御・`_mdPhaseActive`）。
+- タイマー自動ピック: 制限時間ON（既存 `time-limit-*` 設定を流用）時、ターンに `deadline`。ホストの `startMdTimer`/`stopMdTimer` が時間切れでプールからランダム自動指名（多重発火防止に発火後 stop）。残り秒表示は全クライアントの `startMdCountdown`（描画のみ）。
+- コードの居場所: 設定 `getLobbySettings`/`applyLobbySettingsToForm` に `memberDraftEnabled`。`updateStartButton`（md分岐＝ラベル/ゲート）／`startDraft`（md未完了なら `startMemberDraft`、完了なら node 削除して武器ドラフト）。`renderTeamAssign`（キャプテン選抜UI切替）。`window.onMemberDraftToggle`/`mdPick`/`abortMemberDraft`、`startMemberDraft`/`nextMdTurn`/`hostApplyMemberDraft`/`handleMemberDraftPhase`/`renderMemberDraftScreen`/`startMd(Timer|Countdown)`。退出/ロビー戻り(`backToLobby`/`leaveLobby`/`goHome`)で node＋タイマー片付け。UI: 画面 `#s-member-draft`、CSS `.md-*`。`showScreen` に `member-draft` 登録。
+- 検証: `node --check` OK／手番進行＋開始ゲート＋完了判定の単体15件パス（`scratchpad/memberdraft.test.mjs` 相当）／**ローカル実機でロード健全性＋開始ゲート（4v4人数不足・1v1ガード・リセット）をブラウザ確認**。**2クライアントの選抜E2E（指名・タイマー自動指名・非ホストキャプテン経路）は本番要スモーク**。使い方ガイド（ホスト/流れ）・README・smoke `S19` 更新。
+- **未決/次**: 途中参加/キャプテン離脱の整合は v1 未対応（実用上はロビー再構成で回避）。残りは §6 検索・フィルタ／§5 統計。
+
 #### ✅ Phase 5 §7a — 確定演出 / SE / 武器読み上げTTS（完了）
 - 決定（2026-06-26 オーナー確認）: §7 のうち **A=確定演出＋SE** と **C=武器読み上げTTS** を採用。B(カウントダウン緊張演出)/D(リザルト祝福)・煽りスタンプ/罰ゲーム/神の手は見送り。全て **DB無風・外部依存ゼロ**（音は Web Audio 自前合成＝音声ファイル同梱なし、読み上げは Web Speech API）。
 - 仕様: ドラフト画面右上に `🔊`(確定音・既定ON)/`🗣️`(読み上げ・既定OFF) トグル（localStorage `sd_sfx`/`sd_tts` で端末保持）。PICK/BAN/同時ピック確定の**ユーザー操作タップ時**に SE＋（ON時）武器名読み上げ。スロットには新規確定ぶんだけ**ポップ入場アニメ**（描画差分 `_fxSeen` で1回のみ・タイマー再描画で再生しない・リモート視聴側にも出る）。

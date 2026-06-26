@@ -97,6 +97,20 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .team-assign-head h3{margin-bottom:0;}
 .btn-shuffle{padding:6px 12px;border:1.5px solid var(--y);border-radius:6px;background:transparent;color:var(--y);font-size:11px;font-family:inherit;font-weight:700;cursor:pointer;letter-spacing:.5px;white-space:nowrap;transition:background .1s,color .1s;}
 .btn-shuffle:hover{background:var(--y);color:#1a1a2e;}
+/* メンバードラフト（キャプテン選抜） */
+.md-cap-hint{background:#0f1f1a;border:1px solid #2a6a4a;border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:#8fe0b0;line-height:1.6;}
+.md-turn{text-align:center;font-size:14px;font-weight:800;margin:8px 0 4px;letter-spacing:.5px;}
+.md-turn .a{color:var(--a);}.md-turn .b{color:var(--b);}
+.md-timer{text-align:center;font-family:'Zen Dots',sans-serif;font-size:18px;color:var(--y);margin-bottom:6px;}
+.md-cap{display:flex;align-items:center;gap:5px;background:#1a2a4a;border:1px solid #3a5a8a;border-radius:6px;padding:5px 8px;margin-bottom:4px;font-size:12px;font-weight:700;}
+.md-cap .tag{font-size:9px;background:var(--y);color:#1a1a2e;border-radius:3px;padding:1px 5px;}
+.md-member{background:#152138;border-radius:6px;padding:5px 8px;margin-bottom:4px;font-size:12px;}
+.md-pool{display:flex;flex-wrap:wrap;gap:6px;}
+.md-pick{background:#0f1729;border:1.5px solid #2a3a5a;border-radius:7px;padding:7px 12px;font-size:12px;font-family:inherit;color:#e8eefc;cursor:default;}
+.md-pick.pickable{border-color:var(--y);cursor:pointer;font-weight:700;}
+.md-pick.pickable:hover{background:var(--y);color:#1a1a2e;}
+.md-pool-empty{font-size:11px;color:var(--mu);}
+.md-hint{text-align:center;font-size:12px;color:var(--mu);margin-top:10px;line-height:1.6;}
 
 /* JOIN */
 .join-wrap{max-width:360px;margin:40px auto 0;}
@@ -538,6 +552,9 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <dt>ドラフト後トレード</dt>
           <dd>ONにすると<b>結果画面</b>で武器の交換ができます。自チームの武器1枚と相手チームの武器1枚を選んで<b>交換を提案</b>→<b>相手チームの代表者が承認</b>すると成立（拒否も可）。回数は無制限です。マルチでは<b>各チームの代表者だけ</b>が提案・承認でき、ソロではアルファ⇄ブラボーをその場で入れ替えられます。</dd>
 
+          <dt>メンバードラフト（キャプテン選抜・マルチ専用）</dt>
+          <dd>ONにすると、武器ドラフトの前に<b>チーム分けをキャプテン選抜で</b>行えます。チーム割り当てで<b>各チームのキャプテンを1名ずつ</b>（α／β）に置き、残りは<b>未割り当て（プール）</b>に。両チーム代表者が揃い<b>人数が足りていれば（2v2以上・合計2×人数以上）</b>「メンバードラフト開始」が押せます。開始後は2人のキャプテンが<b>交互にプールから1人ずつ指名</b>（先攻チームが先）。制限時間ONなら<b>時間切れでランダム自動指名</b>。両チームが埋まると選抜完了→そのまま武器ドラフトへ進みます。</dd>
+
           <dt>連戦モード（シリーズ）</dt>
           <dd>1ルームで<b>複数試合を連続</b>で行います。<b>シリーズ長</b>＝BO3（先取2）／BO5（先取3）。各試合のドラフトが終わったら結果画面で<b>ホストが勝者を入力</b>すると、ステージが変わって次の試合のドラフトが始まります。先取数に達するとシリーズ終了で、<b>戦績ボード</b>（各試合の勝者・ルール・ステージ・両チームの編成一覧）が表示され、<b>「🖼️ シリーズ画像を保存」</b>で全試合を1枚のPNGにまとめて保存できます。</dd>
 
@@ -580,6 +597,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <li><b>リザルト</b> … 両チームの編成・ステージ／ルール・お題の達成（○／×）が表示されます。<b>ドラフト後トレード</b>がONなら、ここで武器の交換を提案→相手代表者の承認で成立します。</li>
           <li><b>結果画像を保存</b> … 端末内で1枚のPNGを生成してダウンロードできます。</li>
         </ol>
+        <p class="guide-note">メンバードラフト（マルチ専用）がONのときは、ロビーでホストが各チームのキャプテンを1名ずつ選ぶと「メンバードラフト開始」が押せます（2v2以上・人数が揃っているときのみ）。開始後は2人のキャプテンが交互にプールから1人ずつ指名し、両チームが埋まると武器ドラフトへ進みます（制限時間ONなら時間切れでランダム指名）。</p>
         <p class="guide-note">お題カードをONにすると開始時に縛りを1枚抽選します（両チーム共通・非強制で、達成は結果に○×表示）。</p>
         <p class="guide-note">連戦モード（シリーズ）がONのときは、結果画面でホストが各試合の勝者を入力すると次の試合へ進みます。先取数（BO3=2／BO5=3）に達するとシリーズ終了で、戦績ボード（各試合の編成一覧）とシリーズ画像の保存ができます。ガチルールは BO3=毎回ランダム／BO5=エリア→ヤグラ→ホコ→アサリ→ランダム。「負けチームがルール設定」ONなら2試合目以降は敗者が次のガチルールを選びます。</p>
         <p class="guide-note">ドラフト画面 右上の <b>🔊</b>＝確定音（既定ON）、<b>🗣️</b>＝武器読み上げ（既定OFF）のトグルです。BAN/PICKを確定するたびに効果音が鳴り、読み上げONなら確定した武器名を読み上げます（端末ごとの設定・音は自動生成で外部ファイルなし）。</p>
@@ -647,9 +665,10 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 
   <div class="team-assign-card" id="team-assign-card" style="display:none">
     <div class="team-assign-head">
-      <h3>⚔️ TEAM ASSIGNMENT</h3>
+      <h3 id="team-assign-title">⚔️ TEAM ASSIGNMENT</h3>
       <button class="btn-shuffle" id="btn-shuffle-teams" onclick="shuffleTeams()">🎲 ランダム振り分け</button>
     </div>
+    <div class="md-cap-hint" id="md-cap-hint" style="display:none">🧑‍🤝‍🧑 メンバードラフト：各チームの<b>キャプテンを1名ずつ</b>（α/β）に割り当て、残りは<b>未割り当て（プール）</b>のままにしてください。揃ったら「メンバードラフト開始」が押せます。</div>
     <div class="team-cols">
       <div class="team-col">
         <div class="team-col-head a" id="assign-head-a">アルファ</div>
@@ -842,6 +861,16 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <span class="tgl-sl"></span>
         </label>
       </div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          🧑‍🤝‍🧑 メンバードラフト（キャプテン選抜）
+          <small>各チーム1名のキャプテンが、残りメンバーを交互に指名してチームを作る</small>
+        </div>
+        <label class="tgl">
+          <input type="checkbox" id="member-draft-enabled" onchange="onMemberDraftToggle()">
+          <span class="tgl-sl"></span>
+        </label>
+      </div>
       <div class="div"></div>
       <div class="row">
         <label>ピックモード</label>
@@ -935,6 +964,34 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
     </p>
   </div>
   <button class="btn-re" onclick="leaveLobby()">← 退出する</button>
+</div>
+
+<!-- MEMBER DRAFT (キャプテン選抜・ホスト/参加者共通画面) -->
+<div id="s-member-draft" class="screen">
+  <div class="logo"><h1>SPLATOON DRAFT</h1><p>メンバードラフト</p></div>
+  <div class="md-turn" id="md-turn"></div>
+  <div class="md-timer" id="md-timer" style="display:none"></div>
+  <div class="team-assign-card" style="margin-top:6px;">
+    <div class="team-cols">
+      <div class="team-col">
+        <div class="team-col-head a" id="md-head-a">アルファ</div>
+        <div id="md-alpha"></div>
+      </div>
+      <div class="team-vs">VS</div>
+      <div class="team-col">
+        <div class="team-col-head b" id="md-head-b">ブラボー</div>
+        <div id="md-bravo"></div>
+      </div>
+    </div>
+    <div class="unassigned-area">
+      <div class="team-col" style="margin-top:10px;">
+        <div class="team-col-head" style="color:var(--mu)">指名待ち（プール）</div>
+        <div class="md-pool" id="md-pool"></div>
+      </div>
+    </div>
+  </div>
+  <div class="md-hint" id="md-hint"></div>
+  <button class="btn-re" id="btn-md-abort" style="display:none;max-width:260px;margin:10px auto 0;" onclick="abortMemberDraft()">✕ メンバードラフトを中止</button>
 </div>
 
 <!-- SETUP (ソロ) -->
@@ -1362,6 +1419,7 @@ function applyLobbySettingsToForm(s){
   setChk('trade-enabled',s.tradeEnabled);
   setChk('series-enabled',s.seriesEnabled); setVal('series-mode',s.seriesMode||'bo3');
   setChk('series-lockout',s.seriesLockout); setChk('series-loser-rules',s.seriesLoserRules);
+  setChk('member-draft-enabled',s.memberDraftEnabled);
   const smr=document.getElementById('series-mode-row'); if(smr) smr.style.display = s.seriesEnabled ? '' : 'none';
   const slr=document.getElementById('series-lockout-row'); if(slr) slr.style.display = s.seriesEnabled ? '' : 'none';
   const slrr=document.getElementById('series-loser-rules-row'); if(slrr) slrr.style.display = s.seriesEnabled ? '' : 'none';
@@ -1466,6 +1524,12 @@ let _audioCtx  = null; // Web Audio（遅延生成・ユーザー操作後に re
 let lobbyMembers        = {};   // {memberId: {name,team,isHost,...}}
 let lobbyPickOrderAlpha = [];   // memberIdの配列（アルファチームのピック順）
 let lobbyPickOrderBravo = [];   // memberIdの配列（ブラボーチームのピック順）
+// --- メンバードラフト（キャプテン選抜・lobby/memberDraft に同期） ---
+let lobbyMemberDraft = null;    // 直近スナップショットの memberDraft ノードのキャッシュ
+let _mdPhaseActive   = false;   // メンバードラフト画面を表示中か（画面遷移の差分検出）
+let _mdApplying      = false;   // ホストのピック適用の多重発火防止
+let mdTimerInterval  = null;    // ホストのターンタイマー（自動ピック）
+let mdCountdownInterval = null; // 全クライアントのタイマー表示更新（描画のみ）
 // 武器絞り込み（ホスト設定）: チェックした要素を持つ武器をドラフトから除外する
 let lobbyExcludeFilter  = {cats:[], subs:[], specials:[]};
 
@@ -1511,12 +1575,12 @@ function clampTimeLimit(v){
 }
 
 function showScreen(n){
-  ['mode','guide','create','join','lobby','lobby-wait','setup','draft','result'].forEach(s=>
+  ['mode','guide','create','join','lobby','lobby-wait','member-draft','setup','draft','result'].forEach(s=>
     document.getElementById('s-'+s).classList.toggle('active',s===n)
   );
-  if(roomId && ['lobby','lobby-wait','draft'].includes(n)){
+  if(roomId && ['lobby','lobby-wait','member-draft','draft'].includes(n)){
     history.replaceState(null,'',`?room=${roomId}`);
-  } else if(!['lobby','lobby-wait','draft'].includes(n)){
+  } else if(!['lobby','lobby-wait','member-draft','draft'].includes(n)){
     history.replaceState(null,'','?');
   }
 }
@@ -1755,6 +1819,9 @@ function subscribeLobby(){
     const members=lobby.members||{};
     renderLobbyMembers(members);
 
+    // メンバードラフト（キャプテン選抜）フェーズ中は専用画面が画面を占有（通常ロビー描画はスキップ）
+    if(handleMemberDraftPhase(lobby)) return;
+
     if(isHost){
       // Firebase の pickOrderAlpha/Bravo を復元（初回のみ）
       const s=lobby.settings||{};
@@ -1824,6 +1891,13 @@ function renderTeamAssign(members){
   document.getElementById('assign-head-a').textContent=an;
   document.getElementById('assign-head-b').textContent=bn;
 
+  // メンバードラフト有効＆未完了は「キャプテン選抜」モードのUIに切替（ヒント表示・ランダム振り分けは隠す）
+  const mdOn=document.getElementById('member-draft-enabled')?.checked;
+  const mdActive=mdOn && !(lobbyMemberDraft && lobbyMemberDraft.done);
+  const capHint=document.getElementById('md-cap-hint'); if(capHint) capHint.style.display=mdActive?'':'none';
+  const shuffleBtn=document.getElementById('btn-shuffle-teams'); if(shuffleBtn) shuffleBtn.style.display=mdActive?'none':'';
+  const taTitle=document.getElementById('team-assign-title'); if(taTitle) taTitle.textContent=mdActive?'🧑‍🤝‍🧑 CAPTAIN SELECTION':'⚔️ TEAM ASSIGNMENT';
+
   ['alpha','bravo','unassigned'].forEach(team=>{
     const elId=team==='unassigned'?'assign-unassigned':`assign-${team}`;
     const el=document.getElementById(elId); el.innerHTML='';
@@ -1848,6 +1922,201 @@ function renderTeamAssign(members){
 window.assignMember = function(memberId, team){
   set(ref(db,`rooms/${roomId}/lobby/members/${memberId}/team`), team);
 };
+
+// ===== メンバードラフト（キャプテン選抜） =====
+// 設計: lobby/memberDraft = {active,done,capAlpha,capBravo,turn,ts,deadline?,pick?} を真実の源に同期。
+// キャプテンが pick 意図を書く → 単一ライターのホストが members[].team に反映＋手番を回す（series_rule/trade と同型）。
+// 出力は既存と同じ members[].team。完了後は通常のチーム割当→開始フローに合流する（state スキーマ不変）。
+window.onMemberDraftToggle = function(){
+  // ピックモードに関わらずチーム形成の方式。トグルでチーム割当UIの体裁を切替。
+  if(isHost) renderTeamAssign(lobbyMembers);
+  updateStartButton();
+  onSettingChange();
+};
+// 次の手番を決定（埋まっていないチームを優先・交互）。両チーム充足なら null。
+function nextMdTurn(cur, aCount, bCount, ts){
+  const aNeed=ts-aCount, bNeed=ts-bCount;
+  if(aNeed<=0 && bNeed<=0) return null;
+  if(cur==='alpha') return bNeed>0 ? 'bravo' : 'alpha';
+  return aNeed>0 ? 'alpha' : 'bravo';
+}
+// ホスト: メンバードラフト開始（各チーム代表者1名ずつ＋人数充足が条件）
+function startMemberDraft(){
+  if(!isHost || !roomId) return;
+  const ts=parseInt(document.getElementById('sz')?.value||4);
+  if(ts < 2) return;                                     // 1v1はメンバードラフト不要
+  const entries=Object.entries(lobbyMembers);
+  const alpha=entries.filter(([,m])=>m.team==='alpha').map(([id])=>id);
+  const bravo=entries.filter(([,m])=>m.team==='bravo').map(([id])=>id);
+  if(alpha.length!==1 || bravo.length!==1) return;       // 代表者1名ずつ
+  if(entries.length < 2*ts) return;                      // 人数不足は開始不可
+  const ft=document.getElementById('ft')?.value||'alpha';
+  const firstTurn=(ft==='alpha'||ft==='bravo')?ft:'alpha';
+  const timed=document.getElementById('time-limit-enabled')?.checked;
+  const sec=clampTimeLimit(document.getElementById('time-limit-sec')?.value);
+  const node={ active:true, done:false, capAlpha:alpha[0], capBravo:bravo[0], turn:firstTurn, ts };
+  if(timed) node.deadline=Date.now()+sec*1000;
+  set(ref(db,`rooms/${roomId}/lobby/memberDraft`), node);
+}
+// キャプテン: 自分の手番にプールのメンバーを指名（意図を書き込む → ホストが適用）
+window.mdPick = function(memberId){
+  const md=lobbyMemberDraft; if(!md||!md.active||md.done) return;
+  const turnCap = md.turn==='alpha'?md.capAlpha:md.capBravo;
+  if(myMemberId!==turnCap) return;                       // 手番キャプテンのみ
+  const m=lobbyMembers[memberId]; if(!m||m.team!=='unassigned') return; // プールのみ
+  set(ref(db,`rooms/${roomId}/lobby/memberDraft/pick`), {memberId, team:md.turn, ts:Date.now()});
+};
+// ホスト: メンバードラフトを中止（割当はそのまま・選抜画面を閉じる）
+window.abortMemberDraft = function(){
+  if(!isHost || !roomId) return;
+  if(!confirm('メンバードラフトを中止しますか？\n（現在までのチーム割当はそのまま残ります）')) return;
+  stopMdTimer();
+  remove(ref(db,`rooms/${roomId}/lobby/memberDraft`));
+};
+// ホスト: ピック意図を members[].team へ反映し手番を回す（単一ライター）。スナップショットごとに呼ぶ。
+function hostApplyMemberDraft(lobby){
+  if(!isHost) return;
+  const md=lobby.memberDraft;
+  if(!md || !md.active || md.done){ stopMdTimer(); return; }
+  if(md.pick && !_mdApplying){
+    _mdApplying=true;
+    const members=lobby.members||{};
+    const {memberId, team}=md.pick;
+    const m=members[memberId];
+    const ts=md.ts;
+    const valid = m && m.team==='unassigned' && (team==='alpha'||team==='bravo') && team===md.turn;
+    const updates={};
+    updates[`rooms/${roomId}/lobby/memberDraft/pick`]=null; // 意図をクリア（多重適用防止）
+    if(valid){
+      updates[`rooms/${roomId}/lobby/members/${memberId}/team`]=team;
+      const after={...members, [memberId]:{...m, team}};
+      const aCount=Object.values(after).filter(x=>x.team==='alpha').length;
+      const bCount=Object.values(after).filter(x=>x.team==='bravo').length;
+      if(aCount>=ts && bCount>=ts){
+        updates[`rooms/${roomId}/lobby/memberDraft/done`]=true;
+        updates[`rooms/${roomId}/lobby/memberDraft/turn`]=null;
+        updates[`rooms/${roomId}/lobby/memberDraft/deadline`]=null;
+      } else {
+        updates[`rooms/${roomId}/lobby/memberDraft/turn`]=nextMdTurn(md.turn,aCount,bCount,ts);
+        const timed=document.getElementById('time-limit-enabled')?.checked;
+        const sec=clampTimeLimit(document.getElementById('time-limit-sec')?.value);
+        updates[`rooms/${roomId}/lobby/memberDraft/deadline`]= timed ? Date.now()+sec*1000 : null;
+      }
+    }
+    update(ref(db), updates).finally(()=>{ _mdApplying=false; });
+    return;
+  }
+  startMdTimer(md);
+}
+// ホスト: ターンタイマー（時間切れでプールからランダム自動ピック）
+function startMdTimer(md){
+  stopMdTimer();
+  if(!isHost || !md || !md.active || md.done || !md.deadline) return;
+  mdTimerInterval=setInterval(()=>{
+    const md2=lobbyMemberDraft;
+    if(!md2 || !md2.active || md2.done || !md2.deadline){ stopMdTimer(); return; }
+    if(Date.now()>=md2.deadline && !_mdApplying){
+      stopMdTimer(); // 適用後に再スケジュールされる（多重自動ピック防止）
+      const pool=Object.entries(lobbyMembers).filter(([,m])=>m.team==='unassigned').map(([id])=>id);
+      if(pool.length){
+        const pick=pool[Math.floor(Math.random()*pool.length)];
+        set(ref(db,`rooms/${roomId}/lobby/memberDraft/pick`), {memberId:pick, team:md2.turn, ts:Date.now(), auto:true});
+      }
+    }
+  }, 500);
+}
+function stopMdTimer(){ if(mdTimerInterval){clearInterval(mdTimerInterval);mdTimerInterval=null;} }
+// 全クライアント: メンバードラフトのフェーズ処理。画面遷移と描画を行い、選抜中なら true（通常ロビー描画をスキップ）。
+function handleMemberDraftPhase(lobby){
+  lobbyMemberDraft = lobby.memberDraft || null;
+  if(isHost) hostApplyMemberDraft(lobby);
+  const md=lobbyMemberDraft;
+  const active=!!(md && md.active && !md.done);
+  if(active){
+    renderMemberDraftScreen(lobby);
+    if(!_mdPhaseActive || !document.getElementById('s-member-draft').classList.contains('active')){
+      _mdPhaseActive=true; showScreen('member-draft'); startMdCountdown();
+    }
+    return true;
+  }
+  if(_mdPhaseActive){
+    // 選抜終了（完了 or 中止）→ 通常ロビーへ戻す
+    _mdPhaseActive=false; stopMdTimer(); stopMdCountdown();
+    if(isHost) showScreen('lobby'); else showLobbyWait();
+  }
+  return false;
+}
+// タイマー残り秒の表示更新（全クライアント・描画のみ。プールボタンは触らない）
+function startMdCountdown(){
+  stopMdCountdown();
+  mdCountdownInterval=setInterval(()=>{
+    const md=lobbyMemberDraft, tEl=document.getElementById('md-timer');
+    if(!tEl) return;
+    if(md && md.active && !md.done && md.deadline){
+      const left=Math.max(0,Math.ceil((md.deadline-Date.now())/1000));
+      tEl.style.display=''; tEl.textContent=`⏱ ${left}`;
+    } else { tEl.style.display='none'; }
+  }, 500);
+}
+function stopMdCountdown(){ if(mdCountdownInterval){clearInterval(mdCountdownInterval);mdCountdownInterval=null;} }
+// 全クライアント: メンバードラフト画面の描画（手番・タイマー・両チーム・プール）
+function renderMemberDraftScreen(lobby){
+  const md=lobby.memberDraft; if(!md) return;
+  const members=lobby.members||{};
+  const s=lobby.settings||{};
+  const an=s.an||'アルファ', bn=s.bn||'ブラボー';
+  document.getElementById('md-head-a').textContent=an;
+  document.getElementById('md-head-b').textContent=bn;
+  const nameOf=id=>(members[id]?.name)||'?';
+  const turnCap = md.turn==='alpha'?md.capAlpha:md.capBravo;
+  const turnTeamName = md.turn==='alpha'?an:bn;
+  const turnCls = md.turn==='alpha'?'a':'b';
+  const isMyTurn = myMemberId===turnCap;
+  // 手番表示
+  const turnEl=document.getElementById('md-turn');
+  turnEl.innerHTML = `指名中： <span class="${turnCls}">${nameOf(turnCap)}</span>（<span class="${turnCls}">${turnTeamName}</span> キャプテン）`;
+  // タイマー表示（deadline があれば残り秒）
+  const tEl=document.getElementById('md-timer');
+  if(md.deadline){
+    const left=Math.max(0,Math.ceil((md.deadline-Date.now())/1000));
+    tEl.style.display=''; tEl.textContent=`⏱ ${left}`;
+  } else { tEl.style.display='none'; }
+  // 両チーム（キャプテン＋指名済み）
+  const ts=md.ts;
+  ['alpha','bravo'].forEach(team=>{
+    const el=document.getElementById(team==='alpha'?'md-alpha':'md-bravo'); el.innerHTML='';
+    const cap=team==='alpha'?md.capAlpha:md.capBravo;
+    const ids=Object.entries(members).filter(([,m])=>m.team===team).map(([id])=>id)
+      .sort((a,b)=> (a===cap?-1:b===cap?1:0)); // キャプテンを先頭に
+    ids.forEach(id=>{
+      const div=document.createElement('div');
+      if(id===cap){ div.className='md-cap'; div.innerHTML=`<span class="tag">C</span>${nameOf(id)}`; }
+      else { div.className='md-member'; div.textContent=nameOf(id); }
+      el.appendChild(div);
+    });
+    const cnt=ids.length;
+    const head=document.getElementById(team==='alpha'?'md-head-a':'md-head-b');
+    head.textContent=`${team==='alpha'?an:bn}（${cnt}/${ts}）`;
+  });
+  // プール
+  const poolEl=document.getElementById('md-pool'); poolEl.innerHTML='';
+  const pool=Object.entries(members).filter(([,m])=>m.team==='unassigned').map(([id])=>id);
+  if(!pool.length){ poolEl.innerHTML='<span class="md-pool-empty">プールは空です</span>'; }
+  pool.forEach(id=>{
+    const b=document.createElement('button');
+    b.className='md-pick'+(isMyTurn?' pickable':'');
+    b.textContent=nameOf(id);
+    if(isMyTurn) b.onclick=()=>mdPick(id);
+    else b.disabled=true;
+    poolEl.appendChild(b);
+  });
+  // ヒント
+  const hint=document.getElementById('md-hint');
+  if(isMyTurn) hint.innerHTML='<b style="color:var(--y)">あなたの番です</b> — プールから1人を指名してください';
+  else hint.textContent=`${nameOf(turnCap)} が指名するのを待っています…`;
+  // 中止ボタンはホストのみ
+  const ab=document.getElementById('btn-md-abort'); if(ab) ab.style.display=isHost?'':'none';
+}
 
 // ===== チームのランダム振り分け（ホスト操作・再振り分けも同ボタン） =====
 window.shuffleTeams = async function(){
@@ -3195,6 +3464,7 @@ function getLobbySettings(){
     seriesMode: document.getElementById('series-mode')?.value||'bo3',
     seriesLockout: document.getElementById('series-lockout')?.checked||false,
     seriesLoserRules: document.getElementById('series-loser-rules')?.checked||false,
+    memberDraftEnabled: document.getElementById('member-draft-enabled')?.checked||false,
     pickMode: document.getElementById('pick-mode')?.value||'individual',
     banMode:  document.getElementById('ban-mode')?.value||'individual',
     banGenres: readBanGenresFromUI(),
@@ -3217,15 +3487,40 @@ function updateStartButton(){
   const info = document.getElementById('start-btn-info');
   if(!btn || !info) return;
   const pickMode = document.getElementById('pick-mode')?.value || 'individual';
+  const ts = parseInt(document.getElementById('sz')?.value || 4);
+  const alphaCount = Object.values(lobbyMembers).filter(m=>m.team==='alpha').length;
+  const bravoCount = Object.values(lobbyMembers).filter(m=>m.team==='bravo').length;
+
+  // メンバードラフト有効 かつ 未完了 → ボタンは「メンバードラフト開始」（代表者1名ずつ＋人数充足が条件）
+  const mdEnabled = document.getElementById('member-draft-enabled')?.checked;
+  const mdDone = lobbyMemberDraft && lobbyMemberDraft.done;
+  if(mdEnabled && !mdDone){
+    const total = Object.keys(lobbyMembers).length;
+    btn.textContent = '▶ メンバードラフト開始';
+    if(ts < 2){
+      btn.disabled = true;
+      info.textContent = 'メンバードラフトは 2v2 以上でご利用ください（1v1は不要）';
+      info.style.color = 'var(--mu)';
+      return;
+    }
+    const ready = alphaCount===1 && bravoCount===1 && total>=2*ts;
+    btn.disabled = !ready;
+    if(total < 2*ts){
+      info.textContent = `メンバー不足：${total} / ${2*ts}人（${ts}v${ts}には${2*ts}人必要です）`;
+    } else {
+      info.textContent = `各チームのキャプテンを1名ずつ：アルファ ${alphaCount}/1、ブラボー ${bravoCount}/1`;
+    }
+    info.style.color = ready ? 'var(--pk)' : 'var(--mu)';
+    return;
+  }
+  btn.textContent = '▶ ドラフト開始';
+
   // 個人ピック・相手ピックは選手ごとの割当が必要なため、両チーム人数が揃うまで開始不可
   if(pickMode !== 'individual' && pickMode !== 'enemy'){
     btn.disabled = false;
     info.textContent = '';
     return;
   }
-  const ts = parseInt(document.getElementById('sz')?.value || 4);
-  const alphaCount = Object.values(lobbyMembers).filter(m=>m.team==='alpha').length;
-  const bravoCount = Object.values(lobbyMembers).filter(m=>m.team==='bravo').length;
   const ready = alphaCount === ts && bravoCount === ts;
   btn.disabled = !ready;
   const label = pickMode==='enemy' ? '相手ピックモード' : '個人ピックモード';
@@ -3268,6 +3563,13 @@ window.onTimeLimitChange = function(){
 
 // ===== ドラフト開始 (ホスト) =====
 window.startDraft = function(){
+  // メンバードラフト有効＆未完了 → まずキャプテン選抜フェーズを開始（武器ドラフトはその後）
+  const mdEnabled = document.getElementById('member-draft-enabled')?.checked;
+  const mdDone = lobbyMemberDraft && lobbyMemberDraft.done;
+  if(mdEnabled && !mdDone){ startMemberDraft(); return; }
+  // 武器ドラフトへ進む: メンバードラフトのノードは片付ける
+  stopMdTimer(); stopMdCountdown();
+  if(roomId) remove(ref(db,`rooms/${roomId}/lobby/memberDraft`));
   const s=getLobbySettings();
   // メンバー情報をstateに含める（表示名やピック順に使用）
   const membersForState={};
@@ -3861,6 +4163,9 @@ window.backToLobby = async function(){
 
   // タイマー停止
   clearTimer();
+  // メンバードラフトの一時状態も片付ける（ロビー復帰時に選抜画面が残らないように）
+  stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; lobbyMemberDraft=null;
+  await remove(ref(db,`rooms/${roomId}/lobby/memberDraft`));
 
   // 全Firebase購読を解除（lobby監視は後で再登録）
   [fbUnsub, fbBanUnsub, fbSimPickUnsub, fbIndividualBanUnsub, fbGachaUnsub, fbTradeUnsub, fbSeriesUnsub].forEach(f=>{if(f){f();}});
@@ -3901,6 +4206,7 @@ window.backToLobby = async function(){
 
 // ===== 退出 =====
 window.leaveLobby = function(){
+  stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; lobbyMemberDraft=null;
   [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub,fbTradeUnsub,fbSeriesUnsub].forEach(f=>{if(f){f();} });
   fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=fbTradeUnsub=fbSeriesUnsub=null;
   if(isMulti&&!isHost&&myMemberId&&roomId){
@@ -3912,6 +4218,7 @@ window.leaveLobby = function(){
   showScreen('mode');
 };
 window.goHome = function(){
+  stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; lobbyMemberDraft=null;
   [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub,fbTradeUnsub,fbSeriesUnsub].forEach(f=>{if(f){f();}});
   fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=fbTradeUnsub=fbSeriesUnsub=null;
   // 参加者がモード選択に戻る際も Firebase lobby から自分を削除する
