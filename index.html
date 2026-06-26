@@ -533,7 +533,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <dd><b>標準武器のみ</b>＝無印だけにし、デコ等のバリアントを除外。<b>武器の絞り込み</b>＝指定した武器種・サブ・スペシャルを<b>持つ武器を候補から消す</b>（例: 強いスペシャルを外してエンジョイ寄りに調整）。どちらも候補が減り、残り数が表示されます。</dd>
 
           <dt>お題カード / 制限時間</dt>
-          <dd><b>お題カード</b>＝開始時に縛りを1枚抽選（両チーム共通・<b>非強制</b>で、結果に達成○×を表示）。<b>制限時間</b>＝5〜100秒。時間切れは「確定済み→仮選択中→ランダム」の順で自動送信します。</dd>
+          <dd><b>お題カード</b>＝開始時に<b>全32種</b>から縛りを1枚抽選（両チーム共通・<b>非強制</b>で、結果に達成○×を表示）。武器種・サブ・スペシャル・人数など色々な角度のお題があります。<b>制限時間</b>＝5〜100秒。時間切れは「確定済み→仮選択中→ランダム」の順で自動送信します。</dd>
 
           <dt>ドラフト後トレード</dt>
           <dd>ONにすると<b>結果画面</b>で武器の交換ができます。自チームの武器1枚と相手チームの武器1枚を選んで<b>交換を提案</b>→<b>相手チームの代表者が承認</b>すると成立（拒否も可）。回数は無制限です。マルチでは<b>各チームの代表者だけ</b>が提案・承認でき、ソロではアルファ⇄ブラボーをその場で入れ替えられます。</dd>
@@ -2993,14 +2993,81 @@ const CHALLENGES = [
     evaluate:(p)=> p.length>0 && p.every(w=>w.cat!=='シューター') },
   {id:'all_same_cat',     label:'全員おなじ武器種',     desc:'チーム全員を同じ武器種で固める',
     evaluate:(p)=> p.length>0 && p.every(w=>w.cat===p[0].cat) },
+  // --- 追加お題（角度違い・似たパターン含む）。判定は cat/sub/special/人数で行う（非強制・○×表示のみ） ---
+  // 武器種を入れる系
+  {id:'include_shooter',  label:'シューターを入れる',   desc:'シューターを1人以上編成',
+    evaluate:(p)=> p.some(w=>w.cat==='シューター') },
+  {id:'include_slosher',  label:'スロッシャーを入れる', desc:'スロッシャーを1人以上編成',
+    evaluate:(p)=> p.some(w=>w.cat==='スロッシャー') },
+  {id:'include_splatling',label:'スピナーを入れる',     desc:'スピナーを1人以上編成',
+    evaluate:(p)=> p.some(w=>w.cat==='スピナー') },
+  {id:'include_brella',   label:'シェルターを入れる',   desc:'シェルターを1人以上編成',
+    evaluate:(p)=> p.some(w=>w.cat==='シェルター') },
+  {id:'include_blaster',  label:'ブラスターを入れる',   desc:'ブラスターを1人以上編成',
+    evaluate:(p)=> p.some(w=>w.cat==='ブラスター') },
+  {id:'include_maneuver', label:'マニューバーを入れる', desc:'マニューバーを1人以上編成',
+    evaluate:(p)=> p.some(w=>w.cat==='マニューバー') },
+  {id:'include_stringer', label:'ストリンガーを入れる', desc:'ストリンガーを1人以上編成',
+    evaluate:(p)=> p.some(w=>w.cat==='ストリンガー') },
+  {id:'include_brush',    label:'フデを入れる',         desc:'フデを1人以上編成',
+    evaluate:(p)=> p.some(w=>w.cat==='フデ') },
+  {id:'include_wiper',    label:'ワイパーを入れる',     desc:'ワイパーを1人以上編成',
+    evaluate:(p)=> p.some(w=>w.cat==='ワイパー') },
+  // 武器種を禁止する系
+  {id:'no_charger',       label:'チャージャー禁止',     desc:'チャージャーを編成しない',
+    evaluate:(p)=> p.length>0 && p.every(w=>w.cat!=='チャージャー') },
+  {id:'no_roller',        label:'ローラー禁止',         desc:'ローラーを編成しない',
+    evaluate:(p)=> p.length>0 && p.every(w=>w.cat!=='ローラー') },
+  {id:'no_blaster',       label:'ブラスター禁止',       desc:'ブラスターを編成しない',
+    evaluate:(p)=> p.length>0 && p.every(w=>w.cat!=='ブラスター') },
+  // 武器種の多様性
+  {id:'cat_le_2',         label:'武器種は2種類まで',    desc:'チームの武器種を2種類以内に抑える',
+    evaluate:(p)=> p.length>0 && new Set(p.map(w=>w.cat)).size<=2 },
+  {id:'cat_ge_3',         label:'武器種を3種類以上',    desc:'チームに武器種を3種類以上そろえる',
+    evaluate:(p)=> new Set(p.map(w=>w.cat)).size>=3 },
+  {id:'shooter_le_1',     label:'シューターは1人まで',  desc:'シューターを1人以内に抑える',
+    evaluate:(p)=> p.length>0 && p.filter(w=>w.cat==='シューター').length<=1 },
+  // サブ系
+  {id:'all_same_sub',     label:'全員おなじサブ',       desc:'チーム全員のサブをそろえる',
+    evaluate:(p)=> p.length>0 && p.every(w=>w.sub===p[0].sub) },
+  {id:'no_bomb_sub',      label:'ボム系サブ禁止',       desc:'ボム系（投げ物）のサブを使わない',
+    evaluate:(p)=> p.length>0 && p.every(w=>!BOMB_SUBS.has(w.sub)) },
+  {id:'include_bomb_sub', label:'ボム系サブを入れる',   desc:'ボム系サブを1人以上編成',
+    evaluate:(p)=> p.some(w=>BOMB_SUBS.has(w.sub)) },
+  {id:'include_splash_bomb',label:'スプラッシュボムを入れる',desc:'サブがスプラッシュボムの武器を入れる',
+    evaluate:(p)=> p.some(w=>w.sub==='スプラッシュボム') },
+  {id:'include_shield_sub',label:'スプラッシュシールドを入れる',desc:'サブがスプラッシュシールドの武器を入れる',
+    evaluate:(p)=> p.some(w=>w.sub==='スプラッシュシールド') },
+  // スペシャル系
+  {id:'all_same_special', label:'全員おなじスペシャル', desc:'チーム全員のスペシャルをそろえる',
+    evaluate:(p)=> p.length>0 && p.every(w=>w.special===p[0].special) },
+  {id:'special_le_2',     label:'スペシャルは2種類まで',desc:'チームのスペシャルを2種類以内に抑える',
+    evaluate:(p)=> p.length>0 && new Set(p.map(w=>w.special)).size<=2 },
+  {id:'include_ultra_shot',label:'ウルトラショットを入れる',desc:'スペシャルがウルトラショットの武器を入れる',
+    evaluate:(p)=> p.some(w=>w.special==='ウルトラショット') },
+  {id:'include_great_barrier',label:'グレートバリアを入れる',desc:'スペシャルがグレートバリアの武器を入れる',
+    evaluate:(p)=> p.some(w=>w.special==='グレートバリア') },
 ];
 function challengeDefById(id){ return CHALLENGES.find(c=>c.id===id)||null; }
 function pickRandomChallenge(){ const c=CHALLENGES[Math.floor(Math.random()*CHALLENGES.length)]; return {id:c.id,label:c.label,desc:c.desc}; }
+// picks には key/name/imgUrl/cat のみ格納されるため、お題判定の前に WEAPONS から sub/special を補完する。
+let _weaponByKey=null;
+function weaponByKey(key){
+  if(!_weaponByKey && Array.isArray(WEAPONS) && WEAPONS.length){
+    _weaponByKey=new Map(); WEAPONS.forEach(w=>_weaponByKey.set(w.key,w));
+  }
+  return _weaponByKey ? (_weaponByKey.get(key)||null) : null;
+}
+function enrichPickForChallenge(w){
+  if(!w) return w;
+  const full=w.key?weaponByKey(w.key):null;
+  return full ? {...w, cat:w.cat||full.cat, sub:full.sub, special:full.special} : w;
+}
 // チーム team がお題を達成しているか（true/false）。お題なし・id不明・picks不正は null。
 function evaluateChallenge(S, team){
   const ch=S&&S.challenge; if(!ch||!ch.id) return null;
   const def=challengeDefById(ch.id); if(!def||!def.evaluate) return null;
-  try{ return !!def.evaluate(S.picks[team]||[]); }catch(e){ return null; }
+  try{ return !!def.evaluate((S.picks[team]||[]).map(enrichPickForChallenge)); }catch(e){ return null; }
 }
 // ドラフト画面のお題バナーを更新（BAN/PICK 中に常時表示）。
 // 各チームのPICKが揃うまでは「選択中…」、揃ったら達成○/×を表示（非強制なので進行は妨げない）。

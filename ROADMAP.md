@@ -44,7 +44,8 @@
 - [x] 結果画面 `#r-challenge`（`showResult`）＋結果画像のお題バンド（`downloadResultImage` の `chBand`）。各チーム ○/× は `evaluateChallenge` で算出（enemy モードは `picks[team]`＝使うロードアウトで判定）。
 - [x] **ドラフト画面（BAN/PICK 中）の常時お題バナー** `#d-challenge`（CSS `.d-challenge` `index.html:331-341`／`renderChallengeBanner()` `:2104-2123`／`renderDraft` 末尾から毎描画呼び出し `:2938`）。お題ラベル＋説明＋各チーム進捗（`選択中… n/ts` → 揃ったら `○達成/×未達成`）をピック進行に合わせライブ更新。非強制は維持（表示のみ）。
 - [x] 検証：scriptブロック `node --check` OK／判定ロジック単体 18件パス（`scratchpad/challenge.test.mjs`）／smoke `S14` 追記。
-- **未決（次回確認候補）**: お題の追加・難易度バランス（現状は固定8種・等確率抽選）。ハンデ（§3「弱い側にBAN+1」等）は未着手。チーム別お題は今回スコープ外（共通1枚で確定）。
+- **未決（次回確認候補）**: 難易度バランス（等確率抽選）。ハンデ（§3「弱い側にBAN+1」等）は未着手。チーム別お題は今回スコープ外（共通1枚で確定）。
+- **2026-06-26 拡張（オーナー指示「角度を変えて+20以上」）**: お題を **8種→32種** に拡充（追加24：武器種を入れる/禁止系、武器種2種まで・3種以上・シューター1人まで、全員おなじサブ/スペシャル、ボム系サブ禁止/入れる、スプラッシュボム・シールド・ウルトラショット・グレートバリアを入れる 等）。**重要バグ修正**: picks には `cat` のみで `sub/special` が無く、既存の sub/special 系お題（all_diff_special/no_dup_sub/all_bomb_sub）が実質常に×になっていた → 判定前に `enrichPickForChallenge`（`weaponByKey` で WEAPONS から sub/special 補完）を `evaluateChallenge` に追加して修正。検証: 実データ(weapons.json)で全32種を評価する単体26件パス（`scratchpad/challenges.test.mjs` 相当）。
 
 #### お題に「強制力」を持たせる場合のコスト分析（2026-06-25・着手判断用メモ）
 > 「ピック中にリアルタイムで選べる武器が減る」強制ルール化を将来検討する場合の見積り。結論：◎ではなく **△（高）＝ほぼ1フェーズ規模**。現行は意図的に非強制（○×表示のみ）で確定済み。
