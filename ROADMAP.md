@@ -99,7 +99,16 @@
 - プール反映: **単一チョークポイント `getAvailableWeapons`** に lockedKeys 除外を追加（グリッド・ガチャ `drawGachaHand`・タイマー自動補完に自動波及）。グリッド表示は `renderGrid` でロック武器を `is-locked`（🔒バッジ・グレー・disabled）化、`pickWeapon` 先頭に防御ガード。
 - UI: ドラフト中バナー `#d-lockout`（`renderLockoutBanner`・残ロック数）／結果 series-area にロック数ノート。設定 `#series-lockout`/`#solo-series-lockout`（連戦トグルと連動表示）。
 - 検証: `node --check` OK／累積＋除外ロジック 単体7件パス／**ローカル実機でソロ BO3 ロックアウトE2E**（第1試合のピック2種が第2試合で🔒disabled＋バナー「2種」を確認）／使い方ガイド更新済み／smoke `S17` にロックアウト項目追記。
-- **未決/次**: プール枯渇でピック不能になる極端ケース（BO5×大量フィルタ）は未ガード（実用上は十分広い）。次は **4c＝勝者ペナルティ/敗者特権・負けチームがルール設定**、4d=戦績ボード/シリーズPNG。
+- **未決/次**: プール枯渇でピック不能になる極端ケース（BO5×大量フィルタ）は未ガード（実用上は十分広い）。次は 4c。
+
+#### ✅ Phase 4c — 連戦のガチルール進行＋負けチームがルール設定（完了）
+- 決定（2026-06-26 オーナー確認）: **BO3=ガチルール毎回ランダム／BO5=1〜4戦目を固定順(エリア→ヤグラ→ホコ→アサリ)→5戦目ランダム**。**負けチームがルール設定＝トグル方式**（ONで2戦目以降は敗者が次戦ガチルールを選ぶ）。敗者が決めるのは**ガチルールのみ**（ステージは従来どおり毎戦ランダム）。敗者先攻/勝者BAN-1 は次（4c-2）に分離。
+- ルール進行: `seriesRuleForGame(sr)` で決定（負けチーム指定 nextRule＞BO5固定順＞ランダム）。`buildAndStartDraft` でルール計算前に series を解決し `rmEff=seriesRuleForGame(seriesObj)` を使用（毎戦の rule を上書き、stage は毎戦ランダム）。`RULES` がそのまま固定順（エリア/ヤグラ/ホコ/アサリ）。
+- 負けチーム設定フロー: 勝者入力後、`loserSetsRules` なら `awaitingRule=true`/`ruleChooser=敗者` を立てて push（進行を止める）。結果の series-area に敗者代表（ソロは操作者）向けのガチルール4ボタン。選択で `chooseSeriesRule`→ホスト/ソロは `applyChosenRuleAndAdvance`→`advanceSeries`。マルチで敗者=bravo のときは `rooms/{room}/series_rule` に書き込み→**ホストの `subscribeSeriesRule` が適用**（単一ライター維持）。代表者解決条件に `seriesEnabled` を追加。
+- 状態: `state.series` に `loserSetsRules/awaitingRule/ruleChooser/nextRule` を追加のみ（`normalizeState` 既定）。`config` に `seriesLoserRules` 保持。退出/再ドラフトで `fbSeriesUnsub` 解除＋`series_rule` 削除。
+- UI: 設定トグル `#series-loser-rules`/`#solo-series-loser-rules`（連戦連動表示）。series-area に awaitingRule 分岐（ルール選択ボタン／待機表示）。
+- 検証: `node --check` OK／ルール進行ロジック 単体14件パス（BO3ランダム・BO5固定順・loser-set上書き・不正値フォールバック）。**実機E2Eはオーナーが実施予定**。使い方ガイド更新済み／smoke `S17` にルール進行＋負けチーム設定を追記。
+- **未決/次**: マルチ2クライアントの負けチーム=bravo 経路（`series_rule` 同期）は本番要スモーク。次は **4c-2＝敗者先攻/勝者BAN-1**（任意）→ **4d=戦績ボード/シリーズPNG**（履歴スナップショットは保存済み）。
 
 ### Phase 5 — 後回し（負債が出たら/余裕が出たら）
 - §6 グリッド検索・フィルタ（UX）／§5 BAN・ピック回数統計（まず `localStorage` でDB無風に）／§7 演出・SE・TTS。

@@ -518,7 +518,10 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <dd>ONにすると<b>結果画面</b>で武器の交換ができます。自チームの武器1枚と相手チームの武器1枚を選んで<b>交換を提案</b>→<b>相手チームの代表者が承認</b>すると成立（拒否も可）。回数は無制限です。マルチでは<b>各チームの代表者だけ</b>が提案・承認でき、ソロではアルファ⇄ブラボーをその場で入れ替えられます。</dd>
 
           <dt>連戦モード（シリーズ）</dt>
-          <dd>1ルームで<b>複数試合を連続</b>で行います。<b>シリーズ長</b>＝BO3（先取2）／BO5（先取3）。各試合のドラフトが終わったら結果画面で<b>ホストが勝者を入力</b>すると、ステージ／ルールが<b>自動で変わって</b>次の試合のドラフトが始まります。先取数に達するとシリーズ終了で、勝敗の経過（各試合の勝者・ステージ）が表示されます。</dd>
+          <dd>1ルームで<b>複数試合を連続</b>で行います。<b>シリーズ長</b>＝BO3（先取2）／BO5（先取3）。各試合のドラフトが終わったら結果画面で<b>ホストが勝者を入力</b>すると、ステージが変わって次の試合のドラフトが始まります。先取数に達するとシリーズ終了で、勝敗の経過（各試合の勝者・ステージ）が表示されます。</dd>
+
+          <dt>連戦のガチルール進行</dt>
+          <dd><b>BO3</b>＝毎試合ガチルールをランダム。<b>BO5</b>＝1〜4試合目を<b>ガチエリア→ヤグラ→ホコ→アサリ</b>の固定順、5試合目はランダム。<br><b>⚖️ 負けチームがルール設定</b>をONにすると、各試合の<b>敗者が次の試合のガチルールを選びます</b>（2試合目以降。1試合目は上記の自動進行）。マルチでは敗者チームの代表者が選び、ソロでは操作者が選びます。</dd>
 
           <dt>武器ロックアウト（連戦のオプション）</dt>
           <dd>連戦モードONのときに選べます。<b>一度ピックされた武器は、そのシリーズの次の試合以降ずっと使えなくなります</b>（両チーム共有でプールが枯れていく＝後半ほど選択肢が減る独特のメタ）。BANは各試合ごとにリセットされ、ロックアウトの対象は<b>ピックされた武器だけ</b>です。ドラフト中はロックされた武器が🔒でグレー表示され選べません。</dd>
@@ -557,7 +560,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <li><b>結果画像を保存</b> … 端末内で1枚のPNGを生成してダウンロードできます。</li>
         </ol>
         <p class="guide-note">お題カードをONにすると開始時に縛りを1枚抽選します（両チーム共通・非強制で、達成は結果に○×表示）。</p>
-        <p class="guide-note">連戦モード（シリーズ）がONのときは、結果画面でホストが各試合の勝者を入力すると、ステージ／ルールが変わって次の試合へ進みます。先取数（BO3=2／BO5=3）に達するとシリーズ終了です。</p>
+        <p class="guide-note">連戦モード（シリーズ）がONのときは、結果画面でホストが各試合の勝者を入力すると次の試合へ進みます。先取数（BO3=2／BO5=3）に達するとシリーズ終了です。ガチルールは BO3=毎回ランダム／BO5=エリア→ヤグラ→ホコ→アサリ→ランダム。「負けチームがルール設定」ONなら2試合目以降は敗者が次のガチルールを選びます。</p>
       </div>
     </div>
 
@@ -807,6 +810,16 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <span class="tgl-sl"></span>
         </label>
       </div>
+      <div class="toggle-row" id="series-loser-rules-row" style="display:none">
+        <div class="toggle-label">
+          ⚖️ 負けチームがルール設定
+          <small>各試合の敗者が次の試合のガチルールを選ぶ（OFFならBO5は固定順・BO3はランダム）</small>
+        </div>
+        <label class="tgl">
+          <input type="checkbox" id="series-loser-rules" onchange="onSettingChange()">
+          <span class="tgl-sl"></span>
+        </label>
+      </div>
       <div class="div"></div>
       <div class="row">
         <label>ピックモード</label>
@@ -1048,6 +1061,16 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         </div>
         <label class="tgl">
           <input type="checkbox" id="solo-series-lockout">
+          <span class="tgl-sl"></span>
+        </label>
+      </div>
+      <div class="toggle-row" id="solo-series-loser-rules-row" style="display:none">
+        <div class="toggle-label">
+          ⚖️ 負けチームがルール設定
+          <small>各試合の敗者が次の試合のガチルールを選ぶ</small>
+        </div>
+        <label class="tgl">
+          <input type="checkbox" id="solo-series-loser-rules">
           <span class="tgl-sl"></span>
         </label>
       </div>
@@ -1312,9 +1335,10 @@ function applyLobbySettingsToForm(s){
   setChk('std-only',s.stdOnly); setChk('challenge-enabled',s.challengeEnabled);
   setChk('trade-enabled',s.tradeEnabled);
   setChk('series-enabled',s.seriesEnabled); setVal('series-mode',s.seriesMode||'bo3');
-  setChk('series-lockout',s.seriesLockout);
+  setChk('series-lockout',s.seriesLockout); setChk('series-loser-rules',s.seriesLoserRules);
   const smr=document.getElementById('series-mode-row'); if(smr) smr.style.display = s.seriesEnabled ? '' : 'none';
   const slr=document.getElementById('series-lockout-row'); if(slr) slr.style.display = s.seriesEnabled ? '' : 'none';
+  const slrr=document.getElementById('series-loser-rules-row'); if(slrr) slrr.style.display = s.seriesEnabled ? '' : 'none';
   setVal('pick-mode',s.pickMode); setVal('ban-mode',s.banMode);
   if(s.gachaRerolls!==undefined) setVal('gacha-rerolls',s.gachaRerolls);
   setChk('time-limit-enabled',s.timeLimitEnabled); setVal('time-limit-sec',s.timeLimitSec);
@@ -1400,6 +1424,7 @@ let fbGachaUnsub   = null;  // ガチャ(運命ピック)監視
 let _gachaInitInProgress = false; // ホストのガチャ初期化の多重発火防止
 let _gachaFinalized      = false; // ガチャ最終確定（picks反映）を実行済みか
 let fbTradeUnsub   = null;  // ドラフト後トレード監視（pending_trade）
+let fbSeriesUnsub  = null;  // 連戦・負けチームのルール選択監視（series_rule）
 let tradePending   = null;  // 現在の交換提案（ローカルキャッシュ）
 let _tradeSel      = {give:null, want:null}; // トレード提案UIの選択中インデックス
 let _tradePanelOpen= false; // トレード提案ピッカーの開閉
@@ -1572,6 +1597,7 @@ window.startSoloDraft = function(){
     seriesEnabled: document.getElementById('solo-series-enabled')?.checked||false,
     seriesMode: document.getElementById('solo-series-mode')?.value||'bo3',
     seriesLockout: document.getElementById('solo-series-lockout')?.checked||false,
+    seriesLoserRules: document.getElementById('solo-series-loser-rules')?.checked||false,
     timeLimitEnabled: document.getElementById('solo-time-limit-enabled')?.checked||false,
     timeLimitSec: clampTimeLimit(document.getElementById('solo-time-limit-sec')?.value),
     gachaRerolls: parseInt(document.getElementById('solo-gacha-rerolls')?.value||2)||0,
@@ -2587,9 +2613,36 @@ function renderTradePending(p){
 // シリーズ未決着なら次戦のドラフトを組み立てて続行、先取数に到達したらシリーズ終了。
 // 真実の源は state.series（pushState で同期）。試合間でステージ/ルールは自動でランダム変更する。
 function seriesIsOperator(){ return !isMulti || isHost; }
-// 勝者を記録し、次戦へ進む（または終了）
+// シリーズの当該試合のガチルールを決定。
+//  - 負けチームのルール設定ON かつ 2戦目以降で指定(nextRule)があればそれ
+//  - そうでなければ自動進行: BO5は1〜4戦目を固定順(ガチエリア→ヤグラ→ホコ→アサリ)、それ以外＝ランダム
+function seriesRuleForGame(sr){
+  if(sr.loserSetsRules && sr.game>=2 && sr.nextRule && RULES.includes(sr.nextRule)) return sr.nextRule;
+  if(sr.mode==='bo5' && sr.game>=1 && sr.game<=4) return RULES[sr.game-1];
+  return 'random';
+}
+// 負けチームのルール設定: この試合の敗者の代表者（ソロは操作者）が次戦ルールを選べるか
+function isSeriesChooserOperator(sr){
+  if(!sr || !sr.ruleChooser) return false;
+  if(!isMulti) return true;
+  const rep = sr.ruleChooser==='alpha' ? state.representativeAlpha : state.representativeBravo;
+  return rep ? rep===myMemberId : (sr.ruleChooser==='alpha'?isHost:!isHost);
+}
+// 次戦のドラフトを組み立てて開始（履歴/スコアは記録済みの sr を引き継ぐ）。chosenRule は負けチーム指定（無ければ自動）
+function advanceSeries(sr, chosenRule){
+  const cfg=sr.config;
+  const nextSeries={...sr, game:sr.game+1, awaitingRule:false, ruleChooser:null, nextRule:(chosenRule||null)};
+  buildAndStartDraft({
+    ...cfg,
+    rm:'random', sm:'random', // rule は series 進行(seriesRuleForGame)で決まる。stage は毎戦ランダム
+    members: state.members,
+    seriesEnabled:true, seriesMode:sr.mode, seriesLockout:sr.lockout, seriesLoserRules:sr.loserSetsRules,
+    series:nextSeries,
+  });
+}
+// 勝者を記録し、次戦へ進む（または終了／敗者のルール選択待ち）
 function recordSeriesWinnerAndAdvance(winner){
-  const S=state; if(!S||!S.series||S.series.done) return;
+  const S=state; if(!S||!S.series||S.series.done||S.series.awaitingRule) return;
   if(!seriesIsOperator()) return;
   const sr=S.series;
   // 現在の試合結果を履歴に記録（編成スナップショット付き＝戦績ボード用）
@@ -2613,17 +2666,47 @@ function recordSeriesWinnerAndAdvance(winner){
     showResult();
     return;
   }
-  // 次戦を組み立て（設定は config から引き継ぎ、ステージ/ルールは自動ランダム変更）
-  const cfg=sr.config;
-  const nextSeries={...sr, game:sr.game+1};
-  buildAndStartDraft({
-    ...cfg,
-    rm:'random', sm:'random',
-    members: S.members,
-    seriesEnabled:true, seriesMode:sr.mode, series:nextSeries,
-  });
+  // 負けチームのルール設定: 敗者が次戦ルールを選ぶまで待つ
+  if(sr.loserSetsRules){
+    sr.awaitingRule=true;
+    sr.ruleChooser = winner==='alpha'?'bravo':'alpha';
+    if(isMulti&&isHost) pushState();
+    showResult();
+    return;
+  }
+  advanceSeries(sr, null);
 }
 window.seriesWinner = function(team){ recordSeriesWinnerAndAdvance(team); };
+// 敗者の代表者（ソロは操作者）が次戦ルールを選択
+window.chooseSeriesRule = function(rule){
+  const sr=state&&state.series;
+  if(!sr||!sr.awaitingRule||!RULES.includes(rule)) return;
+  if(!isSeriesChooserOperator(sr)) return;
+  if(isMulti && !isHost){
+    // 非ホスト（bravo代表）→ ホストへシグナル。ホストが適用して次戦を組む
+    set(ref(db,`rooms/${roomId}/series_rule`), rule);
+    return;
+  }
+  applyChosenRuleAndAdvance(rule); // ホスト or ソロ
+};
+function applyChosenRuleAndAdvance(rule){
+  const sr=state&&state.series;
+  if(!sr||!sr.awaitingRule||!RULES.includes(rule)) return;
+  advanceSeries(sr, rule);
+}
+// ホスト専用: bravo代表のルール選択を監視して適用
+function subscribeSeriesRule(){
+  if(fbSeriesUnsub){fbSeriesUnsub();fbSeriesUnsub=null;}
+  fbSeriesUnsub=onValue(ref(db,`rooms/${roomId}/series_rule`),snap=>{
+    if(!isHost || !snap.exists()) return;
+    const rule=snap.val();
+    const sr=state&&state.series;
+    remove(ref(db,`rooms/${roomId}/series_rule`));
+    if(sr && sr.awaitingRule && sr.ruleChooser==='bravo' && RULES.includes(rule)){
+      applyChosenRuleAndAdvance(rule);
+    }
+  });
+}
 
 function renderSeriesHistory(sr, S){
   if(!sr.history || !sr.history.length) return '';
@@ -2643,23 +2726,39 @@ function renderSeriesArea(){
   const sr=S.series;
   const modeLabel = sr.mode==='bo5'?'BO5（先取3）':'BO3（先取2）';
   const score=`<div class="series-score"><span class="a">${S.an} ${sr.scoreA}</span> － <span class="b">${sr.scoreB} ${S.bn}</span></div>`;
+  const hist=renderSeriesHistory(sr,S);
   let body;
   if(sr.done){
     const aWin=sr.scoreA>sr.scoreB;
     const champ=aWin?S.an:S.bn, col=aWin?'var(--a)':'var(--b)';
-    body=`<div class="series-final">🏆 シリーズ終了！<br><b style="color:${col}">${champ}</b> がシリーズ制覇（${sr.scoreA}-${sr.scoreB}）</div>`
-      + renderSeriesHistory(sr,S);
+    body=`<div class="series-final">🏆 シリーズ終了！<br><b style="color:${col}">${champ}</b> がシリーズ制覇（${sr.scoreA}-${sr.scoreB}）</div>`+hist;
+  } else if(sr.awaitingRule){
+    // 負けチームのルール設定: 敗者が次戦のガチルールを選ぶ
+    const loserName = sr.ruleChooser==='alpha'?S.an:S.bn;
+    const loserCol  = sr.ruleChooser==='alpha'?'var(--a)':'var(--b)';
+    const head=`<div class="series-head">第${sr.game}試合終了 ／ 次の第${sr.game+1}試合のルール選択</div>`;
+    if(isSeriesChooserOperator(sr)){
+      body=head
+        +`<div class="series-note"><b style="color:${loserCol}">${loserName}</b>（敗者）が次の試合のガチルールを選んでください。</div>`
+        +`<div class="series-rules">`+RULES.map(r=>`<button class="series-rule-btn" onclick="chooseSeriesRule('${r}')">${r}</button>`).join('')+`</div>`
+        +hist;
+    } else {
+      body=head+`<div class="series-note"><b style="color:${loserCol}">${loserName}</b>（敗者）が次のガチルールを選んでいます…</div>`+hist;
+    }
   } else {
     const head=`<div class="series-head">${modeLabel} ／ 第${sr.game}試合</div>`;
     if(seriesIsOperator()){
+      const note = sr.loserSetsRules
+        ? 'この試合の勝者を選んでください（敗者が次のルールを選びます）。'
+        : 'この試合の勝者を選ぶと次の試合へ進みます（ステージ／ルールは自動で変わります）。';
       body=head
-        + `<div class="series-note">この試合の勝者を選ぶと次の試合へ進みます（ステージ／ルールは自動で変わります）。</div>`
+        + `<div class="series-note">${note}</div>`
         + `<div class="series-actions">`
         + `<button class="series-win a" onclick="seriesWinner('alpha')">${S.an} の勝ち</button>`
         + `<button class="series-win b" onclick="seriesWinner('bravo')">${S.bn} の勝ち</button>`
-        + `</div>` + renderSeriesHistory(sr,S);
+        + `</div>` + hist;
     } else {
-      body=head + `<div class="series-note">ホストが勝敗を入力するのを待っています…</div>` + renderSeriesHistory(sr,S);
+      body=head + `<div class="series-note">ホストが勝敗を入力するのを待っています…</div>` + hist;
     }
   }
   const lockNote = (sr.lockout && Array.isArray(sr.lockedKeys) && sr.lockedKeys.length)
@@ -2976,6 +3075,7 @@ function getLobbySettings(){
     seriesEnabled: document.getElementById('series-enabled')?.checked||false,
     seriesMode: document.getElementById('series-mode')?.value||'bo3',
     seriesLockout: document.getElementById('series-lockout')?.checked||false,
+    seriesLoserRules: document.getElementById('series-loser-rules')?.checked||false,
     pickMode: document.getElementById('pick-mode')?.value||'individual',
     banMode:  document.getElementById('ban-mode')?.value||'individual',
     banGenres: readBanGenresFromUI(),
@@ -3025,16 +3125,20 @@ window.onSeriesToggle = function(){
   const enabled = document.getElementById('series-enabled')?.checked;
   const row = document.getElementById('series-mode-row');
   const lk  = document.getElementById('series-lockout-row');
+  const lr  = document.getElementById('series-loser-rules-row');
   if(row) row.style.display = enabled ? '' : 'none';
   if(lk)  lk.style.display  = enabled ? '' : 'none';
+  if(lr)  lr.style.display  = enabled ? '' : 'none';
   onSettingChange();
 };
 window.onSoloSeriesToggle = function(){
   const enabled = document.getElementById('solo-series-enabled')?.checked;
   const row = document.getElementById('solo-series-mode-row');
   const lk  = document.getElementById('solo-series-lockout-row');
+  const lr  = document.getElementById('solo-series-loser-rules-row');
   if(row) row.style.display = enabled ? '' : 'none';
   if(lk)  lk.style.display  = enabled ? '' : 'none';
+  if(lr)  lr.style.display  = enabled ? '' : 'none';
 };
 
 window.onTimeLimitChange = function(){
@@ -3054,7 +3158,7 @@ window.startDraft = function(){
   buildAndStartDraft({
     an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:s.ft, po:s.po,
     rm:s.rule, sm:s.stageJa, stdOnly:s.stdOnly, challengeEnabled:s.challengeEnabled,
-    tradeEnabled:s.tradeEnabled, seriesEnabled:s.seriesEnabled, seriesMode:s.seriesMode, seriesLockout:s.seriesLockout,
+    tradeEnabled:s.tradeEnabled, seriesEnabled:s.seriesEnabled, seriesMode:s.seriesMode, seriesLockout:s.seriesLockout, seriesLoserRules:s.seriesLoserRules,
     pickMode:s.pickMode, banMode:s.banMode, banGenres:s.banGenres,
     pickOrderAlpha:s.pickOrderAlpha, pickOrderBravo:s.pickOrderBravo,
     members:membersForState,
@@ -3161,15 +3265,7 @@ function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec, simOrder
   return seq;
 }
 
-function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tradeEnabled,seriesEnabled,seriesMode,seriesLockout,series,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls}){
-  const rule    = rm==='random'?RULES[Math.floor(Math.random()*RULES.length)]:rm;
-  const stageJa = sm==='random'?STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)]:sm;
-  const challenge = challengeEnabled ? pickRandomChallenge() : null;
-  const first   = ft==='random'?(Math.random()<.5?'alpha':'bravo'):ft;
-  const sec     = first==='alpha'?'bravo':'alpha';
-  const pMode   = pickMode||'team';
-  const pickOrder = po||'snake';
-  const bMode   = banMode||'representative';
+function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tradeEnabled,seriesEnabled,seriesMode,seriesLockout,seriesLoserRules,series,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls}){
   // 連戦シリーズ: 既存シリーズ（次戦）があれば引き継ぎ、無ければ有効時に初期化（後方互換で追加のみ）
   let seriesObj = series || null;
   if(!seriesObj && seriesEnabled){
@@ -3177,11 +3273,22 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tr
     seriesObj = {
       mode: seriesMode||'bo3', target, game:1, scoreA:0, scoreB:0, history:[], done:false,
       lockout: !!seriesLockout, lockedKeys: [], // 武器ロックアウト（過去試合で使われた key の累積）
+      loserSetsRules: !!seriesLoserRules, nextRule:null, awaitingRule:false, ruleChooser:null,
       // 次戦を組み立てるための設定スナップショット（members は state.members を使う）
       config: {an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tradeEnabled,pickMode,banMode,
-        banGenres,pickOrderAlpha,pickOrderBravo,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls,seriesLockout},
+        banGenres,pickOrderAlpha,pickOrderBravo,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls,seriesLockout,seriesLoserRules},
     };
   }
+  // ルール: 連戦時は進行ロジック（BO5固定順 / 負けチーム指定）で決定、それ以外は設定どおり
+  const rmEff   = seriesObj ? seriesRuleForGame(seriesObj) : rm;
+  const rule    = rmEff==='random'?RULES[Math.floor(Math.random()*RULES.length)]:rmEff;
+  const stageJa = sm==='random'?STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)]:sm;
+  const challenge = challengeEnabled ? pickRandomChallenge() : null;
+  const first   = ft==='random'?(Math.random()<.5?'alpha':'bravo'):ft;
+  const sec     = first==='alpha'?'bravo':'alpha';
+  const pMode   = pickMode||'team';
+  const pickOrder = po||'snake';
+  const bMode   = banMode||'representative';
   // 相手ピックは個人粒度（各選手が相手の対になる選手の武器を選ぶ）。memberId/targetMemberId 割当のため
   // 個人ピックと同様にピック順配列を使う。
   const usePickOrder = (pMode==='individual' || pMode==='enemy');
@@ -3237,7 +3344,7 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tr
   // 代表者BANの代表者IDを計算（マルチ・代表者BANモード時のみ）
   let representativeAlpha = null;
   let representativeBravo = null;
-  if(isMulti && (pMode==='gacha' || tradeEnabled || (bMode==='representative' && bc>0))){
+  if(isMulti && (pMode==='gacha' || tradeEnabled || seriesEnabled || (bMode==='representative' && bc>0))){
     // alpha代表: buildAndStartDraft は常にホストが呼ぶため myMemberId がα代表
     // ガチャ/トレードは代表者が操作するため、BANモード/BAN数に関わらず代表者を解決する
     representativeAlpha = myMemberId;
@@ -3291,6 +3398,7 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tr
     subscribeSimPick();
     if(pMode==='gacha') subscribeGacha();
     if(tradeEnabled) subscribeTrade();
+    if(seriesObj && seriesObj.loserSetsRules) subscribeSeriesRule();
   }
   showDraftUI();
 }
@@ -3579,8 +3687,8 @@ window.backToLobby = async function(){
   clearTimer();
 
   // 全Firebase購読を解除（lobby監視は後で再登録）
-  [fbUnsub, fbBanUnsub, fbSimPickUnsub, fbIndividualBanUnsub, fbGachaUnsub, fbTradeUnsub].forEach(f=>{if(f){f();}});
-  fbUnsub = fbBanUnsub = fbSimPickUnsub = fbIndividualBanUnsub = fbGachaUnsub = fbTradeUnsub = null;
+  [fbUnsub, fbBanUnsub, fbSimPickUnsub, fbIndividualBanUnsub, fbGachaUnsub, fbTradeUnsub, fbSeriesUnsub].forEach(f=>{if(f){f();}});
+  fbUnsub = fbBanUnsub = fbSimPickUnsub = fbIndividualBanUnsub = fbGachaUnsub = fbTradeUnsub = fbSeriesUnsub = null;
   if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
 
   // Firebaseのドラフトデータを全削除（lobby/members は残す）
@@ -3594,6 +3702,7 @@ window.backToLobby = async function(){
     remove(ref(db, `rooms/${roomId}/pending_bravo_pick`)),
     remove(ref(db, `rooms/${roomId}/gacha`)),
     remove(ref(db, `rooms/${roomId}/pending_trade`)),
+    remove(ref(db, `rooms/${roomId}/series_rule`)),
   ]);
 
   // ローカルの全一時変数をリセット
@@ -3616,8 +3725,8 @@ window.backToLobby = async function(){
 
 // ===== 退出 =====
 window.leaveLobby = function(){
-  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub,fbTradeUnsub].forEach(f=>{if(f){f();} });
-  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=fbTradeUnsub=null;
+  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub,fbTradeUnsub,fbSeriesUnsub].forEach(f=>{if(f){f();} });
+  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=fbTradeUnsub=fbSeriesUnsub=null;
   if(isMulti&&!isHost&&myMemberId&&roomId){
     remove(ref(db,`rooms/${roomId}/lobby/members/${myMemberId}`));
     clearSavedMemberId(roomId); // 意図的な退出: 再アタッチ情報を破棄
@@ -3627,8 +3736,8 @@ window.leaveLobby = function(){
   showScreen('mode');
 };
 window.goHome = function(){
-  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub,fbTradeUnsub].forEach(f=>{if(f){f();}});
-  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=fbTradeUnsub=null;
+  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub,fbTradeUnsub,fbSeriesUnsub].forEach(f=>{if(f){f();}});
+  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=fbTradeUnsub=fbSeriesUnsub=null;
   // 参加者がモード選択に戻る際も Firebase lobby から自分を削除する
   // （再ドラフト時にホストが古いメンバー情報を取得してしまうのを防ぐ）
   if(isMulti&&!isHost&&myMemberId&&roomId){
@@ -3669,6 +3778,10 @@ function normalizeState(s){
     if(!Array.isArray(s.series.history)) s.series.history=[];
     if(s.series.lockout===undefined) s.series.lockout=false;
     if(!Array.isArray(s.series.lockedKeys)) s.series.lockedKeys=[];
+    if(s.series.loserSetsRules===undefined) s.series.loserSetsRules=false;
+    if(s.series.awaitingRule===undefined) s.series.awaitingRule=false;
+    if(s.series.ruleChooser===undefined) s.series.ruleChooser=null;
+    if(s.series.nextRule===undefined) s.series.nextRule=null;
   }
   return s;
 }
@@ -4978,8 +5091,8 @@ window.redraftWithSameMembers = async function(){
   clearTimer();
 
   // ② 全Firebase購読を解除
-  [fbUnsub, fbBanUnsub, fbSimPickUnsub, fbIndividualBanUnsub, fbGachaUnsub, fbTradeUnsub].forEach(f=>{if(f){f();}});
-  fbUnsub = fbBanUnsub = fbSimPickUnsub = fbIndividualBanUnsub = fbGachaUnsub = fbTradeUnsub = null;
+  [fbUnsub, fbBanUnsub, fbSimPickUnsub, fbIndividualBanUnsub, fbGachaUnsub, fbTradeUnsub, fbSeriesUnsub].forEach(f=>{if(f){f();}});
+  fbUnsub = fbBanUnsub = fbSimPickUnsub = fbIndividualBanUnsub = fbGachaUnsub = fbTradeUnsub = fbSeriesUnsub = null;
   // fbLobbyUnsub はここでは解除しない（再開後に subscribeLobby で張り直す）
   if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
 
@@ -4993,6 +5106,7 @@ window.redraftWithSameMembers = async function(){
     remove(ref(db, `rooms/${roomId}/pending_bravo_pick`)),
     remove(ref(db, `rooms/${roomId}/gacha`)),
     remove(ref(db, `rooms/${roomId}/pending_trade`)),
+    remove(ref(db, `rooms/${roomId}/series_rule`)),
   ]);
 
   // ④ ローカルの全一時変数をリセット（前回ドラフトのデータが混入しないように）
