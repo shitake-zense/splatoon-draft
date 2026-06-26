@@ -347,6 +347,19 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .series-hist{list-style:none;margin:8px 0 0;padding:8px 0 0;border-top:1px solid #2a3550;font-size:11px;line-height:1.8;}
 .series-hist li{color:var(--tx,#e8eefc);}
 .series-lock{font-size:11px;color:var(--y);text-align:center;margin-top:8px;}
+/* 戦績ボード（シリーズ終了時・各試合の編成一覧） */
+.series-board{margin:8px 0 0;padding:10px 0 0;border-top:1px solid #2a3550;}
+.sb-game{background:#0f1729;border-radius:8px;padding:8px 10px;margin-bottom:8px;}
+.sb-ghead{font-size:11px;font-weight:700;color:var(--mu);margin-bottom:6px;}
+.sb-ghead b{color:var(--y);}
+.sb-teams{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sb-team{font-size:11px;line-height:1.55;}
+.sb-team .nm{font-weight:700;display:block;margin-bottom:1px;}
+.sb-team.a .nm{color:var(--a);}.sb-team.b .nm{color:var(--b);}
+.sb-team.win{position:relative;}
+.sb-picks{color:var(--tx,#e8eefc);font-size:10px;}
+.series-save{margin-top:10px;width:100%;padding:11px 4px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:var(--y);color:#1a1a2e;border:1.5px solid var(--y);}
+.series-save:hover{filter:brightness(1.08);}.series-save:disabled{opacity:.6;cursor:default;}
 /* ロックアウト・ドラフト中バナー */
 .d-lockout{background:#241f08;border:1px solid var(--y);border-radius:8px;padding:7px 10px;margin-bottom:9px;font-size:11px;color:var(--y);line-height:1.5;}
 .sim-reveal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:999;}
@@ -518,7 +531,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <dd>ONにすると<b>結果画面</b>で武器の交換ができます。自チームの武器1枚と相手チームの武器1枚を選んで<b>交換を提案</b>→<b>相手チームの代表者が承認</b>すると成立（拒否も可）。回数は無制限です。マルチでは<b>各チームの代表者だけ</b>が提案・承認でき、ソロではアルファ⇄ブラボーをその場で入れ替えられます。</dd>
 
           <dt>連戦モード（シリーズ）</dt>
-          <dd>1ルームで<b>複数試合を連続</b>で行います。<b>シリーズ長</b>＝BO3（先取2）／BO5（先取3）。各試合のドラフトが終わったら結果画面で<b>ホストが勝者を入力</b>すると、ステージが変わって次の試合のドラフトが始まります。先取数に達するとシリーズ終了で、勝敗の経過（各試合の勝者・ステージ）が表示されます。</dd>
+          <dd>1ルームで<b>複数試合を連続</b>で行います。<b>シリーズ長</b>＝BO3（先取2）／BO5（先取3）。各試合のドラフトが終わったら結果画面で<b>ホストが勝者を入力</b>すると、ステージが変わって次の試合のドラフトが始まります。先取数に達するとシリーズ終了で、<b>戦績ボード</b>（各試合の勝者・ルール・ステージ・両チームの編成一覧）が表示され、<b>「🖼️ シリーズ画像を保存」</b>で全試合を1枚のPNGにまとめて保存できます。</dd>
 
           <dt>連戦のガチルール進行</dt>
           <dd><b>BO3</b>＝毎試合ガチルールをランダム。<b>BO5</b>＝1〜4試合目を<b>ガチエリア→ヤグラ→ホコ→アサリ</b>の固定順、5試合目はランダム。<br><b>⚖️ 負けチームがルール設定</b>をONにすると、各試合の<b>敗者が次の試合のガチルールを選びます</b>（2試合目以降。1試合目は上記の自動進行）。マルチでは敗者チームの代表者が選び、ソロでは操作者が選びます。</dd>
@@ -560,7 +573,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <li><b>結果画像を保存</b> … 端末内で1枚のPNGを生成してダウンロードできます。</li>
         </ol>
         <p class="guide-note">お題カードをONにすると開始時に縛りを1枚抽選します（両チーム共通・非強制で、達成は結果に○×表示）。</p>
-        <p class="guide-note">連戦モード（シリーズ）がONのときは、結果画面でホストが各試合の勝者を入力すると次の試合へ進みます。先取数（BO3=2／BO5=3）に達するとシリーズ終了です。ガチルールは BO3=毎回ランダム／BO5=エリア→ヤグラ→ホコ→アサリ→ランダム。「負けチームがルール設定」ONなら2試合目以降は敗者が次のガチルールを選びます。</p>
+        <p class="guide-note">連戦モード（シリーズ）がONのときは、結果画面でホストが各試合の勝者を入力すると次の試合へ進みます。先取数（BO3=2／BO5=3）に達するとシリーズ終了で、戦績ボード（各試合の編成一覧）とシリーズ画像の保存ができます。ガチルールは BO3=毎回ランダム／BO5=エリア→ヤグラ→ホコ→アサリ→ランダム。「負けチームがルール設定」ONなら2試合目以降は敗者が次のガチルールを選びます。</p>
       </div>
     </div>
 
@@ -2717,6 +2730,20 @@ function renderSeriesHistory(sr, S){
   }).join('');
   return `<ul class="series-hist">${items}</ul>`;
 }
+// 戦績ボード：各試合の編成一覧（シリーズ終了時のみ）。履歴スナップショットの picks を描画
+function renderSeriesBoard(sr, S){
+  if(!sr.history || !sr.history.length) return '';
+  const esc=s=>String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const picksLine=ps=>(ps&&ps.length)?ps.map(w=>esc(w.name)).join('・'):'なし';
+  const games=sr.history.map(g=>{
+    const an=g.an||S.an, bn=g.bn||S.bn;
+    const trophy=t=> g.winner===t?' 🏆':'';
+    const ghead=`第${g.game}試合 <b>${esc(g.rule)} / ${esc(g.stageJa)}</b> ／ 勝者 <b style="color:${g.winner==='alpha'?'var(--a)':'var(--b)'}">${esc(g.winner==='alpha'?an:bn)}</b>`;
+    const teamCol=(t,name)=>`<div class="sb-team ${t==='alpha'?'a':'b'}${g.winner===t?' win':''}"><span class="nm">${esc(name)}${trophy(t)}</span><span class="sb-picks">${picksLine(g.picks&&g.picks[t])}</span></div>`;
+    return `<div class="sb-game"><div class="sb-ghead">${ghead}</div><div class="sb-teams">${teamCol('alpha',an)}${teamCol('bravo',bn)}</div></div>`;
+  }).join('');
+  return `<div class="series-board">${games}</div>`;
+}
 function renderSeriesArea(){
   const area=document.getElementById('series-area');
   if(!area) return;
@@ -2731,7 +2758,8 @@ function renderSeriesArea(){
   if(sr.done){
     const aWin=sr.scoreA>sr.scoreB;
     const champ=aWin?S.an:S.bn, col=aWin?'var(--a)':'var(--b)';
-    body=`<div class="series-final">🏆 シリーズ終了！<br><b style="color:${col}">${champ}</b> がシリーズ制覇（${sr.scoreA}-${sr.scoreB}）</div>`+hist;
+    const saveBtn=`<button class="series-save" id="btn-save-series" onclick="downloadSeriesImage()">🖼️ シリーズ画像を保存</button>`;
+    body=`<div class="series-final">🏆 シリーズ終了！<br><b style="color:${col}">${champ}</b> がシリーズ制覇（${sr.scoreA}-${sr.scoreB}）</div>`+renderSeriesBoard(sr,S)+saveBtn;
   } else if(sr.awaitingRule){
     // 負けチームのルール設定: 敗者が次戦のガチルールを選ぶ
     const loserName = sr.ruleChooser==='alpha'?S.an:S.bn;
@@ -5078,6 +5106,121 @@ window.downloadResultImage = async function(){
   } catch(e){
     console.error('[downloadResultImage]', e);
     alert('画像の生成に失敗しました: '+(e&&e.message||e));
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent=orig; }
+  }
+};
+
+// ===== シリーズ戦績画像ダウンロード（連戦の全試合を1枚にまとめる・外部依存なし） =====
+window.downloadSeriesImage = async function(){
+  const S = state;
+  const sr = S && S.series;
+  if(!sr || !sr.done || !sr.history || !sr.history.length) return;
+  const btn = document.getElementById('btn-save-series');
+  const orig = btn ? btn.textContent : '';
+  if(btn){ btn.disabled=true; btn.textContent='生成中…'; }
+  try {
+    if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
+    const loadImg = src => new Promise(res=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>res(null); im.src=src; });
+    // 全試合のピック武器アイコンをプリロード（同一オリジン → tainted にならない）
+    const allPicks=[];
+    sr.history.forEach(g=>{ ['alpha','bravo'].forEach(t=>{ (g.picks&&g.picks[t]||[]).forEach(w=>allPicks.push(w)); }); });
+    const loaded=await Promise.all(allPicks.map(w=>loadImg(w.imgUrl)));
+    const imgMap=new Map(); allPicks.forEach((w,i)=>imgMap.set(w,loaded[i]));
+
+    // レイアウト（論理px）
+    const W=900, P=28, headerH=150;
+    const colW=(W-P*3)/2;
+    const teamHeadH=24, pickH=34, gameHeadH=30, gamePadV=10, gameGap=10;
+    const gameH=g=>{
+      const na=(g.picks&&g.picks.alpha||[]).length, nb=(g.picks&&g.picks.bravo||[]).length;
+      return gameHeadH + teamHeadH + Math.max(na,nb,1)*pickH + gamePadV*2;
+    };
+    const bodyH=sr.history.reduce((h,g)=>h+gameH(g)+gameGap, 0);
+    const H=headerH+bodyH+P;
+
+    const scale=2;
+    const canvas=document.createElement('canvas');
+    canvas.width=W*scale; canvas.height=H*scale;
+    const ctx=canvas.getContext('2d');
+    ctx.scale(scale,scale);
+    ctx.fillStyle='#1a1a2e'; ctx.fillRect(0,0,W,H);
+
+    // ヘッダー
+    const grad=ctx.createLinearGradient(0,0,0,headerH);
+    grad.addColorStop(0,'#152244'); grad.addColorStop(1,'#0a0a2e');
+    ctx.fillStyle=grad; ctx.fillRect(0,0,W,headerH);
+    const aWin=sr.scoreA>sr.scoreB;
+    const an=sr.history[0].an||S.an, bn=sr.history[0].bn||S.bn;
+    const champ=aWin?an:bn;
+    ctx.textAlign='center';
+    ctx.fillStyle='#F5E642'; ctx.font="bold 34px 'Zen Dots', sans-serif";
+    ctx.fillText('SERIES COMPLETE', W/2, 54);
+    ctx.fillStyle=aWin?'#4A90E2':'#E8630A'; ctx.font="bold 24px 'M PLUS Rounded 1c', sans-serif";
+    ctx.fillText('🏆 '+_wmTruncate(ctx, champ, W-120)+' 制覇', W/2, 96);
+    const modeLabel = sr.mode==='bo5'?'BO5（先取3）':'BO3（先取2）';
+    ctx.fillStyle='#e0e0e0'; ctx.font="18px 'M PLUS Rounded 1c', sans-serif";
+    ctx.fillText(`${modeLabel}　${_wmTruncate(ctx,an,140)} ${sr.scoreA} － ${sr.scoreB} ${_wmTruncate(ctx,bn,140)}`, W/2, 128);
+
+    // 各試合ブロック
+    let y=headerH;
+    const drawPicks=(picks,x,topY,winner)=>{
+      // チーム名見出し
+      let yy=topY;
+      yy+=teamHeadH;
+      (picks||[]).forEach(w=>{
+        const im=imgMap.get(w), icon=26, pad=6;
+        ctx.fillStyle='#0f1729'; _wmRoundRect(ctx,x,yy+2,colW,30,6); ctx.fill();
+        if(im) ctx.drawImage(im,x+pad,yy+4,icon,icon);
+        else { ctx.fillStyle='#22304a'; ctx.fillRect(x+pad,yy+4,icon,icon); }
+        ctx.textAlign='left'; ctx.fillStyle='#f0f0f0'; ctx.font="13px 'M PLUS Rounded 1c', sans-serif";
+        ctx.fillText(_wmTruncate(ctx, w.name, colW-icon-pad-14), x+pad+icon+8, yy+22);
+        yy+=pickH;
+      });
+      if(!(picks&&picks.length)){
+        ctx.textAlign='left'; ctx.fillStyle='#a0a8c0'; ctx.font="12px 'M PLUS Rounded 1c', sans-serif";
+        ctx.fillText('なし', x+4, topY+teamHeadH+18);
+      }
+    };
+    sr.history.forEach(g=>{
+      const gAn=g.an||an, gBn=g.bn||bn;
+      const gh=gameH(g);
+      // ブロック背景
+      ctx.fillStyle='#0f1729'; _wmRoundRect(ctx,P-6,y,W-(P-6)*2,gh,8); ctx.fill();
+      const innerY=y+gamePadV;
+      // 試合見出し
+      ctx.textAlign='left';
+      ctx.fillStyle='#9aa3bd'; ctx.font="bold 13px 'M PLUS Rounded 1c', sans-serif";
+      ctx.fillText(`第${g.game}試合`, P, innerY+18);
+      ctx.fillStyle='#F5E642'; ctx.font="13px 'M PLUS Rounded 1c', sans-serif";
+      ctx.fillText(_wmTruncate(ctx, `${g.rule} / ${g.stageJa}`, W*0.5), P+72, innerY+18);
+      ctx.textAlign='right';
+      ctx.fillStyle=g.winner==='alpha'?'#4A90E2':'#E8630A'; ctx.font="bold 13px 'M PLUS Rounded 1c', sans-serif";
+      ctx.fillText('🏆 '+_wmTruncate(ctx, g.winner==='alpha'?gAn:gBn, 200), W-P, innerY+18);
+      // チーム名見出し（2列）
+      const teamY=innerY+gameHeadH;
+      ctx.textAlign='left';
+      ctx.fillStyle='#4A90E2'; ctx.font="bold 14px 'Zen Dots', sans-serif";
+      ctx.fillText(_wmTruncate(ctx,gAn,colW), P, teamY+16);
+      ctx.fillStyle='#E8630A';
+      ctx.fillText(_wmTruncate(ctx,gBn,colW), P+colW+P, teamY+16);
+      // ピック（2列）
+      drawPicks(g.picks&&g.picks.alpha, P, teamY, g.winner==='alpha');
+      drawPicks(g.picks&&g.picks.bravo, P+colW+P, teamY, g.winner==='bravo');
+      y+=gh+gameGap;
+    });
+
+    const blob = await new Promise(res=>canvas.toBlob(res,'image/png'));
+    if(!blob) throw new Error('toBlob が null を返しました');
+    const url=URL.createObjectURL(blob);
+    const ts=new Date().toISOString().replace(/[:T]/g,'-').slice(0,16);
+    const a=document.createElement('a');
+    a.href=url; a.download=`splatoon-series-${sr.scoreA}-${sr.scoreB}-${ts}.png`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 8000);
+  } catch(e){
+    console.error('[downloadSeriesImage]', e);
+    alert('シリーズ画像の生成に失敗しました: '+(e&&e.message||e));
   } finally {
     if(btn){ btn.disabled=false; btn.textContent=orig; }
   }

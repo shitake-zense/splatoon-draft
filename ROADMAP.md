@@ -108,7 +108,14 @@
 - 状態: `state.series` に `loserSetsRules/awaitingRule/ruleChooser/nextRule` を追加のみ（`normalizeState` 既定）。`config` に `seriesLoserRules` 保持。退出/再ドラフトで `fbSeriesUnsub` 解除＋`series_rule` 削除。
 - UI: 設定トグル `#series-loser-rules`/`#solo-series-loser-rules`（連戦連動表示）。series-area に awaitingRule 分岐（ルール選択ボタン／待機表示）。
 - 検証: `node --check` OK／ルール進行ロジック 単体14件パス（BO3ランダム・BO5固定順・loser-set上書き・不正値フォールバック）。**実機E2Eはオーナーが実施予定**。使い方ガイド更新済み／smoke `S17` にルール進行＋負けチーム設定を追記。
-- **未決/次**: マルチ2クライアントの負けチーム=bravo 経路（`series_rule` 同期）は本番要スモーク。次は **4c-2＝敗者先攻/勝者BAN-1**（任意）→ **4d=戦績ボード/シリーズPNG**（履歴スナップショットは保存済み）。
+- **未決/次**: マルチ2クライアントの負けチーム=bravo 経路（`series_rule` 同期）は本番要スモーク。**4c-2＝敗者先攻/勝者BAN-1 はオーナー判断で見送り（実装しない）**。
+
+#### ✅ Phase 4d — 戦績ボード / シリーズPNG（完了）
+- 決定（2026-06-26 オーナー確認）: 4c-2 は見送り、**4d を実装して push**。履歴スナップショット（`series.history[].picks/bans`）は Phase 4a から保存済みなので**新規DB/スキーマ追加なし**（描画のみ）。
+- 仕様: シリーズ終了時、結果の「🔁 連戦シリーズ」欄に**戦績ボード**を表示＝各試合ごとに「第N試合 ／ ルール / ステージ ／ 勝者」＋両チームの**ピック編成一覧**（武器名・勝者に🏆）。下部に**「🖼️ シリーズ画像を保存」**＝全試合を1枚にまとめたPNG（ヘッダーに優勝＋最終スコア＋BO3/BO5、各試合ブロックにルール/ステージ/勝者＋両チームのピックアイコン＋武器名）を端末内生成（外部送信なし）。全員（非ホスト含む）に表示。
+- コードの居場所: `renderSeriesBoard(sr,S)`（`renderSeriesHistory` 直後・done 分岐で使用）／`window.downloadSeriesImage`（`downloadResultImage` 直後・canvas、`_wmTruncate`/`_wmRoundRect` 流用）。結果UIのボタン `#btn-save-series`（series-area done 内）。CSS `.series-board`/`.sb-game`/`.sb-ghead`/`.sb-teams`/`.sb-team`/`.sb-picks`/`.series-save`。in-progress 用の一行履歴 `renderSeriesHistory` はそのまま残す。
+- 検証: `node --check` OK／`renderSeriesBoard` 単体11件パス（編成結合・空ピック→なし・勝者🏆・XSSエスケープ・空履歴）。**実機E2E（シリーズPNG含む）はオーナーが実施予定**。使い方ガイド（ホスト向け＋流れ）更新済み／smoke `S17` に Phase 4d 項目追記。
+- **未決/次**: Phase 4 はこれで完了（4c-2 は見送り）。次は **Phase 5（UX/統計/演出の改善プール・後回し枠）**。
 
 ### Phase 5 — 後回し（負債が出たら/余裕が出たら）
 - §6 グリッド検索・フィルタ（UX）／§5 BAN・ピック回数統計（まず `localStorage` でDB無風に）／§7 演出・SE・TTS。
