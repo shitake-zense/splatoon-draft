@@ -83,6 +83,16 @@
 - BO3/BO5 フレームを先に → 武器ロックアウト → 勝者ペナルティ/敗者特権 → **負けチームがルール設定** → 戦績ボード。
 - 1ルーム複数試合・試合間状態保持で**スキーマと状態ライフサイクルに最も踏み込む**。Phase 1〜3 で設定項目が出揃った後にやると「負けチームのルール設定」が選択肢豊富になる。
 
+#### ✅ Phase 4a — BO3/BO5 連戦フレーム（完了）
+- 決定（2026-06-26 オーナー確認）: **4aを先に実装してpush** → 4b/4c/4d は段階的に。勝敗は**ホストが結果画面で入力**（アプリは試合結果を知らない）。長さは **BO3（先取2）/ BO5（先取3）から選択**。
+- 仕様: 各試合はフルドラフト→結果。結果画面でホスト（ソロは操作者）が勝者を選ぶ→**ステージ/ルールを自動ランダム変更**して次戦のドラフトを再構築。先取数到達でシリーズ終了＝勝者と各試合履歴（勝者/ルール/ステージ）を表示。各試合の編成・BANは履歴にスナップショット保存（4d 戦績ボード用の土台）。
+- 状態: `state.series = {mode,target,game,scoreA,scoreB,history[],done,config}`（**追加のみ**・`normalizeState` 既定 null）。`config` に次戦再構築用の設定スナップショット。state に `pickOrderAlpha/Bravo` も保存（次戦の seq 再構築＋結果ソートが正しく効くように）。
+- 同期: `state.series` を `pushState` で同期。次戦開始＝ホストが `buildAndStartDraft`（series 引き継ぎ）→push→全員が新ゲームへ。シリーズ終了は done を push し全員のリザルト再描画。`subscribeRoom` の「リザルト中の done 更新は showResult のみ」(Phase3b) で終了表示、新ゲーム(idx0)は通常の draft 入場。
+- 重要修正: `buildAndStartDraft` の一時リセットを `resetTransientDraftState()` 呼び出しに統一（連戦の次戦で**ガチャ `_gachaFinalized`／トレード／お題ルーレットのフラグも確実にクリア**）。`subscribeRoom` の draft 入場時も同関数で全リセット。
+- コードの居場所: `recordSeriesWinnerAndAdvance`／`renderSeriesArea`／`renderSeriesHistory`／`seriesIsOperator`／`window.seriesWinner`。設定 `#series-enabled`/`#series-mode`（マルチ）・`#solo-series-enabled`/`#solo-series-mode`（ソロ）→`onSeriesToggle`/`onSoloSeriesToggle`。`buildAndStartDraft` に `seriesEnabled/seriesMode/series` を配線。結果UI `#series-area`（trade-area の下）。
+- 検証: `node --check` OK／スコア・終了判定 単体13件パス／**ローカル実機でソロ BO3 をE2E**（2-0 で第1→第2試合へ自動進行・ステージ自動変更・履歴・終了表示を確認）／使い方ガイド更新済み／smoke `S17` 追記。
+- **未決/次**: マルチ2クライアントE2Eは本番要スモーク。**Phase 4b＝武器ロックアウト**（シリーズ中、一度ピックした武器を次戦以降プールから除外。`series.config.excludeFilter` ではなく毎戦の累積除外として `getAvailableWeapons` に反映）に進む。4c=勝者ペナルティ/敗者特権・負けチームがルール設定、4d=戦績ボード/シリーズPNG。
+
 ### Phase 5 — 後回し（負債が出たら/余裕が出たら）
 - §6 グリッド検索・フィルタ（UX）／§5 BAN・ピック回数統計（まず `localStorage` でDB無風に）／§7 演出・SE・TTS。
 
