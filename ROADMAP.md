@@ -34,6 +34,7 @@
 - [x] 除外（グリッド/ピック/タイマー自動補完）・結果画面/結果画像・残り内訳ヒント対応。
 - **未決（次回確認候補）**: ジャンルBAN数は現状「**必須数**」（その数だけ必ずBANする）。「**最大N（任意）**」にしたい場合は完了条件の作り直しが要る。
 - **2026-06-26 調整（オーナー指示）**: ①**相手ピック（enemy）ではジャンルBANを廃止**＝設定枠を非表示（マルチ `updateBanGenreRowVisibility` / ソロ `onSoloPickModeChange`）＋`buildAndStartDraft` で enemy は banGenres を 0 強制。②**個人ピック×個人BANで味方の送信済みBANをグリッドにも共有表示**（`renderGrid` の `teammateBanSet`＝自チーム `bannerIds`×`pending_bans` から構築、破線枠＋「味方」バッジ・タップ不可。相手のBANは伏せたまま。`subscribeIndividualBans` がBAN中に `renderGrid` 追加呼び出し）。検証: 単体11件パス（`scratchpad/banshare.test.mjs` 相当）。
+- **2026-06-27 バグ修正（オーナー報告）**: 武器BAN「BANなし(0)」＋ジャンルBANのみだと**BANフェーズがスキップ**され、マルチでは**ブラボーがBAN送信不能**だった。原因: `buildAndStartDraft` で BANステップを `if(bc>0)` で積み、代表者解決も `bc>0` 条件だったため bc=0 で両方とも発火しなかった。修正: effective なジャンルBAN（`genreEff`）と総数 `banTotalEff=bc+genreTotal` を1回算出し、**seq は `banTotalEff>0` で BANステップを積む**／**代表者解決トリガに `genreTotal>0` を追加**／state の `banGenres` も `genreEff` を再利用（一貫化）。検証: 単体14件パス（`scratchpad/genreban-phase.test.mjs` 相当）＋**ローカル実機（ソロ）で bc0+genre2/2/2・bc6+genre2/2/2 の BAN→送信→確定→PICK 到達、bc0+genre0 は従来どおりBANなしを確認**。
 
 ### ✅ Phase 2 — お題カード / 縛りルーレット（§3）（完了）
 - 決定（2026-06-25 オーナー確認）: **両チーム共通1枚** / **非強制（○×表示のみ）** / **縛りルーレット演出を同梱** / **ON-OFFトグル（既定OFF）**。

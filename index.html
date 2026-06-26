@@ -3710,6 +3710,12 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tr
   const pMode   = pickMode||'team';
   const pickOrder = po||'snake';
   const bMode   = banMode||'representative';
+  // ジャンルBANは「実効的に代表者BAN」のときだけ有効（個人ピック×個人BAN／相手ピックでは無効）。
+  // ここで effective 値を1回だけ算出し、seq・代表者解決・state の banGenres で一貫して使う。
+  const genreEff = (!(pMode==='individual' && bMode==='individual') && pMode!=='enemy')
+    ? (banGenres||{cat:0,sub:0,special:0}) : {cat:0,sub:0,special:0};
+  const genreTotal = (genreEff.cat||0)+(genreEff.sub||0)+(genreEff.special||0);
+  const banTotalEff = (bc||0) + genreTotal; // 武器BAN＋ジャンルBANの総数（>0 ならBANフェーズあり）
   // 相手ピックは個人粒度（各選手が相手の対になる選手の武器を選ぶ）。memberId/targetMemberId 割当のため
   // 個人ピックと同様にピック順配列を使う。
   const usePickOrder = (pMode==='individual' || pMode==='enemy');
@@ -3719,7 +3725,8 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tr
   const poSec   = first==='alpha' ? (pickOrderBravo||[]) : (pickOrderAlpha||[]);
 
   const seq=[];
-  if(bc>0) seq.push({phase:'ban',banCount:bc});
+  // BANフェーズは「武器BAN または ジャンルBAN」がある時に積む（BANなし＋ジャンルBANでもスキップしない）
+  if(banTotalEff>0) seq.push({phase:'ban',banCount:bc});
 
   // 個人BANモード時: bannerIdsを計算（ピック順上位bc人）
   let bannerIds = null;
@@ -3765,7 +3772,7 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tr
   // 代表者BANの代表者IDを計算（マルチ・代表者BANモード時のみ）
   let representativeAlpha = null;
   let representativeBravo = null;
-  if(isMulti && (pMode==='gacha' || tradeEnabled || seriesEnabled || (bMode==='representative' && bc>0))){
+  if(isMulti && (pMode==='gacha' || tradeEnabled || seriesEnabled || (bMode==='representative' && bc>0) || genreTotal>0)){
     // alpha代表: buildAndStartDraft は常にホストが呼ぶため myMemberId がα代表
     // ガチャ/トレードは代表者が操作するため、BANモード/BAN数に関わらず代表者を解決する
     representativeAlpha = myMemberId;
@@ -3785,9 +3792,8 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tr
     pickOrder: pickOrder,
     banMode:  bMode,
     // 実効的に代表者BAN（＝個人ピック×個人BANの組み合わせ以外）のときだけジャンルBANを有効化。
-    // 相手ピック（enemy）ではジャンルBANは扱わない。
-    banGenres: (!(pMode==='individual' && bMode==='individual') && pMode!=='enemy')
-      ? (banGenres||{cat:0,sub:0,special:0}) : {cat:0,sub:0,special:0},
+    // 相手ピック（enemy）ではジャンルBANは扱わない。（seq/代表者解決と同じ genreEff を使用）
+    banGenres: genreEff,
     members:  members||{},
     bannerIds: bannerIds,
     representativeAlpha,
