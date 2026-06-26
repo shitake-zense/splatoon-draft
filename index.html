@@ -216,9 +216,10 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .wb.is-bn{border-color:var(--bn);background:#1a0f0f;}
 .wb.is-pk{border-color:var(--pk);background:#0f1a14;}
 .wb.is-locked{border-color:var(--y);background:#1a1708;opacity:.5;}
+.wb.is-teamban{border-color:var(--bn);border-style:dashed;background:#160d12;opacity:.7;}
 .wb.is-sel{border-color:var(--y);background:#2a2a0a;box-shadow:0 0 8px var(--y);}
 .wst{position:absolute;top:2px;right:2px;font-size:8px;padding:1px 4px;border-radius:3px;}
-.wst.b{background:var(--bn);color:#fff;}.wst.p{background:var(--pk);color:#1a1a2e;}.wst.l{background:var(--y);color:#1a1a2e;}
+.wst.b{background:var(--bn);color:#fff;}.wst.p{background:var(--pk);color:#1a1a2e;}.wst.l{background:var(--y);color:#1a1a2e;}.wst.tb{background:#5b8cff;color:#fff;}
 
 /* RESULT */
 .rm{position:relative;border-radius:var(--r);overflow:hidden;margin-bottom:14px;height:120px;background:#0a0a2e;}
@@ -514,7 +515,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <dd>人数は 1v1〜4v4。<b>BAN数</b>は各チームがBANする武器の数（なし〜各8・既定は各4）。両チーム同じ数です。</dd>
 
           <dt>ジャンルBAN（武器BANとは別枠）</dt>
-          <dd>武器単位とは<b>別の枠</b>で、<b>武器種・サブ・スペシャル単位</b>でまとめてBANできます（例: 「サブ=2」ならサブを2種類まるごと禁止＝そのサブを持つ武器が全て消える）。設定した数は<b>必ずその数だけBAN</b>します。代表者BAN相当のとき（個人ピック×個人BAN以外）だけ表示されます。</dd>
+          <dd>武器単位とは<b>別の枠</b>で、<b>武器種・サブ・スペシャル単位</b>でまとめてBANできます（例: 「サブ=2」ならサブを2種類まるごと禁止＝そのサブを持つ武器が全て消える）。設定した数は<b>必ずその数だけBAN</b>します。代表者BAN相当のとき（個人ピック×個人BAN以外）だけ表示されます。<b>相手ピックでは使えません</b>（枠は表示されません）。</dd>
 
           <dt>ピックモード（4種・最重要）</dt>
           <dd><b>個人ピック</b>＝各自が自分の番に自分の武器を選ぶ。<b>代表者ピック</b>＝チーム代表が全員分をまとめて選ぶ。<b>相手ピック</b>＝対になる相手選手の武器を<b>自分が決めて押し付ける</b>（アルファ[N]↔ブラボー[N]がペア）。普段使わない武器を持たされる遊びです。<b>🎲 ガチャ（運命ピック）</b>＝BAN後に各チームへ人数分の武器が<b>ランダムで一括配布</b>され、引き直して「確定」するだけ。選ぶ自由のないお祭りモードです。<br><span style="color:var(--mu)">※ソロでは「通常ピック（＝代表者ピック相当）」「相手ピック」「ガチャ」の3つ。</span></dd>
@@ -574,7 +575,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <h3>1ドラフトの進行</h3>
         <ol class="guide-list">
           <li><b>ロビー</b> … メンバー集合・チーム割り当て・ピック順の確認。</li>
-          <li><b>BANフェーズ</b> … 使えない武器を決めます。代表者BANは両チーム同時送信で相手の選択が伏せられます（個人BANも選択可）。武器・武器種・サブ・スペシャル単位でBANできます。</li>
+          <li><b>BANフェーズ</b> … 使えない武器を決めます。代表者BANは両チーム同時送信で相手の選択が伏せられます（個人BANも選択可）。武器・武器種・サブ・スペシャル単位でBANできます。<b>個人BANでは味方が送信したBANがグリッドに「味方」マークで共有表示</b>され、チーム内でのBAN重複を避けられます（相手のBANは揃うまで伏せたまま）。</li>
           <li><b>PICKフェーズ</b> … ピック順（交互／スネーク等）に沿って武器を選びます。同時ピックは両チームが選び一斉公開します。<b>🎲ガチャ</b>の場合はBAN後に人数分の武器がランダム配布され、各チームが引き直し→「確定」するだけで完了します。</li>
           <li><b>リザルト</b> … 両チームの編成・ステージ／ルール・お題の達成（○／×）が表示されます。<b>ドラフト後トレード</b>がONなら、ここで武器の交換を提案→相手代表者の承認で成立します。</li>
           <li><b>結果画像を保存</b> … 端末内で1枚のPNGを生成してダウンロードできます。</li>
@@ -2818,13 +2819,17 @@ window.onSoloPickOrderChange = function(){
 
 // ソロ: ピックモード変更時。ガチャ選択時はピック順を隠しリロール回数を表示。
 window.onSoloPickModeChange = function(){
-  const isGacha = document.getElementById('solo-pick-mode')?.value==='gacha';
+  const pm = document.getElementById('solo-pick-mode')?.value||'team';
+  const isGacha = pm==='gacha';
   const por = document.getElementById('solo-pick-order-row');
   const pod = document.getElementById('solo-pick-order-desc');
   const gr  = document.getElementById('solo-gacha-row');
+  const gbr = document.getElementById('solo-ban-genre-row');
   if(por) por.style.display = isGacha ? 'none' : '';
   if(pod) pod.style.display = isGacha ? 'none' : '';
   if(gr)  gr.style.display  = isGacha ? '' : 'none';
+  // 相手ピック（enemy）ではジャンルBAN枠を隠す
+  if(gbr) gbr.style.display = pm==='enemy' ? 'none' : '';
 };
 
 window.onSettingChange = function(){
@@ -2848,7 +2853,8 @@ function updateBanGenreRowVisibility(){
   const row=document.getElementById('ban-genre-row'); if(!row) return;
   const pm=document.getElementById('pick-mode')?.value||'individual';
   const bm=document.getElementById('ban-mode')?.value||'individual';
-  const show = !(pm==='individual' && bm==='individual'); // 個人ピック×個人BAN以外＝実効的に代表者BAN
+  // 個人ピック×個人BAN以外＝実効的に代表者BAN。ただし相手ピック（enemy）ではジャンルBANを扱わない。
+  const show = !(pm==='individual' && bm==='individual') && pm!=='enemy';
   row.style.display = show ? '' : 'none';
 }
 
@@ -3409,8 +3415,9 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tr
     pickMode: pMode,
     pickOrder: pickOrder,
     banMode:  bMode,
-    // 実効的に代表者BAN（＝個人ピック×個人BANの組み合わせ以外）のときだけジャンルBANを有効化
-    banGenres: !(pMode==='individual' && bMode==='individual')
+    // 実効的に代表者BAN（＝個人ピック×個人BANの組み合わせ以外）のときだけジャンルBANを有効化。
+    // 相手ピック（enemy）ではジャンルBANは扱わない。
+    banGenres: (!(pMode==='individual' && bMode==='individual') && pMode!=='enemy')
       ? (banGenres||{cat:0,sub:0,special:0}) : {cat:0,sub:0,special:0},
     members:  members||{},
     bannerIds: bannerIds,
@@ -3688,6 +3695,9 @@ function subscribeIndividualBans(){
   const unsubAll = onValue(ref(db,`rooms/${roomId}/pending_bans`), snap=>{
     banPendingIndividual = snap.exists() ? (snap.val()||{}) : {};
     renderBanPanel();
+    // 味方の送信済みBANをグリッドにも反映（共有表示・相手のBANは伏せたまま）
+    const step=state&&state.seq&&state.seq[state.idx];
+    if(step && step.phase==='ban') renderGrid();
     if(isHost) checkIndividualBansReady();
   });
   fbIndividualBanUnsub = unsubAll;
@@ -4548,6 +4558,15 @@ function renderGrid(){
 
   const allBanned=[...(S.bans.alpha||[]),...(S.bans.bravo||[]),...banPending.alpha,...banPending.bravo].map(w=>w.key);
   const allPicked=[...(S.picks.alpha||[]),...(S.picks.bravo||[])].map(w=>w.key);
+  // 個人BAN: 味方の送信済みBANをグリッドにも共有表示（相手のBANは伏せたまま）。チーム内の重複BANを避けやすくする。
+  const teammateBanSet=new Set();
+  if(isBan && S.pickMode==='individual' && S.banMode==='individual' && isMulti){
+    const myTeam=(S.members||{})[myMemberId]?.team || (isHost?'alpha':'bravo');
+    ((S.bannerIds&&S.bannerIds[myTeam])||[]).forEach((mid,i)=>{
+      const sub=banPendingIndividual[`${mid}_${i}`];
+      if(sub&&sub.key) teammateBanSet.add(sub.key);
+    });
+  }
   // 連戦ロックアウト: 過去試合で使われた武器はグリッドでもグレーアウト＆選択不可
   const lockedSet=new Set((S.series&&S.series.lockout&&Array.isArray(S.series.lockedKeys))?S.series.lockedKeys:[]);
   // ジャンルBANで消える武器（武器グリッド側でもグレーアウト表示する）
@@ -4556,9 +4575,11 @@ function renderGrid(){
   const filtered=activeCat==='すべて'?basePool:basePool.filter(w=>(w[activeFilterAxis]||'')===activeCat);
 
   filtered.forEach(w=>{
-    const isBanW=allBanned.includes(w.key)||weaponBannedByGenres(w,genreBanList), isPickW=allPicked.includes(w.key), isLockW=lockedSet.has(w.key), unavail=isBanW||isPickW||isLockW;
+    const isBanW=allBanned.includes(w.key)||weaponBannedByGenres(w,genreBanList), isPickW=allPicked.includes(w.key), isLockW=lockedSet.has(w.key);
+    const isTeamBanW=teammateBanSet.has(w.key)&&!isBanW&&!isPickW;
+    const unavail=isBanW||isTeamBanW||isPickW||isLockW;
     const btn=document.createElement('button');
-    btn.className='wb'+(isBanW?' is-bn':'')+(isPickW?' is-pk':'')+(isLockW&&!isBanW&&!isPickW?' is-locked':'');
+    btn.className='wb'+(isBanW?' is-bn':'')+(isTeamBanW?' is-teamban':'')+(isPickW?' is-pk':'')+(isLockW&&!isBanW&&!isPickW&&!isTeamBanW?' is-locked':'');
     let clickable=false;
     if(!unavail&&step){
       const S=state;
@@ -4606,7 +4627,7 @@ function renderGrid(){
     btn.disabled=unavail||!clickable;
     btn.innerHTML=`<img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.height='38px';this.style.opacity='.2'">
       <div class="wn">${w.name}</div>
-      ${isBanW?'<span class="wst b">BAN</span>':''}${isPickW?'<span class="wst p">PICK</span>':''}${isLockW&&!isBanW&&!isPickW?'<span class="wst l">🔒</span>':''}`;
+      ${isBanW?'<span class="wst b">BAN</span>':''}${isTeamBanW?'<span class="wst tb">味方</span>':''}${isPickW?'<span class="wst p">PICK</span>':''}${isLockW&&!isBanW&&!isPickW&&!isTeamBanW?'<span class="wst l">🔒</span>':''}`;
     if(clickable&&!unavail){
       const isSelW = pendingSelect && pendingSelect.phase==='ban' && banIdOf(pendingSelect.w)===banIdOf(w);
       if(isSelW) btn.classList.add('is-sel');
