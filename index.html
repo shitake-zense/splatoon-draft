@@ -111,6 +111,13 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .md-pick.pickable:hover{background:var(--y);color:#1a1a2e;}
 .md-pool-empty{font-size:11px;color:var(--mu);}
 .md-hint{text-align:center;font-size:12px;color:var(--mu);margin-top:10px;line-height:1.6;}
+/* 武器ピック（メンバードラフト timing=after） */
+.wp-picked{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0;}
+.wp-chip{background:#0f1729;border-radius:6px;padding:4px 8px;font-size:11px;display:flex;align-items:center;gap:5px;}
+.wp-chip img{width:22px;height:22px;object-fit:contain;}
+.wp-chip .nm{color:var(--mu);font-size:10px;}
+.wp-hint{text-align:center;font-size:12px;color:var(--mu);margin:6px 0 8px;line-height:1.6;}
+.wp-cf{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;justify-content:center;}
 
 /* JOIN */
 .join-wrap{max-width:360px;margin:40px auto 0;}
@@ -553,7 +560,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <dd>ONにすると<b>結果画面</b>で武器の交換ができます。自チームの武器1枚と相手チームの武器1枚を選んで<b>交換を提案</b>→<b>相手チームの代表者が承認</b>すると成立（拒否も可）。回数は無制限です。マルチでは<b>各チームの代表者だけ</b>が提案・承認でき、ソロではアルファ⇄ブラボーをその場で入れ替えられます。</dd>
 
           <dt>メンバードラフト（キャプテン選抜・マルチ専用）</dt>
-          <dd>ONにすると、武器ドラフトの前に<b>チーム分けをキャプテン選抜で</b>行えます。チーム割り当てで<b>各チームのキャプテンを1名ずつ</b>（α／β）に置き、残りは<b>未割り当て（プール）</b>に。両チーム代表者が揃い<b>人数が足りていれば（2v2以上・合計2×人数以上）</b>「メンバードラフト開始」が押せます。開始後は2人のキャプテンが<b>交互にプールから1人ずつ指名</b>（先攻チームが先）。制限時間ONなら<b>時間切れでランダム自動指名</b>。両チームが埋まると<b>そのまま武器ドラフト（BAN/PICK）へ自動で進みます</b>。このとき<b>指名した順番がそのままピック順</b>になります（各チーム、キャプテンが先頭→指名順）。</dd>
+          <dd>ONにすると、武器ドラフトの前に<b>チーム分けをキャプテン選抜で</b>行えます。チーム割り当てで<b>各チームのキャプテンを1名ずつ</b>（α／β）に置き、残りは<b>未割り当て（プール）</b>に。両チーム代表者が揃い<b>人数が足りていれば（2v2以上・合計2×人数以上）</b>「メンバードラフト開始」が押せます。開始後は2人のキャプテンが<b>交互にプールから1人ずつ指名</b>（先攻チームが先）。制限時間ONなら<b>時間切れでランダム自動指名</b>。<br><b>タイミング</b>を選べます：<br>・<b>「チーム分け→ドラフト」</b>＝選抜が終わると<b>そのまま武器ドラフト（BAN/PICK）へ自動で進み、指名した順番がそのままピック順</b>になります（各チーム、キャプテンが先頭→指名順）。<br>・<b>「全員が武器ピック→チーム分け」</b>＝先に<b>全員（キャプテン含む）がランダム順で1人ずつ武器を選び（すでに選ばれた武器は選べません）</b>、その後にキャプテンがチーム分け。BANはなし。各自が選んだ武器を持ったまま結果に進みます。</dd>
 
           <dt>連戦モード（シリーズ）</dt>
           <dd>1ルームで<b>複数試合を連続</b>で行います。<b>シリーズ長</b>＝BO3（先取2）／BO5（先取3）。各試合のドラフトが終わったら結果画面で<b>ホストが勝者を入力</b>すると、ステージが変わって次の試合のドラフトが始まります。先取数に達するとシリーズ終了で、<b>戦績ボード</b>（各試合の勝者・ルール・ステージ・両チームの編成一覧）が表示され、<b>「🖼️ シリーズ画像を保存」</b>で全試合を1枚のPNGにまとめて保存できます。</dd>
@@ -871,6 +878,13 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <span class="tgl-sl"></span>
         </label>
       </div>
+      <div class="row" id="member-draft-timing-row" style="display:none">
+        <label>タイミング<br><small style="color:var(--mu);font-weight:normal;font-size:9px">チーム分けをいつ行うか</small></label>
+        <select id="member-draft-timing" onchange="onSettingChange()">
+          <option value="before">チーム分け → ドラフト（指名順でBANへ）</option>
+          <option value="after">全員が武器ピック → チーム分け（BANなし）</option>
+        </select>
+      </div>
       <div class="div"></div>
       <div class="row">
         <label>ピックモード</label>
@@ -992,6 +1006,20 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
   </div>
   <div class="md-hint" id="md-hint"></div>
   <button class="btn-re" id="btn-md-abort" style="display:none;max-width:260px;margin:10px auto 0;" onclick="abortMemberDraft()">✕ メンバードラフトを中止</button>
+</div>
+
+<!-- WEAPON PICK (メンバードラフト timing=after・全員が武器を選ぶ) -->
+<div id="s-weapon-pick" class="screen">
+  <div class="logo"><h1>SPLATOON DRAFT</h1><p>武器ピック（全員・チーム分け前）</p></div>
+  <div class="md-turn" id="wp-turn"></div>
+  <div class="md-timer" id="wp-timer" style="display:none"></div>
+  <div class="wp-picked" id="wp-picked"></div>
+  <div class="wp-hint" id="wp-hint"></div>
+  <div id="wp-grid-wrap" style="display:none">
+    <div class="wp-cf" id="wp-cf"></div>
+    <div class="wg" id="wp-wg"></div>
+  </div>
+  <button class="btn-re" id="btn-wp-abort" style="display:none;max-width:260px;margin:10px auto 0;" onclick="abortWeaponPick()">✕ 武器ピックを中止</button>
 </div>
 
 <!-- SETUP (ソロ) -->
@@ -1420,6 +1448,8 @@ function applyLobbySettingsToForm(s){
   setChk('series-enabled',s.seriesEnabled); setVal('series-mode',s.seriesMode||'bo3');
   setChk('series-lockout',s.seriesLockout); setChk('series-loser-rules',s.seriesLoserRules);
   setChk('member-draft-enabled',s.memberDraftEnabled);
+  setVal('member-draft-timing',s.memberDraftTiming||'before');
+  const mdtr=document.getElementById('member-draft-timing-row'); if(mdtr) mdtr.style.display = s.memberDraftEnabled ? '' : 'none';
   const smr=document.getElementById('series-mode-row'); if(smr) smr.style.display = s.seriesEnabled ? '' : 'none';
   const slr=document.getElementById('series-lockout-row'); if(slr) slr.style.display = s.seriesEnabled ? '' : 'none';
   const slrr=document.getElementById('series-loser-rules-row'); if(slrr) slrr.style.display = s.seriesEnabled ? '' : 'none';
@@ -1576,12 +1606,12 @@ function clampTimeLimit(v){
 }
 
 function showScreen(n){
-  ['mode','guide','create','join','lobby','lobby-wait','member-draft','setup','draft','result'].forEach(s=>
+  ['mode','guide','create','join','lobby','lobby-wait','member-draft','weapon-pick','setup','draft','result'].forEach(s=>
     document.getElementById('s-'+s).classList.toggle('active',s===n)
   );
-  if(roomId && ['lobby','lobby-wait','member-draft','draft'].includes(n)){
+  if(roomId && ['lobby','lobby-wait','member-draft','weapon-pick','draft'].includes(n)){
     history.replaceState(null,'',`?room=${roomId}`);
-  } else if(!['lobby','lobby-wait','member-draft','draft'].includes(n)){
+  } else if(!['lobby','lobby-wait','member-draft','weapon-pick','draft'].includes(n)){
     history.replaceState(null,'','?');
   }
 }
@@ -1820,7 +1850,8 @@ function subscribeLobby(){
     const members=lobby.members||{};
     renderLobbyMembers(members);
 
-    // メンバードラフト（キャプテン選抜）フェーズ中は専用画面が画面を占有（通常ロビー描画はスキップ）
+    // 武器ピック（timing=after）／メンバードラフト（キャプテン選抜）フェーズ中は専用画面が占有（通常ロビー描画スキップ）
+    if(handleWeaponPickPhase(lobby)) return;
     if(handleMemberDraftPhase(lobby)) return;
 
     if(isHost){
@@ -1930,6 +1961,8 @@ window.assignMember = function(memberId, team){
 // 出力は既存と同じ members[].team。完了後は通常のチーム割当→開始フローに合流する（state スキーマ不変）。
 window.onMemberDraftToggle = function(){
   // ピックモードに関わらずチーム形成の方式。トグルでチーム割当UIの体裁を切替。
+  const on=document.getElementById('member-draft-enabled')?.checked;
+  const tr=document.getElementById('member-draft-timing-row'); if(tr) tr.style.display = on ? '' : 'none';
   if(isHost) renderTeamAssign(lobbyMembers);
   updateStartButton();
   onSettingChange();
@@ -2051,11 +2084,17 @@ function handleMemberDraftPhase(lobby){
     _mdPhaseActive=false; stopMdTimer(); stopMdCountdown();
     if(isHost){
       if(md && md.done && !_mdAutoStarted){
-        // #1 直結: 指名順をそのままピック順に採用し、そのまま武器ドラフト（BAN/PICK）へ進む
         _mdAutoStarted=true;
-        lobbyPickOrderAlpha = Array.isArray(md.orderAlpha) ? md.orderAlpha.slice() : [];
-        lobbyPickOrderBravo = Array.isArray(md.orderBravo) ? md.orderBravo.slice() : [];
-        startDraft(); // mdDone のため startMemberDraft 側へは入らず武器ドラフトを構築・開始
+        const timing=(lobby.settings && lobby.settings.memberDraftTiming)||'before';
+        if(timing==='after'){
+          // #2: 武器は選択済み → そのまま結果を構築して表示
+          finishAfterPickMode(lobby);
+        } else {
+          // #1 直結: 指名順をそのままピック順に採用し、そのまま武器ドラフト（BAN/PICK）へ進む
+          lobbyPickOrderAlpha = Array.isArray(md.orderAlpha) ? md.orderAlpha.slice() : [];
+          lobbyPickOrderBravo = Array.isArray(md.orderBravo) ? md.orderBravo.slice() : [];
+          startDraft(); // mdDone のため startMemberDraft 側へは入らず武器ドラフトを構築・開始
+        }
       } else {
         showScreen('lobby'); // 中止時は通常ロビーへ
       }
@@ -2087,6 +2126,9 @@ function renderMemberDraftScreen(lobby){
   document.getElementById('md-head-a').textContent=an;
   document.getElementById('md-head-b').textContent=bn;
   const nameOf=id=>(members[id]?.name)||'?';
+  // timing=after では各メンバーが選んだ武器を名前の後ろに表示
+  const wpPicks=(lobby.weaponPick&&lobby.weaponPick.picks)||{};
+  const wpName=id=>wpPicks[id]?` <span style="color:var(--mu);font-size:10px">(${wpPicks[id].name})</span>`:'';
   const turnCap = md.turn==='alpha'?md.capAlpha:md.capBravo;
   const turnTeamName = md.turn==='alpha'?an:bn;
   const turnCls = md.turn==='alpha'?'a':'b';
@@ -2109,8 +2151,8 @@ function renderMemberDraftScreen(lobby){
       .sort((a,b)=> (a===cap?-1:b===cap?1:0)); // キャプテンを先頭に
     ids.forEach(id=>{
       const div=document.createElement('div');
-      if(id===cap){ div.className='md-cap'; div.innerHTML=`<span class="tag">C</span>${nameOf(id)}`; }
-      else { div.className='md-member'; div.textContent=nameOf(id); }
+      if(id===cap){ div.className='md-cap'; div.innerHTML=`<span class="tag">C</span>${nameOf(id)}${wpName(id)}`; }
+      else { div.className='md-member'; div.innerHTML=`${nameOf(id)}${wpName(id)}`; }
       el.appendChild(div);
     });
     const cnt=ids.length;
@@ -2124,7 +2166,7 @@ function renderMemberDraftScreen(lobby){
   pool.forEach(id=>{
     const b=document.createElement('button');
     b.className='md-pick'+(isMyTurn?' pickable':'');
-    b.textContent=nameOf(id);
+    b.innerHTML=`${nameOf(id)}${wpName(id)}`;
     if(isMyTurn) b.onclick=()=>mdPick(id);
     else b.disabled=true;
     poolEl.appendChild(b);
@@ -2135,6 +2177,222 @@ function renderMemberDraftScreen(lobby){
   else hint.textContent=`${nameOf(turnCap)} が指名するのを待っています…`;
   // 中止ボタンはホストのみ
   const ab=document.getElementById('btn-md-abort'); if(ab) ab.style.display=isHost?'':'none';
+}
+
+// ===== 武器ピックフェーズ（メンバードラフト・タイミング=after / #2） =====
+// 全員（キャプテン含む）がランダム順で1人ずつ武器を選ぶ（ミラー禁止＝全体で重複なし）。
+// 完了後にメンバードラフト（チーム分け）→結果。真実の源は lobby/weaponPick、単一ライターはホスト。
+let lobbyWeaponPick   = null;
+let _wpPhaseActive    = false;
+let _wpApplying       = false;
+let wpTimerInterval   = null;
+let wpCountdownInterval = null;
+let wpActiveCat       = 'すべて';
+function wpBasePool(stdOnly, ef){
+  return (stdOnly?WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')):WEAPONS).filter(w=>!isWeaponExcluded(w,ef));
+}
+// ホスト: 武器ピック開始（全員をランダム順に並べる）
+function startWeaponPick(){
+  if(!isHost || !roomId) return;
+  const ts=parseInt(document.getElementById('sz')?.value||4);
+  if(ts<2) return;
+  const entries=Object.entries(lobbyMembers);
+  const alpha=entries.filter(([,m])=>m.team==='alpha').map(([id])=>id);
+  const bravo=entries.filter(([,m])=>m.team==='bravo').map(([id])=>id);
+  if(alpha.length!==1 || bravo.length!==1) return;
+  if(entries.length < 2*ts) return;
+  const order=entries.map(([id])=>id);
+  for(let i=order.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [order[i],order[j]]=[order[j],order[i]]; }
+  const node={ active:true, done:false, order, idx:0, picks:{} };
+  const timed=document.getElementById('time-limit-enabled')?.checked;
+  const sec=clampTimeLimit(document.getElementById('time-limit-sec')?.value);
+  if(timed) node.deadline=Date.now()+sec*1000;
+  set(ref(db,`rooms/${roomId}/lobby/weaponPick`), node);
+}
+// 現在の手番プレイヤー: 武器を選ぶ（意図を書き込む→ホストが適用）
+window.wpPick = function(weaponKey){
+  const wp=lobbyWeaponPick; if(!wp||!wp.active||wp.done) return;
+  const curId=(wp.order||[])[wp.idx];
+  if(myMemberId!==curId) return;
+  const taken=new Set(Object.values(wp.picks||{}).map(w=>w.key));
+  if(taken.has(weaponKey)) return;             // ミラー禁止
+  set(ref(db,`rooms/${roomId}/lobby/weaponPick/pick`), {memberId:myMemberId, weaponKey, ts:Date.now()});
+};
+window.abortWeaponPick = function(){
+  if(!isHost || !roomId) return;
+  if(!confirm('武器ピックを中止しますか？\n（チーム割当はそのまま残ります）')) return;
+  stopWpTimer();
+  remove(ref(db,`rooms/${roomId}/lobby/weaponPick`));
+};
+// ホスト: 武器ピック意図を picks へ反映し手番を送る（単一ライター）
+function hostApplyWeaponPick(lobby){
+  if(!isHost) return;
+  const wp=lobby.weaponPick;
+  if(!wp || !wp.active || wp.done){ stopWpTimer(); return; }
+  if(wp.pick && !_wpApplying){
+    _wpApplying=true;
+    const order=wp.order||[];
+    const curId=order[wp.idx];
+    const {memberId, weaponKey}=wp.pick;
+    const taken=new Set(Object.values(wp.picks||{}).map(w=>w.key));
+    const w=WEAPONS.find(x=>x.key===weaponKey);
+    const valid = memberId===curId && w && !taken.has(weaponKey);
+    const updates={};
+    updates[`rooms/${roomId}/lobby/weaponPick/pick`]=null;
+    if(valid){
+      updates[`rooms/${roomId}/lobby/weaponPick/picks/${memberId}`]={key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat};
+      const nextIdx=wp.idx+1;
+      if(nextIdx>=order.length){
+        updates[`rooms/${roomId}/lobby/weaponPick/done`]=true;
+        updates[`rooms/${roomId}/lobby/weaponPick/deadline`]=null;
+      } else {
+        updates[`rooms/${roomId}/lobby/weaponPick/idx`]=nextIdx;
+        const timed=document.getElementById('time-limit-enabled')?.checked;
+        const sec=clampTimeLimit(document.getElementById('time-limit-sec')?.value);
+        updates[`rooms/${roomId}/lobby/weaponPick/deadline`]= timed ? Date.now()+sec*1000 : null;
+      }
+    }
+    update(ref(db), updates).finally(()=>{ _wpApplying=false; });
+    return;
+  }
+  startWpTimer(wp);
+}
+function startWpTimer(wp){
+  stopWpTimer();
+  if(!isHost || !wp || !wp.active || wp.done || !wp.deadline) return;
+  wpTimerInterval=setInterval(()=>{
+    const wp2=lobbyWeaponPick;
+    if(!wp2 || !wp2.active || wp2.done || !wp2.deadline){ stopWpTimer(); return; }
+    if(Date.now()>=wp2.deadline && !_wpApplying){
+      stopWpTimer();
+      const curId=(wp2.order||[])[wp2.idx];
+      const taken=new Set(Object.values(wp2.picks||{}).map(w=>w.key));
+      const s=getLobbySettings();
+      const pool=wpBasePool(s.stdOnly, s.excludeFilter).filter(w=>!taken.has(w.key));
+      if(curId && pool.length){
+        const w=pool[Math.floor(Math.random()*pool.length)];
+        set(ref(db,`rooms/${roomId}/lobby/weaponPick/pick`), {memberId:curId, weaponKey:w.key, ts:Date.now(), auto:true});
+      }
+    }
+  }, 500);
+}
+function stopWpTimer(){ if(wpTimerInterval){clearInterval(wpTimerInterval);wpTimerInterval=null;} }
+function startWpCountdown(){
+  stopWpCountdown();
+  wpCountdownInterval=setInterval(()=>{
+    const wp=lobbyWeaponPick, tEl=document.getElementById('wp-timer');
+    if(!tEl) return;
+    if(wp && wp.active && !wp.done && wp.deadline){
+      const left=Math.max(0,Math.ceil((wp.deadline-Date.now())/1000));
+      tEl.style.display=''; tEl.textContent=`⏱ ${left}`;
+    } else { tEl.style.display='none'; }
+  }, 500);
+}
+function stopWpCountdown(){ if(wpCountdownInterval){clearInterval(wpCountdownInterval);wpCountdownInterval=null;} }
+// 全クライアント: 武器ピックのフェーズ処理。武器ピック中なら true（通常ロビー描画スキップ）。
+function handleWeaponPickPhase(lobby){
+  lobbyWeaponPick = lobby.weaponPick || null;
+  if(isHost) hostApplyWeaponPick(lobby);
+  const wp=lobbyWeaponPick;
+  const active=!!(wp && wp.active && !wp.done);
+  if(active){
+    renderWeaponPickScreen(lobby);
+    if(!_wpPhaseActive || !document.getElementById('s-weapon-pick').classList.contains('active')){
+      _wpPhaseActive=true; showScreen('weapon-pick'); startWpCountdown();
+    }
+    return true;
+  }
+  if(_wpPhaseActive){
+    _wpPhaseActive=false; stopWpTimer(); stopWpCountdown();
+    if(isHost){
+      if(wp && wp.done){ startMemberDraft(); } // 武器ピック完了 → キャプテン選抜（チーム分け）へ
+      else { showScreen('lobby'); }            // 中止
+    } else {
+      showLobbyWait();
+    }
+  }
+  return false;
+}
+// 全クライアント: 武器ピック画面の描画
+function renderWeaponPickScreen(lobby){
+  const wp=lobby.weaponPick; if(!wp) return;
+  const members=lobby.members||{};
+  const s=lobby.settings||{};
+  const nameOf=id=>(members[id]?.name)||'?';
+  const order=wp.order||[];
+  const curId=order[wp.idx];
+  const isMyTurn=myMemberId===curId;
+  const picks=wp.picks||{};
+  // 手番
+  document.getElementById('wp-turn').innerHTML=`武器選択中： <b style="color:var(--y)">${nameOf(curId)}</b> <span style="color:var(--mu);font-size:12px">（${(wp.idx||0)+1} / ${order.length}人目）</span>`;
+  // タイマー
+  const tEl=document.getElementById('wp-timer');
+  if(wp.deadline){ const left=Math.max(0,Math.ceil((wp.deadline-Date.now())/1000)); tEl.style.display=''; tEl.textContent=`⏱ ${left}`; }
+  else { tEl.style.display='none'; }
+  // 選択済み一覧（順番どおり）
+  const pe=document.getElementById('wp-picked'); pe.innerHTML='';
+  order.forEach(id=>{
+    const w=picks[id]; if(!w) return;
+    const chip=document.createElement('div'); chip.className='wp-chip';
+    chip.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'"><span>${nameOf(id)}</span><span class="nm">${w.name}</span>`;
+    pe.appendChild(chip);
+  });
+  // ヒント
+  const hint=document.getElementById('wp-hint');
+  if(isMyTurn) hint.innerHTML='<b style="color:var(--y)">あなたの番です</b> — 使う武器を選んでください（すでに選ばれた武器は選べません）';
+  else hint.textContent=`${nameOf(curId)} が武器を選ぶのを待っています…`;
+  // グリッド（自分の番のみ操作可能）
+  const wrap=document.getElementById('wp-grid-wrap');
+  wrap.style.display = isMyTurn ? '' : 'none';
+  if(isMyTurn){
+    const taken=new Set(Object.values(picks).map(w=>w.key));
+    const base=wpBasePool(!!s.stdOnly, s.excludeFilter);
+    const cats=['すべて',...new Set(base.map(w=>w.cat))];
+    if(!cats.includes(wpActiveCat)) wpActiveCat='すべて';
+    const cf=document.getElementById('wp-cf'); cf.innerHTML='';
+    cats.forEach(c=>{ const b=document.createElement('button'); b.className='cb'+(c===wpActiveCat?' on':''); b.textContent=c; b.onclick=()=>{wpActiveCat=c; renderWeaponPickScreen(lobby);}; cf.appendChild(b); });
+    const grid=document.getElementById('wp-wg'); grid.innerHTML='';
+    const list=wpActiveCat==='すべて'?base:base.filter(w=>w.cat===wpActiveCat);
+    list.forEach(w=>{
+      const used=taken.has(w.key);
+      const btn=document.createElement('button'); btn.className='wb'+(used?' is-bn':''); btn.disabled=used;
+      btn.innerHTML=`<img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.height='38px';this.style.opacity='.2'"><div class="wn">${w.name}</div>${used?'<span class="wst b">取得済</span>':''}`;
+      if(!used) btn.onclick=()=>wpPick(w.key);
+      grid.appendChild(btn);
+    });
+  }
+  const ab=document.getElementById('btn-wp-abort'); if(ab) ab.style.display=isHost?'':'none';
+}
+// timing=after: 武器ピック＋チーム分け完了 → 各プレイヤーの選んだ武器で結果を構築して表示
+function finishAfterPickMode(lobby){
+  const s=lobby.settings||{};
+  const members=lobby.members||{};
+  const md=lobby.memberDraft||{};
+  const wpPicks=(lobby.weaponPick&&lobby.weaponPick.picks)||{};
+  const ts=parseInt(document.getElementById('sz')?.value||s.ts||4);
+  const an=s.an||'アルファ', bn=s.bn||'ブラボー';
+  const rule=(s.rule&&s.rule!=='random')?s.rule:RULES[Math.floor(Math.random()*RULES.length)];
+  const stageJa=(s.stageJa&&s.stageJa!=='random')?s.stageJa:STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)];
+  const orderA=Array.isArray(md.orderAlpha)?md.orderAlpha:Object.entries(members).filter(([,m])=>m.team==='alpha').map(([id])=>id);
+  const orderB=Array.isArray(md.orderBravo)?md.orderBravo:Object.entries(members).filter(([,m])=>m.team==='bravo').map(([id])=>id);
+  const buildPicks=order=>order.map(id=>{ const w=wpPicks[id]; return w?{key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat,memberId:id}:null; }).filter(Boolean);
+  const membersForState={};
+  Object.entries(members).forEach(([id,m])=>{ membersForState[id]={name:m.name,team:m.team,isHost:m.isHost,joinedAt:m.joinedAt||0}; });
+  state={
+    an, bn, ts, bc:0, rule, stageJa, seq:[], idx:0,
+    bans:{alpha:[],bravo:[]},
+    picks:{alpha:buildPicks(orderA), bravo:buildPicks(orderB)},
+    stdOnly:!!s.stdOnly, pickMode:'individual', pickOrder:'snake', banMode:'representative',
+    banGenres:{cat:0,sub:0,special:0}, members:membersForState, bannerIds:null,
+    representativeAlpha:null, representativeBravo:null,
+    timeLimitEnabled:false, timeLimitSec:30, deadline:null,
+    excludeFilter:s.excludeFilter||{cats:[],subs:[],specials:[]},
+    challenge:null, pickOrderAlpha:orderA, pickOrderBravo:orderB, series:null,
+  };
+  stopWpTimer(); stopWpCountdown(); stopMdTimer(); stopMdCountdown();
+  if(roomId){ remove(ref(db,`rooms/${roomId}/lobby/weaponPick`)); remove(ref(db,`rooms/${roomId}/lobby/memberDraft`)); }
+  if(isMulti&&isHost) pushState();
+  showResult();
 }
 
 // ===== チームのランダム振り分け（ホスト操作・再振り分けも同ボタン） =====
@@ -3484,6 +3742,7 @@ function getLobbySettings(){
     seriesLockout: document.getElementById('series-lockout')?.checked||false,
     seriesLoserRules: document.getElementById('series-loser-rules')?.checked||false,
     memberDraftEnabled: document.getElementById('member-draft-enabled')?.checked||false,
+    memberDraftTiming: document.getElementById('member-draft-timing')?.value||'before',
     pickMode: document.getElementById('pick-mode')?.value||'individual',
     banMode:  document.getElementById('ban-mode')?.value||'individual',
     banGenres: readBanGenresFromUI(),
@@ -3515,7 +3774,8 @@ function updateStartButton(){
   const mdDone = lobbyMemberDraft && lobbyMemberDraft.done;
   if(mdEnabled && !mdDone){
     const total = Object.keys(lobbyMembers).length;
-    btn.textContent = '▶ メンバードラフト開始';
+    const mdTiming = document.getElementById('member-draft-timing')?.value||'before';
+    btn.textContent = mdTiming==='after' ? '▶ 武器ピック開始' : '▶ メンバードラフト開始';
     if(ts < 2){
       btn.disabled = true;
       info.textContent = 'メンバードラフトは 2v2 以上でご利用ください（1v1は不要）';
@@ -3582,10 +3842,15 @@ window.onTimeLimitChange = function(){
 
 // ===== ドラフト開始 (ホスト) =====
 window.startDraft = function(){
-  // メンバードラフト有効＆未完了 → まずキャプテン選抜フェーズを開始（武器ドラフトはその後）
+  // メンバードラフト有効＆未完了 → 先頭フェーズを開始（武器ドラフトはその後）
   const mdEnabled = document.getElementById('member-draft-enabled')?.checked;
   const mdDone = lobbyMemberDraft && lobbyMemberDraft.done;
-  if(mdEnabled && !mdDone){ startMemberDraft(); return; }
+  if(mdEnabled && !mdDone){
+    const timing = document.getElementById('member-draft-timing')?.value||'before';
+    if(timing==='after') startWeaponPick();  // 全員が武器ピック → その後チーム分け
+    else startMemberDraft();                 // 先にチーム分け → 武器ドラフトへ直結
+    return;
+  }
   // 武器ドラフトへ進む: メンバードラフトのノードは片付ける
   stopMdTimer(); stopMdCountdown();
   if(roomId) remove(ref(db,`rooms/${roomId}/lobby/memberDraft`));
@@ -4189,8 +4454,11 @@ window.backToLobby = async function(){
   // タイマー停止
   clearTimer();
   // メンバードラフトの一時状態も片付ける（ロビー復帰時に選抜画面が残らないように）
-  stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; _mdAutoStarted=false; lobbyMemberDraft=null;
-  await remove(ref(db,`rooms/${roomId}/lobby/memberDraft`));
+  stopWpTimer(); stopWpCountdown(); _wpPhaseActive=false; lobbyWeaponPick=null; stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; _mdAutoStarted=false; lobbyMemberDraft=null;
+  await Promise.all([
+    remove(ref(db,`rooms/${roomId}/lobby/memberDraft`)),
+    remove(ref(db,`rooms/${roomId}/lobby/weaponPick`)),
+  ]);
 
   // 全Firebase購読を解除（lobby監視は後で再登録）
   [fbUnsub, fbBanUnsub, fbSimPickUnsub, fbIndividualBanUnsub, fbGachaUnsub, fbTradeUnsub, fbSeriesUnsub].forEach(f=>{if(f){f();}});
@@ -4231,7 +4499,7 @@ window.backToLobby = async function(){
 
 // ===== 退出 =====
 window.leaveLobby = function(){
-  stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; _mdAutoStarted=false; lobbyMemberDraft=null;
+  stopWpTimer(); stopWpCountdown(); _wpPhaseActive=false; lobbyWeaponPick=null; stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; _mdAutoStarted=false; lobbyMemberDraft=null;
   [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub,fbTradeUnsub,fbSeriesUnsub].forEach(f=>{if(f){f();} });
   fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=fbTradeUnsub=fbSeriesUnsub=null;
   if(isMulti&&!isHost&&myMemberId&&roomId){
@@ -4243,7 +4511,7 @@ window.leaveLobby = function(){
   showScreen('mode');
 };
 window.goHome = function(){
-  stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; _mdAutoStarted=false; lobbyMemberDraft=null;
+  stopWpTimer(); stopWpCountdown(); _wpPhaseActive=false; lobbyWeaponPick=null; stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; _mdAutoStarted=false; lobbyMemberDraft=null;
   [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub,fbTradeUnsub,fbSeriesUnsub].forEach(f=>{if(f){f();}});
   fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=fbTradeUnsub=fbSeriesUnsub=null;
   // 参加者がモード選択に戻る際も Firebase lobby から自分を削除する

@@ -133,6 +133,11 @@
 - 検証: `node --check` OK／手番進行＋開始ゲート＋完了判定の単体15件パス（`scratchpad/memberdraft.test.mjs` 相当）／**ローカル実機でロード健全性＋開始ゲート（4v4人数不足・1v1ガード・リセット）をブラウザ確認**。**2クライアントの選抜E2E（指名・タイマー自動指名・非ホストキャプテン経路）は本番要スモーク**。使い方ガイド（ホスト/流れ）・README・smoke `S19` 更新。
 - **未決/次**: 途中参加/キャプテン離脱の整合は v1 未対応（実用上はロビー再構成で回避）。残りは §6 検索・フィルタ／§5 統計。
 - **2026-06-27 改修#1（オーナー指示「BANフェーズに直結」）**: 選抜完了後に**ロビーへ戻さず武器ドラフトへ自動直結**。**指名順をそのままピック順に採用**（各チーム、キャプテン先頭→指名順）。実装: `memberDraft.orderAlpha/orderBravo`（開始時にキャプテンで初期化、`hostApplyMemberDraft` の指名適用時に追記）。`handleMemberDraftPhase` の完了遷移でホストが `lobbyPickOrderAlpha/Bravo=order` をセットして `startDraft()` 直結（`_mdAutoStarted` ガード）。検証: 指名順→ピック順の単体7件パス（`scratchpad/md-order.test.mjs` 相当）。2クライアントE2Eは本番要スモーク。
+- **2026-06-27 改修#2（オーナー指示・新タイミング追加）**: メンバードラフトに**タイミング設定**（`memberDraftTiming`='before'|'after'、設定 `#member-draft-timing`）。**after＝「全員が武器ピック→チーム分け」**。決定（4問確認）: BANなし／武器ピックは**ランダム順・ミラー禁止（全体で重複なし）**／キャプテンも武器を選ぶ／ピック後にキャプテンが残りを交互指名。
+  - 新フェーズ `lobby/weaponPick = {active,done,order[],idx,picks{id:weapon},deadline?}`（**追加ノードのみ**・単一ライターはホスト）。`startWeaponPick`（全員をシャッフルして order 化）／`window.wpPick`（手番者が意図書き込み）／`hostApplyWeaponPick`（turn一致＋未取得を検証して適用・idx送り・完了判定）／`startWpTimer`（時間切れでランダム自動選択）／`startWpCountdown`（表示）／`handleWeaponPickPhase`（画面占有・完了で `startMemberDraft` へ）／`renderWeaponPickScreen`（手番・選択済み一覧・カテゴリ別グリッド）。専用画面 `#s-weapon-pick`、CSS `.wp-*`。`subscribeLobby` で `handleWeaponPickPhase`→`handleMemberDraftPhase` の順。
+  - 完了処理 `finishAfterPickMode`: 各プレイヤーの選択武器を**指名順(orderAlpha/Bravo)に並べて memberId 付き picks** にし、`seq:[]`・`pickMode:'individual'`・BANなしの**完了 state** を構築→`pushState`＋`showResult`（`normalizeState` が `seq` を [] 既定にするため空 seq も同期安全）。`weaponPick`/`memberDraft` ノード削除。
+  - 検証: `node --check` OK／武器ピック適用＋結果グルーピングの単体14件パス（`scratchpad/weaponpick.test.mjs` 相当）／**ローカル実機でロード健全性・画面登録・タイミングUI・開始ボタンラベル（武器ピック開始/メンバードラフト開始）を確認**。2クライアントE2E（手番同期・非ホスト選択→ホスト適用・自動選択・結果同期）は本番要スモーク。
+- **2026-06-27 変更（オーナー指示）**: 確定SE（ピック等の効果音）を**既定ON→既定OFF**に（`sd_sfx` は 'on' 明示時のみ有効）。
 
 #### ✅ Phase 5 §7a — 確定演出 / SE / 武器読み上げTTS（完了）
 - 決定（2026-06-26 オーナー確認）: §7 のうち **A=確定演出＋SE** と **C=武器読み上げTTS** を採用。B(カウントダウン緊張演出)/D(リザルト祝福)・煽りスタンプ/罰ゲーム/神の手は見送り。全て **DB無風・外部依存ゼロ**（音は Web Audio 自前合成＝音声ファイル同梱なし、読み上げは Web Speech API）。
