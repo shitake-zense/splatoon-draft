@@ -727,6 +727,45 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <option value="2">2v2</option><option value="1">1v1</option>
         </select>
       </div>
+      <div class="row">
+        <label>先攻</label>
+        <select id="ft" onchange="onSettingChange()">
+          <option value="alpha">アルファ先攻</option>
+          <option value="bravo">ブラボー先攻</option>
+          <option value="random">ランダム</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>ルール</label>
+        <select id="rm" onchange="onSettingChange()">
+          <option value="random">ランダム（ガチルールから）</option>
+          <option value="ナワバリバトル">ナワバリバトル</option>
+          <option value="ガチエリア">ガチエリア</option><option value="ガチヤグラ">ガチヤグラ</option>
+          <option value="ガチホコ">ガチホコ</option><option value="ガチアサリ">ガチアサリ</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>ステージ</label>
+        <select id="sm" onchange="onSettingChange()"><option value="random">ランダム</option></select>
+      </div>
+      <div class="div"></div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          🧑‍🤝‍🧑 メンバードラフト（キャプテン選抜）
+          <small>各チーム1名のキャプテンが、残りメンバーを交互に指名してチームを作る</small>
+        </div>
+        <label class="tgl">
+          <input type="checkbox" id="member-draft-enabled" onchange="onMemberDraftToggle()">
+          <span class="tgl-sl"></span>
+        </label>
+      </div>
+      <div class="row" id="member-draft-timing-row" style="display:none">
+        <label>タイミング<br><small style="color:var(--mu);font-weight:normal;font-size:9px">チーム分けをいつ行うか</small></label>
+        <select id="member-draft-timing" onchange="onSettingChange()">
+          <option value="before">チーム分け → ドラフト（指名順でBANへ）</option>
+          <option value="after">全員が武器ピック → チーム分け（BANなし）</option>
+        </select>
+      </div>
     </div>
     <div class="card">
       <h3>DRAFT SETTINGS</h3>
@@ -738,14 +777,6 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <option value="4" selected>Ban数4</option><option value="5">Ban数5</option>
           <option value="6">Ban数6</option><option value="7">Ban数7</option>
           <option value="8">Ban数8</option>
-        </select>
-      </div>
-      <div class="row">
-        <label>先攻</label>
-        <select id="ft" onchange="onSettingChange()">
-          <option value="alpha">アルファ先攻</option>
-          <option value="bravo">ブラボー先攻</option>
-          <option value="random">ランダム</option>
         </select>
       </div>
       <div class="row" id="pick-order-row">
@@ -762,19 +793,6 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
       </div>
       <div id="pick-order-desc" style="font-size:10px;color:var(--mu);margin-top:-4px;margin-bottom:6px;padding-left:80px;line-height:1.6;"></div>
       <div class="div"></div>
-      <div class="row">
-        <label>ルール</label>
-        <select id="rm" onchange="onSettingChange()">
-          <option value="random">ランダム（ガチルールから）</option>
-          <option value="ナワバリバトル">ナワバリバトル</option>
-          <option value="ガチエリア">ガチエリア</option><option value="ガチヤグラ">ガチヤグラ</option>
-          <option value="ガチホコ">ガチホコ</option><option value="ガチアサリ">ガチアサリ</option>
-        </select>
-      </div>
-      <div class="row">
-        <label>ステージ</label>
-        <select id="sm" onchange="onSettingChange()"><option value="random">ランダム</option></select>
-      </div>
       <div style="font-size:10px;color:var(--mu);margin-top:4px" id="weapon-count-info"></div>
       <div class="toggle-row">
         <div class="toggle-label">
@@ -867,23 +885,6 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <input type="checkbox" id="series-loser-rules" onchange="onSettingChange()">
           <span class="tgl-sl"></span>
         </label>
-      </div>
-      <div class="toggle-row">
-        <div class="toggle-label">
-          🧑‍🤝‍🧑 メンバードラフト（キャプテン選抜）
-          <small>各チーム1名のキャプテンが、残りメンバーを交互に指名してチームを作る</small>
-        </div>
-        <label class="tgl">
-          <input type="checkbox" id="member-draft-enabled" onchange="onMemberDraftToggle()">
-          <span class="tgl-sl"></span>
-        </label>
-      </div>
-      <div class="row" id="member-draft-timing-row" style="display:none">
-        <label>タイミング<br><small style="color:var(--mu);font-weight:normal;font-size:9px">チーム分けをいつ行うか</small></label>
-        <select id="member-draft-timing" onchange="onSettingChange()">
-          <option value="before">チーム分け → ドラフト（指名順でBANへ）</option>
-          <option value="after">全員が武器ピック → チーム分け（BANなし）</option>
-        </select>
       </div>
       <div class="div"></div>
       <div class="row">
