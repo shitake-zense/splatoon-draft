@@ -600,7 +600,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <p class="guide-note">メンバードラフト（マルチ専用）がONのときは、ロビーでホストが各チームのキャプテンを1名ずつ選ぶと「メンバードラフト開始」が押せます（2v2以上・人数が揃っているときのみ）。開始後は2人のキャプテンが交互にプールから1人ずつ指名し、両チームが埋まると武器ドラフトへ進みます（制限時間ONなら時間切れでランダム指名）。</p>
         <p class="guide-note">お題カードをONにすると開始時に縛りを1枚抽選します（両チーム共通・非強制で、達成は結果に○×表示）。</p>
         <p class="guide-note">連戦モード（シリーズ）がONのときは、結果画面でホストが各試合の勝者を入力すると次の試合へ進みます。先取数（BO3=2／BO5=3）に達するとシリーズ終了で、戦績ボード（各試合の編成一覧）とシリーズ画像の保存ができます。ガチルールは BO3=毎回ランダム／BO5=エリア→ヤグラ→ホコ→アサリ→ランダム。「負けチームがルール設定」ONなら2試合目以降は敗者が次のガチルールを選びます。</p>
-        <p class="guide-note">ドラフト画面 右上の <b>🔊</b>＝確定音（既定ON）、<b>🗣️</b>＝武器読み上げ（既定OFF）のトグルです。BAN/PICKを確定するたびに効果音が鳴り、読み上げONなら確定した武器名を読み上げます（端末ごとの設定・音は自動生成で外部ファイルなし）。</p>
+        <p class="guide-note">ドラフト画面 右上の <b>🔊</b>＝確定音（既定OFF）、<b>🗣️</b>＝武器読み上げ（既定OFF）のトグルです。BAN/PICKを確定するたびに効果音が鳴り、読み上げONなら確定した武器名を読み上げます（端末ごとの設定・音は自動生成で外部ファイルなし）。</p>
       </div>
     </div>
 
@@ -1515,7 +1515,7 @@ let _tradePanelOpen= false; // トレード提案ピッカーの開閉
 let _tradeApplying = false; // ホストのトレード適用の多重発火防止
 
 // --- 演出（Phase5 §7）: プリファレンスは localStorage（DB無風・端末ごと） ---
-let sfxEnabled = (localStorage.getItem('sd_sfx')!=='off'); // 確定SE（既定ON）
+let sfxEnabled = (localStorage.getItem('sd_sfx')==='on'); // 確定SE（既定OFF）
 let ttsEnabled = (localStorage.getItem('sd_tts')==='on');  // 武器読み上げTTS（既定OFF）
 let _fxSeen    = {};   // {team:{ban,pick}} 入場アニメ済み件数（差分検出・再描画で重複再生しない）
 let _audioCtx  = null; // Web Audio（遅延生成・ユーザー操作後に resume）
