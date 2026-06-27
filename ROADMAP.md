@@ -132,6 +132,7 @@
 - コードの居場所: 設定 `getLobbySettings`/`applyLobbySettingsToForm` に `memberDraftEnabled`。`updateStartButton`（md分岐＝ラベル/ゲート）／`startDraft`（md未完了なら `startMemberDraft`、完了なら node 削除して武器ドラフト）。`renderTeamAssign`（キャプテン選抜UI切替）。`window.onMemberDraftToggle`/`mdPick`/`abortMemberDraft`、`startMemberDraft`/`nextMdTurn`/`hostApplyMemberDraft`/`handleMemberDraftPhase`/`renderMemberDraftScreen`/`startMd(Timer|Countdown)`。退出/ロビー戻り(`backToLobby`/`leaveLobby`/`goHome`)で node＋タイマー片付け。UI: 画面 `#s-member-draft`、CSS `.md-*`。`showScreen` に `member-draft` 登録。
 - 検証: `node --check` OK／手番進行＋開始ゲート＋完了判定の単体15件パス（`scratchpad/memberdraft.test.mjs` 相当）／**ローカル実機でロード健全性＋開始ゲート（4v4人数不足・1v1ガード・リセット）をブラウザ確認**。**2クライアントの選抜E2E（指名・タイマー自動指名・非ホストキャプテン経路）は本番要スモーク**。使い方ガイド（ホスト/流れ）・README・smoke `S19` 更新。
 - **未決/次**: 途中参加/キャプテン離脱の整合は v1 未対応（実用上はロビー再構成で回避）。残りは §6 検索・フィルタ／§5 統計。
+- **2026-06-27 改修#1（オーナー指示「BANフェーズに直結」）**: 選抜完了後に**ロビーへ戻さず武器ドラフトへ自動直結**。**指名順をそのままピック順に採用**（各チーム、キャプテン先頭→指名順）。実装: `memberDraft.orderAlpha/orderBravo`（開始時にキャプテンで初期化、`hostApplyMemberDraft` の指名適用時に追記）。`handleMemberDraftPhase` の完了遷移でホストが `lobbyPickOrderAlpha/Bravo=order` をセットして `startDraft()` 直結（`_mdAutoStarted` ガード）。検証: 指名順→ピック順の単体7件パス（`scratchpad/md-order.test.mjs` 相当）。2クライアントE2Eは本番要スモーク。
 
 #### ✅ Phase 5 §7a — 確定演出 / SE / 武器読み上げTTS（完了）
 - 決定（2026-06-26 オーナー確認）: §7 のうち **A=確定演出＋SE** と **C=武器読み上げTTS** を採用。B(カウントダウン緊張演出)/D(リザルト祝福)・煽りスタンプ/罰ゲーム/神の手は見送り。全て **DB無風・外部依存ゼロ**（音は Web Audio 自前合成＝音声ファイル同梱なし、読み上げは Web Speech API）。

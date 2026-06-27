@@ -553,7 +553,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <dd>ONにすると<b>結果画面</b>で武器の交換ができます。自チームの武器1枚と相手チームの武器1枚を選んで<b>交換を提案</b>→<b>相手チームの代表者が承認</b>すると成立（拒否も可）。回数は無制限です。マルチでは<b>各チームの代表者だけ</b>が提案・承認でき、ソロではアルファ⇄ブラボーをその場で入れ替えられます。</dd>
 
           <dt>メンバードラフト（キャプテン選抜・マルチ専用）</dt>
-          <dd>ONにすると、武器ドラフトの前に<b>チーム分けをキャプテン選抜で</b>行えます。チーム割り当てで<b>各チームのキャプテンを1名ずつ</b>（α／β）に置き、残りは<b>未割り当て（プール）</b>に。両チーム代表者が揃い<b>人数が足りていれば（2v2以上・合計2×人数以上）</b>「メンバードラフト開始」が押せます。開始後は2人のキャプテンが<b>交互にプールから1人ずつ指名</b>（先攻チームが先）。制限時間ONなら<b>時間切れでランダム自動指名</b>。両チームが埋まると選抜完了→そのまま武器ドラフトへ進みます。</dd>
+          <dd>ONにすると、武器ドラフトの前に<b>チーム分けをキャプテン選抜で</b>行えます。チーム割り当てで<b>各チームのキャプテンを1名ずつ</b>（α／β）に置き、残りは<b>未割り当て（プール）</b>に。両チーム代表者が揃い<b>人数が足りていれば（2v2以上・合計2×人数以上）</b>「メンバードラフト開始」が押せます。開始後は2人のキャプテンが<b>交互にプールから1人ずつ指名</b>（先攻チームが先）。制限時間ONなら<b>時間切れでランダム自動指名</b>。両チームが埋まると<b>そのまま武器ドラフト（BAN/PICK）へ自動で進みます</b>。このとき<b>指名した順番がそのままピック順</b>になります（各チーム、キャプテンが先頭→指名順）。</dd>
 
           <dt>連戦モード（シリーズ）</dt>
           <dd>1ルームで<b>複数試合を連続</b>で行います。<b>シリーズ長</b>＝BO3（先取2）／BO5（先取3）。各試合のドラフトが終わったら結果画面で<b>ホストが勝者を入力</b>すると、ステージが変わって次の試合のドラフトが始まります。先取数に達するとシリーズ終了で、<b>戦績ボード</b>（各試合の勝者・ルール・ステージ・両チームの編成一覧）が表示され、<b>「🖼️ シリーズ画像を保存」</b>で全試合を1枚のPNGにまとめて保存できます。</dd>
@@ -1530,6 +1530,7 @@ let _mdPhaseActive   = false;   // メンバードラフト画面を表示中か
 let _mdApplying      = false;   // ホストのピック適用の多重発火防止
 let mdTimerInterval  = null;    // ホストのターンタイマー（自動ピック）
 let mdCountdownInterval = null; // 全クライアントのタイマー表示更新（描画のみ）
+let _mdAutoStarted   = false;   // 選抜完了→武器ドラフト直結の多重発火防止
 // 武器絞り込み（ホスト設定）: チェックした要素を持つ武器をドラフトから除外する
 let lobbyExcludeFilter  = {cats:[], subs:[], specials:[]};
 
@@ -1954,8 +1955,11 @@ function startMemberDraft(){
   const firstTurn=(ft==='alpha'||ft==='bravo')?ft:'alpha';
   const timed=document.getElementById('time-limit-enabled')?.checked;
   const sec=clampTimeLimit(document.getElementById('time-limit-sec')?.value);
-  const node={ active:true, done:false, capAlpha:alpha[0], capBravo:bravo[0], turn:firstTurn, ts };
+  // orderAlpha/Bravo＝指名順（キャプテンを先頭に）。完了時にそのままピック順として採用する（#1直結）
+  const node={ active:true, done:false, capAlpha:alpha[0], capBravo:bravo[0], turn:firstTurn, ts,
+    orderAlpha:[alpha[0]], orderBravo:[bravo[0]] };
   if(timed) node.deadline=Date.now()+sec*1000;
+  _mdAutoStarted=false;
   set(ref(db,`rooms/${roomId}/lobby/memberDraft`), node);
 }
 // キャプテン: 自分の手番にプールのメンバーを指名（意図を書き込む → ホストが適用）
@@ -1989,6 +1993,10 @@ function hostApplyMemberDraft(lobby){
     updates[`rooms/${roomId}/lobby/memberDraft/pick`]=null; // 意図をクリア（多重適用防止）
     if(valid){
       updates[`rooms/${roomId}/lobby/members/${memberId}/team`]=team;
+      // 指名順を記録（完了時にピック順として採用）
+      const ordKey = team==='alpha' ? 'orderAlpha' : 'orderBravo';
+      const curOrd = Array.isArray(md[ordKey]) ? md[ordKey] : [];
+      updates[`rooms/${roomId}/lobby/memberDraft/${ordKey}`] = [...curOrd, memberId];
       const after={...members, [memberId]:{...m, team}};
       const aCount=Object.values(after).filter(x=>x.team==='alpha').length;
       const bCount=Object.values(after).filter(x=>x.team==='bravo').length;
@@ -2040,9 +2048,20 @@ function handleMemberDraftPhase(lobby){
     return true;
   }
   if(_mdPhaseActive){
-    // 選抜終了（完了 or 中止）→ 通常ロビーへ戻す
     _mdPhaseActive=false; stopMdTimer(); stopMdCountdown();
-    if(isHost) showScreen('lobby'); else showLobbyWait();
+    if(isHost){
+      if(md && md.done && !_mdAutoStarted){
+        // #1 直結: 指名順をそのままピック順に採用し、そのまま武器ドラフト（BAN/PICK）へ進む
+        _mdAutoStarted=true;
+        lobbyPickOrderAlpha = Array.isArray(md.orderAlpha) ? md.orderAlpha.slice() : [];
+        lobbyPickOrderBravo = Array.isArray(md.orderBravo) ? md.orderBravo.slice() : [];
+        startDraft(); // mdDone のため startMemberDraft 側へは入らず武器ドラフトを構築・開始
+      } else {
+        showScreen('lobby'); // 中止時は通常ロビーへ
+      }
+    } else {
+      showLobbyWait();
+    }
   }
   return false;
 }
@@ -4170,7 +4189,7 @@ window.backToLobby = async function(){
   // タイマー停止
   clearTimer();
   // メンバードラフトの一時状態も片付ける（ロビー復帰時に選抜画面が残らないように）
-  stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; lobbyMemberDraft=null;
+  stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; _mdAutoStarted=false; lobbyMemberDraft=null;
   await remove(ref(db,`rooms/${roomId}/lobby/memberDraft`));
 
   // 全Firebase購読を解除（lobby監視は後で再登録）
@@ -4212,7 +4231,7 @@ window.backToLobby = async function(){
 
 // ===== 退出 =====
 window.leaveLobby = function(){
-  stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; lobbyMemberDraft=null;
+  stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; _mdAutoStarted=false; lobbyMemberDraft=null;
   [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub,fbTradeUnsub,fbSeriesUnsub].forEach(f=>{if(f){f();} });
   fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=fbTradeUnsub=fbSeriesUnsub=null;
   if(isMulti&&!isHost&&myMemberId&&roomId){
@@ -4224,7 +4243,7 @@ window.leaveLobby = function(){
   showScreen('mode');
 };
 window.goHome = function(){
-  stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; lobbyMemberDraft=null;
+  stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; _mdAutoStarted=false; lobbyMemberDraft=null;
   [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub,fbTradeUnsub,fbSeriesUnsub].forEach(f=>{if(f){f();}});
   fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=fbTradeUnsub=fbSeriesUnsub=null;
   // 参加者がモード選択に戻る際も Firebase lobby から自分を削除する
