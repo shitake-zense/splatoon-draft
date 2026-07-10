@@ -177,11 +177,17 @@ splatoon-draft/
 │   └── icon.png           # サイトアイコン / PWAアイコン
 ├── docs/
 │   └── manual-smoke-checklist.md   # 手動テスト用チェックリスト
+├── tests/                 # 純粋ロジックの単体テスト（node --test tests/*.test.js）
+│   ├── helpers/load-app.js         # index.html をNodeに読み込むテストハーネス
+│   ├── pick-seq.test.js            # ピック順生成（7種）
+│   ├── ban-logic.test.js           # BAN上限・ジャンルBAN・自動補完
+│   └── state-helpers.test.js       # 相手ピック格納先・シリーズ進行・正規化ほか
 ├── scripts/
 │   └── cleanup-rooms.js
 └── .github/
     └── workflows/
-        └── cleanup.yml
+        ├── cleanup.yml    # ルーム自動削除（毎日）
+        └── test.yml       # push/PR ごとに構文チェック＋単体テスト
 ```
 
 ---

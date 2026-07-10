@@ -1,0 +1,22 @@
+name: テスト
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: 構文チェック（index.html 内のモジュールスクリプト）
+        run: |
+          awk '/<script type="module">/{flag=1;next}/<\/script>/{flag=0}flag' index.html > /tmp/app.mjs
+          node --check /tmp/app.mjs
+      - name: 単体テスト（純粋ロジック）
+        run: node --test tests/*.test.js
