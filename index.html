@@ -1411,6 +1411,14 @@ function generateMemberId(){
   return 'mb_' + rand + ts;
 }
 
+// ===== HTMLエスケープ =====
+// ユーザー入力（プレイヤー名・チーム名）や Firebase 経由の文字列を innerHTML に
+// 埋め込む際は必ずこれを通す（他クライアント発のストアドXSS防止）。
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g,
+    c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
 // ===== デバイス保存（同一デバイス再参加のための memberId 引き継ぎ） =====
 // localStorage に { [roomId]: { memberId } } を保存。再参加時に memberId 基準で
 // 既存スロット（team・ピック順割当）へ再アタッチする。なりすまし対策は不要（カジュアル用途）。
@@ -1882,8 +1890,8 @@ function subscribeLobby(){
       const modeStr=s.pickMode==='individual'?'👥 個人ピック':(s.pickMode==='enemy'?'🆚 相手ピック':'🤝 代表者ピック');
       const el=document.getElementById('lobby-wait-settings');
       if(el) el.innerHTML=
-        `<span style="color:var(--a)">チーム: ${s.an||'アルファ'} vs ${s.bn||'ブラボー'}</span><br>`+
-        `${s.ts||4}v${s.ts||4} ｜ ${s.bc===0?'BANなし':'BAN×'+(s.bc||3)} ｜ ${ruleStr} ｜ ${stageStr}<br>`+
+        `<span style="color:var(--a)">チーム: ${esc(s.an||'アルファ')} vs ${esc(s.bn||'ブラボー')}</span><br>`+
+        `${s.ts||4}v${s.ts||4} ｜ ${s.bc===0?'BANなし':'BAN×'+(s.bc||3)} ｜ ${esc(ruleStr)} ｜ ${esc(stageStr)}<br>`+
         `<span style="color:var(--pk)">${modeStr}</span>`+
         (s.stdOnly?'<br><span style="color:var(--pk)">⚙ 標準武器のみ</span>':'');
     }
@@ -1903,7 +1911,7 @@ function renderLobbyMembers(members){
     const teamCol=m.team==='alpha'?'var(--a)':m.team==='bravo'?'var(--b)':'#3a4a6a';
     return `<div class="member-chip ${m.isHost?'host-chip':''}">
       <div class="team-dot" style="background:${teamCol}"></div>
-      ${m.name}${m.isHost?' 👑':''}
+      ${esc(m.name)}${m.isHost?' 👑':''}
     </div>`;
   }).join('');
   ['member-list','member-list-wait'].forEach(elId=>{
@@ -1937,12 +1945,20 @@ function renderTeamAssign(members){
     ids.filter(id=>members[id].team===team).forEach(id=>{
       const m=members[id];
       const div=document.createElement('div'); div.className='assignee';
-      div.innerHTML=`<span>${m.name}${m.isHost?' 👑':''}</span><div class="assign-btns">
-        ${team!=='alpha'?`<button class="btn-assign to-a" onclick="assignMember('${id}','alpha')">α</button>`:''}
-        ${team!=='bravo'?`<button class="btn-assign to-b" onclick="assignMember('${id}','bravo')">β</button>`:''}
-        ${team!=='unassigned'?`<button class="btn-assign to-un" onclick="assignMember('${id}','unassigned')">－</button>`:''}
-        ${!m.isHost?`<button class="btn-assign" style="color:#e06060;border-color:#e06060;margin-left:4px;" onclick="kickMember('${id}','${m.name}')">×</button>`:''}
-      </div>`;
+      // 名前はtextContent、ボタンはクロージャで束縛（onclick属性への文字列埋め込み＝XSS経路を排除）
+      const nameSpan=document.createElement('span');
+      nameSpan.textContent=m.name+(m.isHost?' 👑':'');
+      const btns=document.createElement('div'); btns.className='assign-btns';
+      const mkBtn=(label,cls,fn)=>{const b=document.createElement('button');b.className='btn-assign'+(cls?' '+cls:'');b.textContent=label;b.onclick=fn;return b;};
+      if(team!=='alpha') btns.appendChild(mkBtn('α','to-a',()=>window.assignMember(id,'alpha')));
+      if(team!=='bravo') btns.appendChild(mkBtn('β','to-b',()=>window.assignMember(id,'bravo')));
+      if(team!=='unassigned') btns.appendChild(mkBtn('－','to-un',()=>window.assignMember(id,'unassigned')));
+      if(!m.isHost){
+        const kb=mkBtn('×','',()=>window.kickMember(id,m.name));
+        kb.style.cssText='color:#e06060;border-color:#e06060;margin-left:4px;';
+        btns.appendChild(kb);
+      }
+      div.appendChild(nameSpan); div.appendChild(btns);
       el.appendChild(div);
     });
   });
@@ -2129,14 +2145,14 @@ function renderMemberDraftScreen(lobby){
   const nameOf=id=>(members[id]?.name)||'?';
   // timing=after では各メンバーが選んだ武器を名前の後ろに表示
   const wpPicks=(lobby.weaponPick&&lobby.weaponPick.picks)||{};
-  const wpName=id=>wpPicks[id]?` <span style="color:var(--mu);font-size:10px">(${wpPicks[id].name})</span>`:'';
+  const wpName=id=>wpPicks[id]?` <span style="color:var(--mu);font-size:10px">(${esc(wpPicks[id].name)})</span>`:'';
   const turnCap = md.turn==='alpha'?md.capAlpha:md.capBravo;
   const turnTeamName = md.turn==='alpha'?an:bn;
   const turnCls = md.turn==='alpha'?'a':'b';
   const isMyTurn = myMemberId===turnCap;
   // 手番表示
   const turnEl=document.getElementById('md-turn');
-  turnEl.innerHTML = `指名中： <span class="${turnCls}">${nameOf(turnCap)}</span>（<span class="${turnCls}">${turnTeamName}</span> キャプテン）`;
+  turnEl.innerHTML = `指名中： <span class="${turnCls}">${esc(nameOf(turnCap))}</span>（<span class="${turnCls}">${esc(turnTeamName)}</span> キャプテン）`;
   // タイマー表示（deadline があれば残り秒）
   const tEl=document.getElementById('md-timer');
   if(md.deadline){
@@ -2152,8 +2168,8 @@ function renderMemberDraftScreen(lobby){
       .sort((a,b)=> (a===cap?-1:b===cap?1:0)); // キャプテンを先頭に
     ids.forEach(id=>{
       const div=document.createElement('div');
-      if(id===cap){ div.className='md-cap'; div.innerHTML=`<span class="tag">C</span>${nameOf(id)}${wpName(id)}`; }
-      else { div.className='md-member'; div.innerHTML=`${nameOf(id)}${wpName(id)}`; }
+      if(id===cap){ div.className='md-cap'; div.innerHTML=`<span class="tag">C</span>${esc(nameOf(id))}${wpName(id)}`; }
+      else { div.className='md-member'; div.innerHTML=`${esc(nameOf(id))}${wpName(id)}`; }
       el.appendChild(div);
     });
     const cnt=ids.length;
@@ -2167,7 +2183,7 @@ function renderMemberDraftScreen(lobby){
   pool.forEach(id=>{
     const b=document.createElement('button');
     b.className='md-pick'+(isMyTurn?' pickable':'');
-    b.innerHTML=`${nameOf(id)}${wpName(id)}`;
+    b.innerHTML=`${esc(nameOf(id))}${wpName(id)}`;
     if(isMyTurn) b.onclick=()=>mdPick(id);
     else b.disabled=true;
     poolEl.appendChild(b);
@@ -2325,7 +2341,7 @@ function renderWeaponPickScreen(lobby){
   const isMyTurn=myMemberId===curId;
   const picks=wp.picks||{};
   // 手番
-  document.getElementById('wp-turn').innerHTML=`武器選択中： <b style="color:var(--y)">${nameOf(curId)}</b> <span style="color:var(--mu);font-size:12px">（${(wp.idx||0)+1} / ${order.length}人目）</span>`;
+  document.getElementById('wp-turn').innerHTML=`武器選択中： <b style="color:var(--y)">${esc(nameOf(curId))}</b> <span style="color:var(--mu);font-size:12px">（${(wp.idx||0)+1} / ${order.length}人目）</span>`;
   // タイマー
   const tEl=document.getElementById('wp-timer');
   if(wp.deadline){ const left=Math.max(0,Math.ceil((wp.deadline-Date.now())/1000)); tEl.style.display=''; tEl.textContent=`⏱ ${left}`; }
@@ -2335,7 +2351,7 @@ function renderWeaponPickScreen(lobby){
   order.forEach(id=>{
     const w=picks[id]; if(!w) return;
     const chip=document.createElement('div'); chip.className='wp-chip';
-    chip.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'"><span>${nameOf(id)}</span><span class="nm">${w.name}</span>`;
+    chip.innerHTML=`<img src="${esc(w.imgUrl)}" alt="" onerror="this.style.display='none'"><span>${esc(nameOf(id))}</span><span class="nm">${esc(w.name)}</span>`;
     pe.appendChild(chip);
   });
   // ヒント
@@ -2357,7 +2373,7 @@ function renderWeaponPickScreen(lobby){
     list.forEach(w=>{
       const used=taken.has(w.key);
       const btn=document.createElement('button'); btn.className='wb'+(used?' is-bn':''); btn.disabled=used;
-      btn.innerHTML=`<img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.height='38px';this.style.opacity='.2'"><div class="wn">${w.name}</div>${used?'<span class="wst b">取得済</span>':''}`;
+      btn.innerHTML=`<img src="${esc(w.imgUrl)}" alt="${esc(w.name)}" onerror="this.style.height='38px';this.style.opacity='.2'"><div class="wn">${esc(w.name)}</div>${used?'<span class="wst b">取得済</span>':''}`;
       if(!used) btn.onclick=()=>wpPick(w.key);
       grid.appendChild(btn);
     });
@@ -2516,12 +2532,14 @@ function renderPickOrderList(containerId, order, team){
     if(!m) return;
     const div = document.createElement('div');
     div.className = 'po-item';
-    div.innerHTML = `<span class="po-num">${i+1}</span>
-      <span class="po-name">${m.name}${m.isHost?' 👑':''}</span>
-      <div class="po-btns">
-        <button class="btn-po" onclick="movePickOrder('${team}','${memberId}',-1)" ${i===0?'disabled':''}>▲</button>
-        <button class="btn-po" onclick="movePickOrder('${team}','${memberId}',1)"  ${i===order.length-1?'disabled':''}>▼</button>
-      </div>`;
+    // 名前はtextContent、ボタンはクロージャで束縛（onclick属性への文字列埋め込みを排除）
+    const num=document.createElement('span'); num.className='po-num'; num.textContent=String(i+1);
+    const nm=document.createElement('span'); nm.className='po-name'; nm.textContent=m.name+(m.isHost?' 👑':'');
+    const btns=document.createElement('div'); btns.className='po-btns';
+    const mk=(label,dir,dis)=>{const b=document.createElement('button');b.className='btn-po';b.textContent=label;b.disabled=dis;b.onclick=()=>window.movePickOrder(team,memberId,dir);return b;};
+    btns.appendChild(mk('▲',-1,i===0));
+    btns.appendChild(mk('▼',1,i===order.length-1));
+    div.appendChild(num); div.appendChild(nm); div.appendChild(btns);
     el.appendChild(div);
   });
 }
@@ -2981,7 +2999,7 @@ function renderGachaPanel(){
     const g=S.gacha[team];
     const row=document.getElementById('gacha-slots-'+sfx);
     row.innerHTML = (g.hand||[]).map(w=>
-      `<div class="wb"><img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.height='30px';this.style.opacity='.2'"><div class="wn">${w.name}</div></div>`
+      `<div class="wb"><img src="${esc(w.imgUrl)}" alt="${esc(w.name)}" onerror="this.style.height='30px';this.style.opacity='.2'"><div class="wn">${esc(w.name)}</div></div>`
     ).join('');
     const remain=Math.max(0,(S.gachaRerolls||0)-g.used);
     const canOp=gachaCanOperate(S,team);
@@ -3140,8 +3158,8 @@ function renderTradeArea(){
 function _tradeChipHtml(w, kind, i, sel){
   const owner = w.memberId && (state.members||{})[w.memberId]?.name;
   return `<button class="trade-chip${sel?' sel':''}" onclick="selectTradeChip('${kind}',${i})">`
-    + `<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">`
-    + `<span>${owner?owner+'：':''}${w.name}</span></button>`;
+    + `<img src="${esc(w.imgUrl)}" alt="" onerror="this.style.display='none'">`
+    + `<span>${owner?esc(owner)+'：':''}${esc(w.name)}</span></button>`;
 }
 function renderTradePicker(){
   const S=state;
@@ -3157,9 +3175,9 @@ function renderTradePicker(){
     : '<span class="trade-note">なし</span>';
   const ready = _tradeSel.give!=null && _tradeSel.want!=null;
   const actionLabel = isMulti ? '提案を送る' : '交換する';
-  return `<div class="trade-pick-label">${giveLabel}（出す）</div><div class="trade-chips">${giveChips}</div>`
+  return `<div class="trade-pick-label">${esc(giveLabel)}（出す）</div><div class="trade-chips">${giveChips}</div>`
     + `<div class="trade-swap-ico">⇅</div>`
-    + `<div class="trade-pick-label">${wantLabel}（もらう）</div><div class="trade-chips">${wantChips}</div>`
+    + `<div class="trade-pick-label">${esc(wantLabel)}（もらう）</div><div class="trade-chips">${wantChips}</div>`
     + `<div class="trade-actions">`
     + `<button class="trade-go" ${ready?'':'disabled'} onclick="submitTrade()">${actionLabel}</button>`
     + (isMulti?`<button class="trade-cancel" onclick="toggleTradePanel()">閉じる</button>`:'')
@@ -3169,12 +3187,12 @@ function renderTradePending(p){
   const S=state;
   const fromName = p.from==='alpha'? S.an : S.bn;
   const toTeam = p.from==='alpha'?'bravo':'alpha';
-  const chip = w => `<span class="trade-chip static"><img src="${w.imgUrl}" alt="" onerror="this.style.display='none'"><span>${w.name}</span></span>`;
+  const chip = w => `<span class="trade-chip static"><img src="${esc(w.imgUrl)}" alt="" onerror="this.style.display='none'"><span>${esc(w.name)}</span></span>`;
   const deal = `<div class="trade-deal">${chip(p.give)}<span class="trade-arrow">⇄</span>${chip(p.want)}</div>`;
   let body;
   if(isTradeOperator(toTeam)){
     // 受け手の代表者: 承認/拒否
-    body = `<div class="trade-note"><b>${fromName}</b> からの提案です。<b>${p.give.name}</b> を受け取り、<b>${p.want.name}</b> を渡します。</div>`
+    body = `<div class="trade-note"><b>${esc(fromName)}</b> からの提案です。<b>${esc(p.give.name)}</b> を受け取り、<b>${esc(p.want.name)}</b> を渡します。</div>`
       + `<div class="trade-actions"><button class="trade-go" onclick="respondTrade(true)">承認する</button>`
       + `<button class="trade-cancel" onclick="respondTrade(false)">拒否する</button></div>`;
   } else if(isTradeOperator(p.from)){
@@ -3182,7 +3200,7 @@ function renderTradePending(p){
     body = `<div class="trade-note">提案中… 相手の承認を待っています。</div>`
       + `<div class="trade-actions"><button class="trade-cancel" onclick="cancelTrade()">提案を取り消す</button></div>`;
   } else {
-    body = `<div class="trade-note">${fromName} が武器の交換を提案中です…</div>`;
+    body = `<div class="trade-note">${esc(fromName)} が武器の交換を提案中です…</div>`;
   }
   return `<div class="trade-title2">提案中のトレード</div>${deal}${body}`;
 }
@@ -3292,14 +3310,13 @@ function renderSeriesHistory(sr, S){
   const items=sr.history.map(g=>{
     const w = g.winner==='alpha'?S.an:S.bn;
     const col = g.winner==='alpha'?'var(--a)':'var(--b)';
-    return `<li>第${g.game}試合: <b style="color:${col}">${w}</b> <span style="color:var(--mu)">（${g.rule} / ${g.stageJa}）</span></li>`;
+    return `<li>第${g.game}試合: <b style="color:${col}">${esc(w)}</b> <span style="color:var(--mu)">（${esc(g.rule)} / ${esc(g.stageJa)}）</span></li>`;
   }).join('');
   return `<ul class="series-hist">${items}</ul>`;
 }
 // 戦績ボード：各試合の編成一覧（シリーズ終了時のみ）。履歴スナップショットの picks を描画
 function renderSeriesBoard(sr, S){
   if(!sr.history || !sr.history.length) return '';
-  const esc=s=>String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
   const picksLine=ps=>(ps&&ps.length)?ps.map(w=>esc(w.name)).join('・'):'なし';
   const games=sr.history.map(g=>{
     const an=g.an||S.an, bn=g.bn||S.bn;
@@ -3318,14 +3335,14 @@ function renderSeriesArea(){
   area.style.display='';
   const sr=S.series;
   const modeLabel = sr.mode==='bo5'?'BO5（先取3）':'BO3（先取2）';
-  const score=`<div class="series-score"><span class="a">${S.an} ${sr.scoreA}</span> － <span class="b">${sr.scoreB} ${S.bn}</span></div>`;
+  const score=`<div class="series-score"><span class="a">${esc(S.an)} ${sr.scoreA}</span> － <span class="b">${sr.scoreB} ${esc(S.bn)}</span></div>`;
   const hist=renderSeriesHistory(sr,S);
   let body;
   if(sr.done){
     const aWin=sr.scoreA>sr.scoreB;
     const champ=aWin?S.an:S.bn, col=aWin?'var(--a)':'var(--b)';
     const saveBtn=`<button class="series-save" id="btn-save-series" onclick="downloadSeriesImage()">🖼️ シリーズ画像を保存</button>`;
-    body=`<div class="series-final">🏆 シリーズ終了！<br><b style="color:${col}">${champ}</b> がシリーズ制覇（${sr.scoreA}-${sr.scoreB}）</div>`+renderSeriesBoard(sr,S)+saveBtn;
+    body=`<div class="series-final">🏆 シリーズ終了！<br><b style="color:${col}">${esc(champ)}</b> がシリーズ制覇（${sr.scoreA}-${sr.scoreB}）</div>`+renderSeriesBoard(sr,S)+saveBtn;
   } else if(sr.awaitingRule){
     // 負けチームのルール設定: 敗者が次戦のガチルールを選ぶ
     const loserName = sr.ruleChooser==='alpha'?S.an:S.bn;
@@ -3333,11 +3350,11 @@ function renderSeriesArea(){
     const head=`<div class="series-head">第${sr.game}試合終了 ／ 次の第${sr.game+1}試合のルール選択</div>`;
     if(isSeriesChooserOperator(sr)){
       body=head
-        +`<div class="series-note"><b style="color:${loserCol}">${loserName}</b>（敗者）が次の試合のガチルールを選んでください。</div>`
+        +`<div class="series-note"><b style="color:${loserCol}">${esc(loserName)}</b>（敗者）が次の試合のガチルールを選んでください。</div>`
         +`<div class="series-rules">`+RULES.map(r=>`<button class="series-rule-btn" onclick="chooseSeriesRule('${r}')">${r}</button>`).join('')+`</div>`
         +hist;
     } else {
-      body=head+`<div class="series-note"><b style="color:${loserCol}">${loserName}</b>（敗者）が次のガチルールを選んでいます…</div>`+hist;
+      body=head+`<div class="series-note"><b style="color:${loserCol}">${esc(loserName)}</b>（敗者）が次のガチルールを選んでいます…</div>`+hist;
     }
   } else {
     const head=`<div class="series-head">${modeLabel} ／ 第${sr.game}試合</div>`;
@@ -3348,8 +3365,8 @@ function renderSeriesArea(){
       body=head
         + `<div class="series-note">${note}</div>`
         + `<div class="series-actions">`
-        + `<button class="series-win a" onclick="seriesWinner('alpha')">${S.an} の勝ち</button>`
-        + `<button class="series-win b" onclick="seriesWinner('bravo')">${S.bn} の勝ち</button>`
+        + `<button class="series-win a" onclick="seriesWinner('alpha')">${esc(S.an)} の勝ち</button>`
+        + `<button class="series-win b" onclick="seriesWinner('bravo')">${esc(S.bn)} の勝ち</button>`
         + `</div>` + hist;
     } else {
       body=head + `<div class="series-note">ホストが勝敗を入力するのを待っています…</div>` + hist;
@@ -3630,9 +3647,9 @@ function renderChallengeBanner(){
     const r=evaluateChallenge(S,t);
     return r===null?'<span class="dc-prog">―</span>':(r?'<span class="dc-ok">○ 達成</span>':'<span class="dc-ng">× 未達成</span>');
   };
-  el.innerHTML=`<span class="dc-icon">🎯</span><span class="dc-label">お題：${S.challenge.label}</span>`
-    +`<span class="dc-desc">${S.challenge.desc||''}</span>`
-    +`<span class="dc-res"><b>${S.an}</b> ${teamStatus('alpha')}<b>${S.bn}</b> ${teamStatus('bravo')}</span>`;
+  el.innerHTML=`<span class="dc-icon">🎯</span><span class="dc-label">お題：${esc(S.challenge.label)}</span>`
+    +`<span class="dc-desc">${esc(S.challenge.desc||'')}</span>`
+    +`<span class="dc-res"><b>${esc(S.an)}</b> ${teamStatus('alpha')}<b>${esc(S.bn)}</b> ${teamStatus('bravo')}</span>`;
   el.style.display='';
 }
 
@@ -4605,7 +4622,7 @@ function renderPickFlow(){
       cls+='pf-pair';
       const aLab = step.alphaMemberId ? playerLabel(step.alphaMemberId) : la;
       const bLab = step.bravoMemberId ? playerLabel(step.bravoMemberId) : lb;
-      chip.innerHTML=`<span class="pf-pa">${aLab}</span><span class="pf-pb">${bLab}</span>`;
+      chip.innerHTML=`<span class="pf-pa">${esc(aLab)}</span><span class="pf-pb">${esc(bLab)}</span>`;
     } else {
       cls+=(step.team==='alpha'?'pf-a':'pf-b');
       // 個人ピックモードかつmemberIdあり → プレイヤー名2文字
@@ -4696,7 +4713,7 @@ function renderDraft(){
             `<strong style="color:var(--bn)">BAN PHASE</strong> — <span style="color:var(--pk)">✓ 送信済み。全員が揃うのを待っています…</span>`;
         } else if(myConfirmedBan){
           document.getElementById('tprompt').innerHTML=
-            `<strong style="color:var(--bn)">BAN PHASE</strong> — <span style="color:var(--pk)">▶ ${myConfirmedBan.name} を確定しました</span> — 「BANを送信する」で送信してください`;
+            `<strong style="color:var(--bn)">BAN PHASE</strong> — <span style="color:var(--pk)">▶ ${esc(myConfirmedBan.name)} を確定しました</span> — 「BANを送信する」で送信してください`;
         } else {
           document.getElementById('tprompt').innerHTML=
             `<strong style="color:var(--bn)">あなたのBANターンです</strong> — BANする武器を選んでください`;
@@ -4716,7 +4733,7 @@ function renderDraft(){
         const repId = myTeamReal==='alpha' ? S.representativeAlpha : S.representativeBravo;
         const repName = repId ? (S.members||{})[repId]?.name : '代表者';
         document.getElementById('tprompt').innerHTML=
-          `<strong style="color:var(--bn)">BAN PHASE</strong> — <span style="color:var(--mu)">${repName||'代表者'} がBANを選択中です。しばらくお待ちください</span>`;
+          `<strong style="color:var(--bn)">BAN PHASE</strong> — <span style="color:var(--mu)">${esc(repName||'代表者')} がBANを選択中です。しばらくお待ちください</span>`;
       } else {
         const badge = (isMulti && isRep)
           ? `<span style="background:var(--bn);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px;margin-right:6px;vertical-align:middle;">代表者</span>`
@@ -4755,7 +4772,7 @@ function renderDraft(){
           `<strong style="color:var(--pk)">あなたのPICKターン</strong> — 武器を選んでください`;
       } else {
         document.getElementById('tprompt').innerHTML=
-          `<strong style="color:${col}">${memberName}</strong> が選択中…`;
+          `<strong style="color:${col}">${esc(memberName)}</strong> が選択中…`;
       }
     } else if(S.pickMode==='enemy'){
       // 相手ピック: 行動者が「対になる相手選手に使わせる武器」を選ぶ
@@ -4765,16 +4782,16 @@ function renderDraft(){
       if(isMulti && step.memberId){
         const isMyTurn = step.memberId === myMemberId;
         if(isMyTurn){
-          document.getElementById('tprompt').innerHTML=`<strong style="color:var(--pk)">あなたのターン</strong> — <strong style="color:${otherCol}">${targetLabel}</strong> に使わせる武器を選んでください`;
+          document.getElementById('tprompt').innerHTML=`<strong style="color:var(--pk)">あなたのターン</strong> — <strong style="color:${otherCol}">${esc(targetLabel)}</strong> に使わせる武器を選んでください`;
         } else {
           const actorName=(S.members||{})[step.memberId]?.name||tn;
-          document.getElementById('tprompt').innerHTML=`<strong style="color:${col}">${actorName}</strong> が <strong style="color:${otherCol}">${targetLabel}</strong> の武器を選択中…`;
+          document.getElementById('tprompt').innerHTML=`<strong style="color:${col}">${esc(actorName)}</strong> が <strong style="color:${otherCol}">${esc(targetLabel)}</strong> の武器を選択中…`;
         }
       } else {
-        document.getElementById('tprompt').innerHTML=`<strong style="color:${col}">${tn}</strong> のターン — <strong style="color:${otherCol}">${targetLabel}</strong> に使わせる武器を選んでください`;
+        document.getElementById('tprompt').innerHTML=`<strong style="color:${col}">${esc(tn)}</strong> のターン — <strong style="color:${otherCol}">${esc(targetLabel)}</strong> に使わせる武器を選んでください`;
       }
     } else {
-      document.getElementById('tprompt').innerHTML=`<strong style="color:${col}">${tn}</strong> の <strong>PICKターン</strong> — 武器を選んでください`;
+      document.getElementById('tprompt').innerHTML=`<strong style="color:${col}">${esc(tn)}</strong> の <strong>PICKターン</strong> — 武器を選んでください`;
     }
     document.getElementById('tia').style.display=step.team==='alpha'?'':'none';
     document.getElementById('tib').style.display=step.team==='bravo'?'':'none';
@@ -4900,7 +4917,7 @@ function renderBanPanel(){
     const col=banActiveTeam==='alpha'?'var(--a)':'var(--b)';
     const name=banActiveTeam==='alpha'?state.an:state.bn;
     const rem=banRemainingSummary(S,banActiveTeam);
-    hint.innerHTML=`現在 <strong style="color:${col}">${name}</strong> のBAN選択中`
+    hint.innerHTML=`現在 <strong style="color:${col}">${esc(name)}</strong> のBAN選択中`
       +(rem?`<br><small style="color:var(--mu)">残り: ${rem}（タブで種別を切替）</small>`:'');
   } else {
     const myTeam=isHost?'alpha':'bravo';
@@ -4917,7 +4934,7 @@ function renderBanPanel(){
     } else {
       const myTeamName=isHost?state.an:state.bn;
       const rem=banRemainingSummary(state,myTeam);
-      hint.innerHTML=`<strong style="color:${isHost?'var(--a)':'var(--b)'}">${myTeamName}</strong> — BANを選択して送信してください`
+      hint.innerHTML=`<strong style="color:${isHost?'var(--a)':'var(--b)'}">${esc(myTeamName)}</strong> — BANを選択して送信してください`
         +(rem?`<br><small style="color:var(--mu)">残り: ${rem}（タブで種別を切替）</small>`:'');
     }
   }
@@ -4962,20 +4979,20 @@ function renderIndividualBanPanel(S, bc){
       row.className = 'ban-member-row';
       let slotHtml = '';
       if(alreadyConfirmed){
-        slotHtml = `<div class="bsl filled" style="flex:1">${alreadyConfirmed.name}</div>`;
+        slotHtml = `<div class="bsl filled" style="flex:1">${esc(alreadyConfirmed.name)}</div>`;
       } else if(submitted){
         // 自分=▶武器名 / 味方=武器名（公開）/ 相手=送信済み（伏せる）
-        const label = isMe ? '▶ '+submitted.name
-          : (team===myTeam ? submitted.name+' ✓' : '送信済み ✓');
+        const label = isMe ? '▶ '+esc(submitted.name)
+          : (team===myTeam ? esc(submitted.name)+' ✓' : '送信済み ✓');
         slotHtml = `<div class="bsl pending" style="flex:1">${label}</div>`;
       } else if(isMe){
         // 自分の担当スロットのうち、現在操作中のスロット（getMyBannerInfo が返すもの）
         const activeSlot = getMyBannerInfo(S);
         const isActiveSlot = activeSlot && activeSlot.slotIdx===slotIdx;
         if(isActiveSlot && myConfirmedBan){
-          slotHtml = `<div class="bsl pending" style="flex:1;border-color:var(--pk);color:var(--pk)">▶ ${myConfirmedBan.name} <span style="font-size:9px">(送信待ち)</span></div>`;
+          slotHtml = `<div class="bsl pending" style="flex:1;border-color:var(--pk);color:var(--pk)">▶ ${esc(myConfirmedBan.name)} <span style="font-size:9px">(送信待ち)</span></div>`;
         } else if(isActiveSlot && pendingSelect?.phase==='ban'){
-          slotHtml = `<div class="bsl" style="flex:1;border-color:var(--y);color:var(--y)">▷ ${pendingSelect.w.name} <span style="font-size:9px">(もう一度タップで確定)</span></div>`;
+          slotHtml = `<div class="bsl" style="flex:1;border-color:var(--y);color:var(--y)">▷ ${esc(pendingSelect.w.name)} <span style="font-size:9px">(もう一度タップで確定)</span></div>`;
         } else if(!isActiveSlot && activeSlot){
           // 前スロットが未送信のため待機中
           slotHtml = `<div class="bsl" style="flex:1;color:var(--mu)">BAN${slotIdx+1} <span style="font-size:9px">(前のBANを送信後)</span></div>`;
@@ -4985,7 +5002,7 @@ function renderIndividualBanPanel(S, bc){
       } else {
         slotHtml = `<div class="bsl" style="flex:1">BAN${slotIdx+1}</div>`;
       }
-      row.innerHTML = `<span class="ban-member-name ${team}">${memberName}${labelSuffix}</span>${slotHtml}`;
+      row.innerHTML = `<span class="ban-member-name ${team}">${esc(memberName)}${labelSuffix}</span>${slotHtml}`;
       el.appendChild(row);
     });
   });
@@ -4994,9 +5011,9 @@ function renderIndividualBanPanel(S, bc){
   const bannerInfo = getMyBannerInfo(S);
   if(bannerInfo){
     if(myConfirmedBan){
-      hint.innerHTML=`<span style="color:var(--pk)">▶ <strong>${myConfirmedBan.name}</strong> を確定しました — 「BANを送信する」で送信してください</span>`;
+      hint.innerHTML=`<span style="color:var(--pk)">▶ <strong>${esc(myConfirmedBan.name)}</strong> を確定しました — 「BANを送信する」で送信してください</span>`;
     } else if(pendingSelect?.phase==='ban'){
-      hint.innerHTML=`<span style="color:var(--y)">▷ <strong>${pendingSelect.w.name}</strong> — もう一度タップで確定</span>`;
+      hint.innerHTML=`<span style="color:var(--y)">▷ <strong>${esc(pendingSelect.w.name)}</strong> — もう一度タップで確定</span>`;
     } else {
       // 複数スロット担当の場合、何回目かを表示
       const mySlots = (banners[bannerInfo.team]||[]).filter(id=>id===myMemberId).length;
@@ -5142,7 +5159,7 @@ function renderSlots(team){
     const w=(S.bans[team]||[])[i], d=document.createElement('div');
     d.className='ws '+(w?'banned':'empty')+(w&&i>=seen.ban?' is-new':'');
     d.innerHTML=w
-      ?`<span class="sl">BAN${i+1}</span><img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.display='none'"><span class="sn">${banDispName(w)}</span>`
+      ?`<span class="sl">BAN${i+1}</span><img src="${esc(w.imgUrl)}" alt="${esc(w.name)}" onerror="this.style.display='none'"><span class="sn">${esc(banDispName(w))}</span>`
       :`<span class="sl">BAN${i+1}</span><span class="sn">未選択</span>`;
     c.appendChild(d);
   }
@@ -5150,7 +5167,7 @@ function renderSlots(team){
     const w=(S.picks[team]||[])[i], d=document.createElement('div');
     d.className='ws '+(w?'picked':'empty')+(w&&i>=seen.pick?' is-new':'');
     d.innerHTML=w
-      ?`<span class="sl">P${i+1}</span><img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.display='none'"><span class="sn">${w.name}</span>`
+      ?`<span class="sl">P${i+1}</span><img src="${esc(w.imgUrl)}" alt="${esc(w.name)}" onerror="this.style.display='none'"><span class="sn">${esc(w.name)}</span>`
       :`<span class="sl">P${i+1}</span><span class="sn">未選択</span>`;
     c.appendChild(d);
   }
@@ -5293,8 +5310,8 @@ function renderGrid(){
     const isSimPending=(simPickPending.alpha&&simPickPending.alpha.key===w.key)||
                        (simPickPending.bravo&&simPickPending.bravo.key===w.key);
     btn.disabled=unavail||!clickable;
-    btn.innerHTML=`<img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.height='38px';this.style.opacity='.2'">
-      <div class="wn">${w.name}</div>
+    btn.innerHTML=`<img src="${esc(w.imgUrl)}" alt="${esc(w.name)}" onerror="this.style.height='38px';this.style.opacity='.2'">
+      <div class="wn">${esc(w.name)}</div>
       ${isBanW?'<span class="wst b">BAN</span>':''}${isTeamBanW?'<span class="wst tb">味方</span>':''}${isPickW?'<span class="wst p">PICK</span>':''}${isLockW&&!isBanW&&!isPickW&&!isTeamBanW?'<span class="wst l">🔒</span>':''}`;
     if(clickable&&!unavail){
       const isSelW = pendingSelect && pendingSelect.phase==='ban' && banIdOf(pendingSelect.w)===banIdOf(w);
@@ -5329,8 +5346,8 @@ function renderBanGenreTiles(S, gran, repIt, repEligible, grid){
     const btn=document.createElement('button');
     btn.className='wb'+(isBanned?' is-bn':'')+(isSel?' is-sel':'');
     btn.disabled=!clickable;
-    btn.innerHTML=`<img src="${g.imgUrl}" alt="${val}" onerror="this.style.height='38px';this.style.opacity='.2'">
-      <div class="wn">${val}<span style="color:var(--mu);font-size:9px"> ${cnt}種</span></div>
+    btn.innerHTML=`<img src="${esc(g.imgUrl)}" alt="${esc(val)}" onerror="this.style.height='38px';this.style.opacity='.2'">
+      <div class="wn">${esc(val)}<span style="color:var(--mu);font-size:9px"> ${cnt}種</span></div>
       ${isBanned?'<span class="wst b">BAN</span>':''}`;
     if(clickable) btn.onclick=()=>pickWeapon(g);
     grid.appendChild(btn);
@@ -5480,7 +5497,7 @@ function renderSlotsWithPending(){
   const slotIdx=banTotalLimit(S)+picked; // BAN分オフセット（ジャンルBAN含む総数）
   if(slots[slotIdx]){
     slots[slotIdx].className='ws picked';
-    slots[slotIdx].innerHTML=`<span class="sl">P${picked+1}</span><img src="${w.imgUrl}" alt="${w.name}" onerror="this.style.display='none'"><span class="sn" style="color:var(--y)">▶ ${w.name}</span>`;
+    slots[slotIdx].innerHTML=`<span class="sl">P${picked+1}</span><img src="${esc(w.imgUrl)}" alt="${esc(w.name)}" onerror="this.style.display='none'"><span class="sn" style="color:var(--y)">▶ ${esc(w.name)}</span>`;
   }
 }
 
@@ -5529,8 +5546,8 @@ function renderSimPickPanel(){
 
   if(!isMulti){
     const aReady=!!simPickPending.alpha, bReady=!!simPickPending.bravo;
-    if(!aReady) hint.innerHTML=`<strong style="color:var(--a)">${S.an}</strong> の武器を選択してください`;
-    else if(!bReady) hint.innerHTML=`<strong style="color:var(--b)">${S.bn}</strong> の武器を選択してください`;
+    if(!aReady) hint.innerHTML=`<strong style="color:var(--a)">${esc(S.an)}</strong> の武器を選択してください`;
+    else if(!bReady) hint.innerHTML=`<strong style="color:var(--b)">${esc(S.bn)}</strong> の武器を選択してください`;
     else hint.innerHTML=`<span style="color:var(--pk)">両チームの選択が完了しました！確定してください</span>`;
     btn.textContent='PICKを確定する'; btn.disabled=!(simPickPending.alpha&&simPickPending.bravo);
     return;
@@ -5540,7 +5557,7 @@ function renderSimPickPanel(){
     // このラウンドの担当外（観戦）。送信できない。
     const aPicker = step&&step.alphaMemberId ? (S.members||{})[step.alphaMemberId]?.name : S.an;
     const bPicker = step&&step.bravoMemberId ? (S.members||{})[step.bravoMemberId]?.name : S.bn;
-    hint.innerHTML=`<span style="color:var(--mu)">このラウンドは <strong style="color:var(--a)">${aPicker||S.an}</strong> と <strong style="color:var(--b)">${bPicker||S.bn}</strong> がピック中です。お待ちください</span>`;
+    hint.innerHTML=`<span style="color:var(--mu)">このラウンドは <strong style="color:var(--a)">${esc(aPicker||S.an)}</strong> と <strong style="color:var(--b)">${esc(bPicker||S.bn)}</strong> がピック中です。お待ちください</span>`;
     btn.textContent='担当外'; btn.disabled=true;
     return;
   }
@@ -5554,7 +5571,7 @@ function renderSimPickPanel(){
   } else {
     const myName=myTeamM==='alpha'?S.an:S.bn;
     const myCol=myTeamM==='alpha'?'var(--a)':'var(--b)';
-    hint.innerHTML=`<strong style="color:${myCol}">${myName}</strong> — ピックする武器を選択して送信してください`;
+    hint.innerHTML=`<strong style="color:${myCol}">${esc(myName)}</strong> — ピックする武器を選択して送信してください`;
   }
 
   const myReady=!!simPickPending[myTeamM];
@@ -5597,8 +5614,8 @@ function showSimRevealOverlay(wA, wB){
   document.getElementById('sim-reveal-round').textContent=`ROUND ${roundNum} — PICK 公開！`;
   const elA=document.getElementById('sim-reveal-weapons-a');
   const elB=document.getElementById('sim-reveal-weapons-b');
-  elA.innerHTML=`<div class="sim-reveal-weapon"><img src="${showA.imgUrl}" alt="${showA.name}" onerror="this.style.display='none'"><span>${showA.name}</span></div>`;
-  elB.innerHTML=`<div class="sim-reveal-weapon"><img src="${showB.imgUrl}" alt="${showB.name}" onerror="this.style.display='none'"><span>${showB.name}</span></div>`;
+  elA.innerHTML=`<div class="sim-reveal-weapon"><img src="${esc(showA.imgUrl)}" alt="${esc(showA.name)}" onerror="this.style.display='none'"><span>${esc(showA.name)}</span></div>`;
+  elB.innerHTML=`<div class="sim-reveal-weapon"><img src="${esc(showB.imgUrl)}" alt="${esc(showB.name)}" onerror="this.style.display='none'"><span>${esc(showB.name)}</span></div>`;
   document.getElementById('sim-reveal-overlay').style.display='flex';
 }
 
@@ -5658,7 +5675,7 @@ function showResult(){
     else bans.forEach(w=>{
       const d=document.createElement('div'); d.className='rt bnt';
       const bannerName = w.memberId && (S.members||{})[w.memberId]?.name;
-      d.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">${bannerName?`<span style="font-size:10px;color:var(--mu)">${bannerName}:</span> `:''}${banDispName(w)}`;
+      d.innerHTML=`<img src="${esc(w.imgUrl)}" alt="" onerror="this.style.display='none'">${bannerName?`<span style="font-size:10px;color:var(--mu)">${esc(bannerName)}:</span> `:''}${esc(banDispName(w))}`;
       be.appendChild(d);
     });
 
@@ -5675,7 +5692,7 @@ function showResult(){
     picks.forEach(w=>{
       const d=document.createElement('div'); d.className='rt';
       const playerName = w.memberId && (S.members||{})[w.memberId]?.name;
-      d.innerHTML=`<img src="${w.imgUrl}" alt="" onerror="this.style.display='none'">${playerName?`<span style="font-size:10px;color:var(--mu)">${playerName}:</span> `:''}${w.name}`;
+      d.innerHTML=`<img src="${esc(w.imgUrl)}" alt="" onerror="this.style.display='none'">${playerName?`<span style="font-size:10px;color:var(--mu)">${esc(playerName)}:</span> `:''}${esc(w.name)}`;
       pe.appendChild(d);
     });
   });
@@ -5685,9 +5702,9 @@ function showResult(){
     if(S.challenge){
       const ra=evaluateChallenge(S,'alpha'), rb=evaluateChallenge(S,'bravo');
       const badge=(r)=> r===null?'<span class="ng">―</span>':(r?'<span class="ok">○ 達成</span>':'<span class="ng">× 未達成</span>');
-      chEl.innerHTML=`<div class="rc-label">🎯 お題：${S.challenge.label}</div>`
-        +`<div class="rc-desc">${S.challenge.desc||''}</div>`
-        +`<div class="rc-res"><span>${S.an}：${badge(ra)}</span><span>${S.bn}：${badge(rb)}</span></div>`;
+      chEl.innerHTML=`<div class="rc-label">🎯 お題：${esc(S.challenge.label)}</div>`
+        +`<div class="rc-desc">${esc(S.challenge.desc||'')}</div>`
+        +`<div class="rc-res"><span>${esc(S.an)}：${badge(ra)}</span><span>${esc(S.bn)}：${badge(rb)}</span></div>`;
       chEl.style.display='';
     } else {
       chEl.style.display='none';
