@@ -1748,9 +1748,31 @@ window.startSoloDraft = function(){
 };
 
 // ===== マルチ: 部屋作成 =====
+// ルームIDは crypto の乱数で生成（Math.random は予測余地があるため不使用）。
+// 万一の衝突（既存ルームの上書き）を防ぐため、作成前に存在確認する。
+function generateRoomId(){
+  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const buf=new Uint32Array(6);
+  crypto.getRandomValues(buf);
+  return Array.from(buf, n=>chars[n%chars.length]).join('');
+}
+async function generateUniqueRoomId(){
+  for(let i=0;i<5;i++){
+    const id=generateRoomId();
+    const snap=await get(ref(db,`rooms/${id}/createdAt`));
+    if(!snap.exists()) return id;
+  }
+  throw new Error('ルームIDの生成に失敗しました');
+}
 window.enterMultiCreate = async function(){
   isMulti=true; isHost=true;
-  roomId = Math.random().toString(36).substring(2,8).toUpperCase();
+  try{
+    roomId = await generateUniqueRoomId();
+  }catch(e){
+    alert('部屋の作成に失敗しました。通信状態を確認してもう一度お試しください。');
+    isMulti=false; isHost=false;
+    return;
+  }
   myMemberId = generateMemberId();
   await set(ref(db,`rooms/${roomId}/lobby`),{
     status:'waiting',
