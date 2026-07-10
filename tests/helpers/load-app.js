@@ -26,6 +26,7 @@ const EXPORT_NAMES = [
   'makeGenreBan','weaponMatchesGenreBan','weaponBannedByGenres','isWeaponExcluded',
   'autoCompleteBanPending','serializeBan','banDispName','getAvailableWeapons',
   'seriesRuleForGame','normalizeState','generateRoomId','evaluateChallenge',
+  'statKey','buildStatsUpdates',
   'RULES','CATEGORY_ORDER','CHALLENGES',
 ];
 
@@ -81,6 +82,7 @@ function loadApp(){
     remove(){ return Promise.resolve(); },
     get(){ return Promise.resolve({ exists: () => false, val: () => null }); },
     onValue(){ return () => {}; },
+    increment(n){ return { __increment: n }; },
     signInAnonymously(){ return Promise.resolve({ user: { uid: 'test-uid' } }); },
   };
   sandbox.window = sandbox;

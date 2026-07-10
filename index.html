@@ -1380,7 +1380,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 </div><!-- /app -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, set, onValue, get, update, remove }
+import { getDatabase, ref, set, onValue, get, update, remove, increment }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 import { getAuth, signInAnonymously }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -5700,8 +5700,45 @@ window.closeSimReveal = function(){
     soloAdvance();
   }
 };
+// ===== 武器統計（匿名集計） =====
+// マルチのドラフト完了時に、武器別の PICK/BAN 回数とドラフト総数だけを stats/ に集計する。
+// 送るのは武器key・ジャンル名と件数のみ（ルームID・プレイヤー名・チーム名は送らない）。
+// Database Rules 未設定などで書き込みに失敗してもアプリ動作には影響させない（catchで握りつぶす）。
+// 二重計上は state.statsRecorded で防ぐ（記録はホストのみ・連戦は試合ごとに1回）。
+function statKey(s){
+  // Firebase のキーに使えない文字を除去（改竄された state 経由のパス注入も防ぐ）
+  const k=String(s==null?'':s).replace(/[.#$/\[\]]/g,'');
+  return k||null;
+}
+function buildStatsUpdates(S){
+  const counts={};
+  const bump=p=>{ counts[p]=(counts[p]||0)+1; };
+  ['alpha','bravo'].forEach(t=>{
+    (S.picks[t]||[]).forEach(w=>{ const k=w&&statKey(w.key); if(k) bump(`stats/weapons/${k}/picks`); });
+    (S.bans[t]||[]).forEach(b=>{
+      if(!b) return;
+      if(b.banType){ const g=statKey(b.banType), v=statKey(b.value); if(g&&v) bump(`stats/genreBans/${g}/${v}`); }
+      else { const k=statKey(b.key); if(k) bump(`stats/weapons/${k}/bans`); }
+    });
+  });
+  const updates={};
+  Object.entries(counts).forEach(([p,n])=>{ updates[p]=increment(n); });
+  updates['stats/meta/drafts']=increment(1);
+  return updates;
+}
+function recordDraftStats(){
+  const S=state;
+  if(!isMulti || !isHost) return;              // 記録はホストのみ（ソロは試行が多くノイズになるため対象外）
+  if(!S || S.statsRecorded) return;            // 二重計上防止（トレード等での結果画面再描画・再入場）
+  if(S.seq && S.seq[S.idx]) return;            // ドラフト完了時のみ
+  S.statsRecorded=true;
+  update(ref(db), buildStatsUpdates(S)).catch(()=>{});
+  pushState();                                  // statsRecorded を同期し、ホスト再入場時の再計上も防ぐ
+}
+
 function showResult(){
   const S=state;
+  recordDraftStats();
   document.getElementById('r-rule').textContent=S.rule;
   document.getElementById('r-stage').textContent='📍 '+S.stageJa;
   const simg=document.getElementById('r-simg');

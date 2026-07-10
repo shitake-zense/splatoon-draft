@@ -1,0 +1,46 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "rooms": {
+      "$roomId": {
+        ".read": "auth != null && $roomId.matches(/^[A-Z0-9]{6}$/)",
+        ".write": "auth != null && $roomId.matches(/^[A-Z0-9]{6}$/)"
+      }
+    },
+
+    "stats": {
+      ".read": "auth != null",
+
+      "weapons": {
+        "$weaponKey": {
+          "picks": {
+            ".write": "auth != null",
+            ".validate": "newData.isNumber() && newData.val() >= 0"
+          },
+          "bans": {
+            ".write": "auth != null",
+            ".validate": "newData.isNumber() && newData.val() >= 0"
+          }
+        }
+      },
+
+      "genreBans": {
+        "$banType": {
+          "$value": {
+            ".write": "auth != null",
+            ".validate": "newData.isNumber() && newData.val() >= 0"
+          }
+        }
+      },
+
+      "meta": {
+        "drafts": {
+          ".write": "auth != null",
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        }
+      }
+    }
+  }
+}

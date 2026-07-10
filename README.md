@@ -148,8 +148,13 @@
 ## セキュリティ
 
 - **Firebase 匿名認証** — サイトを開くと自動でログイン（入力不要）。未認証からの読み書きをブロック
-- **Database Rules** — 認証済みユーザーのみ・6文字英数字のルームIDのみアクセス可能
+- **Database Rules** — 認証済みユーザーのみ・6文字英数字のルームIDのみアクセス可能（想定形は [`database.rules.json`](./database.rules.json)）
 - **ルーム自動削除** — 24時間以上経過したルームをGitHub Actionsで毎日深夜0時（JST）に自動削除
+- **XSS対策** — プレイヤー名・チーム名など Firebase 経由の文字列は表示時にすべてHTMLエスケープ
+
+## 統計（匿名集計）
+
+マルチプレイのドラフト完了時に、**武器別のPICK/BAN回数とドラフト総数のみ**を匿名で集計します。ルームID・プレイヤー名・チーム名・日時は送信しません。詳細とセットアップ手順は [docs/stats-setup.md](./docs/stats-setup.md) を参照してください。
 
 ---
 
@@ -175,8 +180,10 @@ splatoon-draft/
 │   ├── weapons/
 │   ├── stages/
 │   └── icon.png           # サイトアイコン / PWAアイコン
+├── database.rules.json    # Database Rules の想定形（rooms＋stats。適用は手動）
 ├── docs/
-│   └── manual-smoke-checklist.md   # 手動テスト用チェックリスト
+│   ├── manual-smoke-checklist.md   # 手動テスト用チェックリスト
+│   └── stats-setup.md              # 武器統計（匿名集計）のセットアップ手順
 ├── tests/                 # 純粋ロジックの単体テスト（node --test tests/*.test.js）
 │   ├── helpers/load-app.js         # index.html をNodeに読み込むテストハーネス
 │   ├── pick-seq.test.js            # ピック順生成（7種）
