@@ -1398,6 +1398,13 @@ const fbApp = initializeApp(firebaseConfig);
 const db    = getDatabase(fbApp);
 const auth  = getAuth(fbApp);
 
+// ===== サーバー時刻同期 =====
+// タイマーの deadline は書き込み側・比較側とも serverNow()（Firebaseサーバー時刻推定）を使う。
+// 端末時計のズレで「残り時間があるのに自動送信される／ホストの補完に間に合わない」のを防ぐ。
+let _serverTimeOffset = 0;
+onValue(ref(db, '.info/serverTimeOffset'), snap => { _serverTimeOffset = snap.val() || 0; });
+function serverNow(){ return Date.now() + _serverTimeOffset; }
+
 // ===== 匿名認証 =====
 // アプリ起動時に必ず匿名ログインを行う。
 // currentUid は Firebase Rules の auth != null を満たすためだけに使用。
@@ -2008,7 +2015,7 @@ function startMemberDraft(){
   // orderAlpha/Bravo＝指名順（キャプテンを先頭に）。完了時にそのままピック順として採用する（#1直結）
   const node={ active:true, done:false, capAlpha:alpha[0], capBravo:bravo[0], turn:firstTurn, ts,
     orderAlpha:[alpha[0]], orderBravo:[bravo[0]] };
-  if(timed) node.deadline=Date.now()+sec*1000;
+  if(timed) node.deadline=serverNow()+sec*1000;
   _mdAutoStarted=false;
   set(ref(db,`rooms/${roomId}/lobby/memberDraft`), node);
 }
@@ -2058,7 +2065,7 @@ function hostApplyMemberDraft(lobby){
         updates[`rooms/${roomId}/lobby/memberDraft/turn`]=nextMdTurn(md.turn,aCount,bCount,ts);
         const timed=document.getElementById('time-limit-enabled')?.checked;
         const sec=clampTimeLimit(document.getElementById('time-limit-sec')?.value);
-        updates[`rooms/${roomId}/lobby/memberDraft/deadline`]= timed ? Date.now()+sec*1000 : null;
+        updates[`rooms/${roomId}/lobby/memberDraft/deadline`]= timed ? serverNow()+sec*1000 : null;
       }
     }
     update(ref(db), updates).finally(()=>{ _mdApplying=false; });
@@ -2073,7 +2080,7 @@ function startMdTimer(md){
   mdTimerInterval=setInterval(()=>{
     const md2=lobbyMemberDraft;
     if(!md2 || !md2.active || md2.done || !md2.deadline){ stopMdTimer(); return; }
-    if(Date.now()>=md2.deadline && !_mdApplying){
+    if(serverNow()>=md2.deadline && !_mdApplying){
       stopMdTimer(); // 適用後に再スケジュールされる（多重自動ピック防止）
       const pool=Object.entries(lobbyMembers).filter(([,m])=>m.team==='unassigned').map(([id])=>id);
       if(pool.length){
@@ -2128,7 +2135,7 @@ function startMdCountdown(){
     const md=lobbyMemberDraft, tEl=document.getElementById('md-timer');
     if(!tEl) return;
     if(md && md.active && !md.done && md.deadline){
-      const left=Math.max(0,Math.ceil((md.deadline-Date.now())/1000));
+      const left=Math.max(0,Math.ceil((md.deadline-serverNow())/1000));
       tEl.style.display=''; tEl.textContent=`⏱ ${left}`;
     } else { tEl.style.display='none'; }
   }, 500);
@@ -2156,7 +2163,7 @@ function renderMemberDraftScreen(lobby){
   // タイマー表示（deadline があれば残り秒）
   const tEl=document.getElementById('md-timer');
   if(md.deadline){
-    const left=Math.max(0,Math.ceil((md.deadline-Date.now())/1000));
+    const left=Math.max(0,Math.ceil((md.deadline-serverNow())/1000));
     tEl.style.display=''; tEl.textContent=`⏱ ${left}`;
   } else { tEl.style.display='none'; }
   // 両チーム（キャプテン＋指名済み）
@@ -2223,7 +2230,7 @@ function startWeaponPick(){
   const node={ active:true, done:false, order, idx:0, picks:{} };
   const timed=document.getElementById('time-limit-enabled')?.checked;
   const sec=clampTimeLimit(document.getElementById('time-limit-sec')?.value);
-  if(timed) node.deadline=Date.now()+sec*1000;
+  if(timed) node.deadline=serverNow()+sec*1000;
   set(ref(db,`rooms/${roomId}/lobby/weaponPick`), node);
 }
 // 現在の手番プレイヤー: 武器を選ぶ（意図を書き込む→ホストが適用）
@@ -2266,7 +2273,7 @@ function hostApplyWeaponPick(lobby){
         updates[`rooms/${roomId}/lobby/weaponPick/idx`]=nextIdx;
         const timed=document.getElementById('time-limit-enabled')?.checked;
         const sec=clampTimeLimit(document.getElementById('time-limit-sec')?.value);
-        updates[`rooms/${roomId}/lobby/weaponPick/deadline`]= timed ? Date.now()+sec*1000 : null;
+        updates[`rooms/${roomId}/lobby/weaponPick/deadline`]= timed ? serverNow()+sec*1000 : null;
       }
     }
     update(ref(db), updates).finally(()=>{ _wpApplying=false; });
@@ -2280,7 +2287,7 @@ function startWpTimer(wp){
   wpTimerInterval=setInterval(()=>{
     const wp2=lobbyWeaponPick;
     if(!wp2 || !wp2.active || wp2.done || !wp2.deadline){ stopWpTimer(); return; }
-    if(Date.now()>=wp2.deadline && !_wpApplying){
+    if(serverNow()>=wp2.deadline && !_wpApplying){
       stopWpTimer();
       const curId=(wp2.order||[])[wp2.idx];
       const taken=new Set(Object.values(wp2.picks||{}).map(w=>w.key));
@@ -2300,7 +2307,7 @@ function startWpCountdown(){
     const wp=lobbyWeaponPick, tEl=document.getElementById('wp-timer');
     if(!tEl) return;
     if(wp && wp.active && !wp.done && wp.deadline){
-      const left=Math.max(0,Math.ceil((wp.deadline-Date.now())/1000));
+      const left=Math.max(0,Math.ceil((wp.deadline-serverNow())/1000));
       tEl.style.display=''; tEl.textContent=`⏱ ${left}`;
     } else { tEl.style.display='none'; }
   }, 500);
@@ -2344,7 +2351,7 @@ function renderWeaponPickScreen(lobby){
   document.getElementById('wp-turn').innerHTML=`武器選択中： <b style="color:var(--y)">${esc(nameOf(curId))}</b> <span style="color:var(--mu);font-size:12px">（${(wp.idx||0)+1} / ${order.length}人目）</span>`;
   // タイマー
   const tEl=document.getElementById('wp-timer');
-  if(wp.deadline){ const left=Math.max(0,Math.ceil((wp.deadline-Date.now())/1000)); tEl.style.display=''; tEl.textContent=`⏱ ${left}`; }
+  if(wp.deadline){ const left=Math.max(0,Math.ceil((wp.deadline-serverNow())/1000)); tEl.style.display=''; tEl.textContent=`⏱ ${left}`; }
   else { tEl.style.display='none'; }
   // 選択済み一覧（順番どおり）
   const pe=document.getElementById('wp-picked'); pe.innerHTML='';
@@ -2568,7 +2575,7 @@ function startTimer(deadline, totalSec){
   wrap.style.display='block';
 
   function tick(){
-    const remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+    const remaining = Math.max(0, Math.ceil((deadline - serverNow()) / 1000));
     display.textContent = remaining;
     display.className = 'timer-display' + (remaining<=5?' danger':remaining<=10?' warn':'');
     const pct = Math.max(0, (remaining / totalSec) * 100);
@@ -4196,7 +4203,7 @@ function pushState(){
   _lastPushedIdx=state.idx;
   // 制限時間が有効なら新しいステップの開始時刻としてdeadlineをセット
   if(state.timeLimitEnabled && state.idx < state.seq.length){
-    state.deadline = Date.now() + state.timeLimitSec * 1000;
+    state.deadline = serverNow() + state.timeLimitSec * 1000;
   } else {
     state.deadline = null;
   }
@@ -4804,7 +4811,7 @@ function renderDraft(){
   if(state.timeLimitEnabled && !done){
     // ソロモードは renderDraft のたびに deadline を設定（マルチは pushState で設定済み）
     if(!isMulti && !state.deadline){
-      state.deadline = Date.now() + state.timeLimitSec * 1000;
+      state.deadline = serverNow() + state.timeLimitSec * 1000;
     }
     if(state.deadline) startTimer(state.deadline, state.timeLimitSec);
   } else {
