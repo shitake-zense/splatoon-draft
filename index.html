@@ -150,6 +150,18 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .guide-list li b{color:var(--y);font-weight:bold;}
 .guide-note{font-size:11px;color:var(--mu);line-height:1.6;margin-top:10px;padding-top:10px;border-top:1px solid #2a2a4a;}
 .guide-note b{color:var(--tx);}
+/* 武器統計ビューア */
+.stats-summary{background:var(--s1);border:1px solid #2a2a4a;border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:var(--mu);text-align:center;}
+.stats-summary b{color:var(--y);font-family:'Zen Dots',sans-serif;}
+.stat-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #232343;font-size:12px;}
+.stat-row:last-child{border-bottom:none;}
+.stat-rank{flex:0 0 24px;color:var(--mu);font-family:'Zen Dots',sans-serif;font-size:10px;text-align:right;}
+.stat-img{flex:0 0 26px;width:26px;height:26px;object-fit:contain;display:inline-block;}
+.stat-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.stat-bar-wrap{flex:0 0 84px;height:8px;background:#101828;border-radius:4px;overflow:hidden;display:inline-block;}
+.stat-bar{display:block;height:100%;border-radius:4px;}
+.stat-cnt{flex:0 0 42px;text-align:right;color:var(--y);font-family:'Zen Dots',sans-serif;font-size:11px;}
+.stat-empty{color:var(--mu);font-size:12px;padding:8px 0;text-align:center;}
 .guide-dl{margin:0;}
 .guide-dl dt{font-size:12px;color:var(--y);font-weight:bold;margin-top:11px;}
 .guide-dl dt:first-of-type{margin-top:0;}
@@ -504,6 +516,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
     <p>部屋番号を入力して参加</p>
   </button>
   <button class="btn-re" style="max-width:360px;margin:14px auto 0;display:block;" onclick="showScreen('guide')">📖 使い方 / ドラフトの流れ</button>
+  <button class="btn-re" style="max-width:360px;margin:8px auto 0;display:block;" onclick="showStatsScreen()">📊 武器統計（PICK/BANランキング）</button>
 </div>
 
 <!-- GUIDE (使い方) -->
@@ -608,9 +621,29 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <p class="guide-note">お題カードをONにすると開始時に縛りを1枚抽選します（両チーム共通・非強制で、達成は結果に○×表示）。</p>
         <p class="guide-note">連戦モード（シリーズ）がONのときは、結果画面でホストが各試合の勝者を入力すると次の試合へ進みます。先取数（BO3=2／BO5=3）に達するとシリーズ終了で、戦績ボード（各試合の編成一覧）とシリーズ画像の保存ができます。ガチルールは BO3=毎回ランダム／BO5=エリア→ヤグラ→ホコ→アサリ→ランダム。「負けチームがルール設定」ONなら2試合目以降は敗者が次のガチルールを選びます。</p>
         <p class="guide-note">ドラフト画面 右上の <b>🔊</b>＝確定音（既定OFF）、<b>🗣️</b>＝武器読み上げ（既定OFF）のトグルです。BAN/PICKを確定するたびに効果音が鳴り、読み上げONなら確定した武器名を読み上げます（端末ごとの設定・音は自動生成で外部ファイルなし）。</p>
+        <p class="guide-note">モード選択画面の<b>「📊 武器統計」</b>から、全ルーム累計の PICK／BAN／ジャンルBAN ランキングを見られます（マルチプレイで完了したドラフトのみの匿名集計。武器と回数だけが記録され、ルームIDやプレイヤー名は残りません）。</p>
       </div>
     </div>
 
+    <button class="btn-re" onclick="showScreen('mode')">← モード選択へ戻る</button>
+  </div>
+</div>
+
+<!-- STATS (武器統計・匿名集計ビューア) -->
+<div id="s-stats" class="screen">
+  <div class="logo"><h1>SPLATOON DRAFT</h1><p>武器統計（全ルーム累計・匿名）</p></div>
+  <div class="guide-wrap">
+    <div class="stats-summary" id="stats-summary">読み込み中…</div>
+    <div class="guide-tabs">
+      <button class="guide-tab on" data-st="picks" onclick="showStatsTab('picks')">🔫 PICK</button>
+      <button class="guide-tab" data-st="bans" onclick="showStatsTab('bans')">🚫 BAN</button>
+      <button class="guide-tab" data-st="genres" onclick="showStatsTab('genres')">🧩 ジャンルBAN</button>
+    </div>
+    <div class="guide-card">
+      <div id="stats-body"><div class="stat-empty">読み込み中…</div></div>
+    </div>
+    <p class="guide-note">マルチプレイのドラフト完了時に集計される匿名データです（武器と回数のみ。ルームID・プレイヤー名は記録されません）。</p>
+    <button class="btn-re" onclick="showStatsScreen()">🔄 最新に更新</button>
     <button class="btn-re" onclick="showScreen('mode')">← モード選択へ戻る</button>
   </div>
 </div>
@@ -1622,7 +1655,7 @@ function clampTimeLimit(v){
 }
 
 function showScreen(n){
-  ['mode','guide','create','join','lobby','lobby-wait','member-draft','weapon-pick','setup','draft','result'].forEach(s=>
+  ['mode','guide','stats','create','join','lobby','lobby-wait','member-draft','weapon-pick','setup','draft','result'].forEach(s=>
     document.getElementById('s-'+s).classList.toggle('active',s===n)
   );
   if(roomId && ['lobby','lobby-wait','member-draft','weapon-pick','draft'].includes(n)){
@@ -5734,6 +5767,79 @@ function recordDraftStats(){
   S.statsRecorded=true;
   update(ref(db), buildStatsUpdates(S)).catch(()=>{});
   pushState();                                  // statsRecorded を同期し、ホスト再入場時の再計上も防ぐ
+}
+
+// ===== 武器統計ビューア（ホーム画面「📊 武器統計」） =====
+// stats/ のスナップショットを表示用ランキング配列に変換する（DOM非依存・テスト対象）。
+// count が数値でないエントリ（不正書き込み）は除外する。
+function buildStatsRanking(stats, kind){
+  if(!stats) return [];
+  if(kind==='genres'){
+    const labels={cat:'武器種',sub:'サブ',special:'スペシャル'};
+    const out=[];
+    Object.entries(stats.genreBans||{}).forEach(([type,vals])=>{
+      Object.entries(vals||{}).forEach(([value,count])=>{
+        if(typeof count==='number' && count>0)
+          out.push({key:type+':'+value, name:`${labels[type]||type}：${value}`, count});
+      });
+    });
+    return out.sort((a,b)=>b.count-a.count || a.name.localeCompare(b.name,'ja'));
+  }
+  const field = kind==='bans' ? 'bans' : 'picks';
+  return Object.entries(stats.weapons||{})
+    .map(([key,v])=>({key, count:(v&&typeof v[field]==='number')?v[field]:0}))
+    .filter(e=>e.count>0)
+    .sort((a,b)=>b.count-a.count || a.key.localeCompare(b.key));
+}
+
+let _statsTab='picks';
+let _statsData=null;
+window.showStatsTab=function(t){
+  _statsTab=t;
+  document.querySelectorAll('#s-stats .guide-tab').forEach(b=>b.classList.toggle('on',b.dataset.st===t));
+  renderStatsBody();
+};
+window.showStatsScreen=async function(){
+  showScreen('stats');
+  const sum=document.getElementById('stats-summary');
+  const body=document.getElementById('stats-body');
+  sum.textContent='読み込み中…';
+  body.innerHTML='<div class="stat-empty">読み込み中…</div>';
+  try{
+    const snap=await get(ref(db,'stats'));
+    _statsData=snap.exists()?snap.val():null;
+  }catch(e){
+    _statsData=null;
+    sum.textContent='統計を読み込めませんでした（通信状態を確認して「🔄 最新に更新」を押してください）';
+    body.innerHTML='';
+    return;
+  }
+  const drafts=Number(_statsData?.meta?.drafts)||0;
+  sum.innerHTML=`これまでに完了したドラフト: <b>${drafts}</b> 回`;
+  renderStatsBody();
+};
+function renderStatsBody(){
+  const body=document.getElementById('stats-body');
+  if(!body) return;
+  const list=buildStatsRanking(_statsData,_statsTab);
+  if(!list.length){
+    body.innerHTML='<div class="stat-empty">まだデータがありません。<br>マルチプレイのドラフトが完了すると貯まっていきます。</div>';
+    return;
+  }
+  const max=list[0].count;
+  const barCol=_statsTab==='bans' ? '#e06060' : (_statsTab==='genres' ? 'var(--y)' : 'var(--pk)');
+  body.innerHTML=list.slice(0,60).map((e,i)=>{
+    const w=e.name ? null : weaponByKey(e.key);
+    const nm=e.name || ((w&&w.name)||e.key);   // 武器データに無いkeyはそのまま表示
+    const img=(w&&w.imgUrl)
+      ? `<img class="stat-img" src="${esc(w.imgUrl)}" alt="" onerror="this.style.visibility='hidden'">`
+      : '<span class="stat-img"></span>';
+    const pct=Math.max(4,Math.round(e.count/max*100));
+    return `<div class="stat-row"><span class="stat-rank">${i+1}</span>${img}`
+      + `<span class="stat-name">${esc(nm)}</span>`
+      + `<span class="stat-bar-wrap"><span class="stat-bar" style="width:${pct}%;background:${barCol}"></span></span>`
+      + `<span class="stat-cnt">${Number(e.count)||0}</span></div>`;
+  }).join('');
 }
 
 function showResult(){

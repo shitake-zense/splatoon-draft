@@ -26,7 +26,7 @@ const EXPORT_NAMES = [
   'makeGenreBan','weaponMatchesGenreBan','weaponBannedByGenres','isWeaponExcluded',
   'autoCompleteBanPending','serializeBan','banDispName','getAvailableWeapons',
   'seriesRuleForGame','normalizeState','generateRoomId','evaluateChallenge',
-  'statKey','buildStatsUpdates',
+  'statKey','buildStatsUpdates','buildStatsRanking',
   'RULES','CATEGORY_ORDER','CHALLENGES',
 ];
 

@@ -65,3 +65,51 @@ test('buildStatsUpdates: 空のドラフトでも drafts カウンタだけは�
   const u = app.buildStatsUpdates(fixtureState());
   assert.deepEqual(Object.keys(u), ['stats/meta/drafts']);
 });
+
+// ===== ビューア側: buildStatsRanking =====
+
+const sampleStats = {
+  meta: { drafts: 10 },
+  weapons: {
+    w1: { picks: 5, bans: 1 },
+    w2: { picks: 8 },
+    w3: { bans: 4 },
+    w4: { picks: 'x', bans: null },   // 不正書き込み（数値以外）
+    w5: { picks: 0 },
+  },
+  genreBans: {
+    sub: { 'スプラッシュボム': 3, 'トーピード': 1 },
+    cat: { 'チャージャー': 2 },
+    special: { 'ダメ': 'x' },          // 不正書き込み
+  },
+};
+
+test('buildStatsRanking(picks): 回数の降順に並び、0件・非数値は除外', () => {
+  const r = app.buildStatsRanking(sampleStats, 'picks');
+  assert.deepEqual(r.map(e=>[e.key, e.count]), [['w2',8],['w1',5]]);
+});
+
+test('buildStatsRanking(bans): BAN回数で独立に集計される', () => {
+  const r = app.buildStatsRanking(sampleStats, 'bans');
+  assert.deepEqual(r.map(e=>[e.key, e.count]), [['w3',4],['w1',1]]);
+});
+
+test('buildStatsRanking(genres): 種別ラベル付きで降順、非数値は除外', () => {
+  const r = app.buildStatsRanking(sampleStats, 'genres');
+  assert.deepEqual(r.map(e=>[e.name, e.count]), [
+    ['サブ：スプラッシュボム', 3],
+    ['武器種：チャージャー', 2],
+    ['サブ：トーピード', 1],
+  ]);
+});
+
+test('buildStatsRanking: データなし・空データでは空配列', () => {
+  assert.deepEqual(app.buildStatsRanking(null, 'picks'), []);
+  assert.deepEqual(app.buildStatsRanking({}, 'picks'), []);
+  assert.deepEqual(app.buildStatsRanking({}, 'genres'), []);
+});
+
+test('buildStatsRanking: 同数のときはキー/名前順で安定', () => {
+  const s = { weapons: { b:{picks:2}, a:{picks:2}, c:{picks:3} } };
+  assert.deepEqual(app.buildStatsRanking(s,'picks').map(e=>e.key), ['c','a','b']);
+});
