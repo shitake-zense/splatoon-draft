@@ -1673,7 +1673,19 @@ async function loadData(){
     const res = await fetch(WEAPONS_JSON);
     if(!res.ok) throw new Error('weapons.json 読み込み失敗: '+res.status);
     const data = await res.json();
-    WEAPONS = data.map(w=>({key:w.key,name:w.name,cat:w.cat,imgUrl:WEAPONS_IMG+w.imgFile,imgFile:w.imgFile,sub:w.sub||null,special:w.special||null}));
+    // スキーマ検証: 必須キー欠損・型不正・key重複のエントリは除外して警告
+    // （key重複はBAN/PICK済み判定を静かに壊すため必ず弾く）
+    if(!Array.isArray(data)) throw new Error('weapons.json の形式が不正です（配列ではありません）');
+    const seenKeys=new Set(), skipped=[];
+    const valid = data.filter(w=>{
+      const ok = w && ['key','name','cat','imgFile'].every(k=>typeof w[k]==='string' && w[k]) && !seenKeys.has(w.key);
+      if(ok) seenKeys.add(w.key);
+      else skipped.push((w&&w.key)||(w&&w.name)||'(不明)');
+      return ok;
+    });
+    if(skipped.length) console.warn(`weapons.json: 不正または重複した ${skipped.length} 件を除外:`, skipped);
+    if(!valid.length) throw new Error('weapons.json に有効な武器データがありません');
+    WEAPONS = valid.map(w=>({key:w.key,name:w.name,cat:w.cat,imgUrl:WEAPONS_IMG+w.imgFile,imgFile:w.imgFile,sub:w.sub||null,special:w.special||null}));
     // カテゴリ表示順に並べ替え（同一カテゴリ内の順序は既存のまま＝安定ソート）
     WEAPONS.sort((a,b)=>{
       const ia=CATEGORY_ORDER.indexOf(a.cat), ib=CATEGORY_ORDER.indexOf(b.cat);
@@ -1708,6 +1720,14 @@ async function loadData(){
     document.getElementById('lmsg').textContent='読み込みに失敗しました';
     const em=document.getElementById('err-msg'); em.style.display='block';
     em.textContent='エラー: '+e.message;
+    // 再試行導線（一時的な通信不良から復帰できるように）
+    if(!document.getElementById('err-retry')){
+      const rb=document.createElement('button');
+      rb.id='err-retry'; rb.textContent='🔄 再読み込み';
+      rb.style.cssText='margin-top:12px;padding:9px 20px;font-size:13px;cursor:pointer;border-radius:8px;border:1px solid var(--y);background:transparent;color:var(--y);';
+      rb.onclick=()=>location.reload();
+      em.insertAdjacentElement('afterend', rb);
+    }
   }
 }
 
