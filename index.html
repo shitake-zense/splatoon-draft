@@ -201,6 +201,12 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .bsl.filled{border-color:var(--bn);color:var(--bn);}
 .bsl.pending{border-color:#ff8c00;color:#ff8c00;}
 .ban-hint{font-size:11px;color:var(--mu);text-align:center;margin-top:8px;}
+/* BAN操作の担当者（各チームの代表者）を明記する行 */
+.ban-reps{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px;}
+.rep-chip{font-size:10px;color:var(--mu);background:#0f1729;border:1px solid #2a3a5a;border-radius:999px;padding:3px 10px;}
+.rep-chip.a{border-color:var(--a);}.rep-chip.b{border-color:var(--b);}
+.rep-chip b{color:var(--tx);}
+.rep-you{background:var(--y);color:#1a1a2e;font-size:9px;border-radius:3px;padding:1px 5px;margin-left:5px;font-weight:700;}
 .ban-confirm{width:100%;margin-top:10px;padding:9px;background:#3d1a1a;border:1.5px solid var(--bn);border-radius:8px;color:var(--bn);font-family:'Zen Dots',sans-serif;font-size:12px;cursor:pointer;}
 .ban-confirm:hover:not(:disabled){background:#5a2020;}
 .ban-confirm:disabled{opacity:.35;cursor:not-allowed;}
@@ -379,6 +385,10 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .series-score .a{color:var(--a);}.series-score .b{color:var(--b);}
 .series-head{text-align:center;font-size:12px;color:var(--y);font-weight:700;margin-bottom:6px;}
 .series-note{font-size:11px;color:var(--mu);text-align:center;line-height:1.6;margin-bottom:8px;}
+/* 「誰がルールを選ぶのか」を明記する担当者バナー */
+.series-who{font-size:11px;color:var(--tx);text-align:center;line-height:1.7;margin:2px 0 8px;padding:7px 9px;background:#0f1729;border:1px dashed var(--y);border-radius:8px;}
+.series-who .who-name{color:var(--y);}
+.series-proxy{color:#8a93a6;font-size:10px;margin-top:2px;}
 .series-final{text-align:center;font-size:14px;font-weight:700;margin:6px 0 10px;line-height:1.5;}
 .series-actions{display:flex;gap:8px;margin:8px 0;}
 .series-win{flex:1;padding:11px 4px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;}
@@ -540,7 +550,19 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <li><b>ルール設定</b>で 人数(1v1〜4v4)・BAN数・ピックモード・ピック順・ルール／ステージ・武器の絞り込み・お題カード・制限時間 を調整します。</li>
           <li><b>「ドラフト開始」</b>で全員の画面が一斉にドラフトへ進みます。</li>
         </ol>
-        <p class="guide-note">ホストは<b>アルファ側</b>の送信担当 兼 進行役です。代表者BAN／代表者ピックでは、ホストがアルファ全員分をまとめて選びます。</p>
+        <p class="guide-note">ホストは<b>進行役</b>（開始・勝敗入力・再ドラフト）です。ホストがどちらのチームにいても構いません。</p>
+      </div>
+      <div class="guide-card">
+        <h3>「代表者」とは（誰が操作するのか）</h3>
+        <p class="guide-note"><b>代表者＝そのチームの「1ピック目」の人</b>（ピック順の先頭）です。各チームからちょうど1人ずつ選ばれ、<b>ホストかどうかは関係ありません</b>。ピック順を使わないモードでは、そのチームで最初に参加した人が代表者になります。</p>
+        <ul class="guide-list">
+          <li><b>代表者BAN</b> … チームのBANを代表者がまとめて選び、送信します。</li>
+          <li><b>代表者ピック</b> … チーム全員分の武器を代表者がまとめて選びます。</li>
+          <li><b>🎲 ガチャ</b> … 引き直し／確定を代表者が操作します。</li>
+          <li><b>ドラフト後トレード</b> … 提案と承認を各チームの代表者が行います。</li>
+          <li><b>連戦の「負けチームがルール設定」</b> … 負けたチームの代表者が次のガチルールを選びます。</li>
+        </ul>
+        <p class="guide-note">担当者の名前は<b>BANパネル</b>と<b>結果画面のルール選択</b>に常に表示されます（自分が担当のときは「あなた」バッジが付きます）。</p>
       </div>
       <div class="guide-card">
         <h3>設定項目の説明（特に分かりにくいもの）</h3>
@@ -579,7 +601,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <dd>1ルームで<b>複数試合を連続</b>で行います。<b>シリーズ長</b>＝BO3（先取2）／BO5（先取3）。各試合のドラフトが終わったら結果画面で<b>ホストが勝者を入力</b>すると、ステージが変わって次の試合のドラフトが始まります。先取数に達するとシリーズ終了で、<b>戦績ボード</b>（各試合の勝者・ルール・ステージ・両チームの編成一覧）が表示され、<b>「🖼️ シリーズ画像を保存」</b>で全試合を1枚のPNGにまとめて保存できます。</dd>
 
           <dt>連戦のガチルール進行</dt>
-          <dd><b>BO3</b>＝毎試合ガチルールをランダム。<b>BO5</b>＝1〜4試合目を<b>ガチエリア→ヤグラ→ホコ→アサリ</b>の固定順、5試合目はランダム。<br><b>⚖️ 負けチームがルール設定</b>をONにすると、各試合の<b>敗者が次の試合のガチルールを選びます</b>（2試合目以降。1試合目は上記の自動進行）。マルチでは敗者チームの代表者が選び、ソロでは操作者が選びます。</dd>
+          <dd><b>BO3</b>＝毎試合ガチルールをランダム。<b>BO5</b>＝1〜4試合目を<b>ガチエリア→ヤグラ→ホコ→アサリ</b>の固定順、5試合目はランダム。<br><b>⚖️ 負けチームがルール設定</b>をONにすると、各試合の<b>敗者が次の試合のガチルールを選びます</b>（2試合目以降。1試合目は上記の自動進行）。<b>選ぶのは「敗者チームの代表者＝そのチームの1ピック目」1人だけ</b>で、その人の名前が結果画面に🎯付きで表示されます（自分が担当なら「あなた」バッジ）。ソロでは操作者が選びます。<br>担当者が席を外しているなど操作できないときは、<b>ホストが代理で決める</b>ボタンからも進められます。</dd>
 
           <dt>武器ロックアウト（連戦のオプション）</dt>
           <dd>連戦モードONのときに選べます。<b>一度ピックされた武器は、そのシリーズの次の試合以降ずっと使えなくなります</b>（両チーム共有でプールが枯れていく＝後半ほど選択肢が減る独特のメタ）。BANは各試合ごとにリセットされ、ロックアウトの対象は<b>ピックされた武器だけ</b>です。ドラフト中はロックされた武器が🔒でグレー表示され選べません。</dd>
@@ -600,6 +622,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
           <li><b>ロビーで待機</b>します。チームへの割り当てとピック順はホストが決めます。</li>
           <li>ドラフトが始まったら、<b>自分の番</b>でBAN／PICKを選んで送信します。</li>
           <li>操作できるタイミングはピックモードで変わります（個人＝自分の番／代表者＝チーム代表だけ／相手ピック＝対になる相手の武器を選ぶ／🎲ガチャ＝チーム代表が引き直し・確定を担当）。</li>
+          <li><b>代表者＝そのチームの「1ピック目」の人</b>です（ホストとは無関係）。BANパネルに両チームの代表者名が表示され、自分が担当なら「あなた」バッジが付きます。</li>
         </ol>
         <p class="guide-note">制限時間が設定されている場合は時間内に送信してください。時間切れ時は<b>確定済み→仮選択→ランダム</b>の順で自動送信されます。</p>
         <p class="guide-note">ドラフト後トレードがONのときは、結果画面で<b>各チームの代表者</b>が武器の交換を提案・承認できます（提案が届くと結果画面に表示されます）。</p>
@@ -619,7 +642,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         </ol>
         <p class="guide-note">メンバードラフト（マルチ専用）がONのときは、ロビーでホストが各チームのキャプテンを1名ずつ選ぶと「メンバードラフト開始」が押せます（2v2以上・人数が揃っているときのみ）。開始後は2人のキャプテンが交互にプールから1人ずつ指名し、両チームが埋まると武器ドラフトへ進みます（制限時間ONなら時間切れでランダム指名）。</p>
         <p class="guide-note">お題カードをONにすると開始時に縛りを1枚抽選します（両チーム共通・非強制で、達成は結果に○×表示）。</p>
-        <p class="guide-note">連戦モード（シリーズ）がONのときは、結果画面でホストが各試合の勝者を入力すると次の試合へ進みます。先取数（BO3=2／BO5=3）に達するとシリーズ終了で、戦績ボード（各試合の編成一覧）とシリーズ画像の保存ができます。ガチルールは BO3=毎回ランダム／BO5=エリア→ヤグラ→ホコ→アサリ→ランダム。「負けチームがルール設定」ONなら2試合目以降は敗者が次のガチルールを選びます。</p>
+        <p class="guide-note">連戦モード（シリーズ）がONのときは、結果画面でホストが各試合の勝者を入力すると次の試合へ進みます。先取数（BO3=2／BO5=3）に達するとシリーズ終了で、戦績ボード（各試合の編成一覧）とシリーズ画像の保存ができます。ガチルールは BO3=毎回ランダム／BO5=エリア→ヤグラ→ホコ→アサリ→ランダム。「負けチームがルール設定」ONなら2試合目以降は<b>敗者チームの代表者（1ピック目の人）</b>が次のガチルールを選びます。誰が選ぶかは結果画面に🎯付きで名前が出ます（担当者が操作できない場合はホストが代理決定できます）。</p>
         <p class="guide-note">ドラフト画面 右上の <b>🔊</b>＝確定音（既定OFF）、<b>🗣️</b>＝武器読み上げ（既定OFF）のトグルです。BAN/PICKを確定するたびに効果音が鳴り、読み上げONなら確定した武器名を読み上げます（端末ごとの設定・音は自動生成で外部ファイルなし）。</p>
         <p class="guide-note">モード選択画面の<b>「📊 武器統計」</b>から、全ルーム累計の PICK／BAN／ジャンルBAN ランキングを見られます（マルチプレイで完了したドラフトのみの匿名集計。武器と回数だけが記録され、ルームIDやプレイヤー名は残りません）。</p>
       </div>
@@ -1279,6 +1302,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <div class="ban-slots-row" id="ban-slots-b"></div>
       </div>
     </div>
+    <div class="ban-reps" id="ban-reps" style="display:none"></div>
     <div class="ban-hint" id="ban-hint"></div>
     <button class="ban-confirm" id="ban-confirm-btn" onclick="confirmBans()" disabled>BANを確定する</button>
   </div>
@@ -2696,15 +2720,16 @@ function handleTimeoutSelf(expectedIdx){
   if(step.phase==='ban'){
     const isIndividualBan = S.pickMode==='individual' && S.banMode==='individual';
     if(!isIndividualBan){
-      // 代表者BAN: ホストは handleTimeout に任せる
-      // 参加者（ブラボー）は仮選択をFirebaseに送信しておく
+      // 代表者BAN: ホストは handleTimeout で両チーム分を補完するのでここでは何もしない。
+      // 参加者は「自分のチーム」の仮選択をFirebaseに送信しておく（ホスト＝アルファとは限らない）
       if(isHost) return;
-      if(bravoBanSubmitted) return;
+      const myBanTeam = myTeamOf(S);
+      if(myBanTeam==='alpha' ? alphaBanSubmitted : bravoBanSubmitted) return;
       // 仮選択 > ランダム で武器BAN・各ジャンルBANを上限まで自動補完
-      autoCompleteBanPending(S, 'bravo');
-      set(ref(db,`rooms/${roomId}/pending_bravo_bans`),
-        banPending.bravo.map(serializeBan));
-      bravoBanSubmitted=true;
+      autoCompleteBanPending(S, myBanTeam);
+      set(ref(db,`rooms/${roomId}/pending_${myBanTeam}_bans`),
+        banPending[myBanTeam].map(serializeBan));
+      if(myBanTeam==='alpha') alphaBanSubmitted=true; else bravoBanSubmitted=true;
       renderBanPanel();
       return;
     }
@@ -2725,7 +2750,7 @@ function handleTimeoutSelf(expectedIdx){
     renderBanPanel();
 
   } else if(step.phase==='pick' && step.team !== 'both'){
-    const myTeam = isHost ? 'alpha' : 'bravo';
+    const myTeam = myTeamOf(S);
 
     if(S.pickMode === 'individual' || S.pickMode === 'enemy'){
       // 個人ピック・相手ピック: 自分(行動者)のmemberIdのターンのみ
@@ -2828,21 +2853,19 @@ async function handleTimeout(expectedIdx){
       myBanSubmitted = true;
       Promise.all(promises).then(()=>checkIndividualBansReady());
     } else if(isMulti){
-      // マルチ代表者BAN: 未送信チームを自動補完（仮選択優先・武器/各ジャンルを上限まで）
-      if(!alphaBanSubmitted){
-        autoCompleteBanPending(S, 'alpha');
-        set(ref(db,`rooms/${roomId}/pending_alpha_bans`),
-          banPending.alpha.map(serializeBan));
-        alphaBanSubmitted=true;
-      }
-      // Firebaseのpending_bravo_bansを確認してから書き込む（参加者が既に送信済みなら上書きしない）
-      const bravoSnapForHost = await get(ref(db,`rooms/${roomId}/pending_bravo_bans`));
-      const bravoAlreadySent = bravoSnapForHost.exists() && Array.isArray(bravoSnapForHost.val()) && bravoSnapForHost.val().length > 0;
-      if(!bravoBanSubmitted && !bravoAlreadySent){
-        autoCompleteBanPending(S, 'bravo');
-        set(ref(db,`rooms/${roomId}/pending_bravo_bans`),
-          banPending.bravo.map(serializeBan));
-        bravoBanSubmitted=true;
+      // マルチ代表者BAN: 未送信チームを自動補完（仮選択優先・武器/各ジャンルを上限まで）。
+      // どちらのチームの代表者がホストかは決まっていないため、両チームとも
+      // Firebase の pending_*_bans を確認してから未送信のものだけ書き込む（送信済みは上書きしない）。
+      for(const team of ['alpha','bravo']){
+        const localSent = team==='alpha' ? alphaBanSubmitted : bravoBanSubmitted;
+        if(localSent) continue;
+        const snapT = await get(ref(db,`rooms/${roomId}/pending_${team}_bans`));
+        const alreadySent = snapT.exists() && Array.isArray(snapT.val()) && snapT.val().length > 0;
+        if(alreadySent) continue;
+        autoCompleteBanPending(S, team);
+        set(ref(db,`rooms/${roomId}/pending_${team}_bans`),
+          banPending[team].map(serializeBan));
+        if(team==='alpha') alphaBanSubmitted=true; else bravoBanSubmitted=true;
       }
       checkBothBansReady();
     } else {
@@ -2993,7 +3016,7 @@ function finalizeGacha(S){
 // このクライアントが team のガチャを操作できるか（ソロは両方可。マルチは代表者のみ）
 function gachaCanOperate(S, team){
   if(!isMulti) return true;
-  const rep = team==='alpha' ? S.representativeAlpha : S.representativeBravo;
+  const rep = repIdOf(S, team);
   return rep ? rep===myMemberId : (team==='alpha'?isHost:!isHost);
 }
 window.gachaReroll = function(team){
@@ -3108,7 +3131,7 @@ function renderGachaPanel(){
 // このクライアントが team のトレードを操作（提案/承認）できるか（ソロは常に可）
 function isTradeOperator(team){
   if(!isMulti) return true;
-  const rep = team==='alpha' ? state.representativeAlpha : state.representativeBravo;
+  const rep = repIdOf(state, team);
   return rep ? rep===myMemberId : (team==='alpha'?isHost:!isHost);
 }
 // このクライアントが操作する側のチーム（マルチ）。どちらの代表でもなければ null
@@ -3304,7 +3327,7 @@ function seriesRuleForGame(sr){
 function isSeriesChooserOperator(sr){
   if(!sr || !sr.ruleChooser) return false;
   if(!isMulti) return true;
-  const rep = sr.ruleChooser==='alpha' ? state.representativeAlpha : state.representativeBravo;
+  const rep = repIdOf(state, sr.ruleChooser);
   return rep ? rep===myMemberId : (sr.ruleChooser==='alpha'?isHost:!isHost);
 }
 // 次戦のドラフトを組み立てて開始（履歴/スコアは記録済みの sr を引き継ぐ）。chosenRule は負けチーム指定（無ければ自動）
@@ -3356,17 +3379,19 @@ function recordSeriesWinnerAndAdvance(winner){
   advanceSeries(sr, null);
 }
 window.seriesWinner = function(team){ recordSeriesWinnerAndAdvance(team); };
-// 敗者の代表者（ソロは操作者）が次戦ルールを選択
+// 敗者の代表者（ソロは操作者）が次戦ルールを選択。
+// ホストは担当者が操作できない場合に限り「代理決定」できる（進行が止まらないための保険）。
 window.chooseSeriesRule = function(rule){
   const sr=state&&state.series;
   if(!sr||!sr.awaitingRule||!RULES.includes(rule)) return;
-  if(!isSeriesChooserOperator(sr)) return;
+  const amChooser=isSeriesChooserOperator(sr);
+  if(!amChooser && !(isMulti && isHost)) return; // 担当者でもホストでもない人は操作不可
   if(isMulti && !isHost){
-    // 非ホスト（bravo代表）→ ホストへシグナル。ホストが適用して次戦を組む
+    // 非ホストの担当者 → ホストへシグナル。ホストが適用して次戦を組む（単一ライター維持）
     set(ref(db,`rooms/${roomId}/series_rule`), rule);
     return;
   }
-  applyChosenRuleAndAdvance(rule); // ホスト or ソロ
+  applyChosenRuleAndAdvance(rule); // ホスト（担当者 or 代理） or ソロ
 };
 function applyChosenRuleAndAdvance(rule){
   const sr=state&&state.series;
@@ -3381,7 +3406,9 @@ function subscribeSeriesRule(){
     const rule=snap.val();
     const sr=state&&state.series;
     remove(ref(db,`rooms/${roomId}/series_rule`));
-    if(sr && sr.awaitingRule && sr.ruleChooser==='bravo' && RULES.includes(rule)){
+    // 敗者がアルファ／ブラボーのどちらでも受け付ける（担当者がホストとは限らない）。
+    // 書き込めるのは chooseSeriesRule を通った担当者のみ。
+    if(sr && sr.awaitingRule && RULES.includes(rule)){
       applyChosenRuleAndAdvance(rule);
     }
   });
@@ -3426,32 +3453,55 @@ function renderSeriesArea(){
     const saveBtn=`<button class="series-save" id="btn-save-series" onclick="downloadSeriesImage()">🖼️ シリーズ画像を保存</button>`;
     body=`<div class="series-final">🏆 シリーズ終了！<br><b style="color:${col}">${esc(champ)}</b> がシリーズ制覇（${sr.scoreA}-${sr.scoreB}）</div>`+renderSeriesBoard(sr,S)+saveBtn;
   } else if(sr.awaitingRule){
-    // 負けチームのルール設定: 敗者が次戦のガチルールを選ぶ
+    // 負けチームのルール設定: 敗者チームの代表者（＝1ピック目／ソロは操作者）が次戦のガチルールを選ぶ。
+    // 「誰が選ぶのか」が分からないという事故を防ぐため、担当者の名前を必ず明記する。
     const loserName = sr.ruleChooser==='alpha'?S.an:S.bn;
     const loserCol  = sr.ruleChooser==='alpha'?'var(--a)':'var(--b)';
+    const chooserName = repNameOf(S, sr.ruleChooser);
+    const amChooser = isSeriesChooserOperator(sr);
     const head=`<div class="series-head">第${sr.game}試合終了 ／ 次の第${sr.game+1}試合のルール選択</div>`;
-    if(isSeriesChooserOperator(sr)){
-      body=head
-        +`<div class="series-note"><b style="color:${loserCol}">${esc(loserName)}</b>（敗者）が次の試合のガチルールを選んでください。</div>`
-        +`<div class="series-rules">`+RULES.map(r=>`<button class="series-rule-btn" onclick="chooseSeriesRule('${r}')">${r}</button>`).join('')+`</div>`
-        +hist;
+    // 担当者バナー（全員に見える）。ソロは操作者＝自分なので担当者名は出さない。
+    const who = isMulti
+      ? `<div class="series-who">🎯 ルール選択の担当者：`
+        + `<b style="color:${loserCol}">${esc(loserName)}</b>（敗者）の代表者 `
+        + `<b class="who-name">${esc(chooserName)}</b>`
+        + (amChooser?`<span class="rep-you">あなた</span>`:'')
+        + `</div>`
+      : `<div class="series-who">🎯 敗者 <b style="color:${loserCol}">${esc(loserName)}</b> が次のガチルールを選びます</div>`;
+    const ruleBtns=`<div class="series-rules">`+RULES.map(r=>`<button class="series-rule-btn" onclick="chooseSeriesRule('${r}')">${r}</button>`).join('')+`</div>`;
+    if(amChooser){
+      body=head+who
+        +`<div class="series-note">あなたが次の試合のガチルールを選んでください。</div>`
+        +ruleBtns+hist;
+    } else if(isMulti && isHost){
+      // ホストは担当者ではないが、担当者が操作できないときのために代理決定できる（進行が止まらない保険）
+      body=head+who
+        +`<div class="series-note"><b class="who-name">${esc(chooserName)}</b> が選ぶのを待っています…</div>`
+        +`<div class="series-note series-proxy">担当者が操作できない場合はホスト（あなた）が代理で決められます:</div>`
+        +ruleBtns+hist;
     } else {
-      body=head+`<div class="series-note"><b style="color:${loserCol}">${esc(loserName)}</b>（敗者）が次のガチルールを選んでいます…</div>`+hist;
+      body=head+who+`<div class="series-note"><b class="who-name">${esc(chooserName)}</b> が次のガチルールを選んでいます…</div>`+hist;
     }
   } else {
     const head=`<div class="series-head">${modeLabel} ／ 第${sr.game}試合</div>`;
+    // 次に誰がルールを選ぶことになるかを先に見せておく（勝敗入力の前から担当が分かる）
+    const nextChooser = (sr.loserSetsRules && isMulti)
+      ? `<div class="series-who">🎯 次のルールは<b>負けたチームの代表者</b>が選びます — `
+        + `<span style="color:var(--a)">${esc(S.an)}</span>: <b class="who-name">${esc(repNameOf(S,'alpha'))}</b> ／ `
+        + `<span style="color:var(--b)">${esc(S.bn)}</span>: <b class="who-name">${esc(repNameOf(S,'bravo'))}</b></div>`
+      : '';
     if(seriesIsOperator()){
       const note = sr.loserSetsRules
-        ? 'この試合の勝者を選んでください（敗者が次のルールを選びます）。'
+        ? 'この試合の勝者を選んでください（負けたチームの代表者が次のガチルールを選びます）。'
         : 'この試合の勝者を選ぶと次の試合へ進みます（ステージ／ルールは自動で変わります）。';
-      body=head
+      body=head + nextChooser
         + `<div class="series-note">${note}</div>`
         + `<div class="series-actions">`
         + `<button class="series-win a" onclick="seriesWinner('alpha')">${esc(S.an)} の勝ち</button>`
         + `<button class="series-win b" onclick="seriesWinner('bravo')">${esc(S.bn)} の勝ち</button>`
         + `</div>` + hist;
     } else {
-      body=head + `<div class="series-note">ホストが勝敗を入力するのを待っています…</div>` + hist;
+      body=head + nextChooser + `<div class="series-note">ホストが勝敗を入力するのを待っています…</div>` + hist;
     }
   }
   const lockNote = (sr.lockout && Array.isArray(sr.lockedKeys) && sr.lockedKeys.length)
@@ -4157,14 +4207,11 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tr
   let representativeAlpha = null;
   let representativeBravo = null;
   if(isMulti && (pMode==='gacha' || tradeEnabled || seriesEnabled || (bMode==='representative' && bc>0) || genreTotal>0)){
-    // alpha代表: buildAndStartDraft は常にホストが呼ぶため myMemberId がα代表
-    // ガチャ/トレードは代表者が操作するため、BANモード/BAN数に関わらず代表者を解決する
-    representativeAlpha = myMemberId;
-    // bravo代表: membersForState からbravoチームの非ホストで最も早く参加したメンバー
-    const bravoEntries = Object.entries(members||{})
-      .filter(([,m])=>m.team==='bravo'&&!m.isHost)
-      .sort((a,b)=>(a[1].joinedAt||0)-(b[1].joinedAt||0));
-    representativeBravo = bravoEntries.length>0 ? bravoEntries[0][0] : null;
+    // 代表者＝各チームの「1ピック目」（ピック順の先頭・無ければ最古参）。
+    // ホストがどちらのチームでも、必ず各チームからちょうど1人ずつ選ばれる。
+    // ガチャ/トレード/連戦は代表者が操作するため、BANモード/BAN数に関わらず解決する。
+    representativeAlpha = resolveRepresentative('alpha', members, pickOrderAlpha);
+    representativeBravo = resolveRepresentative('bravo', members, pickOrderBravo);
   }
 
   state={
@@ -4807,18 +4854,14 @@ function renderDraft(){
     } else {
       // 代表者BANモード
       const isRep = isRepBanRepresentative(S);
-      const myTeam2 = isHost ? 'alpha' : 'bravo';
-      const memberData2 = (S.members||{})[myMemberId];
-      const myTeamReal = memberData2?.team || myTeam2;
+      const myTeamReal = myTeamOf(S);
       if(isMulti && !isRep){
         // 非代表者: 操作不可
-        const repId = myTeamReal==='alpha' ? S.representativeAlpha : S.representativeBravo;
-        const repName = repId ? (S.members||{})[repId]?.name : '代表者';
         document.getElementById('tprompt').innerHTML=
-          `<strong style="color:var(--bn)">BAN PHASE</strong> — <span style="color:var(--mu)">${esc(repName||'代表者')} がBANを選択中です。しばらくお待ちください</span>`;
+          `<strong style="color:var(--bn)">BAN PHASE</strong> — <span style="color:var(--mu)">${esc(repNameOf(S,myTeamReal))} がBANを選択中です。しばらくお待ちください</span>`;
       } else {
         const badge = (isMulti && isRep)
-          ? `<span style="background:var(--bn);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px;margin-right:6px;vertical-align:middle;">代表者</span>`
+          ? `<span style="background:var(--bn);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px;margin-right:6px;vertical-align:middle;">あなたが代表者</span>`
           : '';
         document.getElementById('tprompt').innerHTML=`${badge}<strong style="color:var(--bn)">両チームが同時にBANする武器を選択してください</strong>`;
       }
@@ -4907,8 +4950,7 @@ function getMyBannerInfo(S){
   const banners = S.bannerIds;
   if(!banners) return null;
 
-  const myMemberData = (S.members||{})[myMemberId];
-  const myTeam = myMemberData?.team || (isHost ? 'alpha' : 'bravo');
+  const myTeam = myTeamOf(S);
 
   const myArr = banners[myTeam]||[];
   // 自分のmemberIdが担当する全スロットのうち、まだ未送信のものを先頭から返す
@@ -4923,19 +4965,51 @@ function getMyBannerInfo(S){
   return null; // 全スロット送信済みか、担当外
 }
 
+// ===== 代表者（操作担当）の解決 =====
+// 代表者＝BAN／ガチャ／トレード／連戦のルール選択を「そのチームを代表して操作する人」。
+// 仕様: 各チームの **1ピック目**（＝そのチームのピック順の先頭にいるメンバー）。
+// ピック順を持たないモード（チームピック/ガチャ等）は参加が最も早いメンバーにフォールバック。
+// ※ホスト＝アルファとは限らない。旧実装は「α代表＝ホスト／β代表＝非ホストの最古参」で解決していたため、
+//   ホストがブラボー所属だと同じチームに代表者が2人でき、もう一方は0人になっていた。
+function resolveRepresentative(team, members, order){
+  const entries = Object.entries(members||{}).filter(([,m])=>m && m.team===team);
+  if(!entries.length) return null;
+  if(Array.isArray(order) && order.length){
+    const ids = new Set(entries.map(([id])=>id));
+    for(const id of order){ if(ids.has(id)) return id; }
+  }
+  entries.sort((a,b)=>((a[1].joinedAt||0)-(b[1].joinedAt||0)));
+  return entries[0][0];
+}
+// state から team の代表者ID。未設定の古い state でもその場で解決する（全クライアントで同じ結果になる）
+function repIdOf(S, team){
+  if(!S) return null;
+  const stored = team==='alpha' ? S.representativeAlpha : S.representativeBravo;
+  if(stored) return stored;
+  return resolveRepresentative(team, S.members, team==='alpha' ? S.pickOrderAlpha : S.pickOrderBravo);
+}
+// 代表者の表示名（未解決なら '代表者'）
+function repNameOf(S, team){
+  const id = repIdOf(S, team);
+  const nm = id ? ((S.members||{})[id]||{}).name : null;
+  return nm || '代表者';
+}
+// このクライアントの所属チーム。members が真実の源（見つからない場合のみ従来のホスト＝αへフォールバック）
+function myTeamOf(S){
+  const t = ((S && S.members) || {})[myMemberId]?.team;
+  return (t==='alpha' || t==='bravo') ? t : (isHost ? 'alpha' : 'bravo');
+}
+
 // 代表者BANフェーズで「自分が代表者か」を返す
 function isRepBanRepresentative(S){
   if(!isMulti) return true;
   if(S.pickMode==='individual' && S.banMode==='individual') return true; // 個人BAN
   if(S.banMode!=='representative') return true;
 
-  // 自分のチームを取得（S.membersから引く。見つからない場合はisHostで判定）
-  const memberData = (S.members||{})[myMemberId];
-  const myTeam = memberData ? memberData.team : (isHost ? 'alpha' : 'bravo');
+  const myTeam = myTeamOf(S);
+  const repId  = repIdOf(S, myTeam);
 
-  const repId = myTeam==='alpha' ? S.representativeAlpha : S.representativeBravo;
-
-  // repIdが未設定の場合: alpha→ホストのみ許可、bravo→非ホストのうち最初の一人（比較できないので全員拒否で安全側に倒す）
+  // repIdが解決できない場合: alpha→ホストのみ許可、bravo→全員拒否（安全側）
   if(!repId){
     return myTeam==='alpha' ? isHost : false;
   }
@@ -4953,7 +5027,7 @@ function mySimPickTeam(S, step){
     if(step.bravoMemberId===myMemberId) return 'bravo';
     return null; // このラウンドの担当外（送信ロック）
   }
-  return isHost ? 'alpha' : 'bravo';
+  return myTeamOf(S);
 }
 
 // ===== BANパネル =====
@@ -4975,7 +5049,7 @@ function renderBanPanel(){
     });
     const confirmed=(S.bans[team]||[]).length;
     const pending=banPending[team].length;
-    const isMyTeam=!isMulti||(isHost?team==='alpha':team==='bravo');
+    const isMyTeam=!isMulti||team===myTeamOf(S);
     if(isMyTeam){
       banPending[team].forEach(w=>{
         const d=document.createElement('div'); d.className='bsl pending'; d.textContent='▶ '+banDispName(w); el.appendChild(d);
@@ -5002,11 +5076,11 @@ function renderBanPanel(){
     hint.innerHTML=`現在 <strong style="color:${col}">${esc(name)}</strong> のBAN選択中`
       +(rem?`<br><small style="color:var(--mu)">残り: ${rem}（タブで種別を切替）</small>`:'');
   } else {
-    const myTeam=isHost?'alpha':'bravo';
+    const myTeam=myTeamOf(S);
     const myFull=banPending[myTeam].length>=(banTotalLimit(state)-(state.bans[myTeam]||[]).length);
-    const otherTeam=isHost?'bravo':'alpha';
+    const otherTeam=myTeam==='alpha'?'bravo':'alpha';
     const otherFull=banPending[otherTeam].length>=(banTotalLimit(state)-(state.bans[otherTeam]||[]).length);
-    const mySubmitted=isHost?alphaBanSubmitted:bravoBanSubmitted;
+    const mySubmitted=myTeam==='alpha'?alphaBanSubmitted:bravoBanSubmitted;
     if(mySubmitted && !otherFull){
       hint.innerHTML=`<span style="color:var(--pk)">✓ BANを送信しました。相手チームを待っています…</span>`;
     } else if(!mySubmitted && otherFull){
@@ -5014,16 +5088,35 @@ function renderBanPanel(){
     } else if(mySubmitted && otherFull){
       hint.innerHTML=`<span style="color:var(--pk)">✓ 両チームのBANが揃いました！まもなく公開されます…</span>`;
     } else {
-      const myTeamName=isHost?state.an:state.bn;
+      const myTeamName=myTeam==='alpha'?state.an:state.bn;
       const rem=banRemainingSummary(state,myTeam);
-      hint.innerHTML=`<strong style="color:${isHost?'var(--a)':'var(--b)'}">${esc(myTeamName)}</strong> — BANを選択して送信してください`
+      const isRep=isRepBanRepresentative(S);
+      const repName=repNameOf(S,myTeam);
+      hint.innerHTML=`<strong style="color:${myTeam==='alpha'?'var(--a)':'var(--b)'}">${esc(myTeamName)}</strong> — `
+        +(isRep?`BANを選択して送信してください`:`<span style="color:var(--mu)">${esc(repName)}（代表者）が選択中です</span>`)
         +(rem?`<br><small style="color:var(--mu)">残り: ${rem}（タブで種別を切替）</small>`:'');
     }
   }
+  // 各チームの代表者（＝BAN操作の担当者）を常に明記する
+  const repRow=document.getElementById('ban-reps');
+  if(repRow){
+    if(isMulti && (S.banMode||'representative')==='representative' && !(S.pickMode==='individual'&&S.banMode==='individual')){
+      const meId=myMemberId;
+      const one=(team,name)=>{
+        const id=repIdOf(S,team);
+        const mine=id&&id===meId?'<span class="rep-you">あなた</span>':'';
+        return `<span class="rep-chip ${team==='alpha'?'a':'b'}">${esc(name)} の代表者: <b>${esc(repNameOf(S,team))}</b>${mine}</span>`;
+      };
+      repRow.innerHTML=one('alpha',S.an)+one('bravo',S.bn);
+      repRow.style.display='';
+    } else {
+      repRow.innerHTML=''; repRow.style.display='none';
+    }
+  }
 
-  const myTeam2=isHost?'alpha':'bravo';
+  const myTeam2=myTeamOf(S);
   const myFull2=banPending[myTeam2].length>=(banTotalLimit(state)-(state.bans[myTeam2]||[]).length);
-  const mySubmitted2=isHost?alphaBanSubmitted:bravoBanSubmitted;
+  const mySubmitted2=myTeam2==='alpha'?alphaBanSubmitted:bravoBanSubmitted;
   const aFull=banPending.alpha.length>=(banTotalLimit(state)-(state.bans.alpha||[]).length);
   const bFull=banPending.bravo.length>=(banTotalLimit(state)-(state.bans.bravo||[]).length);
   const btn=document.getElementById('ban-confirm-btn');
@@ -5039,7 +5132,7 @@ function renderBanPanel(){
 function renderIndividualBanPanel(S, bc){
   const banners = S.bannerIds||{alpha:[],bravo:[]};
   // 自分のチーム（味方のBANは公開、相手のBANは伏せる）
-  const myTeam = (S.members||{})[myMemberId]?.team || (isHost?'alpha':'bravo');
+  const myTeam = myTeamOf(S);
 
   ['alpha','bravo'].forEach(team=>{
     const el=document.getElementById('ban-slots-'+(team==='alpha'?'a':'b'));
@@ -5149,13 +5242,14 @@ window.confirmBans = function(){
     soloAdvance();
     return;
   }
-  // マルチ代表者BAN: 自分のBANをFirebaseに送信
-  const myTeam=isHost?'alpha':'bravo';
-  const myKey=isHost?'pending_alpha_bans':'pending_bravo_bans';
+  // マルチ代表者BAN: 自分のチームのBANをFirebaseに送信（ホスト＝アルファとは限らない）
+  const myTeam=myTeamOf(S);
   const myBans=banPending[myTeam].map(serializeBan);
-  set(ref(db,`rooms/${roomId}/${myKey}`), myBans);
-  if(isHost){ alphaBanSubmitted=true; }
-  else      { bravoBanSubmitted=true; banPending.bravo=[]; }
+  set(ref(db,`rooms/${roomId}/pending_${myTeam}_bans`), myBans);
+  if(myTeam==='alpha') alphaBanSubmitted=true; else bravoBanSubmitted=true;
+  // 確定処理はホストの checkBothBansReady が Firebase から読み直して行うため、
+  // ホスト以外は送信済みの手元コピーを捨てる（重複カウント防止）
+  if(!isHost) banPending[myTeam]=[];
   renderBanPanel(); renderGrid();
   // ホスト側はcheckBothBansReadyが自動確定する
 };
@@ -5268,9 +5362,9 @@ function renderGrid(){
 
   // ジャンルBAN（代表者BAN限定）の粒度タブ
   const isIndividualBan0 = S.pickMode==='individual' && S.banMode==='individual' && isMulti;
-  const repIt = !isMulti?banActiveTeam:(isHost?'alpha':'bravo');
+  const repIt = !isMulti?banActiveTeam:myTeamOf(S);
   const repEligible = isBan && !isIndividualBan0
-    && (!isMulti || (isRepBanRepresentative(S) && !(isHost?alphaBanSubmitted:bravoBanSubmitted)));
+    && (!isMulti || (isRepBanRepresentative(S) && !(repIt==='alpha'?alphaBanSubmitted:bravoBanSubmitted)));
   const grans = (isBan && !isIndividualBan0) ? enabledBanGrans(S) : [];
   if(activeBanGran!=='weapon' && !grans.includes(activeBanGran)) activeBanGran='weapon';
   if(activeBanGran==='weapon' && grans.length && banLimitFor(S,'weapon')===0) activeBanGran=grans[0];
@@ -5328,7 +5422,7 @@ function renderGrid(){
   // 個人BAN: 味方の送信済みBANをグリッドにも共有表示（相手のBANは伏せたまま）。チーム内の重複BANを避けやすくする。
   const teammateBanSet=new Set();
   if(isBan && S.pickMode==='individual' && S.banMode==='individual' && isMulti){
-    const myTeam=(S.members||{})[myMemberId]?.team || (isHost?'alpha':'bravo');
+    const myTeam=myTeamOf(S);
     ((S.bannerIds&&S.bannerIds[myTeam])||[]).forEach((mid,i)=>{
       const sub=banPendingIndividual[`${mid}_${i}`];
       if(sub&&sub.key) teammateBanSet.add(sub.key);
@@ -5357,8 +5451,8 @@ function renderGrid(){
           const bannerInfo = getMyBannerInfo(S);
           clickable = !!bannerInfo && !myBanSubmitted;
         } else {
-          const it=!isMulti?banActiveTeam:(isHost?'alpha':'bravo');
-          const mySubmitted=isHost?alphaBanSubmitted:bravoBanSubmitted;
+          const it=!isMulti?banActiveTeam:myTeamOf(S);
+          const mySubmitted=it==='alpha'?alphaBanSubmitted:bravoBanSubmitted;
           // 代表者BANモード: 非代表者はクリック不可
           const isRep = isRepBanRepresentative(S);
           if((!isMulti||(!mySubmitted && isRep))){
@@ -5384,7 +5478,8 @@ function renderGrid(){
           // 個人ピック・相手ピック: 行動者(memberId)が自分のものか
           clickable = step.memberId===myMemberId;
         } else {
-          clickable=isHost?step.team==='alpha':step.team==='bravo';
+          // チームピック: 自分の所属チームのターンのみ操作可（ホスト＝アルファとは限らない）
+          clickable=step.team===myTeamOf(S);
         }
       }
     }
@@ -5483,8 +5578,8 @@ function pickWeapon(w){
       return;
     }
 
-    const it=!isMulti?banActiveTeam:(isHost?'alpha':'bravo');
-    const mySubmitted=isHost?alphaBanSubmitted:bravoBanSubmitted;
+    const it=!isMulti?banActiveTeam:myTeamOf(S);
+    const mySubmitted=it==='alpha'?alphaBanSubmitted:bravoBanSubmitted;
     if(isMulti&&mySubmitted) return;
     if(isMulti && !isRepBanRepresentative(S)) return; // 非代表者はBAN操作不可
     // この武器/ジャンルの種別の残数のみで判定（武器・各ジャンルは別枠）

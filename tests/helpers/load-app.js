@@ -26,6 +26,8 @@ const EXPORT_NAMES = [
   'makeGenreBan','weaponMatchesGenreBan','weaponBannedByGenres','isWeaponExcluded',
   'autoCompleteBanPending','serializeBan','banDispName','getAvailableWeapons',
   'seriesRuleForGame','normalizeState','generateRoomId','evaluateChallenge',
+  'resolveRepresentative','repIdOf','repNameOf','myTeamOf',
+  'isRepBanRepresentative','isSeriesChooserOperator','gachaCanOperate','isTradeOperator',
   'statKey','buildStatsUpdates','buildStatsRanking',
   'RULES','CATEGORY_ORDER','CHALLENGES',
 ];
@@ -49,8 +51,11 @@ function loadApp(){
     + '  if("banPending" in o) banPending = o.banPending;'
     + '  if("pendingSelect" in o) pendingSelect = o.pendingSelect;'
     + '  if("state" in o) state = o.state;'
+    + '  if("isMulti" in o) isMulti = o.isMulti;'
+    + '  if("isHost" in o) isHost = o.isHost;'
+    + '  if("myMemberId" in o) myMemberId = o.myMemberId;'
     + '}'
-    + ',__get(){ return { WEAPONS, banPending, pendingSelect, state }; }'
+    + ',__get(){ return { WEAPONS, banPending, pendingSelect, state, isMulti, isHost, myMemberId }; }'
     + '};';
 
   const sandbox = {
