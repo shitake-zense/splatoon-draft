@@ -165,6 +165,17 @@
 - **本番要スモーク（2クライアント以上・オーナー実施）**: (a) **ホストをブラボーに入れて**代表者BAN → 両チームが送信でき、代表者名が正しく1人ずつ出るか。(b) 敗者=アルファ かつ その代表者が非ホストのときのルール選択が通るか。(c) ホスト代理決定ボタン。
 - 使い方ガイド更新済み（ホスト向けに「代表者とは」カード追加／参加者向け・連戦の項・流れタブ）。
 
+#### ③ 選択UIの分かりにくさ（オーナー選択＝A/D＋タイルサイズ切替）
+- 提案6案から **A=確定バー / D=選べない理由の明示＋「選べる武器だけ」トグル / タイルサイズ切替** を採用（B=手番の強調・C=名前検索・リスト表示は今回見送り）。
+- **A 確定バー**: 仮選択すると画面下に固定バー（武器画像＋文脈ラベル＋［✓ これで確定］［✕ やめる］）。**タイル2タップの従来操作は維持**（追加のみ）。個人BANのローカル確定中は［📨 BANを送信］［✕ 選び直す］に変化。`renderConfirmBar()`／`window.confirmPendingSelect`／`window.cancelPendingSelect`／`confirmBarLead()`。呼び出し口は `renderGrid` 冒頭・`renderBanPanel` 末尾・`renderIndividualBanPanel` 末尾・`showScreen`（画面遷移で必ず非表示）。UI `#confirm-bar`、CSS `.confirm-bar`/`.cb-*`/`body.has-confirm-bar #s-draft`。
+- **D 理由の明示**: `.wst` の小バッジ → タイル下部の帯 `.wrs`（`BAN済み`/`取得済み`/`🔒 連戦ロック`/`味方がBAN`）。`#only-available` トグルで使用不可を非表示（全滅時は `#wg-empty` に案内）。
+- **タイルサイズ**: `#wt-size` の [大][中][小] → `#wg` に `sz-l|sz-m|sz-s`。大は `.wn` の省略を解除して全名称表示。
+- 保存は localStorage `sd_tilesize`/`sd_onlyavail`（**DB無風・端末ごと**）。既定は 中＋OFF＝従来と同じ見た目。
+- コードの居場所: `tileSize`/`onlyAvailable`（global let・`renderGrid` 直前）／`window.setTileSize`/`window.toggleOnlyAvailable`/`renderGridTools()`。
+- 検証: `node --check` OK／単体71件パス（既存の非回帰）／**ローカル実機（ソロ2v2）で E2E**＝仮選択でバー表示→✓確定→スロット反映、✕やめるで解除、BAN済み/取得済みラベル、「選べる武器だけ」で165→161件、[大]で武器名の省略が消えること、localStorage 保存を確認。
+- 使い方ガイド（流れタブ）・smoke `S20`〜`S22` 追記。
+- **見送り（次に効きそうな候補）**: B=手番の強調（自分の番バナー／他人の番はグリッドを薄く）、C=武器名の検索ボックス（ROADMAP §6）、リスト表示切替。
+
 ---
 
 ## 再開メモ（次に開く人へ）

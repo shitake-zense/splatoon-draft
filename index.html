@@ -259,6 +259,46 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .wb.is-sel{border-color:var(--y);background:#2a2a0a;box-shadow:0 0 8px var(--y);}
 .wst{position:absolute;top:2px;right:2px;font-size:8px;padding:1px 4px;border-radius:3px;}
 .wst.b{background:var(--bn);color:#fff;}.wst.p{background:var(--pk);color:#1a1a2e;}.wst.l{background:var(--y);color:#1a1a2e;}.wst.tb{background:#5b8cff;color:#fff;}
+/* 選べない理由を読める大きさで明示（タイル下部の帯） */
+.wrs{position:absolute;left:0;right:0;bottom:0;font-size:9px;line-height:1.5;padding:1px 2px;border-radius:0 0 6px 6px;font-weight:700;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wrs.r-ban{background:var(--bn);color:#fff;}
+.wrs.r-pick{background:var(--pk);color:#10241a;}
+.wrs.r-lock{background:var(--y);color:#1a1a2e;}
+.wrs.r-team{background:#5b8cff;color:#fff;}
+.wb.has-rs{padding-bottom:16px;}
+/* 武器グリッドのツールバー（選べる武器だけ／タイルサイズ） */
+.wtools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.wt-avail{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--mu);cursor:pointer;user-select:none;}
+.wt-avail input{width:13px;height:13px;accent-color:var(--y);cursor:pointer;}
+.wt-size{display:flex;gap:3px;}
+.wt-sz{background:#0f1729;border:1px solid #2a3a5a;border-radius:5px;color:var(--mu);font-size:10px;padding:3px 8px;cursor:pointer;font-family:inherit;}
+.wt-sz.on{background:var(--y);color:#1a1a2e;border-color:var(--y);}
+.wg-empty{font-size:11px;color:var(--mu);text-align:center;padding:22px 8px;}
+/* タイルサイズ切替（既定=中は従来と同じ 72px/48px） */
+.wg.sz-l{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));max-height:400px;}
+.wg.sz-l .wb img{width:58px;height:58px;}
+.wg.sz-l .wn{font-size:10px;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.25;}
+.wg.sz-s{grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:4px;}
+.wg.sz-s .wb{padding:4px 2px;}
+.wg.sz-s .wb img{width:36px;height:36px;}
+.wg.sz-s .wn{font-size:8px;}
+.wg.sz-s .wrs{font-size:8px;}
+.wg.sz-s .wb.has-rs{padding-bottom:14px;}
+/* 仮選択→確定を明示する固定バー */
+.confirm-bar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;align-items:center;gap:10px;
+  padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(12,18,32,.97);
+  border-top:2px solid var(--y);box-shadow:0 -6px 22px rgba(0,0,0,.55);}
+.confirm-bar.show{display:flex;}
+.confirm-bar img{width:40px;height:40px;object-fit:contain;flex-shrink:0;}
+.cb-info{flex:1;min-width:0;}
+.cb-lead{font-size:10px;color:var(--y);letter-spacing:.5px;}
+.cb-name{font-size:14px;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cb-btns{display:flex;gap:6px;flex-shrink:0;}
+.cb-ok{padding:10px 16px;border-radius:8px;border:none;background:var(--y);color:#1a1a2e;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;}
+.cb-ok.send{background:var(--pk);color:#10241a;}
+.cb-ok:hover{filter:brightness(1.1);}
+.cb-no{padding:10px 12px;border-radius:8px;border:1px solid #2a3a5a;background:#0f1729;color:var(--mu);font-family:inherit;font-size:12px;cursor:pointer;white-space:nowrap;}
+body.has-confirm-bar #s-draft{padding-bottom:76px;}
 
 /* RESULT */
 .rm{position:relative;border-radius:var(--r);overflow:hidden;margin-bottom:14px;height:120px;background:#0a0a2e;}
@@ -643,6 +683,8 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
         <p class="guide-note">メンバードラフト（マルチ専用）がONのときは、ロビーでホストが各チームのキャプテンを1名ずつ選ぶと「メンバードラフト開始」が押せます（2v2以上・人数が揃っているときのみ）。開始後は2人のキャプテンが交互にプールから1人ずつ指名し、両チームが埋まると武器ドラフトへ進みます（制限時間ONなら時間切れでランダム指名）。</p>
         <p class="guide-note">お題カードをONにすると開始時に縛りを1枚抽選します（両チーム共通・非強制で、達成は結果に○×表示）。</p>
         <p class="guide-note">連戦モード（シリーズ）がONのときは、結果画面でホストが各試合の勝者を入力すると次の試合へ進みます。先取数（BO3=2／BO5=3）に達するとシリーズ終了で、戦績ボード（各試合の編成一覧）とシリーズ画像の保存ができます。ガチルールは BO3=毎回ランダム／BO5=エリア→ヤグラ→ホコ→アサリ→ランダム。「負けチームがルール設定」ONなら2試合目以降は<b>敗者チームの代表者（1ピック目の人）</b>が次のガチルールを選びます。誰が選ぶかは結果画面に🎯付きで名前が出ます（担当者が操作できない場合はホストが代理決定できます）。</p>
+        <p class="guide-note"><b>武器の選び方</b>：タイルを<b>1タップすると仮選択</b>になり、画面下に<b>確定バー</b>（［✓ これで確定］／［✕ やめる］）が出ます。✓を押すか、<b>同じタイルをもう一度タップ</b>すると確定です。個人BANでは確定したあとバーが［📨 BANを送信］に変わります。</p>
+        <p class="guide-note"><b>グリッドの見やすさ設定</b>（端末ごとに保存）：<b>「選べる武器だけ」</b>にチェックすると使用不可の武器を隠せます。<b>［大］［中］［小］</b>でタイルの大きさを切替でき、<b>大</b>なら武器名が省略されずに全部読めます。選べない武器にはタイル下に理由（<b>BAN済み／取得済み／🔒 連戦ロック／味方がBAN</b>）が出ます。</p>
         <p class="guide-note">ドラフト画面 右上の <b>🔊</b>＝確定音（既定OFF）、<b>🗣️</b>＝武器読み上げ（既定OFF）のトグルです。BAN/PICKを確定するたびに効果音が鳴り、読み上げONなら確定した武器名を読み上げます（端末ごとの設定・音は自動生成で外部ファイルなし）。</p>
         <p class="guide-note">モード選択画面の<b>「📊 武器統計」</b>から、全ルーム累計の PICK／BAN／ジャンルBAN ランキングを見られます（マルチプレイで完了したドラフトのみの匿名集計。武器と回数だけが記録され、ルームIDやプレイヤー名は残りません）。</p>
       </div>
@@ -1386,11 +1428,25 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
     <div class="timer-bar-wrap"><div class="timer-bar" id="timer-bar" style="width:100%;background:var(--pk)"></div></div>
   </div>
   <div class="wsec" id="weapon-section">
-    <div class="wsh"><h3>WEAPONS</h3><div class="cf" id="cf"></div></div>
+    <div class="wsh">
+      <h3>WEAPONS</h3>
+      <div class="wtools">
+        <label class="wt-avail"><input type="checkbox" id="only-available" onchange="toggleOnlyAvailable()"> 選べる武器だけ</label>
+        <div class="wt-size" id="wt-size">
+          <button class="wt-sz" data-sz="l" onclick="setTileSize('l')">大</button>
+          <button class="wt-sz" data-sz="m" onclick="setTileSize('m')">中</button>
+          <button class="wt-sz" data-sz="s" onclick="setTileSize('s')">小</button>
+        </div>
+      </div>
+      <div class="cf" id="cf"></div>
+    </div>
     <div class="d-lockout" id="d-lockout" style="display:none"></div>
     <div class="wg" id="wg"></div>
+    <div class="wg-empty" id="wg-empty" style="display:none"></div>
   </div>
 </div>
+<!-- 仮選択→確定を明示する固定バー（ドラフト画面のみ・pendingSelect/確定待ちのときだけ表示） -->
+<div id="confirm-bar" class="confirm-bar"></div>
 
 <!-- RESULT -->
 <div id="s-result" class="screen">
@@ -1687,6 +1743,7 @@ function showScreen(n){
   } else if(!['lobby','lobby-wait','member-draft','weapon-pick','draft'].includes(n)){
     history.replaceState(null,'','?');
   }
+  renderConfirmBar(); // ドラフト以外の画面では確定バーを必ず隠す
 }
 window.showScreen = showScreen;
 
@@ -5126,6 +5183,7 @@ function renderBanPanel(){
     btn.textContent=mySubmitted2?'送信済み ✓':'BANを送信する';
     btn.disabled=mySubmitted2||!myFull2;
   }
+  renderConfirmBar();
 }
 
 // ===== 個人BANパネル描画 =====
@@ -5223,6 +5281,7 @@ function renderIndividualBanPanel(S, bc){
     btn.textContent='BANを送信する';
     btn.disabled=!myConfirmedBan;
   }
+  renderConfirmBar();
 }
 
 window.confirmBans = function(){
@@ -5350,6 +5409,26 @@ function renderSlots(team){
   seen.ban=nBan; seen.pick=nPick; // 今回ぶんを「アニメ済み」に更新
 }
 
+// ===== 武器グリッドの表示設定（端末ごとに localStorage 保持・DB無風） =====
+// タイルサイズ 'l'|'m'|'s'（既定 'm'＝従来の 72px）と「選べる武器だけ表示」トグル。
+let tileSize = (()=>{ try{ const v=localStorage.getItem('sd_tilesize'); return (v==='l'||v==='s')?v:'m'; }catch(e){ return 'm'; } })();
+let onlyAvailable = (()=>{ try{ return localStorage.getItem('sd_onlyavail')==='on'; }catch(e){ return false; } })();
+window.setTileSize = function(sz){
+  tileSize = (sz==='l'||sz==='s')?sz:'m';
+  try{ localStorage.setItem('sd_tilesize', tileSize); }catch(e){}
+  renderGrid();
+};
+window.toggleOnlyAvailable = function(){
+  onlyAvailable = !!document.getElementById('only-available')?.checked;
+  try{ localStorage.setItem('sd_onlyavail', onlyAvailable?'on':'off'); }catch(e){}
+  renderGrid();
+};
+// ツールバー（サイズ切替・選べる武器だけ）の状態をUIへ反映
+function renderGridTools(){
+  const el=document.getElementById('only-available'); if(el) el.checked=onlyAvailable;
+  document.querySelectorAll('#wt-size .wt-sz').forEach(b=>b.classList.toggle('on', b.dataset.sz===tileSize));
+}
+
 // ===== 武器グリッド =====
 function renderGrid(){
   const S=state, step=S.seq[S.idx], isBan=step&&step.phase==='ban';
@@ -5359,6 +5438,10 @@ function renderGrid(){
   const cats=['すべて',...new Set(basePool2.map(w=>w.cat))];
   const cf=document.getElementById('cf'); cf.innerHTML='';
   const grid=document.getElementById('wg'); grid.innerHTML='';
+  grid.className='wg sz-'+tileSize;
+  const emptyEl=document.getElementById('wg-empty'); if(emptyEl){ emptyEl.style.display='none'; emptyEl.textContent=''; }
+  renderGridTools();
+  renderConfirmBar();
 
   // ジャンルBAN（代表者BAN限定）の粒度タブ
   const isIndividualBan0 = S.pickMode==='individual' && S.banMode==='individual' && isMulti;
@@ -5433,14 +5516,28 @@ function renderGrid(){
   // ジャンルBANで消える武器（武器グリッド側でもグレーアウト表示する）
   const genreBanList=[...(S.bans.alpha||[]),...(S.bans.bravo||[]),...banPending.alpha,...banPending.bravo].filter(b=>b&&b.banType);
   const basePool=(state.stdOnly?WEAPONS.filter(w=>w.imgFile&&w.imgFile.includes('_00.')):WEAPONS).filter(w=>!isWeaponExcluded(w,ef));
-  const filtered=activeCat==='すべて'?basePool:basePool.filter(w=>(w[activeFilterAxis]||'')===activeCat);
+  const filtered0=activeCat==='すべて'?basePool:basePool.filter(w=>(w[activeFilterAxis]||'')===activeCat);
+  // 「選べる武器だけ表示」ON のときは使用不可（BAN済/取得済/ロック/味方BAN）を隠す
+  const isUnavail=w=>{
+    const banned=allBanned.includes(w.key)||weaponBannedByGenres(w,genreBanList);
+    return banned||allPicked.includes(w.key)||lockedSet.has(w.key)
+      ||(teammateBanSet.has(w.key)&&!banned&&!allPicked.includes(w.key));
+  };
+  const hiddenCount=onlyAvailable?filtered0.filter(isUnavail).length:0;
+  const filtered=onlyAvailable?filtered0.filter(w=>!isUnavail(w)):filtered0;
+  if(!filtered.length && emptyEl){
+    emptyEl.textContent=onlyAvailable
+      ? `この絞り込みで選べる武器はありません（${hiddenCount}種が使用不可）。「選べる武器だけ」を外すか、他の絞り込みをお試しください。`
+      : 'この絞り込みに一致する武器がありません。';
+    emptyEl.style.display='';
+  }
 
   filtered.forEach(w=>{
     const isBanW=allBanned.includes(w.key)||weaponBannedByGenres(w,genreBanList), isPickW=allPicked.includes(w.key), isLockW=lockedSet.has(w.key);
     const isTeamBanW=teammateBanSet.has(w.key)&&!isBanW&&!isPickW;
     const unavail=isBanW||isTeamBanW||isPickW||isLockW;
     const btn=document.createElement('button');
-    btn.className='wb'+(isBanW?' is-bn':'')+(isTeamBanW?' is-teamban':'')+(isPickW?' is-pk':'')+(isLockW&&!isBanW&&!isPickW&&!isTeamBanW?' is-locked':'');
+    btn.className='wb'+(isBanW?' is-bn':'')+(isTeamBanW?' is-teamban':'')+(isPickW?' is-pk':'')+(isLockW&&!isBanW&&!isPickW&&!isTeamBanW?' is-locked':'')+(unavail?' has-rs':'');
     let clickable=false;
     if(!unavail&&step){
       const S=state;
@@ -5487,9 +5584,15 @@ function renderGrid(){
     const isSimPending=(simPickPending.alpha&&simPickPending.alpha.key===w.key)||
                        (simPickPending.bravo&&simPickPending.bravo.key===w.key);
     btn.disabled=unavail||!clickable;
+    // 選べない理由は「読める言葉」でタイル下部に帯表示（優先度: BAN済 > 取得済 > 連戦ロック > 味方BAN）
+    const reason = isBanW ? {cls:'r-ban',  label:'BAN済み'}
+                 : isPickW ? {cls:'r-pick', label:'取得済み'}
+                 : isLockW ? {cls:'r-lock', label:'🔒 連戦ロック'}
+                 : isTeamBanW ? {cls:'r-team', label:'味方がBAN'}
+                 : null;
     btn.innerHTML=`<img src="${esc(w.imgUrl)}" alt="${esc(w.name)}" onerror="this.style.height='38px';this.style.opacity='.2'">
       <div class="wn">${esc(w.name)}</div>
-      ${isBanW?'<span class="wst b">BAN</span>':''}${isTeamBanW?'<span class="wst tb">味方</span>':''}${isPickW?'<span class="wst p">PICK</span>':''}${isLockW&&!isBanW&&!isPickW&&!isTeamBanW?'<span class="wst l">🔒</span>':''}`;
+      ${reason?`<span class="wrs ${reason.cls}">${reason.label}</span>`:''}`;
     if(clickable&&!unavail){
       const isSelW = pendingSelect && pendingSelect.phase==='ban' && banIdOf(pendingSelect.w)===banIdOf(w);
       if(isSelW) btn.classList.add('is-sel');
@@ -5498,6 +5601,60 @@ function renderGrid(){
     grid.appendChild(btn);
   });
 }
+
+// ===== 確定バー（仮選択→確定を明示する画面下の固定バー） =====
+// 「1タップ＝仮選択／もう一度タップ＝確定」は初見で気づけず誤爆もするため、
+// 仮選択したら画面下に大きな［✓ これで確定］［✕ やめる］を出す。タイル2タップも従来どおり有効。
+// 個人BANの「ローカル確定済み・送信待ち」状態では［📨 BANを送信する］に変わる。
+function confirmBarLead(S, sel){
+  if(sel.phase==='ban') return 'この選択をBANします';
+  if(S && S.pickMode==='enemy') return '相手に使わせる武器にします';
+  return 'この武器をPICKします';
+}
+function renderConfirmBar(){
+  const bar=document.getElementById('confirm-bar');
+  if(!bar) return;
+  const hide=()=>{ bar.className='confirm-bar'; bar.innerHTML=''; document.body.classList.remove('has-confirm-bar'); };
+  const onDraft=document.getElementById('s-draft')?.classList.contains('active');
+  const S=state, step=S&&S.seq&&S.seq[S.idx];
+  if(!onDraft||!step){ hide(); return; }
+
+  // 個人BAN: ローカル確定済み（送信待ち）
+  if(step.phase==='ban' && myConfirmedBan && !myBanSubmitted){
+    const w=myConfirmedBan;
+    bar.innerHTML=`<img src="${esc(w.imgUrl)}" alt="" onerror="this.style.display='none'">`
+      +`<div class="cb-info"><div class="cb-lead">▶ 確定済み — まだ送信されていません</div>`
+      +`<div class="cb-name">${esc(w.name)}</div></div>`
+      +`<div class="cb-btns"><button class="cb-ok send" onclick="confirmBans()">📨 BANを送信</button>`
+      +`<button class="cb-no" onclick="cancelPendingSelect()">✕ 選び直す</button></div>`;
+    bar.className='confirm-bar show'; document.body.classList.add('has-confirm-bar');
+    return;
+  }
+  if(!pendingSelect){ hide(); return; }
+  const w=pendingSelect.w;
+  const img=w.imgUrl?`<img src="${esc(w.imgUrl)}" alt="" onerror="this.style.display='none'">`:'';
+  bar.innerHTML=img
+    +`<div class="cb-info"><div class="cb-lead">${confirmBarLead(S, pendingSelect)}</div>`
+    +`<div class="cb-name">${esc(banDispName(w))}</div></div>`
+    +`<div class="cb-btns"><button class="cb-ok" onclick="confirmPendingSelect()">✓ これで確定</button>`
+    +`<button class="cb-no" onclick="cancelPendingSelect()">✕ やめる</button></div>`;
+  bar.className='confirm-bar show'; document.body.classList.add('has-confirm-bar');
+}
+// 確定バーの［✓ これで確定］＝タイルの2タップ目と同じ処理
+window.confirmPendingSelect = function(){
+  if(!pendingSelect) return;
+  pickWeapon(pendingSelect.w);
+};
+// 確定バーの［✕ やめる／選び直す］＝仮選択・ローカル確定を取り消す
+window.cancelPendingSelect = function(){
+  pendingSelect=null;
+  myConfirmedBan=null;
+  const S=state, step=S&&S.seq&&S.seq[S.idx];
+  if(step&&step.phase==='ban') renderBanPanel();
+  else if(step&&step.team==='both') renderSimPickPanel();
+  else renderSlotsWithPending();
+  renderGrid();
+};
 
 // ジャンルBANタイル描画（サブ/スペシャル/武器種）
 function renderBanGenreTiles(S, gran, repIt, repEligible, grid){
