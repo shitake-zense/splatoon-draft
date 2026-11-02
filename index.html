@@ -535,6 +535,67 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
 .r-challenge .rc-res{display:flex;gap:14px;justify-content:center;margin-top:7px;font-size:12px;font-weight:700;}
 .r-challenge .rc-res .ok{color:var(--pk);}
 .r-challenge .rc-res .ng{color:var(--mu);}
+/* UI refresh: clear hierarchy for the next action, settings and play. */
+:root{--y:#d6f64b;--o:#ff775b;--a:#63b7ff;--b:#ff956b;--bg:#0c101b;--s1:#171f2e;--s2:#222e3e;--tx:#f6f7f2;--mu:#b1bdc7;--r:14px;}
+body{background:radial-gradient(ellipse at 12% -10%,#243a3a 0,transparent 38%),radial-gradient(ellipse at 100% 0,#302038 0,transparent 32%),var(--bg);padding:24px 18px 48px;line-height:1.5;}
+.app{max-width:1040px;}
+button,input,select{font:inherit;}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--y);outline-offset:3px;}
+.logo{margin:8px 0 28px;}
+.logo h1{font-size:clamp(21px,4vw,30px);color:var(--tx);text-shadow:none;letter-spacing:.05em;}
+.logo p{font-size:13px;margin-top:5px;}
+.card,.members-card,.team-assign-card,.pick-order-card,.guide-card{background:rgba(23,31,46,.96);border:1px solid #344356;border-radius:14px;padding:20px;}
+.card h3,.members-card h3,.team-assign-card h3{font-family:inherit;font-size:14px;letter-spacing:0;margin-bottom:16px;}
+.lobby-grid{gap:16px;align-items:start;}
+.row{gap:12px;margin-bottom:12px;}
+.row label{font-size:13px;min-width:86px;}
+.card > div > label[style]{font-size:12px!important;margin-bottom:6px!important;}
+#solo-pick-order-desc,#pick-order-desc{font-size:12px!important;padding-left:0!important;margin-top:0!important;}
+input[type=text],select{min-height:42px;background:#0f1724;border-color:#3a4b60;border-radius:9px;font-size:14px;}
+.toggle-row{padding-top:12px;padding-bottom:12px;}
+.toggle-label{font-size:13px;line-height:1.5;}
+.toggle-label small{font-size:12px;line-height:1.5;}
+.btn-start{min-height:52px;background:var(--y);font-family:inherit;font-weight:800;font-size:15px;letter-spacing:0;color:#101819;border-radius:10px;}
+.btn-re{min-height:46px;font-family:inherit;font-size:13px;border-color:#405064;color:#d7e0e5;border-radius:10px;}
+.lobby-header{background:#263548;border:1px solid #46576b;}
+.join-wrap{max-width:440px;margin:0 auto;background:var(--s1);border:1px solid #344356;border-radius:16px;padding:24px;}
+.join-wrap label{font-size:13px!important;}
+.join-input-big{min-height:56px;}
+.tp-txt{font-size:14px;line-height:1.6;}
+.wsec{border-radius:14px;}
+.wsh h3{font-family:inherit;font-size:14px;}
+.weapon-help{font-size:12px;color:var(--mu);margin:4px 0 10px;}
+#weapon-filter-toggle{width:100%;border:0;background:transparent;color:inherit;text-align:left;font-family:inherit;}
+.fx-btn{min-width:40px;min-height:40px;}
+.mode-hero{position:relative;overflow:hidden;padding:32px 34px;margin:12px 0 20px;background:linear-gradient(115deg,#213936,#18283a 63%,#292237);border:1px solid #455b58;border-radius:20px;}
+.mode-hero:after{content:'BAN / PICK';position:absolute;right:-12px;bottom:-14px;font-family:'Zen Dots',sans-serif;font-size:clamp(38px,8vw,80px);font-weight:bold;line-height:1;color:rgba(214,246,75,.06);transform:rotate(-7deg);pointer-events:none;white-space:nowrap;}
+.mode-eyebrow,.section-kicker{color:var(--y);font-family:'Zen Dots',sans-serif;font-size:11px;letter-spacing:.14em;}
+.mode-hero h1{position:relative;font-size:clamp(26px,5vw,44px);letter-spacing:.01em;color:#fff;margin:8px 0;line-height:1.18;}
+.mode-hero p{position:relative;color:#d1dedb;font-size:14px;line-height:1.7;max-width:520px;}
+.mode-section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:24px 0 10px;}
+.mode-section-head h2{font-family:inherit;font-size:16px;}
+.mode-section-head p{font-size:12px;color:var(--mu);}
+.mode-wrap{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0;}
+.mode-btn{display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-height:168px;background:#192333;border:1px solid #405064;border-radius:15px;padding:20px;color:var(--tx);transition:border-color .15s,transform .15s,background .15s;}
+.mode-btn:hover{background:#223143;border-color:var(--y);transform:translateY(-3px);}
+.mode-btn .mode-icon{display:grid;place-items:center;width:39px;height:39px;margin-bottom:17px;background:#2b3948;border-radius:11px;font-size:20px;}
+.mode-btn h3{font-family:inherit;font-size:16px;color:var(--tx);margin:0 0 5px;}
+.mode-btn p{font-size:12px;color:var(--mu);line-height:1.6;}
+.mode-btn .mode-arrow{margin-top:auto;align-self:flex-end;color:var(--y);font-size:20px;line-height:1;}
+.mode-btn.primary{background:#263c34;border-color:#607e4b;}
+.mode-links{display:flex;gap:10px;margin-top:18px;}
+.mode-links .btn-re{margin:0;flex:1;text-align:center;}
+.mode-flow{display:flex;align-items:center;gap:10px;margin-top:22px;padding:15px 18px;border:1px solid #344356;border-radius:12px;color:var(--mu);font-size:12px;flex-wrap:wrap;}
+.mode-flow strong{color:var(--tx);font-size:12px;}
+.mode-flow span:not(:last-child):after{content:'→';color:#6d7d87;margin-left:10px;}
+.advanced-settings{margin-top:16px;border-top:1px solid #344356;padding-top:12px;}
+.advanced-settings summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;color:var(--tx);font-size:13px;font-weight:700;min-height:36px;}
+.advanced-settings summary::-webkit-details-marker{display:none;}
+.advanced-settings summary:after{content:'＋';color:var(--y);font-size:18px;}
+.advanced-settings[open] summary:after{content:'−';}
+.advanced-settings .advanced-note{color:var(--mu);font-size:12px;margin:2px 0 10px;}
+@media(max-width:640px){body{padding:16px 12px 36px}.mode-hero{padding:25px 21px;margin-top:4px}.mode-hero p{font-size:13px}.mode-section-head{display:block}.mode-section-head p{margin-top:3px}.mode-wrap{grid-template-columns:1fr;gap:9px}.mode-btn{min-height:0;display:grid;grid-template-columns:42px 1fr 20px;column-gap:13px;align-items:center;padding:14px}.mode-btn .mode-icon{grid-row:1 / span 2;margin:0}.mode-btn h3{font-size:15px;margin:0}.mode-btn p{grid-column:2;font-size:12px}.mode-btn .mode-arrow{grid-column:3;grid-row:1 / span 2;align-self:center}.mode-links{flex-wrap:wrap}.mode-links .btn-re{min-width:140px}.mode-flow{gap:8px}.card,.members-card,.team-assign-card,.guide-card{padding:16px}.row label{min-width:74px}.join-wrap{padding:20px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important;}}
 </style>
 </head>
 <body>
@@ -550,23 +611,31 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
 
 <!-- MODE SELECT -->
 <div id="s-mode" class="screen">
-  <div class="logo"><h1>SPLATOON DRAFT</h1><p>スプラトゥーン3 プライベートマッチ用ドラフトツール</p></div>
+  <div class="mode-hero">
+    <div class="mode-eyebrow">SPLATOON 3 / PRIVATE MATCH</div>
+    <h1>SPLATOON<br>DRAFT</h1>
+    <p>武器をBANして、選んで、対戦へ。<br>いつものプラベに、ドラフトの駆け引きを。</p>
+  </div>
+  <div class="mode-section-head"><h2>どうやって遊ぶ？</h2><p>遊び方に合わせて選んでください</p></div>
   <div class="mode-wrap">
-    <button class="mode-btn" onclick="enterSolo()">
-      <h2>🎮 ソロモード</h2>
-      <p>1人で全操作<br>部屋番号なし</p>
+    <button class="mode-btn primary" onclick="showScreen('create')">
+      <span class="mode-icon" aria-hidden="true">👑</span><h3>部屋を作る</h3>
+      <p>ホストになって、みんなを招待</p><span class="mode-arrow" aria-hidden="true">↗</span>
     </button>
-    <button class="mode-btn" onclick="showScreen('create')">
-      <h2>👑 部屋を作る</h2>
-      <p>ホストとしてロビー作成<br>参加者を招待</p>
+    <button class="mode-btn" onclick="showScreen('join')">
+      <span class="mode-icon" aria-hidden="true">🚪</span><h3>部屋に入る</h3>
+      <p>部屋番号を入力して参加</p><span class="mode-arrow" aria-hidden="true">↗</span>
+    </button>
+    <button class="mode-btn" onclick="enterSolo()">
+      <span class="mode-icon" aria-hidden="true">🎮</span><h3>ひとりで試す</h3>
+      <p>ソロモードで両チームを操作</p><span class="mode-arrow" aria-hidden="true">↗</span>
     </button>
   </div>
-  <button class="mode-btn" style="margin-top:0;" onclick="showScreen('join')">
-    <h2>🚪 部屋に入る</h2>
-    <p>部屋番号を入力して参加</p>
-  </button>
-  <button class="btn-re" style="max-width:360px;margin:14px auto 0;display:block;" onclick="showScreen('guide')">📖 使い方 / ドラフトの流れ</button>
-  <button class="btn-re" style="max-width:360px;margin:8px auto 0;display:block;" onclick="showStatsScreen()">📊 武器統計（PICK/BANランキング）</button>
+  <div class="mode-flow"><strong>ドラフトの流れ</strong><span>部屋に集まる</span><span>使えない武器をBAN</span><span>使う武器をPICK</span><span>結果を確認</span></div>
+  <div class="mode-links">
+    <button class="btn-re" onclick="showScreen('guide')">📖 使い方を見る</button>
+    <button class="btn-re" onclick="showStatsScreen()">📊 武器の統計を見る</button>
+  </div>
 </div>
 
 <!-- GUIDE (使い方) -->
@@ -587,7 +656,7 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
           <li><b>「👑 部屋を作る」</b>から名前を入れて部屋を作成します。</li>
           <li>表示された<b>部屋番号（6桁）</b>か<b>共有URL</b>を参加者に渡します。</li>
           <li>ロビーで参加者が揃ったら、<b>チーム（アルファ／ブラボー）への割り当て</b>と<b>ピック順</b>を決めます。</li>
-          <li><b>ルール設定</b>で 人数(1v1〜4v4)・BAN数・ピックモード・ピック順・ルール／ステージ・武器の絞り込み・お題カード・制限時間 を調整します。</li>
+          <li>人数・BAN数・ピック方法・ルール／ステージを設定します。武器の絞り込みやお題カードは<b>「追加ルール・武器の絞り込み」</b>から設定できます。</li>
           <li><b>「ドラフト開始」</b>で全員の画面が一斉にドラフトへ進みます。</li>
         </ol>
         <p class="guide-note">ホストは<b>進行役</b>（開始・勝敗入力・再ドラフト）です。ホストがどちらのチームにいても構いません。</p>
@@ -649,7 +718,7 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
       </div>
       <div class="guide-card">
         <h3>ソロモードについて</h3>
-        <p>「🎮 ソロモード」は1人で両チーム分を操作するモードです。部屋番号は不要で、ピック順や設定の確認・練習に使えます。</p>
+        <p>「ひとりで試す」では、1人で両チームを操作します。部屋番号は不要です。ジャンルBANや制限時間は<b>「追加ルール」</b>から設定できます。</p>
       </div>
     </div>
 
@@ -719,7 +788,7 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
   <div class="logo"><h1>SPLATOON DRAFT</h1><p>部屋を作る</p></div>
   <div class="join-wrap">
     <div style="margin-bottom:14px;">
-      <label style="font-size:11px;color:var(--mu);display:block;margin-bottom:6px;">あなたの名前（ホスト）</label>
+      <label for="host-name-input" style="font-size:11px;color:var(--mu);display:block;margin-bottom:6px;">あなたの名前（ホスト）</label>
       <input type="text" id="host-name-input" maxlength="16" placeholder="プレイヤー名" autocomplete="off" style="font-size:16px;text-align:center;" onkeydown="if(event.key==='Enter')enterMultiCreate()">
     </div>
     <button class="btn-start" onclick="enterMultiCreate()">👑 部屋を作る</button>
@@ -732,10 +801,10 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
   <div class="logo"><h1>SPLATOON DRAFT</h1><p>部屋に参加</p></div>
   <div class="join-wrap">
     <div style="margin-bottom:14px;">
-      <label style="font-size:11px;color:var(--mu);display:block;margin-bottom:6px;">あなたの名前</label>
+      <label for="join-name-input" style="font-size:11px;color:var(--mu);display:block;margin-bottom:6px;">あなたの名前</label>
       <input type="text" id="join-name-input" maxlength="16" placeholder="プレイヤー名" autocomplete="off" style="font-size:16px;text-align:center;">
     </div>
-    <label style="font-size:11px;color:var(--mu);display:block;margin-bottom:6px;">部屋番号</label>
+    <label for="room-join-input" style="font-size:11px;color:var(--mu);display:block;margin-bottom:6px;">部屋番号（6桁）</label>
     <input class="join-input-big" type="text" id="room-join-input" maxlength="6" placeholder="XXXXXX" autocomplete="off" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')joinRoom()">
     <button class="btn-start" onclick="joinRoom()">🚪 参加する</button>
     <div id="join-status" style="text-align:center;margin-top:10px;font-size:12px;color:var(--pk)"></div>
@@ -809,7 +878,7 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
 
   <div class="lobby-grid">
     <div class="card">
-      <h3>TEAM SETTINGS</h3>
+      <h3>チーム・試合設定</h3>
       <div style="margin-bottom:9px;">
         <label style="font-size:10px;color:var(--a);display:block;margin-bottom:3px;">アルファチーム名</label>
         <input type="text" id="n-a" value="アルファ" oninput="onSettingChange()">
@@ -866,7 +935,7 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
       </div>
     </div>
     <div class="card">
-      <h3>DRAFT SETTINGS</h3>
+      <h3>ドラフト設定</h3>
       <div class="row">
         <label>Ban数</label>
         <select id="bc" onchange="onSettingChange()">
@@ -891,6 +960,9 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
       </div>
       <div id="pick-order-desc" style="font-size:10px;color:var(--mu);margin-top:-4px;margin-bottom:6px;padding-left:80px;line-height:1.6;"></div>
       <div class="div"></div>
+      <details class="advanced-settings">
+      <summary>追加ルール・武器の絞り込み</summary>
+      <p class="advanced-note">必要なときだけ設定できます。</p>
       <div style="font-size:10px;color:var(--mu);margin-top:4px" id="weapon-count-info"></div>
       <div class="toggle-row">
         <div class="toggle-label">
@@ -902,13 +974,13 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
           <span class="tgl-sl"></span>
         </label>
       </div>
-      <div class="toggle-row" id="weapon-filter-toggle" onclick="toggleWeaponFilterPanel()">
+      <button type="button" class="toggle-row" id="weapon-filter-toggle" onclick="toggleWeaponFilterPanel()" aria-expanded="false" aria-controls="weapon-filter-panel">
         <div class="toggle-label">
           🚫 武器の絞り込み
           <small id="weapon-filter-summary">チェックした要素を持つ武器を除外</small>
         </div>
         <span id="weapon-filter-caret">▼</span>
-      </div>
+      </button>
       <div id="weapon-filter-panel" style="display:none;">
         <div class="wf-section">
           <div class="wf-head">武器種</div>
@@ -984,6 +1056,7 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
           <span class="tgl-sl"></span>
         </label>
       </div>
+      </details>
       <div class="div"></div>
       <div class="row">
         <label>ピックモード</label>
@@ -1020,7 +1093,7 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
       <div class="toggle-row">
         <div class="toggle-label">
           ⏱ 制限時間あり
-          <small>時間切れで自動ランダムBAN/ピック</small>
+          <small>時間切れ時は仮選択を優先し、残りは自動で選択</small>
         </div>
         <label class="tgl">
           <input type="checkbox" id="time-limit-enabled" onchange="onTimeLimitChange()">
@@ -1126,7 +1199,7 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
   <div class="logo"><h1>SPLATOON DRAFT</h1><p>ソロモード — 設定</p></div>
   <div class="lobby-grid">
     <div class="card">
-      <h3>TEAM SETTINGS</h3>
+      <h3>チーム設定</h3>
       <div style="margin-bottom:9px;">
         <label style="font-size:10px;color:var(--a);display:block;margin-bottom:3px;">アルファチーム</label>
         <input type="text" id="solo-n-a" value="アルファ">
@@ -1145,7 +1218,7 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
       </div>
     </div>
     <div class="card">
-      <h3>DRAFT SETTINGS</h3>
+      <h3>ドラフト設定</h3>
       <div class="row">
         <label>Banフェーズ</label>
         <select id="solo-bc">
@@ -1155,14 +1228,6 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
           <option value="6">各6Ban</option><option value="7">各7Ban</option>
           <option value="8">各8Ban</option>
         </select>
-      </div>
-      <div class="row genre-ban-row" id="solo-ban-genre-row">
-        <label>ジャンルBAN<br><small style="color:var(--mu);font-weight:normal;font-size:9px">武器種/サブ/スペシャル単位のBAN（武器BANとは別枠で各数を設定）</small></label>
-        <div class="genre-ban-grid" style="flex:1">
-          <div class="gb-item"><span>武器種</span><select id="solo-ban-genre-cat"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-          <div class="gb-item"><span>サブ</span><select id="solo-ban-genre-sub"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-          <div class="gb-item"><span>スペシャル</span><select id="solo-ban-genre-special"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-        </div>
       </div>
       <div class="row">
         <label>先攻</label>
@@ -1212,6 +1277,17 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
       <div class="row">
         <label>ステージ</label>
         <select id="solo-sm"><option value="random">ランダム</option></select>
+      </div>
+      <details class="advanced-settings">
+      <summary>追加ルール</summary>
+      <p class="advanced-note">お題や制限時間などを設定できます。</p>
+      <div class="row genre-ban-row" id="solo-ban-genre-row">
+        <label>ジャンルBAN<br><small style="color:var(--mu);font-weight:normal;font-size:11px">武器BANとは別に、種類ごと禁止できます。</small></label>
+        <div class="genre-ban-grid" style="flex:1">
+          <div class="gb-item"><span>武器種</span><select id="solo-ban-genre-cat" aria-label="BANする武器種の数"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+          <div class="gb-item"><span>サブ</span><select id="solo-ban-genre-sub" aria-label="BANするサブの数"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+          <div class="gb-item"><span>スペシャル</span><select id="solo-ban-genre-special" aria-label="BANするスペシャルの数"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+        </div>
       </div>
       <div class="toggle-row">
         <div class="toggle-label">
@@ -1284,7 +1360,7 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
       <div class="toggle-row">
         <div class="toggle-label">
           ⏱ 制限時間あり
-          <small>時間切れで自動ランダムBAN/ピック</small>
+          <small>時間切れ時は仮選択を優先し、残りは自動で選択</small>
         </div>
         <label class="tgl">
           <input type="checkbox" id="solo-time-limit-enabled" onchange="onSoloTimeLimitChange()">
@@ -1298,6 +1374,7 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
           <span style="font-size:11px;color:var(--mu)">秒（5〜100）</span>
         </div>
       </div>
+      </details>
     </div>
   </div>
   <button class="btn-start" onclick="startSoloDraft()">▶ ドラフト開始</button>
@@ -1441,6 +1518,7 @@ body.has-confirm-bar #s-draft{padding-bottom:76px;}
       <div class="cf" id="cf"></div>
     </div>
     <div class="d-lockout" id="d-lockout" style="display:none"></div>
+    <p class="weapon-help">項目を選び、もう一度タップするか、画面下のボタンで確定します。</p>
     <div class="wg" id="wg"></div>
     <div class="wg-empty" id="wg-empty" style="display:none"></div>
   </div>
@@ -3894,6 +3972,7 @@ window.toggleWeaponFilterPanel=function(){
   if(!panel) return;
   const open=panel.style.display==='none';
   panel.style.display=open?'':'none';
+  document.getElementById('weapon-filter-toggle')?.setAttribute('aria-expanded',String(open));
   if(caret) caret.classList.toggle('open',open);
 };
 window.clearWeaponFilter=function(){
