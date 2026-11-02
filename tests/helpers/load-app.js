@@ -29,6 +29,7 @@ const EXPORT_NAMES = [
   'resolveRepresentative','repIdOf','repNameOf','myTeamOf',
   'isRepBanRepresentative','isSeriesChooserOperator','gachaCanOperate','isTradeOperator',
   'statKey','buildStatsUpdates','buildStatsRanking',
+  'filterWeaponPool','genreValuesFromPool','weaponGridStatus','canSelectGridWeapon',
   'RULES','CATEGORY_ORDER','CHALLENGES',
 ];
 
@@ -54,6 +55,14 @@ function loadApp(){
     + '  if("isMulti" in o) isMulti = o.isMulti;'
     + '  if("isHost" in o) isHost = o.isHost;'
     + '  if("myMemberId" in o) myMemberId = o.myMemberId;'
+    + '  if("banActiveTeam" in o) banActiveTeam = o.banActiveTeam;'
+    + '  if("myBanSubmitted" in o) myBanSubmitted = o.myBanSubmitted;'
+    + '  if("alphaBanSubmitted" in o) alphaBanSubmitted = o.alphaBanSubmitted;'
+    + '  if("bravoBanSubmitted" in o) bravoBanSubmitted = o.bravoBanSubmitted;'
+    + '  if("alphaPickSubmitted" in o) alphaPickSubmitted = o.alphaPickSubmitted;'
+    + '  if("bravoPickSubmitted" in o) bravoPickSubmitted = o.bravoPickSubmitted;'
+    + '  if("banPendingIndividual" in o) banPendingIndividual = o.banPendingIndividual;'
+    + '  if("simPickPending" in o) simPickPending = o.simPickPending;'
     + '}'
     + ',__get(){ return { WEAPONS, banPending, pendingSelect, state, isMulti, isHost, myMemberId }; }'
     + '};';
