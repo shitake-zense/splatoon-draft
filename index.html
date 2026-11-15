@@ -182,6 +182,24 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .guide-dl dt:first-of-type{margin-top:0;}
 .guide-dl dd{font-size:11.5px;color:var(--tx);line-height:1.7;margin:3px 0 0;}
 .guide-dl dd b{color:var(--y);font-weight:bold;}
+#s-guide .guide-wrap{max-width:760px;}
+.guide-intro{margin:0 0 18px;color:var(--mu);font-size:13px;line-height:1.7;}
+.guide-section-title{margin:26px 2px 10px;color:var(--tx);font-size:15px;}
+.guide-section-caption{margin:0 2px 12px;color:var(--mu);font-size:12px;}
+.guide-disclosure{padding:0!important;overflow:hidden;}
+.guide-disclosure summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;min-height:56px;list-style:none;cursor:pointer;color:var(--tx);font-size:14px;font-weight:700;}
+.guide-disclosure summary::-webkit-details-marker{display:none;}
+.guide-disclosure summary::after{content:'＋';color:var(--y);font-size:19px;line-height:1;flex:none;}
+.guide-disclosure[open] summary::after{content:'−';}
+.guide-disclosure[open] summary{border-bottom:1px solid #344356;}
+.guide-detail-body{padding:14px 20px 18px;color:var(--tx);font-size:13px;line-height:1.8;overflow-wrap:anywhere;}
+.guide-detail-body b{color:var(--y);}
+.guide-detail-body p{margin:0 0 10px;}
+.guide-detail-body p:last-child{margin-bottom:0;}
+.guide-step{display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;align-items:start;}
+.guide-step-num{display:grid;place-items:center;width:32px;height:32px;background:#2b3948;border-radius:10px;color:var(--y);font-weight:800;}
+.guide-step h3{margin:0 0 5px;}
+.guide-step p{font-size:13px;line-height:1.7;color:var(--tx);margin:0;}
 
 /* DRAFT */
 .dh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
@@ -643,10 +661,11 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
 <div id="s-guide" class="screen">
   <div class="logo"><h1>SPLATOON DRAFT</h1><p>使い方ガイド</p></div>
   <div class="guide-wrap">
+    <p class="guide-intro">知りたい項目を選ぶと、詳しい説明を開けます。まずは自分の役割に合ったタブからご覧ください。</p>
     <div class="guide-tabs">
-      <button class="guide-tab on" data-gt="host" onclick="showGuideTab('host')">👑 ホスト向け</button>
-      <button class="guide-tab" data-gt="join" onclick="showGuideTab('join')">🚪 参加者向け</button>
-      <button class="guide-tab" data-gt="flow" onclick="showGuideTab('flow')">🔀 ドラフトの流れ</button>
+      <button class="guide-tab on" aria-pressed="true" data-gt="host" onclick="showGuideTab('host')">👑 ホスト向け</button>
+      <button class="guide-tab" aria-pressed="false" data-gt="join" onclick="showGuideTab('join')">🚪 参加者向け</button>
+      <button class="guide-tab" aria-pressed="false" data-gt="flow" onclick="showGuideTab('flow')">🔀 進行の流れ</button>
     </div>
 
     <!-- ホスト向け -->
@@ -660,11 +679,12 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
           <li>人数・BAN数・ピック方法・ルール／ステージを設定します。武器の絞り込みやお題カードは<b>「追加ルール・武器の絞り込み」</b>から設定できます。</li>
           <li><b>「ドラフト開始」</b>で全員の画面が一斉にドラフトへ進みます。</li>
         </ol>
-        <p class="guide-note">部屋番号は初期状態で伏せられます。「部屋番号を非表示中」で表示を切り替えられ、ID・URLのコピーは非表示中も使えます。<b>ブラウザのアドレス欄やコピーしたURLには部屋番号が含まれます。</b>配信時はアドレス欄を映さず、URLを参加者だけに共有してください。この機能は画面表示を隠すもので、入室制限ではありません。</p>
-        <p class="guide-note">ホストは<b>進行役</b>（開始・勝敗入力・再ドラフト）です。ホストがどちらのチームにいても構いません。</p>
       </div>
-      <div class="guide-card">
-        <h3>「代表者」とは（誰が操作するのか）</h3>
+      <details class="guide-card guide-disclosure"><summary>部屋番号と配信の注意</summary><div class="guide-detail-body">部屋番号は初期状態で伏せられます。「部屋番号を非表示中」で表示を切り替えられ、ID・URLのコピーは非表示中も使えます。<b>ブラウザのアドレス欄やコピーしたURLには部屋番号が含まれます。</b>配信時はアドレス欄を映さず、URLを参加者だけに共有してください。この機能は画面表示を隠すもので、入室制限ではありません。</div></details>
+      <details class="guide-card guide-disclosure">
+        <summary>「代表者」とは（誰が操作するのか）</summary>
+        <div class="guide-detail-body">
+        <p>ホストは<b>進行役</b>（開始・勝敗入力・再ドラフト）です。ホストがどちらのチームにいても構いません。</p>
         <p class="guide-note"><b>代表者＝そのチームの「1ピック目」の人</b>（ピック順の先頭）です。各チームからちょうど1人ずつ選ばれ、<b>ホストかどうかは関係ありません</b>。ピック順を使わないモードでは、そのチームで最初に参加した人が代表者になります。</p>
         <ul class="guide-list">
           <li><b>代表者BAN</b> … チームのBANを代表者がまとめて選び、送信します。</li>
@@ -675,50 +695,28 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
           <li><b>ステージ BAN / PICK</b> … 各チームの代表者が自チームの手番にステージを選びます。</li>
         </ul>
         <p class="guide-note">担当者の名前は<b>BANパネル</b>と<b>結果画面のルール選択</b>に常に表示されます（自分が担当のときは「あなた」バッジが付きます）。</p>
-      </div>
-      <div class="guide-card">
-        <h3>ステージ BAN / PICK とプリセット</h3><p>部屋を作るときに5種類のプリセットから選べます。選んだ設定はロビーで変更できます。ステージ方式は通常・おまかせロスト・カウンターピック・BAN / PICKから選べます。候補数は最大試合数に合わせて表示されます。カウンターは初戦ランダム、次戦以降は敗者が未使用ステージを選択。BAN / PICKは各1 BAN後に先攻から交互にPICKし、最終戦は残りから抽選します（1試合では先攻がPICK）。代表者は画像を2回押して確定します。ステージ選択中に制限時間はありません。</p><h3>設定項目の説明（特に分かりにくいもの）</h3>
-        <dl class="guide-dl">
-          <dt>人数 / BAN数</dt>
-          <dd>人数は 1v1〜4v4。<b>BAN数</b>は各チームがBANする武器の数（なし〜各8・既定は各4）。両チーム同じ数です。</dd>
-
-          <dt>ジャンルBAN（武器BANとは別枠）</dt>
-          <dd>武器単位とは<b>別の枠</b>で、<b>武器種・サブ・スペシャル単位</b>でまとめてBANできます（例: 「サブ=2」ならサブを2種類まるごと禁止＝そのサブを持つ武器が全て消える）。設定した数は<b>必ずその数だけBAN</b>します。個人ピックでは<b>BANモードを代表者BANにした場合</b>に使えます。代表者ピック・ガチャでも使えます。<b>相手ピック</b>と、メンバードラフトの<b>「全員が武器ピック → チーム分け」</b>では使えません。使えない設定に切り替えた間、設定した数は適用されません。</dd>
-
-          <dt>ピックモード（4種・最重要）</dt>
-          <dd><b>個人ピック</b>＝各自が自分の番に自分の武器を選ぶ。<b>代表者ピック</b>＝チーム代表が全員分をまとめて選ぶ。<b>相手ピック</b>＝対になる相手選手の武器を<b>自分が決めて押し付ける</b>（アルファ[N]↔ブラボー[N]がペア）。普段使わない武器を持たされる遊びです。<b>🎲 ガチャ（運命ピック）</b>＝BAN後に各チームへ人数分の武器が<b>ランダムで一括配布</b>され、引き直して「確定」するだけ。選ぶ自由のないお祭りモードです。<br><span style="color:var(--mu)">※ソロでは「通常ピック（＝代表者ピック相当）」「相手ピック」「ガチャ」の3つ。</span></dd>
-
-          <dt>リロール回数（ガチャ専用）</dt>
-          <dd>ガチャで配られた手札を<b>引き直せる回数</b>（チームごと・既定2回）。0にすると引き直し不可＝完全に運だけの配布になります。両チームが「確定」すると即リザルトへ進みます。</dd>
-
-          <dt>ピック順</dt>
-          <dd>誰が何番目に選ぶかの並び。<b>交互</b>＝1枚ずつ交互。<b>スネーク</b>＝折り返しで偏りを抑える競技寄りの既定。クラシック／ミドルは折り返し幅違い。<b>バランス／前重ね</b>は 1-2-1 等の固定配分。<b>同時ピック</b>はマルチ専用で、ペアが同時に選んで一斉公開（チーム間は被りOK）。</dd>
-
-          <dt>先攻</dt>
-          <dd>最初にピックするチーム。初期値の<b>ランダム</b>は開始時に抽選します。</dd>
-
-          <dt>標準武器のみ / 武器の絞り込み</dt>
-          <dd><b>標準武器のみ</b>＝各武器の基本形（例：スプラシューター）のみを候補にし、コラボなどの別モデルは除外。<b>武器の絞り込み</b>＝指定した武器種・サブ・スペシャルを<b>持つ武器を候補から消す</b>（例: 強いスペシャルを外してエンジョイ寄りに調整）。どちらも候補が減り、残り数が表示されます。</dd>
-
-          <dt>お題カード / 制限時間</dt>
-          <dd><b>お題カード</b>＝開始時に<b>全32種</b>から縛りを1枚抽選（両チーム共通・<b>非強制</b>で、結果に達成○×を表示）。武器種・サブ・スペシャル・人数など色々な角度のお題があります。<b>制限時間</b>＝5〜100秒。時間切れは「確定済み→仮選択中→ランダム」の順で自動送信します。</dd>
-
-          <dt>ドラフト後トレード</dt>
-          <dd>ONにすると<b>結果画面</b>で武器の交換ができます。自チームの武器1枚と相手チームの武器1枚を選んで<b>交換を提案</b>→<b>相手チームの代表者が承認</b>すると成立（拒否も可）。回数は無制限です。マルチでは<b>各チームの代表者だけ</b>が提案・承認でき、ソロではアルファ⇄ブラボーをその場で入れ替えられます。</dd>
-
-          <dt>メンバードラフト（キャプテン選抜・マルチ専用）</dt>
-          <dd>ONにすると、武器ドラフトの前に<b>チーム分けをキャプテン選抜で</b>行えます。チーム割り当てで<b>各チームのキャプテンを1名ずつ</b>（α／β）に置き、残りは<b>未割り当て（プール）</b>に。両チーム代表者が揃い<b>人数が足りていれば（2v2以上・合計2×人数以上）</b>「メンバードラフト開始」が押せます。開始後は2人のキャプテンが<b>交互にプールから1人ずつ指名</b>（先攻チームが先）。制限時間ONなら<b>時間切れでランダム自動指名</b>。<br><b>タイミング</b>を選べます：<br>・<b>「チーム分け→ドラフト」</b>＝選抜が終わると<b>そのまま武器ドラフト（BAN/PICK）へ自動で進み、指名した順番がそのままピック順</b>になります（各チーム、キャプテンが先頭→指名順）。<br>・<b>「全員が武器ピック→チーム分け」</b>＝先に<b>全員（キャプテン含む）がランダム順で1人ずつ武器を選び（すでに選ばれた武器は選べません）</b>、その後にキャプテンがチーム分け。BANはなし。各自が選んだ武器を持ったまま結果に進みます。</dd>
-
-          <dt>連戦モード（シリーズ）</dt>
-          <dd>1ルームで<b>複数試合を連続</b>で行います。<b>シリーズ長</b>＝BO3（先取2）／BO5（先取3）／BO7（先取4）／BO9（先取5）。各試合のドラフトが終わったら結果画面で<b>ホストが勝者を入力</b>すると、ステージが変わって次の試合のドラフトが始まります。先取数に達するとシリーズ終了で、<b>戦績ボード</b>（各試合の勝者・ルール・ステージ・両チームの編成一覧）が表示され、<b>「🖼️ シリーズ画像を保存」</b>で全試合を1枚のPNGにまとめて保存できます。</dd>
-
-          <dt>連戦のガチルール進行</dt>
-          <dd><b>BO3</b>＝毎試合ガチルールをランダム。<b>BO5</b>＝1〜4試合目を<b>ガチエリア→ヤグラ→ホコ→アサリ</b>の固定順、5試合目はランダム。<br><b>⚖️ 負けチームがルール設定</b>をONにすると、各試合の<b>敗者が次の試合のガチルールを選びます</b>（2試合目以降。1試合目は上記の自動進行）。<b>選ぶのは「敗者チームの代表者＝そのチームの1ピック目」1人だけ</b>で、その人の名前が結果画面に🎯付きで表示されます（自分が担当なら「あなた」バッジ）。ソロでは操作者が選びます。<br>担当者が席を外しているなど操作できないときは、<b>ホストが代理で決める</b>ボタンからも進められます。</dd>
-
-          <dt>武器ロックアウト（連戦のオプション）</dt>
-          <dd>連戦モードONのときに選べます。<b>一度ピックされた武器は、そのシリーズの次の試合以降ずっと使えなくなります</b>（両チーム共有でプールが枯れていく＝後半ほど選択肢が減る独特のメタ）。BANは各試合ごとにリセットされ、ロックアウトの対象は<b>ピックされた武器だけ</b>です。ドラフト中はロックされた武器が🔒でグレー表示され選べません。</dd>
-        </dl>
-      </div>
+        </div>
+      </details>
+      <h3 class="guide-section-title">設定を詳しく調べる</h3>
+      <p class="guide-section-caption">気になる項目を押すと説明が開きます。</p>
+      <details class="guide-card guide-disclosure"><summary>ステージ方式とプリセット</summary><div class="guide-detail-body"><p>部屋を作るときに5種類のプリセットから選べます。選んだ設定はロビーで変更できます。</p><p>ステージ方式は通常・おまかせロスト・カウンターピック・BAN / PICKから選べます。候補数は最大試合数に合わせて表示されます。</p><p>カウンターは初戦ランダム、次戦以降は敗者が未使用ステージを選択。BAN / PICKは各1 BAN後に先攻から交互にPICKし、最終戦は残りから抽選します（1試合では先攻がPICK）。</p><p>代表者は画像を2回押して確定します。ステージ選択中に制限時間はありません。</p></div></details>
+      <h3 class="guide-section-title">基本の設定</h3>
+      <details class="guide-card guide-disclosure"><summary>人数 / BAN数</summary><div class="guide-detail-body">人数は 1v1〜4v4。<b>BAN数</b>は各チームがBANする武器の数（なし〜各8・既定は各4）。両チーム同じ数です。</div></details>
+      <details class="guide-card guide-disclosure"><summary>ピック順</summary><div class="guide-detail-body">誰が何番目に選ぶかの並び。<b>交互</b>＝1枚ずつ交互。<b>スネーク</b>＝折り返しで偏りを抑える競技寄りの既定。クラシック／ミドルは折り返し幅違い。<b>バランス／前重ね</b>は 1-2-1 等の固定配分。<b>同時ピック</b>はマルチ専用で、ペアが同時に選んで一斉公開（チーム間は被りOK）。</div></details>
+      <details class="guide-card guide-disclosure"><summary>先攻</summary><div class="guide-detail-body">最初にピックするチーム。初期値の<b>ランダム</b>は開始時に抽選します。</div></details>
+      <h3 class="guide-section-title">武器の BAN / PICK</h3>
+      <details class="guide-card guide-disclosure"><summary>ジャンルBAN（武器BANとは別枠）</summary><div class="guide-detail-body">武器単位とは<b>別の枠</b>で、<b>武器種・サブ・スペシャル単位</b>でまとめてBANできます（例: 「サブ=2」ならサブを2種類まるごと禁止＝そのサブを持つ武器が全て消える）。設定した数は<b>必ずその数だけBAN</b>します。個人ピックでは<b>BANモードを代表者BANにした場合</b>に使えます。代表者ピック・ガチャでも使えます。<b>相手ピック</b>と、メンバードラフトの<b>「全員が武器ピック → チーム分け」</b>では使えません。使えない設定に切り替えた間、設定した数は適用されません。</div></details>
+      <details class="guide-card guide-disclosure"><summary>ピックモード（4種・最重要）</summary><div class="guide-detail-body"><b>個人ピック</b>＝各自が自分の番に自分の武器を選ぶ。<b>代表者ピック</b>＝チーム代表が全員分をまとめて選ぶ。<b>相手ピック</b>＝対になる相手選手の武器を<b>自分が決めて押し付ける</b>（アルファ[N]↔ブラボー[N]がペア）。普段使わない武器を持たされる遊びです。<b>🎲 ガチャ（運命ピック）</b>＝BAN後に各チームへ人数分の武器が<b>ランダムで一括配布</b>され、引き直して「確定」するだけ。選ぶ自由のないお祭りモードです。<br><span style="color:var(--mu)">※ソロでは「通常ピック（＝代表者ピック相当）」「相手ピック」「ガチャ」の3つ。</span></div></details>
+      <details class="guide-card guide-disclosure"><summary>リロール回数（ガチャ専用）</summary><div class="guide-detail-body">ガチャで配られた手札を<b>引き直せる回数</b>（チームごと・既定2回）。0にすると引き直し不可＝完全に運だけの配布になります。両チームが「確定」すると即リザルトへ進みます。</div></details>
+      <details class="guide-card guide-disclosure"><summary>標準武器のみ / 武器の絞り込み</summary><div class="guide-detail-body"><b>標準武器のみ</b>＝各武器の基本形（例：スプラシューター）のみを候補にし、コラボなどの別モデルは除外。<b>武器の絞り込み</b>＝指定した武器種・サブ・スペシャルを<b>持つ武器を候補から消す</b>（例: 強いスペシャルを外してエンジョイ寄りに調整）。どちらも候補が減り、残り数が表示されます。</div></details>
+      <h3 class="guide-section-title">追加ルール</h3>
+      <details class="guide-card guide-disclosure"><summary>お題カード / 制限時間</summary><div class="guide-detail-body"><b>お題カード</b>＝開始時に<b>全32種</b>から縛りを1枚抽選（両チーム共通・<b>非強制</b>で、結果に達成○×を表示）。武器種・サブ・スペシャル・人数など色々な角度のお題があります。<b>制限時間</b>＝5〜100秒。時間切れは「確定済み→仮選択中→ランダム」の順で自動送信します。</div></details>
+      <details class="guide-card guide-disclosure"><summary>ドラフト後トレード</summary><div class="guide-detail-body">ONにすると<b>結果画面</b>で武器の交換ができます。自チームの武器1枚と相手チームの武器1枚を選んで<b>交換を提案</b>→<b>相手チームの代表者が承認</b>すると成立（拒否も可）。回数は無制限です。マルチでは<b>各チームの代表者だけ</b>が提案・承認でき、ソロではアルファ⇄ブラボーをその場で入れ替えられます。</div></details>
+      <details class="guide-card guide-disclosure"><summary>メンバードラフト（キャプテン選抜・マルチ専用）</summary><div class="guide-detail-body">ONにすると、武器ドラフトの前に<b>チーム分けをキャプテン選抜で</b>行えます。チーム割り当てで<b>各チームのキャプテンを1名ずつ</b>（α／β）に置き、残りは<b>未割り当て（プール）</b>に。両チーム代表者が揃い<b>人数が足りていれば（2v2以上・合計2×人数以上）</b>「メンバードラフト開始」が押せます。開始後は2人のキャプテンが<b>交互にプールから1人ずつ指名</b>（先攻チームが先）。制限時間ONなら<b>時間切れでランダム自動指名</b>。<br><b>タイミング</b>を選べます：<br>・<b>「チーム分け→ドラフト」</b>＝選抜が終わると<b>そのまま武器ドラフト（BAN/PICK）へ自動で進み、指名した順番がそのままピック順</b>になります（各チーム、キャプテンが先頭→指名順）。<br>・<b>「全員が武器ピック→チーム分け」</b>＝先に<b>全員（キャプテン含む）がランダム順で1人ずつ武器を選び（すでに選ばれた武器は選べません）</b>、その後にキャプテンがチーム分け。BANはなし。各自が選んだ武器を持ったまま結果に進みます。</div></details>
+      <h3 class="guide-section-title">連戦の設定</h3>
+      <details class="guide-card guide-disclosure"><summary>連戦モード（シリーズ）</summary><div class="guide-detail-body">1ルームで<b>複数試合を連続</b>で行います。<b>シリーズ長</b>＝BO3（先取2）／BO5（先取3）／BO7（先取4）／BO9（先取5）。各試合のドラフトが終わったら結果画面で<b>ホストが勝者を入力</b>すると、ステージが変わって次の試合のドラフトが始まります。先取数に達するとシリーズ終了で、<b>戦績ボード</b>（各試合の勝者・ルール・ステージ・両チームの編成一覧）が表示され、<b>「🖼️ シリーズ画像を保存」</b>で全試合を1枚のPNGにまとめて保存できます。</div></details>
+      <details class="guide-card guide-disclosure"><summary>連戦のガチルール進行</summary><div class="guide-detail-body"><b>BO3・BO7・BO9</b>＝毎試合ガチルールをランダム。<b>BO5</b>＝1〜4試合目を<b>ガチエリア→ヤグラ→ホコ→アサリ</b>の固定順、5試合目はランダム。<br><b>⚖️ 負けチームがルール設定</b>をONにすると、各試合の<b>敗者が次の試合のガチルールを選びます</b>（2試合目以降。1試合目は上記の自動進行）。<b>選ぶのは「敗者チームの代表者＝そのチームの1ピック目」1人だけ</b>で、その人の名前が結果画面に🎯付きで表示されます（自分が担当なら「あなた」バッジ）。ソロでは操作者が選びます。<br>担当者が席を外しているなど操作できないときは、<b>ホストが代理で決める</b>ボタンからも進められます。</div></details>
+      <details class="guide-card guide-disclosure"><summary>武器ロックアウト（連戦のオプション）</summary><div class="guide-detail-body">連戦モードONのときに選べます。<b>一度ピックされた武器は、そのシリーズの次の試合以降ずっと使えなくなります</b>（両チーム共有でプールが枯れていく＝後半ほど選択肢が減る独特のメタ）。BANは各試合ごとにリセットされ、ロックアウトの対象は<b>ピックされた武器だけ</b>です。ドラフト中はロックされた武器が🔒でグレー表示され選べません。</div></details>
       <div class="guide-card">
         <h3>ソロモードについて</h3>
         <p>「ひとりで試す」では、1人で両チームを操作します。部屋番号は不要です。ジャンルBANは<b>「追加ルール」</b>から設定できます。</p>
@@ -736,33 +734,32 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
           <li>操作できるタイミングはピックモードで変わります（個人＝自分の番／代表者＝チーム代表だけ／相手ピック＝対になる相手の武器を選ぶ／🎲ガチャ＝チーム代表が引き直し・確定を担当）。</li>
           <li><b>代表者＝そのチームの「1ピック目」の人</b>です（ホストとは無関係）。BANパネルに両チームの代表者名が表示され、自分が担当なら「あなた」バッジが付きます。</li>
         </ol>
-        <p class="guide-note">部屋番号は初期状態で伏せられ、「部屋番号を非表示中」で切り替えられます。ブラウザのアドレス欄や共有URLには番号が含まれます。配信時はアドレス欄を映さないでください。</p>
-        <p class="guide-note">制限時間が設定されている場合は時間内に送信してください。時間切れ時は<b>確定済み→仮選択→ランダム</b>の順で自動送信されます。</p>
-        <p class="guide-note">ドラフト後トレードがONのときは、結果画面で<b>各チームの代表者</b>が武器の交換を提案・承認できます（提案が届くと結果画面に表示されます）。</p>
-        <p class="guide-note">ステージ BAN / PICK では、武器ドラフトの前に各チームの代表者が交互にBANしてからPICKします。カウンターピックでは、2試合目以降、前試合の敗者の代表者が未使用のステージを選びます。画像を2回押すと確定します。</p>
       </div>
+      <h3 class="guide-section-title">参加中の操作と注意</h3>
+      <details class="guide-card guide-disclosure"><summary>部屋番号と配信</summary><div class="guide-detail-body">部屋番号は初期状態で伏せられ、「部屋番号を非表示中」で切り替えられます。ブラウザのアドレス欄や共有URLには番号が含まれます。配信時はアドレス欄を映さないでください。</div></details>
+      <details class="guide-card guide-disclosure"><summary>制限時間</summary><div class="guide-detail-body">制限時間が設定されている場合は時間内に送信してください。時間切れ時は<b>確定済み→仮選択→ランダム</b>の順で自動送信されます。</div></details>
+      <details class="guide-card guide-disclosure"><summary>ドラフト後トレード</summary><div class="guide-detail-body">ドラフト後トレードがONのときは、結果画面で<b>各チームの代表者</b>が武器の交換を提案・承認できます（提案が届くと結果画面に表示されます）。</div></details>
+      <details class="guide-card guide-disclosure"><summary>ステージの選択</summary><div class="guide-detail-body">ステージ BAN / PICK では、武器ドラフトの前に各チームの代表者が交互にBANしてからPICKします。カウンターピックでは、2試合目以降、前試合の敗者の代表者が未使用のステージを選びます。画像を2回押すと確定します。</div></details>
     </div>
 
     <!-- ドラフトの流れ -->
     <div class="guide-sec" data-gt="flow">
-      <div class="guide-card">
-        <h3>1ドラフトの進行</h3>
-        <ol class="guide-list">
-          <li><b>ロビー</b> … メンバー集合・チーム割り当て・ピック順の確認。</li>
-          <li><b>ステージ BAN / PICK</b>（選択時） … 両チームが各1 BANし、先攻から交互にPICK。同じステージを2回押すと確定します。最終戦は残りから抽選します（1試合では先攻がPICK）。</li>
-          <li><b>BANフェーズ</b> … 使えない武器を決めます。代表者BANは両チーム同時送信で相手の選択が伏せられます（個人BANも選択可）。武器・武器種・サブ・スペシャル単位でBANできます。<b>個人BANでは味方が送信したBANがグリッドに「味方」マークで共有表示</b>され、チーム内でのBAN重複を避けられます（相手のBANは揃うまで伏せたまま）。</li>
-          <li><b>PICKフェーズ</b> … ピック順（交互／スネーク等）に沿って武器を選びます。同時ピックは両チームが選び一斉公開します。<b>🎲ガチャ</b>の場合はBAN後に人数分の武器がランダム配布され、各チームが引き直し→「確定」するだけで完了します。</li>
-          <li><b>リザルト</b> … 両チームの編成・ステージ／ルール・お題の達成（○／×）が表示されます。<b>ドラフト後トレード</b>がONなら、ここで武器の交換を提案→相手代表者の承認で成立します。</li>
-          <li><b>結果画像を保存</b> … 端末内で1枚のPNGを生成してダウンロードできます。</li>
-        </ol>
-        <p class="guide-note">メンバードラフト（マルチ専用）がONのときは、ロビーでホストが各チームのキャプテンを1名ずつ選ぶと「メンバードラフト開始」が押せます（2v2以上・人数が揃っているときのみ）。開始後は2人のキャプテンが交互にプールから1人ずつ指名し、両チームが埋まると武器ドラフトへ進みます（制限時間ONなら時間切れでランダム指名）。</p>
-        <p class="guide-note">お題カードをONにすると開始時に縛りを1枚抽選します（両チーム共通・非強制で、達成は結果に○×表示）。</p>
-        <p class="guide-note">連戦モード（シリーズ）がONのときは、結果画面でホストが各試合の勝者を入力すると次の試合へ進みます。先取数（BO3=2／BO5=3／BO7=4／BO9=5）に達するとシリーズ終了で、戦績ボード（各試合の編成一覧）とシリーズ画像の保存ができます。ガチルールは BO3・BO7・BO9=毎回ランダム／BO5=エリア→ヤグラ→ホコ→アサリ→ランダム。「負けチームがルール設定」ONなら2試合目以降は<b>敗者チームの代表者（1ピック目の人）</b>が次のガチルールを選びます。誰が選ぶかは結果画面に🎯付きで名前が出ます（担当者が操作できない場合はホストが代理決定できます）。</p>
-        <p class="guide-note"><b>武器の選び方</b>：タイルを1回タップすると仮選択、<b>同じタイルをもう一度タップ</b>すると確定します。別の武器をタップすると選び直せます。BANと同時ピックは、選択後にパネルの送信ボタンを押してください。</p>
-        <p class="guide-note"><b>グリッドの見やすさ設定</b>（端末ごとに保存）：<b>「選べる武器だけ」</b>にチェックすると使用不可の武器を隠せます。<b>［大］［中］［小］</b>でタイルの大きさを切替でき、<b>大</b>なら武器名が省略されずに全部読めます。選べない武器にはタイル下に理由（<b>BAN済み／取得済み／🔒 連戦ロック／味方がBAN</b>）が出ます。</p>
-        <p class="guide-note">ドラフト画面 右上の <b>🔊</b>＝確定音（既定OFF）、<b>🗣️</b>＝武器読み上げ（既定OFF）のトグルです。BAN/PICKを確定するたびに効果音が鳴り、読み上げONなら確定した武器名を読み上げます（端末ごとの設定・音は自動生成で外部ファイルなし）。</p>
-        <p class="guide-note">モード選択画面の<b>「📊 武器統計」</b>から、全ルーム累計の PICK／BAN／ジャンルBAN ランキングを見られます（マルチプレイで完了したドラフトのみの匿名集計。武器と回数だけが記録され、ルームIDやプレイヤー名は残りません）。</p>
-      </div>
+      <h3 class="guide-section-title">試合までの流れ</h3>
+      <p class="guide-section-caption">有効にした設定に合わせて進みます。</p>
+      <div class="guide-card guide-step"><span class="guide-step-num">1</span><div><h3>ロビー </h3><p>メンバー集合・チーム割り当て・ピック順の確認。</p></div></div>
+      <div class="guide-card guide-step"><span class="guide-step-num">2</span><div><h3>ステージ BAN / PICK （選択時）</h3><p>両チームが各1 BANし、先攻から交互にPICK。同じステージを2回押すと確定します。最終戦は残りから抽選します（1試合では先攻がPICK）。</p></div></div>
+      <div class="guide-card guide-step"><span class="guide-step-num">3</span><div><h3>BANフェーズ </h3><p>使えない武器を決めます。代表者BANは両チーム同時送信で相手の選択が伏せられます（個人BANも選択可）。武器・武器種・サブ・スペシャル単位でBANできます。<b>個人BANでは味方が送信したBANがグリッドに「味方」マークで共有表示</b>され、チーム内でのBAN重複を避けられます（相手のBANは揃うまで伏せたまま）。</p></div></div>
+      <div class="guide-card guide-step"><span class="guide-step-num">4</span><div><h3>PICKフェーズ </h3><p>ピック順（交互／スネーク等）に沿って武器を選びます。同時ピックは両チームが選び一斉公開します。<b>🎲ガチャ</b>の場合はBAN後に人数分の武器がランダム配布され、各チームが引き直し→「確定」するだけで完了します。</p></div></div>
+      <div class="guide-card guide-step"><span class="guide-step-num">5</span><div><h3>リザルト </h3><p>両チームの編成・ステージ／ルール・お題の達成（○／×）が表示されます。<b>ドラフト後トレード</b>がONなら、ここで武器の交換を提案→相手代表者の承認で成立します。</p></div></div>
+      <div class="guide-card guide-step"><span class="guide-step-num">6</span><div><h3>結果画像を保存 </h3><p>端末内で1枚のPNGを生成してダウンロードできます。</p></div></div>
+      <h3 class="guide-section-title">便利な機能・詳しい操作</h3>
+      <details class="guide-card guide-disclosure"><summary>メンバードラフト</summary><div class="guide-detail-body">メンバードラフト（マルチ専用）がONのときは、ロビーでホストが各チームのキャプテンを1名ずつ選ぶと「メンバードラフト開始」が押せます（2v2以上・人数が揃っているときのみ）。開始後は2人のキャプテンが交互にプールから1人ずつ指名し、両チームが埋まると武器ドラフトへ進みます（制限時間ONなら時間切れでランダム指名）。</div></details>
+      <details class="guide-card guide-disclosure"><summary>お題カード</summary><div class="guide-detail-body">お題カードをONにすると開始時に縛りを1枚抽選します（両チーム共通・非強制で、達成は結果に○×表示）。</div></details>
+      <details class="guide-card guide-disclosure"><summary>連戦とルールの進行</summary><div class="guide-detail-body">連戦モード（シリーズ）がONのときは、結果画面でホストが各試合の勝者を入力すると次の試合へ進みます。先取数（BO3=2／BO5=3／BO7=4／BO9=5）に達するとシリーズ終了で、戦績ボード（各試合の編成一覧）とシリーズ画像の保存ができます。ガチルールは BO3・BO7・BO9=毎回ランダム／BO5=エリア→ヤグラ→ホコ→アサリ→ランダム。「負けチームがルール設定」ONなら2試合目以降は<b>敗者チームの代表者（1ピック目の人）</b>が次のガチルールを選びます。誰が選ぶかは結果画面に🎯付きで名前が出ます（担当者が操作できない場合はホストが代理決定できます）。</div></details>
+      <details class="guide-card guide-disclosure"><summary>武器の選び方</summary><div class="guide-detail-body"><b>武器の選び方</b>：タイルを1回タップすると仮選択、<b>同じタイルをもう一度タップ</b>すると確定します。別の武器をタップすると選び直せます。BANと同時ピックは、選択後にパネルの送信ボタンを押してください。</div></details>
+      <details class="guide-card guide-disclosure"><summary>武器一覧の表示設定</summary><div class="guide-detail-body"><b>グリッドの見やすさ設定</b>（端末ごとに保存）：<b>「選べる武器だけ」</b>にチェックすると使用不可の武器を隠せます。<b>［大］［中］［小］</b>でタイルの大きさを切替でき、<b>大</b>なら武器名が省略されずに全部読めます。選べない武器にはタイル下に理由（<b>BAN済み／取得済み／🔒 連戦ロック／味方がBAN</b>）が出ます。</div></details>
+      <details class="guide-card guide-disclosure"><summary>効果音・読み上げ</summary><div class="guide-detail-body">ドラフト画面 右上の <b>🔊</b>＝確定音（既定OFF）、<b>🗣️</b>＝武器読み上げ（既定OFF）のトグルです。BAN/PICKを確定するたびに効果音が鳴り、読み上げONなら確定した武器名を読み上げます（端末ごとの設定・音は自動生成で外部ファイルなし）。</div></details>
+      <details class="guide-card guide-disclosure"><summary>武器統計</summary><div class="guide-detail-body">モード選択画面の<b>「📊 武器統計」</b>から、全ルーム累計の PICK／BAN／ジャンルBAN ランキングを見られます（マルチプレイで完了したドラフトのみの匿名集計。武器と回数だけが記録され、ルームIDやプレイヤー名は残りません）。</div></details>
     </div>
 
     <button class="btn-re" onclick="showScreen('mode')">← モード選択へ戻る</button>
@@ -1865,6 +1862,7 @@ function showScreen(n){
   ['mode','guide','stats','create','join','lobby','lobby-wait','member-draft','weapon-pick','setup','draft','result'].forEach(s=>
     document.getElementById('s-'+s).classList.toggle('active',s===n)
   );
+  if(n==='guide') window.scrollTo?.(0,0);
   if(roomId && ['lobby','lobby-wait','member-draft','weapon-pick','draft'].includes(n)){
     history.replaceState(null,'',`?room=${roomId}`);
   } else if(!['lobby','lobby-wait','member-draft','weapon-pick','draft'].includes(n)){
@@ -1875,7 +1873,7 @@ window.showScreen = showScreen;
 
 // 使い方ガイドのタブ切替（ホスト/参加者/ドラフトの流れ）
 function showGuideTab(t){
-  document.querySelectorAll('#s-guide .guide-tab').forEach(b=>b.classList.toggle('on',b.dataset.gt===t));
+  document.querySelectorAll('#s-guide .guide-tab').forEach(b=>{ const active=b.dataset.gt===t; b.classList.toggle('on',active); b.setAttribute('aria-pressed',String(active)); });
   document.querySelectorAll('#s-guide .guide-sec').forEach(s=>s.classList.toggle('on',s.dataset.gt===t));
 }
 window.showGuideTab = showGuideTab;
