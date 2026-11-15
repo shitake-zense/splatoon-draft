@@ -54,7 +54,10 @@ h1,h2,h3{font-family:'Zen Dots',sans-serif;}
 .btn-copy{padding:6px 14px;background:#1a2a4a;border:1.5px solid var(--y);border-radius:6px;color:var(--y);font-family:'Zen Dots',sans-serif;font-size:11px;cursor:pointer;transition:background .1s;}
 .btn-copy:hover{background:var(--y);color:#1a1a2e;}
 .btn-copy.copied{background:var(--pk);border-color:var(--pk);color:#1a1a2e;}
-.copy-row{display:flex;gap:6px;}
+.copy-row{display:flex;gap:6px;flex-wrap:wrap;}
+.privacy-note{font-size:11px;color:var(--mu);line-height:1.6;margin:8px 0;}
+.site-notice{margin:28px 0 8px;padding:16px;border-top:1px solid #344356;color:var(--mu);font-size:11px;line-height:1.8;}
+.site-notice a{color:var(--y);}
 
 /* CARD */
 .card{background:var(--s1);border:1.5px solid #2a2a4a;border-radius:var(--r);padding:14px;}
@@ -138,6 +141,11 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .btn-start:disabled{opacity:.35;cursor:not-allowed;}
 .btn-re{width:100%;padding:11px;background:var(--s1);border:1.5px solid #2a2a4a;border-radius:var(--r);color:var(--mu);font-family:'Zen Dots',sans-serif;font-size:12px;cursor:pointer;margin-top:8px;}
 .btn-re:hover{background:var(--y);color:#1a1a2e;}
+.preset-list{display:grid;gap:10px;margin-top:14px;text-align:left;}
+.preset-card{padding:14px;border:1px solid #405064;border-radius:10px;background:#0f1724;}
+.preset-card h3{margin:0 0 5px;font-size:15px;color:var(--y);}
+.preset-card p{margin:0;color:var(--tx);font-size:12px;line-height:1.6;}
+.preset-card .btn-re{margin-top:10px;}
 .guide-wrap{max-width:560px;margin:24px auto 0;}
 .guide-tabs{display:flex;gap:6px;margin-bottom:14px;}
 .guide-tab{flex:1;padding:9px 4px;background:var(--s1);border:1.5px solid #2a2a4a;border-radius:8px;color:var(--mu);font-size:12px;cursor:pointer;font-family:inherit;}
@@ -549,6 +557,8 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
 .wsec{border-radius:14px;}
 .wsh h3{font-family:inherit;font-size:14px;}
 .weapon-help{font-size:12px;color:var(--mu);margin:4px 0 10px;}
+.setting-hint{font-size:12px;line-height:1.6;color:var(--mu);margin:-4px 0 12px;}
+.genre-ban-grid select:disabled{opacity:.45;cursor:not-allowed;}
 #weapon-filter-toggle{width:100%;border:0;background:transparent;color:inherit;text-align:left;font-family:inherit;}
 .fx-btn{min-width:40px;min-height:40px;}
 .mode-hero{position:relative;overflow:hidden;padding:32px 34px;margin:12px 0 20px;background:linear-gradient(115deg,#213936,#18283a 63%,#292237);border:1px solid #455b58;border-radius:20px;}
@@ -598,24 +608,24 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
   <div class="mode-hero">
     <div class="mode-eyebrow">SPLATOON 3 / PRIVATE MATCH</div>
     <h1>SPLATOON<br>DRAFT</h1>
-    <p>武器をBANして、選んで、対戦へ。<br>いつものプラベに、ドラフトの駆け引きを。</p>
+    <p>使えない武器を決めてから、使う武器を選ぶ。<br>いつものプラベに、ドラフトの駆け引きを。</p>
   </div>
-  <div class="mode-section-head"><h2>どうやって遊ぶ？</h2><p>遊び方に合わせて選んでください</p></div>
   <div class="mode-wrap">
     <button class="mode-btn primary" onclick="showScreen('create')">
       <span class="mode-icon" aria-hidden="true">👑</span><h3>部屋を作る</h3>
-      <p>ホストになって、みんなを招待</p><span class="mode-arrow" aria-hidden="true">↗</span>
+      <span class="mode-arrow" aria-hidden="true">↗</span>
     </button>
     <button class="mode-btn" onclick="showScreen('join')">
       <span class="mode-icon" aria-hidden="true">🚪</span><h3>部屋に入る</h3>
-      <p>部屋番号を入力して参加</p><span class="mode-arrow" aria-hidden="true">↗</span>
+      <span class="mode-arrow" aria-hidden="true">↗</span>
     </button>
     <button class="mode-btn" onclick="enterSolo()">
       <span class="mode-icon" aria-hidden="true">🎮</span><h3>ひとりで試す</h3>
-      <p>ソロモードで両チームを操作</p><span class="mode-arrow" aria-hidden="true">↗</span>
+      <span class="mode-arrow" aria-hidden="true">↗</span>
     </button>
   </div>
-  <div class="mode-flow"><strong>ドラフトの流れ</strong><span>部屋に集まる</span><span>使えない武器をBAN</span><span>使う武器をPICK</span><span>結果を確認</span></div>
+  <div class="privacy-note"><button class="btn-copy room-privacy-toggle" onclick="toggleRoomPrivacy()" aria-pressed="true">🔒 部屋番号を非表示中</button></div>
+  <div class="mode-flow"><strong>ドラフトの流れ</strong><span>部屋に集まる</span><span>BAN：使えない武器を決める</span><span>PICK：使う武器を選ぶ</span><span>結果を確認</span></div>
   <div class="mode-links">
     <button class="btn-re" onclick="showScreen('guide')">📖 使い方を見る</button>
     <button class="btn-re" onclick="showStatsScreen()">📊 武器の統計を見る</button>
@@ -637,12 +647,13 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <div class="guide-card">
         <h3>部屋を作って進行する人の操作</h3>
         <ol class="guide-list">
-          <li><b>「👑 部屋を作る」</b>から名前を入れて部屋を作成します。</li>
+          <li><b>「👑 部屋を作る」</b>から名前を入れ、自由に作るかプリセットを選んで部屋を作成します。設定はロビーで変更できます。</li>
           <li>表示された<b>部屋番号（6桁）</b>か<b>共有URL</b>を参加者に渡します。</li>
           <li>ロビーで参加者が揃ったら、<b>チーム（アルファ／ブラボー）への割り当て</b>と<b>ピック順</b>を決めます。</li>
           <li>人数・BAN数・ピック方法・ルール／ステージを設定します。武器の絞り込みやお題カードは<b>「追加ルール・武器の絞り込み」</b>から設定できます。</li>
           <li><b>「ドラフト開始」</b>で全員の画面が一斉にドラフトへ進みます。</li>
         </ol>
+        <p class="guide-note">部屋番号は初期状態で伏せられます。「部屋番号を非表示中」で表示を切り替えられ、ID・URLのコピーは非表示中も使えます。<b>ブラウザのアドレス欄やコピーしたURLには部屋番号が含まれます。</b>配信時はアドレス欄を映さず、URLを参加者だけに共有してください。この機能は画面表示を隠すもので、入室制限ではありません。</p>
         <p class="guide-note">ホストは<b>進行役</b>（開始・勝敗入力・再ドラフト）です。ホストがどちらのチームにいても構いません。</p>
       </div>
       <div class="guide-card">
@@ -654,17 +665,18 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
           <li><b>🎲 ガチャ</b> … 引き直し／確定を代表者が操作します。</li>
           <li><b>ドラフト後トレード</b> … 提案と承認を各チームの代表者が行います。</li>
           <li><b>連戦の「負けチームがルール設定」</b> … 負けたチームの代表者が次のガチルールを選びます。</li>
+          <li><b>ステージ BAN / PICK</b> … 各チームの代表者が自チームの手番にステージを選びます。</li>
         </ul>
         <p class="guide-note">担当者の名前は<b>BANパネル</b>と<b>結果画面のルール選択</b>に常に表示されます（自分が担当のときは「あなた」バッジが付きます）。</p>
       </div>
       <div class="guide-card">
-        <h3>設定項目の説明（特に分かりにくいもの）</h3>
+        <h3>ステージ BAN / PICK とプリセット</h3><p>部屋を作るときに5種類のプリセットから選べます。選んだ設定はロビーで変更できます。BO3のステージBAN / PICKでは候補を5つ以上選び、先攻BAN → 後攻BAN → 先攻PICK → 後攻PICK。1・2戦目はPICK順、3戦目はBAN・PICK以外から抽選します。各チームの代表者が操作します。ステージ選択中に制限時間はありません。</p><h3>設定項目の説明（特に分かりにくいもの）</h3>
         <dl class="guide-dl">
           <dt>人数 / BAN数</dt>
           <dd>人数は 1v1〜4v4。<b>BAN数</b>は各チームがBANする武器の数（なし〜各8・既定は各4）。両チーム同じ数です。</dd>
 
           <dt>ジャンルBAN（武器BANとは別枠）</dt>
-          <dd>武器単位とは<b>別の枠</b>で、<b>武器種・サブ・スペシャル単位</b>でまとめてBANできます（例: 「サブ=2」ならサブを2種類まるごと禁止＝そのサブを持つ武器が全て消える）。設定した数は<b>必ずその数だけBAN</b>します。代表者BAN相当のとき（個人ピック×個人BAN以外）だけ表示されます。<b>相手ピックでは使えません</b>（枠は表示されません）。</dd>
+          <dd>武器単位とは<b>別の枠</b>で、<b>武器種・サブ・スペシャル単位</b>でまとめてBANできます（例: 「サブ=2」ならサブを2種類まるごと禁止＝そのサブを持つ武器が全て消える）。設定した数は<b>必ずその数だけBAN</b>します。個人ピックでは<b>BANモードを代表者BANにした場合</b>に使えます。代表者ピック・ガチャでも使えます。<b>相手ピック</b>と、メンバードラフトの<b>「全員が武器ピック → チーム分け」</b>では使えません。使えない設定に切り替えた間、設定した数は適用されません。</dd>
 
           <dt>ピックモード（4種・最重要）</dt>
           <dd><b>個人ピック</b>＝各自が自分の番に自分の武器を選ぶ。<b>代表者ピック</b>＝チーム代表が全員分をまとめて選ぶ。<b>相手ピック</b>＝対になる相手選手の武器を<b>自分が決めて押し付ける</b>（アルファ[N]↔ブラボー[N]がペア）。普段使わない武器を持たされる遊びです。<b>🎲 ガチャ（運命ピック）</b>＝BAN後に各チームへ人数分の武器が<b>ランダムで一括配布</b>され、引き直して「確定」するだけ。選ぶ自由のないお祭りモードです。<br><span style="color:var(--mu)">※ソロでは「通常ピック（＝代表者ピック相当）」「相手ピック」「ガチャ」の3つ。</span></dd>
@@ -676,10 +688,10 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
           <dd>誰が何番目に選ぶかの並び。<b>交互</b>＝1枚ずつ交互。<b>スネーク</b>＝折り返しで偏りを抑える競技寄りの既定。クラシック／ミドルは折り返し幅違い。<b>バランス／前重ね</b>は 1-2-1 等の固定配分。<b>同時ピック</b>はマルチ専用で、ペアが同時に選んで一斉公開（チーム間は被りOK）。</dd>
 
           <dt>先攻</dt>
-          <dd>最初にピックするチーム。<b>ランダム</b>は開始時に抽選します。</dd>
+          <dd>最初にピックするチーム。初期値の<b>ランダム</b>は開始時に抽選します。</dd>
 
           <dt>標準武器のみ / 武器の絞り込み</dt>
-          <dd><b>標準武器のみ</b>＝無印だけにし、デコ等のバリアントを除外。<b>武器の絞り込み</b>＝指定した武器種・サブ・スペシャルを<b>持つ武器を候補から消す</b>（例: 強いスペシャルを外してエンジョイ寄りに調整）。どちらも候補が減り、残り数が表示されます。</dd>
+          <dd><b>標準武器のみ</b>＝各武器の基本形（例：スプラシューター）のみを候補にし、コラボなどの別モデルは除外。<b>武器の絞り込み</b>＝指定した武器種・サブ・スペシャルを<b>持つ武器を候補から消す</b>（例: 強いスペシャルを外してエンジョイ寄りに調整）。どちらも候補が減り、残り数が表示されます。</dd>
 
           <dt>お題カード / 制限時間</dt>
           <dd><b>お題カード</b>＝開始時に<b>全32種</b>から縛りを1枚抽選（両チーム共通・<b>非強制</b>で、結果に達成○×を表示）。武器種・サブ・スペシャル・人数など色々な角度のお題があります。<b>制限時間</b>＝5〜100秒。時間切れは「確定済み→仮選択中→ランダム」の順で自動送信します。</dd>
@@ -717,8 +729,10 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
           <li>操作できるタイミングはピックモードで変わります（個人＝自分の番／代表者＝チーム代表だけ／相手ピック＝対になる相手の武器を選ぶ／🎲ガチャ＝チーム代表が引き直し・確定を担当）。</li>
           <li><b>代表者＝そのチームの「1ピック目」の人</b>です（ホストとは無関係）。BANパネルに両チームの代表者名が表示され、自分が担当なら「あなた」バッジが付きます。</li>
         </ol>
+        <p class="guide-note">部屋番号は初期状態で伏せられ、「部屋番号を非表示中」で切り替えられます。ブラウザのアドレス欄や共有URLには番号が含まれます。配信時はアドレス欄を映さないでください。</p>
         <p class="guide-note">制限時間が設定されている場合は時間内に送信してください。時間切れ時は<b>確定済み→仮選択→ランダム</b>の順で自動送信されます。</p>
         <p class="guide-note">ドラフト後トレードがONのときは、結果画面で<b>各チームの代表者</b>が武器の交換を提案・承認できます（提案が届くと結果画面に表示されます）。</p>
+        <p class="guide-note">ステージ BAN / PICK がONのBO3では、武器ドラフトの前に各チームの代表者が交互に1つずつBANし、次に1つずつPICKします。画面に表示される自チームの手番で選択してください。</p>
       </div>
     </div>
 
@@ -728,6 +742,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
         <h3>1ドラフトの進行</h3>
         <ol class="guide-list">
           <li><b>ロビー</b> … メンバー集合・チーム割り当て・ピック順の確認。</li>
+          <li><b>ステージ BAN / PICK</b>（BO3で有効な場合） … 先攻から各チームが交互に1つBANし、続けて1つPICK。同じステージを2回押すと確定します。1・2戦目はPICK順、3戦目は残りから抽選します。</li>
           <li><b>BANフェーズ</b> … 使えない武器を決めます。代表者BANは両チーム同時送信で相手の選択が伏せられます（個人BANも選択可）。武器・武器種・サブ・スペシャル単位でBANできます。<b>個人BANでは味方が送信したBANがグリッドに「味方」マークで共有表示</b>され、チーム内でのBAN重複を避けられます（相手のBANは揃うまで伏せたまま）。</li>
           <li><b>PICKフェーズ</b> … ピック順（交互／スネーク等）に沿って武器を選びます。同時ピックは両チームが選び一斉公開します。<b>🎲ガチャ</b>の場合はBAN後に人数分の武器がランダム配布され、各チームが引き直し→「確定」するだけで完了します。</li>
           <li><b>リザルト</b> … 両チームの編成・ステージ／ルール・お題の達成（○／×）が表示されます。<b>ドラフト後トレード</b>がONなら、ここで武器の交換を提案→相手代表者の承認で成立します。</li>
@@ -773,9 +788,12 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
   <div class="join-wrap">
     <div style="margin-bottom:14px;">
       <label for="host-name-input" style="font-size:11px;color:var(--mu);display:block;margin-bottom:6px;">あなたの名前（ホスト）</label>
-      <input type="text" id="host-name-input" maxlength="16" placeholder="プレイヤー名" autocomplete="off" style="font-size:16px;text-align:center;" onkeydown="if(event.key==='Enter')enterMultiCreate()">
+      <input type="text" id="host-name-input" maxlength="16" placeholder="プレイヤー名" autocomplete="off" style="font-size:16px;text-align:center;">
     </div>
-    <button class="btn-start" onclick="enterMultiCreate()">👑 部屋を作る</button>
+    <p class="setting-hint">部屋の作り方を選んでください。設定は作成後も変更できます。</p>
+    <button class="btn-start" onclick="enterMultiCreate('custom')">自由に作る</button>
+    <button class="btn-re" onclick="showCreatePresets()">📋 プリセットから選ぶ</button>
+    <div id="create-presets" style="display:none" aria-live="polite"></div>
     <button class="btn-re" onclick="showScreen('mode')">← 戻る</button>
   </div>
 </div>
@@ -789,7 +807,9 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <input type="text" id="join-name-input" maxlength="16" placeholder="プレイヤー名" autocomplete="off" style="font-size:16px;text-align:center;">
     </div>
     <label for="room-join-input" style="font-size:11px;color:var(--mu);display:block;margin-bottom:6px;">部屋番号（6桁）</label>
-    <input class="join-input-big" type="text" id="room-join-input" maxlength="6" placeholder="XXXXXX" autocomplete="off" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')joinRoom()">
+    <input class="join-input-big" type="password" id="room-join-input" maxlength="6" placeholder="XXXXXX" autocomplete="off" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')joinRoom()">
+    <button class="btn-copy room-privacy-toggle" onclick="toggleRoomPrivacy()" aria-pressed="true">🔒 部屋番号を非表示中</button>
+    <p class="privacy-note">共有URLやブラウザのアドレス欄には部屋番号が含まれます。配信に映らないようご注意ください。</p>
     <button class="btn-start" onclick="joinRoom()">🚪 参加する</button>
     <div id="join-status" style="text-align:center;margin-top:10px;font-size:12px;color:var(--pk)"></div>
     <button class="btn-re" onclick="showScreen('mode')">← 戻る</button>
@@ -803,17 +823,19 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
   <div class="lobby-header">
     <div>
       <div style="font-size:10px;color:var(--mu);margin-bottom:4px;">ROOM ID</div>
-      <div class="room-id-big" id="lobby-room-id">------</div>
+      <div class="room-id-big" id="lobby-room-id">••••••</div>
     </div>
     <div class="copy-btns">
       <div class="room-url-preview" id="lobby-room-url-preview"></div>
       <div class="copy-row">
         <button class="btn-copy" id="btn-copy-url" onclick="copyRoomUrl()">🔗 URLコピー</button>
         <button class="btn-copy" id="btn-copy-id" onclick="copyRoomId()">📋 IDコピー</button>
+        <button class="btn-copy room-privacy-toggle" onclick="toggleRoomPrivacy()" aria-pressed="true">🔒 部屋番号を非表示中</button>
       </div>
     </div>
   </div>
 
+  <p class="privacy-note">アドレス欄とコピーしたURLには部屋番号が含まれます。配信時はアドレス欄を映さず、URLは参加者だけに共有してください。</p>
   <div class="members-card">
     <h3>👥 MEMBERS</h3>
     <div class="member-list" id="member-list">
@@ -883,7 +905,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
         <select id="ft" onchange="onSettingChange()">
           <option value="alpha">アルファ先攻</option>
           <option value="bravo">ブラボー先攻</option>
-          <option value="random">ランダム</option>
+          <option value="random" selected>ランダム</option>
         </select>
       </div>
       <div class="row">
@@ -919,7 +941,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       </div>
       <div class="div"></div>
       <div class="toggle-row">
-        <div class="toggle-label">標準武器のみ<small>各武器の基本形のみ表示</small></div>
+        <div class="toggle-label">標準武器のみ<small>各武器の基本形のみ（例：スプラシューター）</small></div>
         <label class="tgl"><input type="checkbox" id="std-only" onchange="onSettingChange()" aria-label="標準武器のみ"><span class="tgl-sl"></span></label>
       </div>
       <div class="toggle-row">
@@ -1023,6 +1045,11 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
           <option value="bo5">BO5（先取3）</option>
         </select>
       </div>
+      <div id="series-stage-row" style="display:none;margin:10px 0">
+        <label><input type="checkbox" id="stage-draft-enabled" onchange="onStageSettingsChange('')"> 🗺️ ステージ BAN / PICK（BO3）</label>
+        <div id="stage-pool-wrap" style="display:none"><p class="setting-hint">候補を5つ以上選択。先攻・後攻が各1 BAN、各1 PICK。3戦目は残りから抽選。</p>
+        <div id="stage-pool" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px;max-height:220px;overflow:auto"></div><p id="stage-pool-count" class="setting-hint" aria-live="polite"></p></div>
+      </div>
       <div class="toggle-row" id="series-lockout-row" style="display:none">
         <div class="toggle-label">
           🔒 武器ロックアウト
@@ -1047,13 +1074,14 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <div class="div"></div>
       <div class="row">
         <label>ピックモード</label>
-        <select id="pick-mode" onchange="onPickModeChange()">
+        <select id="pick-mode" onchange="onPickModeChange()" aria-describedby="pick-mode-help">
           <option value="individual">👥 個人ピック</option>
           <option value="team">🤝 代表者ピック</option>
           <option value="enemy">🆚 相手ピック（相手の武器を選ぶ）</option>
           <option value="gacha">🎲 ガチャ（運命ピック）</option>
         </select>
       </div>
+      <p class="setting-hint" id="pick-mode-help"></p>
       <div class="row" id="gacha-row" style="display:none">
         <label>リロール回数<br><small style="color:var(--mu);font-weight:normal;font-size:9px">手札を引き直せる回数（チームごと）</small></label>
         <div style="display:flex;align-items:center;gap:6px;flex:1">
@@ -1069,11 +1097,11 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
         </select>
       </div>
       <div class="row genre-ban-row" id="ban-genre-row">
-        <label>ジャンルBAN<br><small style="color:var(--mu);font-weight:normal;font-size:9px">武器種/サブ/スペシャル単位でもBAN（武器BANとは別枠で各数を設定）</small></label>
+        <label>ジャンルBAN<br><small id="ban-genre-note" style="color:var(--mu);font-weight:normal;font-size:11px" aria-live="polite">個人BANでは使えません。代表者BANに変更してください。</small></label>
         <div class="genre-ban-grid" style="flex:1">
-          <div class="gb-item"><span>武器種</span><select id="ban-genre-cat" onchange="onSettingChange()"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-          <div class="gb-item"><span>サブ</span><select id="ban-genre-sub" onchange="onSettingChange()"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-          <div class="gb-item"><span>スペシャル</span><select id="ban-genre-special" onchange="onSettingChange()"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+          <div class="gb-item"><span>武器種</span><select id="ban-genre-cat" aria-label="BANする武器種の数" aria-describedby="ban-genre-note" disabled onchange="onSettingChange()"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+          <div class="gb-item"><span>サブ</span><select id="ban-genre-sub" aria-label="BANするサブの数" aria-describedby="ban-genre-note" disabled onchange="onSettingChange()"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+          <div class="gb-item"><span>スペシャル</span><select id="ban-genre-special" aria-label="BANするスペシャルの数" aria-describedby="ban-genre-note" disabled onchange="onSettingChange()"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
         </div>
       </div>
     </div>
@@ -1093,13 +1121,15 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
   <div class="lobby-header">
     <div>
       <div style="font-size:10px;color:var(--mu);margin-bottom:4px;">ROOM ID</div>
-      <div class="room-id-big" id="lobby-wait-room-id">------</div>
+      <div class="room-id-big" id="lobby-wait-room-id">••••••</div>
     </div>
     <div class="copy-row">
       <button class="btn-copy" id="btn-copy-url2" onclick="copyRoomUrl()">🔗 URLコピー</button>
       <button class="btn-copy" id="btn-copy-id2" onclick="copyRoomId()">📋 IDコピー</button>
+      <button class="btn-copy room-privacy-toggle" onclick="toggleRoomPrivacy()" aria-pressed="true">🔒 部屋番号を非表示中</button>
     </div>
   </div>
+  <p class="privacy-note">アドレス欄とコピーしたURLには部屋番号が含まれます。配信時はアドレス欄を映さないでください。</p>
   <div class="members-card">
     <h3>👥 MEMBERS</h3>
     <div class="member-list" id="member-list-wait"></div>
@@ -1187,7 +1217,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       </div>
       <div class="div"></div>
       <div class="toggle-row">
-        <div class="toggle-label">標準武器のみ<small>各武器の基本形のみ表示（バリアント除外）</small></div>
+        <div class="toggle-label">標準武器のみ<small>各武器の基本形のみ（例：スプラシューター）</small></div>
         <label class="tgl"><input type="checkbox" id="solo-std-only" aria-label="標準武器のみ"><span class="tgl-sl"></span></label>
       </div>
       <div class="toggle-row">
@@ -1202,7 +1232,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
     <div class="card">
       <h3>ドラフト設定</h3>
       <div class="row">
-        <label>Banフェーズ</label>
+        <label>BAN数</label>
         <select id="solo-bc">
           <option value="0">Banなし</option><option value="1">各1Ban</option>
           <option value="2">各2Ban</option><option value="3">各3Ban</option>
@@ -1216,17 +1246,18 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
         <select id="solo-ft" onchange="onSoloPickOrderChange()">
           <option value="alpha">アルファ先攻</option>
           <option value="bravo">ブラボー先攻</option>
-          <option value="random">ランダム</option>
+          <option value="random" selected>ランダム</option>
         </select>
       </div>
       <div class="row">
         <label>ピックモード</label>
-        <select id="solo-pick-mode" onchange="onSoloPickModeChange()">
+        <select id="solo-pick-mode" onchange="onSoloPickModeChange()" aria-describedby="solo-pick-mode-help">
           <option value="team">🤝 通常ピック</option>
           <option value="enemy">🆚 相手ピック（相手の武器を選ぶ）</option>
           <option value="gacha">🎲 ガチャ（運命ピック）</option>
         </select>
       </div>
+      <p class="setting-hint" id="solo-pick-mode-help"></p>
       <div class="row" id="solo-gacha-row" style="display:none">
         <label>リロール回数<br><small style="color:var(--mu);font-weight:normal;font-size:9px">手札を引き直せる回数（チームごと）</small></label>
         <div style="display:flex;align-items:center;gap:6px;flex:1">
@@ -1262,13 +1293,12 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       </div>
       <details class="advanced-settings">
       <summary>追加ルール</summary>
-      <p class="advanced-note">ジャンルBANやお題などを設定できます。</p>
       <div class="row genre-ban-row" id="solo-ban-genre-row">
-        <label>ジャンルBAN<br><small style="color:var(--mu);font-weight:normal;font-size:11px">武器BANとは別に、種類ごと禁止できます。</small></label>
+        <label>ジャンルBAN<br><small id="solo-ban-genre-note" style="color:var(--mu);font-weight:normal;font-size:11px" aria-live="polite">武器BANとは別に種類ごとBANできます。</small></label>
         <div class="genre-ban-grid" style="flex:1">
-          <div class="gb-item"><span>武器種</span><select id="solo-ban-genre-cat" aria-label="BANする武器種の数"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-          <div class="gb-item"><span>サブ</span><select id="solo-ban-genre-sub" aria-label="BANするサブの数"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-          <div class="gb-item"><span>スペシャル</span><select id="solo-ban-genre-special" aria-label="BANするスペシャルの数"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+          <div class="gb-item"><span>武器種</span><select id="solo-ban-genre-cat" aria-describedby="solo-ban-genre-note" aria-label="BANする武器種の数"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+          <div class="gb-item"><span>サブ</span><select id="solo-ban-genre-sub" aria-describedby="solo-ban-genre-note" aria-label="BANするサブの数"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+          <div class="gb-item"><span>スペシャル</span><select id="solo-ban-genre-special" aria-describedby="solo-ban-genre-note" aria-label="BANするスペシャルの数"><option value="0">なし</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
         </div>
       </div>
       <div class="toggle-row">
@@ -1308,6 +1338,11 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
           <option value="bo5">BO5（先取3）</option>
         </select>
       </div>
+      <div id="solo-series-stage-row" style="display:none;margin:10px 0">
+        <label><input type="checkbox" id="solo-stage-draft-enabled" onchange="onStageSettingsChange('solo-')"> 🗺️ ステージ BAN / PICK（BO3）</label>
+        <div id="solo-stage-pool-wrap" style="display:none"><p class="setting-hint">候補を5つ以上選択。先攻・後攻が各1 BAN、各1 PICK。3戦目は残りから抽選。</p>
+        <div id="solo-stage-pool" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px;max-height:220px;overflow:auto"></div><p id="solo-stage-pool-count" class="setting-hint" aria-live="polite"></p></div>
+      </div>
       <div class="toggle-row" id="solo-series-lockout-row" style="display:none">
         <div class="toggle-label">
           🔒 武器ロックアウト
@@ -1341,7 +1376,8 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
     <div id="pbadge" class="ph ph-ban">BAN PHASE</div>
     <div id="tctr" style="font-size:11px;color:var(--mu)"></div>
     <div class="draft-room-tag" id="draft-room-info" style="display:none">
-      ROOM: <span id="draft-room-id"></span>
+      ROOM: <span id="draft-room-id">••••••</span>
+      <button class="btn-copy room-privacy-toggle" style="padding:3px 9px;font-size:10px;" onclick="toggleRoomPrivacy()" aria-pressed="true">🔒 部屋番号を非表示中</button>
       <button class="btn-copy" style="padding:3px 9px;font-size:10px;" id="btn-copy-draft" onclick="copyRoomId()">📋</button>
     </div>
     <div class="fx-toggles">
@@ -1352,6 +1388,9 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
   <div id="btn-back-to-lobby-wrap" style="display:none;margin-bottom:10px;">
     <button class="btn-re" style="width:auto;padding:7px 16px;font-size:11px;" onclick="backToLobby()">← ロビーに戻る</button>
   </div>
+  <div id="stage-draft-panel" class="card" style="display:none" aria-live="polite"></div>
+  <div id="weapon-draft-content">
+  <div id="stage-draft-summary" class="setting-hint" style="display:none"></div>
   <div class="match-box">
     <div class="stage-wrap">
       <img id="st-img" src="" alt="" onerror="this.style.opacity='0'">
@@ -1472,9 +1511,10 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <div class="cf" id="cf"></div>
     </div>
     <div class="d-lockout" id="d-lockout" style="display:none"></div>
-    <p class="weapon-help">選びたい項目を2回タップして確定します。</p>
+    <p class="weapon-help">項目を2回タップして確定します。BAN・同時ピックは、選択後に上のボタンを押してください。</p>
     <div class="wg" id="wg"></div>
     <div class="wg-empty" id="wg-empty" style="display:none"></div>
+  </div>
   </div>
 </div>
 <!-- RESULT -->
@@ -1519,6 +1559,10 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
   </div>
 </div>
 
+<footer class="site-notice">
+  <p>このサイトは非営利・個人制作の非公式ファンメイドツールです。任天堂株式会社による公式サービスではなく、同社との提携・協賛関係はありません。</p>
+  <p>スプラトゥーンおよび関連する画像・名称等の権利は、それぞれの権利者に帰属します。ステージ画像の取得元：<a href="https://github.com/sendou-ink/assets" target="_blank" rel="noopener noreferrer">sendou.ink assets</a>。<a href="https://www.nintendo.co.jp/networkservice_guideline/ja/" target="_blank" rel="noopener noreferrer">任天堂の配信ガイドライン</a></p>
+</footer>
 </div><!-- /app -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -1599,7 +1643,7 @@ function showSettingRows(enabled, ids){
   ids.forEach(id=>{ const row=document.getElementById(id); if(row) row.style.display=enabled?'':'none'; });
 }
 function showSeriesRows(prefix, enabled){
-  showSettingRows(enabled,['mode','lockout','loser-rules'].map(name=>`${prefix}series-${name}-row`));
+  showSettingRows(enabled,['mode','lockout','loser-rules','stage'].map(name=>`${prefix}series-${name}-row`));
 }
 
 // 保存済み設定をホストの設定フォームへ復元（ホスト再参加時の設定上書き事故を防ぐ）
@@ -1617,12 +1661,14 @@ function applyLobbySettingsToForm(s){
   setVal('member-draft-timing',s.memberDraftTiming||'before');
   showSettingRows(s.memberDraftEnabled,['member-draft-timing-row']);
   showSeriesRows('',s.seriesEnabled);
+  setChk('stage-draft-enabled',s.stageDraftEnabled); setStagePool('',s.stagePool); updateStageSettingsUI('');
   setVal('pick-mode',s.pickMode); setVal('ban-mode',s.banMode);
   if(s.gachaRerolls!==undefined) setVal('gacha-rerolls',s.gachaRerolls);
   setChk('time-limit-enabled',s.timeLimitEnabled); setVal('time-limit-sec',s.timeLimitSec);
   // 派生UI（onSettingChange を発火させず＝Firebase へ書き戻さず手動更新）
   showSettingRows(s.timeLimitEnabled,['time-limit-row']);
   updatePickOrderDesc('pick-order','pick-order-desc');
+  updatePickModeHelp('pick-mode','pick-mode-help');
   applyWeaponFilterToUI(s.excludeFilter);
   applyBanGenresToUI(s.banGenres);
   // ピックモードに応じた派生UIの表示状態を復元
@@ -1665,7 +1711,17 @@ const SUBSPE_IMG_MAP = {
   "ナイスダマ":"Wsp_SpNiceBall00.png","ホップソナー":"Wsp_SpShockSonar00.png","マルチミサイル":"Wsp_SpMultiMissile00.png",
   "メガホンレーザー5.1ch":"Wsp_SpMicroLaser00.png",
 };
-const STAGES_IMG   = "images/stages/";
+// sendou.ink の stageId と日本語名の対応。画像はローカル同梱。
+const STAGES_IMG   = "images/sendou-stages/";
+const STAGE_IMAGE_IDS = {
+  "ユノハナ大渓谷":0, "ゴンズイ地区":1, "ヤガラ市場":2, "マテガイ放水路":3,
+  "ナメロウ金属":4, "マサバ海峡大橋":5, "キンメダイ美術館":6, "マヒマヒリゾート＆スパ":7,
+  "海女美術大学":8, "チョウザメ造船":9, "ザトウマーケット":10, "スメーシーワールド":11,
+  "ヒラメが丘団地":12, "クサヤ温泉":13, "マンタマリア号":14, "ナンプラー遺跡":15,
+  "コンブトラック":16, "タラポートショッピングパーク":17, "タカアシ経済特区":18,
+  "オヒョウ海運":19, "ネギトロ炭鉱":20, "バイガイ亭":21, "カジキ空港":22,
+  "リュウグウターミナル":23, "デカライン高架下":24,
+};
 const STAGES_DATA  = [
   "ユノハナ大渓谷","ゴンズイ地区","ヤガラ市場","マテガイ放水路",
   "ナメロウ金属","クサヤ温泉","ヒラメが丘団地","マサバ海峡大橋",
@@ -1689,6 +1745,7 @@ let activeFilterAxis = 'cat'; // 武器グリッドの絞り込み軸: 'cat'|'su
 let isMulti    = false;
 let isHost     = false;
 let roomId     = null;
+let roomHidden = true; // 読み込みのたびに非表示。端末内の表示のみで入室制限ではない。
 let myMemberId = null;   // 部屋作成時: 'host', 参加時: uid ベースの文字列
 
 // --- Firebase 購読解除関数 ---
@@ -1701,6 +1758,7 @@ let fbGachaUnsub   = null;  // ガチャ(運命ピック)監視
 let _gachaInitInProgress = false; // ホストのガチャ初期化の多重発火防止
 let _gachaFinalized      = false; // ガチャ最終確定（picks反映）を実行済みか
 let fbTradeUnsub   = null;  // ドラフト後トレード監視（pending_trade）
+let fbStageDraftUnsub = null;
 let fbSeriesUnsub  = null;  // 連戦・負けチームのルール選択監視（series_rule）
 let tradePending   = null;  // 現在の交換提案（ローカルキャッシュ）
 let _tradeSel      = {give:null, want:null}; // トレード提案UIの選択中インデックス
@@ -1722,6 +1780,7 @@ let lobbyMemberDraft = null;    // 直近スナップショットの memberDraft
 let _mdPhaseActive   = false;   // メンバードラフト画面を表示中か（画面遷移の差分検出）
 let _mdApplying      = false;   // ホストのピック適用の多重発火防止
 let mdTimerInterval  = null;    // ホストのターンタイマー（自動ピック）
+let mdTimerDeadline  = null;
 let mdCountdownInterval = null; // 全クライアントのタイマー表示更新（描画のみ）
 let _mdAutoStarted   = false;   // 選抜完了→武器ドラフト直結の多重発火防止
 // 武器絞り込み（ホスト設定）: チェックした要素を持つ武器をドラフトから除外する
@@ -1758,7 +1817,8 @@ let pendingSelect = null; // {w, team, phase}
 
 // ===== ユーティリティ =====
 function stageImgUrl(name){
-  return STAGES_IMG + encodeURIComponent(name) + '.png';
+  const id=Object.hasOwn(STAGE_IMAGE_IDS,name) ? STAGE_IMAGE_IDS[name] : null;
+  return id === null ? '' : `${STAGES_IMG}${id}.avif`;
 }
 
 // 制限時間（秒）を 5〜100 にクランプ（数値入力の範囲外・空欄・不正値に備える）。既定30。
@@ -1787,6 +1847,22 @@ function showGuideTab(t){
 }
 window.showGuideTab = showGuideTab;
 
+function renderRoomPrivacy(){
+  const display = roomHidden ? '••••••' : (roomId || '------');
+  ['lobby-room-id','lobby-wait-room-id','draft-room-id'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.textContent=display;
+  });
+  const preview=document.getElementById('lobby-room-url-preview');
+  if(preview) preview.textContent=roomHidden ? '共有URLは非表示です' : (roomId ? getRoomUrl() : '');
+  const input=document.getElementById('room-join-input');
+  if(input) input.type=roomHidden ? 'password' : 'text';
+  document.querySelectorAll('.room-privacy-toggle').forEach(button=>{
+    button.textContent=roomHidden ? '🔒 部屋番号を非表示中' : '👁 部屋番号を表示中';
+    button.setAttribute('aria-pressed',String(roomHidden));
+  });
+}
+window.toggleRoomPrivacy = function(){ roomHidden=!roomHidden; renderRoomPrivacy(); };
+
 function getRoomUrl(){
   return `${location.origin}${location.pathname}?room=${roomId}`;
 }
@@ -1810,14 +1886,11 @@ function flashBtn(ids, orig, msg){
   });
 }
 
-// ===== データ読み込み（認証→武器データ→画面表示） =====
+// ===== データ読み込み（認証と武器データを並行して準備） =====
 async function loadData(){
   try {
-    document.getElementById('lmsg').textContent = '認証中...';
-    await initAuth();
-
-    document.getElementById('lmsg').textContent = 'ローカルデータを読み込んでいます';
-    const res = await fetch(WEAPONS_JSON);
+    document.getElementById('lmsg').textContent = '認証と武器データの準備中...';
+    const [,res] = await Promise.all([initAuth(),fetch(WEAPONS_JSON)]);
     if(!res.ok) throw new Error('weapons.json 読み込み失敗: '+res.status);
     const data = await res.json();
     // スキーマ検証: 必須キー欠損・型不正・key重複のエントリは除外して警告
@@ -1851,6 +1924,10 @@ async function loadData(){
     document.getElementById('weapon-count-info').textContent=`✓ ${WEAPONS.length}種の武器を読み込みました`;
     updatePickOrderDesc('pick-order','pick-order-desc');
     updatePickOrderDesc('solo-pick-order','solo-pick-order-desc');
+    updatePickModeHelp('pick-mode','pick-mode-help');
+    updatePickModeHelp('solo-pick-mode','solo-pick-mode-help',true);
+
+    initStagePoolUI(''); initStagePoolUI('solo-');
 
     // URL ?room=XXXX があれば自動的にjoin画面へ
     const urlRoom = new URLSearchParams(location.search).get('room');
@@ -1885,6 +1962,7 @@ window.enterSolo = function(){
 };
 window.startSoloDraft = function(){
   isMulti=false;
+  if(!validateStageSettings('solo-')) return;
   buildAndStartDraft({
     an: document.getElementById('solo-n-a').value||'アルファ',
     bn: document.getElementById('solo-n-b').value||'ブラボー',
@@ -1908,6 +1986,7 @@ window.startSoloDraft = function(){
     seriesMode: document.getElementById('solo-series-mode')?.value||'bo3',
     seriesLockout: document.getElementById('solo-series-lockout')?.checked||false,
     seriesLoserRules: document.getElementById('solo-series-loser-rules')?.checked||false,
+    stageDraftEnabled: document.getElementById('solo-stage-draft-enabled')?.checked||false, stagePool:readStagePool('solo-'),
     timeLimitEnabled: document.getElementById('solo-time-limit-enabled')?.checked||false,
     timeLimitSec: clampTimeLimit(document.getElementById('solo-time-limit-sec')?.value),
     gachaRerolls: parseInt(document.getElementById('solo-gacha-rerolls')?.value||2)||0,
@@ -1931,16 +2010,52 @@ async function generateUniqueRoomId(){
   }
   throw new Error('ルームIDの生成に失敗しました');
 }
-window.enterMultiCreate = async function(){
+// プリセットは、前に開いた部屋の設定に依存しない完全な初期設定として適用する。
+const ROOM_PRESETS=[
+  {id:'standard',title:'基本の武器ドラフト',description:'4対4・各4武器BAN。代表者がBANし、各プレイヤーがスネーク順で自分の武器を選びます。',settings:{bc:4,pickMode:'individual',banMode:'representative'}},
+  {id:'team',title:'代表者どうしで気軽に',description:'4対4・各2武器BAN。各チームの代表者がBANと味方全員の武器選択を担当します。',settings:{bc:2,pickMode:'team',banMode:'representative'}},
+  {id:'simultaneous',title:'同時ピック',description:'4対4・各2武器BAN。各プレイヤーが相手と同時に武器を選び、4回に分けて公開します。',settings:{bc:2,pickMode:'individual',banMode:'representative',po:'sim'}},
+  {id:'gacha',title:'お題付きガチャ',description:'4対4・武器BANなし。各チームにランダムで武器を配り、共通のお題の達成にも挑戦します。',settings:{bc:0,pickMode:'gacha',banMode:'representative',challengeEnabled:true}},
+  {id:'stage-bo3',title:'BO3 ステージ BAN / PICK',description:'4対4・各2武器BANの先取2勝。最初に各チームがステージをBAN・PICKし、3戦目は残りから抽選します。',settings:{bc:2,pickMode:'team',banMode:'representative',seriesEnabled:true,stageDraftEnabled:true}},
+];
+function buildRoomPresetSettings(id){
+  const selected=id==='custom'?null:ROOM_PRESETS.find(p=>p.id===id);
+  if(id!=='custom' && !selected) return null;
+  return {
+    an:'アルファ',bn:'ブラボー',ts:4,bc:4,ft:'random',po:'snake',rule:'random',stageJa:'random',
+    stdOnly:false,challengeEnabled:false,tradeEnabled:false,seriesEnabled:false,seriesMode:'bo3',
+    seriesLockout:false,seriesLoserRules:false,stageDraftEnabled:false,stagePool:[...STAGES_DATA],
+    memberDraftEnabled:false,memberDraftTiming:'before',pickMode:'individual',banMode:'individual',
+    banGenres:{cat:0,sub:0,special:0},pickOrderAlpha:[],pickOrderBravo:[],
+    timeLimitEnabled:false,timeLimitSec:30,gachaRerolls:2,excludeFilter:{cats:[],subs:[],specials:[]},
+    ...(selected?.settings||{}),
+  };
+}
+window.showCreatePresets=function(){
+  const panel=document.getElementById('create-presets');
+  panel.innerHTML='<div class="preset-list">'+ROOM_PRESETS.map(p=>
+    `<div class="preset-card"><h3>${esc(p.title)}</h3><p>${esc(p.description)}</p><button type="button" class="btn-re" onclick="enterMultiCreate('${p.id}')">この設定で部屋を作る</button></div>`
+  ).join('')+'</div>';
+  panel.style.display='';
+};
+let creatingRoom=false;
+window.enterMultiCreate = async function(presetId='custom'){
+  if(creatingRoom) return;
+  const settings=buildRoomPresetSettings(presetId); if(!settings) return;
+  creatingRoom=true;
+  lobbyPickOrderAlpha=[]; lobbyPickOrderBravo=[];
+  applyLobbySettingsToForm(settings);
   isMulti=true; isHost=true;
   try{
     roomId = await generateUniqueRoomId();
   }catch(e){
     alert('部屋の作成に失敗しました。通信状態を確認してもう一度お試しください。');
     isMulti=false; isHost=false;
+    creatingRoom=false;
     return;
   }
   myMemberId = generateMemberId();
+  try{
   await set(ref(db,`rooms/${roomId}/lobby`),{
     status:'waiting',
     settings: getLobbySettings(),
@@ -1951,6 +2066,10 @@ window.enterMultiCreate = async function(){
   saveMemberId(roomId, myMemberId); // 同一デバイス再参加のため保存
   showLobbyHost();
   subscribeLobby();
+  }catch(e){
+    alert('部屋の作成に失敗しました。通信状態を確認してもう一度お試しください。');
+    roomId=null; isMulti=false; isHost=false;
+  }finally{ creatingRoom=false; }
 };
 
 // ===== マルチ: 参加 =====
@@ -2027,10 +2146,7 @@ window.joinRoom = async function(){
 
 // ===== ロビー画面表示 =====
 function showLobbyHost(){
-  document.getElementById('lobby-room-id').textContent=roomId;
-  document.getElementById('lobby-wait-room-id').textContent=roomId;
-  const url=getRoomUrl();
-  document.getElementById('lobby-room-url-preview').textContent=url;
+  renderRoomPrivacy();
   showScreen('lobby');
   updateStartButton();
   // 離脱したメンバーへの案内を team-assign-card の下に表示
@@ -2041,7 +2157,7 @@ function showLobbyHost(){
   }
 }
 function showLobbyWait(){
-  document.getElementById('lobby-wait-room-id').textContent=roomId;
+  renderRoomPrivacy();
   showScreen('lobby-wait');
 }
 
@@ -2181,6 +2297,9 @@ window.onMemberDraftToggle = function(){
   onSettingChange();
 };
 // 次の手番を決定（埋まっていないチームを優先・交互）。両チーム充足なら null。
+function resolveFirstTeam(ft, random=Math.random){
+  return ft==='random' ? (random()<.5?'alpha':'bravo') : ft;
+}
 function nextMdTurn(cur, aCount, bCount, ts){
   const aNeed=ts-aCount, bNeed=ts-bCount;
   if(aNeed<=0 && bNeed<=0) return null;
@@ -2197,12 +2316,12 @@ function startMemberDraft(){
   const bravo=entries.filter(([,m])=>m.team==='bravo').map(([id])=>id);
   if(alpha.length!==1 || bravo.length!==1) return;       // 代表者1名ずつ
   if(entries.length < 2*ts) return;                      // 人数不足は開始不可
-  const ft=document.getElementById('ft')?.value||'alpha';
-  const firstTurn=(ft==='alpha'||ft==='bravo')?ft:'alpha';
+  const ft=document.getElementById('ft')?.value||'random';
+  const firstTurn=resolveFirstTeam(ft);
   const timed=document.getElementById('time-limit-enabled')?.checked;
   const sec=clampTimeLimit(document.getElementById('time-limit-sec')?.value);
   // orderAlpha/Bravo＝指名順（キャプテンを先頭に）。完了時にそのままピック順として採用する（#1直結）
-  const node={ active:true, done:false, capAlpha:alpha[0], capBravo:bravo[0], turn:firstTurn, ts,
+  const node={ active:true, done:false, capAlpha:alpha[0], capBravo:bravo[0], turn:firstTurn, firstTeam:firstTurn, ts,
     orderAlpha:[alpha[0]], orderBravo:[bravo[0]] };
   if(timed) node.deadline=serverNow()+sec*1000;
   _mdAutoStarted=false;
@@ -2264,8 +2383,10 @@ function hostApplyMemberDraft(lobby){
 }
 // ホスト: ターンタイマー（時間切れでプールからランダム自動ピック）
 function startMdTimer(md){
+  if(!isHost || !md || !md.active || md.done || !md.deadline){ stopMdTimer(); return; }
+  if(mdTimerInterval && mdTimerDeadline===md.deadline) return;
   stopMdTimer();
-  if(!isHost || !md || !md.active || md.done || !md.deadline) return;
+  mdTimerDeadline=md.deadline;
   mdTimerInterval=setInterval(()=>{
     const md2=lobbyMemberDraft;
     if(!md2 || !md2.active || md2.done || !md2.deadline){ stopMdTimer(); return; }
@@ -2279,7 +2400,7 @@ function startMdTimer(md){
     }
   }, 500);
 }
-function stopMdTimer(){ if(mdTimerInterval){clearInterval(mdTimerInterval);mdTimerInterval=null;} }
+function stopMdTimer(){ if(mdTimerInterval){clearInterval(mdTimerInterval);mdTimerInterval=null;} mdTimerDeadline=null; }
 // 全クライアント: メンバードラフトのフェーズ処理。画面遷移と描画を行い、選抜中なら true（通常ロビー描画をスキップ）。
 function handleMemberDraftPhase(lobby){
   lobbyMemberDraft = lobby.memberDraft || null;
@@ -2317,17 +2438,18 @@ function handleMemberDraftPhase(lobby){
   }
   return false;
 }
-// タイマー残り秒の表示更新（全クライアント・描画のみ。プールボタンは触らない）
+// タイマー残り秒の表示更新（全クライアント・描画のみ）。
+function renderLobbyCountdown(phase, elementId){
+  const el=document.getElementById(elementId);
+  if(!el) return;
+  if(phase && phase.active && !phase.done && phase.deadline){
+    const left=Math.max(0,Math.ceil((phase.deadline-serverNow())/1000));
+    el.style.display=''; el.textContent=`⏱ ${left}`;
+  } else { el.style.display='none'; }
+}
 function startMdCountdown(){
   stopMdCountdown();
-  mdCountdownInterval=setInterval(()=>{
-    const md=lobbyMemberDraft, tEl=document.getElementById('md-timer');
-    if(!tEl) return;
-    if(md && md.active && !md.done && md.deadline){
-      const left=Math.max(0,Math.ceil((md.deadline-serverNow())/1000));
-      tEl.style.display=''; tEl.textContent=`⏱ ${left}`;
-    } else { tEl.style.display='none'; }
-  }, 500);
+  mdCountdownInterval=setInterval(()=>renderLobbyCountdown(lobbyMemberDraft,'md-timer'),500);
 }
 function stopMdCountdown(){ if(mdCountdownInterval){clearInterval(mdCountdownInterval);mdCountdownInterval=null;} }
 // 全クライアント: メンバードラフト画面の描画（手番・タイマー・両チーム・プール）
@@ -2399,6 +2521,7 @@ let lobbyWeaponPick   = null;
 let _wpPhaseActive    = false;
 let _wpApplying       = false;
 let wpTimerInterval   = null;
+let wpTimerDeadline   = null;
 let wpCountdownInterval = null;
 let wpActiveCat       = 'すべて';
 // 設定による候補の絞り込みを、全ドラフト画面で共通化する。
@@ -2453,7 +2576,7 @@ function hostApplyWeaponPick(lobby){
     const curId=order[wp.idx];
     const {memberId, weaponKey}=wp.pick;
     const taken=new Set(Object.values(wp.picks||{}).map(w=>w.key));
-    const w=WEAPONS.find(x=>x.key===weaponKey);
+    const w=weaponByKey(weaponKey);
     const valid = memberId===curId && w && !taken.has(weaponKey);
     const updates={};
     updates[`rooms/${roomId}/lobby/weaponPick/pick`]=null;
@@ -2476,8 +2599,10 @@ function hostApplyWeaponPick(lobby){
   startWpTimer(wp);
 }
 function startWpTimer(wp){
+  if(!isHost || !wp || !wp.active || wp.done || !wp.deadline){ stopWpTimer(); return; }
+  if(wpTimerInterval && wpTimerDeadline===wp.deadline) return;
   stopWpTimer();
-  if(!isHost || !wp || !wp.active || wp.done || !wp.deadline) return;
+  wpTimerDeadline=wp.deadline;
   wpTimerInterval=setInterval(()=>{
     const wp2=lobbyWeaponPick;
     if(!wp2 || !wp2.active || wp2.done || !wp2.deadline){ stopWpTimer(); return; }
@@ -2494,17 +2619,10 @@ function startWpTimer(wp){
     }
   }, 500);
 }
-function stopWpTimer(){ if(wpTimerInterval){clearInterval(wpTimerInterval);wpTimerInterval=null;} }
+function stopWpTimer(){ if(wpTimerInterval){clearInterval(wpTimerInterval);wpTimerInterval=null;} wpTimerDeadline=null; }
 function startWpCountdown(){
   stopWpCountdown();
-  wpCountdownInterval=setInterval(()=>{
-    const wp=lobbyWeaponPick, tEl=document.getElementById('wp-timer');
-    if(!tEl) return;
-    if(wp && wp.active && !wp.done && wp.deadline){
-      const left=Math.max(0,Math.ceil((wp.deadline-serverNow())/1000));
-      tEl.style.display=''; tEl.textContent=`⏱ ${left}`;
-    } else { tEl.style.display='none'; }
-  }, 500);
+  wpCountdownInterval=setInterval(()=>renderLobbyCountdown(lobbyWeaponPick,'wp-timer'),500);
 }
 function stopWpCountdown(){ if(wpCountdownInterval){clearInterval(wpCountdownInterval);wpCountdownInterval=null;} }
 // 全クライアント: 武器ピックのフェーズ処理。武器ピック中なら true（通常ロビー描画スキップ）。
@@ -2574,7 +2692,7 @@ function renderWeaponPickScreen(lobby){
     list.forEach(w=>{
       const used=taken.has(w.key);
       const btn=document.createElement('button'); btn.className='wb'+(used?' is-bn':''); btn.disabled=used;
-      btn.innerHTML=`<img src="${esc(w.imgUrl)}" alt="${esc(w.name)}" onerror="this.style.height='38px';this.style.opacity='.2'"><div class="wn">${esc(w.name)}</div>${used?'<span class="wst b">取得済</span>':''}`;
+      btn.innerHTML=`<img src="${esc(w.imgUrl)}" alt="${esc(w.name)}" loading="lazy" decoding="async" onerror="this.style.height='38px';this.style.opacity='.2'"><div class="wn">${esc(w.name)}</div>${used?'<span class="wst b">取得済</span>':''}`;
       if(!used) btn.onclick=()=>wpPick(w.key);
       grid.appendChild(btn);
     });
@@ -2648,15 +2766,26 @@ window.kickMember = function(memberId, memberName){
 // ===== 設定変更 → Firebase反映 =====
 // ピック順の説明文
 const PICK_ORDER_DESC = {
-  alt:          '交互に1枚ずつ選択。シンプルだが後攻が有利になりやすい。',
-  snake:        '先攻1→後攻2→先攻2→後攻1→先攻1→後攻1（4v4）。先後攻の有利差を細かく分散したバランス型。',
+  alt:          '先攻と後攻が1つずつ交互に選びます。',
+  snake:        '先攻1→後攻2→先攻2→後攻1→先攻1→後攻1の順に選びます（4v4）。',
   snake_classic:'先攻1→後攻3→先攻3→後攻1（4v4）。シンプルな連続取りで各チームが前半・後半にまとめてピックできる。',
   snake_mid:    '先攻1→後攻2→先攻2→後攻2→先攻1（4v4）。中盤を後攻が手厚く取れる中寄せ型。',
   a121:         '先攻 1-2-1 / 後攻 1-2-1。中盤に連続ピックあり。均衡型。',
   a211:         '先攻 2-1-1 / 後攻 1-2-1。先攻が序盤に2枚取れる前重ね型。',
-  sim:          '両チーム同時にピックし、4回一斉公開。被りあり。先後攻の概念なし。',
+  sim:          '両チームが同時に選び、揃ったら公開します。同じ武器も選べます。',
 };
 
+function updatePickModeHelp(selectId, helpId, solo=false){
+  const mode=document.getElementById(selectId)?.value || (solo?'team':'individual');
+  const descriptions={
+    individual:'各プレイヤーが自分の番に武器を選びます。',
+    team:solo?'1人で両チームの武器を順番に選びます。':'各チームの代表者が、味方全員の武器を選びます。',
+    enemy:'相手が使う武器を選びます。',
+    gacha:'武器がランダムに配られ、決められた回数だけ引き直せます。',
+  };
+  const el=document.getElementById(helpId);
+  if(el) el.textContent=descriptions[mode]||'';
+}
 function updatePickOrderDesc(selectId, descId){
   const val = document.getElementById(selectId)?.value||'snake';
   const el  = document.getElementById(descId);
@@ -2670,6 +2799,7 @@ window.onPickOrderChange = function(){
 
 window.onPickModeChange = function(){
   const pm = document.getElementById('pick-mode')?.value;
+  updatePickModeHelp('pick-mode','pick-mode-help');
   const isIndividual = pm === 'individual';
   // 個人ピック・相手ピックはどちらも選手ごとのピック順割当が必要
   const needsPickOrder = isIndividual || pm === 'enemy';
@@ -2760,8 +2890,8 @@ window.movePickOrder = function(team, memberId, dir){
 function startTimer(deadline, totalSec){
   // 同じdeadlineで既に動いていれば再起動しない
   if(timerIntervalId && startTimer._deadline === deadline) return;
-  startTimer._deadline = deadline;
   clearTimer();
+  startTimer._deadline = deadline;
   const wrap    = document.getElementById('timer-wrap');
   const display = document.getElementById('timer-display');
   const bar     = document.getElementById('timer-bar');
@@ -2789,10 +2919,11 @@ function startTimer(deadline, totalSec){
           setTimeout(()=>handleTimeout(timerStartIdx), 1500);
         }
       }
+      return false;
     }
+    return true;
   }
-  tick();
-  timerIntervalId = setInterval(tick, 500);
+  if(tick()) timerIntervalId = setInterval(tick, 500);
 }
 
 function clearTimer(){
@@ -3611,19 +3742,19 @@ window.onSoloPickOrderChange = function(){
 // ソロ: ピックモード変更時。ガチャ選択時はピック順を隠しリロール回数を表示。
 window.onSoloPickModeChange = function(){
   const pm = document.getElementById('solo-pick-mode')?.value||'team';
+  updatePickModeHelp('solo-pick-mode','solo-pick-mode-help',true);
   const isGacha = pm==='gacha';
   const por = document.getElementById('solo-pick-order-row');
   const pod = document.getElementById('solo-pick-order-desc');
   const gr  = document.getElementById('solo-gacha-row');
-  const gbr = document.getElementById('solo-ban-genre-row');
   if(por) por.style.display = isGacha ? 'none' : '';
   if(pod) pod.style.display = isGacha ? 'none' : '';
   if(gr)  gr.style.display  = isGacha ? '' : 'none';
-  // 相手ピック（enemy）ではジャンルBAN枠を隠す
-  if(gbr) gbr.style.display = pm==='enemy' ? 'none' : '';
+  renderGenreBanAvailability('solo-ban-genre', pm==='enemy' ? '相手ピックでは使えません。設定値は適用されません。' : '');
 };
 
 window.onSettingChange = function(){
+  updateBanGenreRowVisibility();
   if(!isHost||!roomId) return;
   set(ref(db,`rooms/${roomId}/lobby/settings`), getLobbySettings());
   updateStartButton();
@@ -3639,14 +3770,25 @@ function applyBanGenresToUI(bg){
   const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=String(v||0); };
   set('ban-genre-cat',bg.cat); set('ban-genre-sub',bg.sub); set('ban-genre-special',bg.special);
 }
-// ジャンルBAN設定行の表示制御（代表者BAN/代表者ピックのときだけ表示。個人ピック×個人BANでは隠す）
+// 設定値は保持し、使えない組み合わせでは無効と理由を明示する。
+function renderGenreBanAvailability(prefix, reason){
+  const note=document.getElementById(prefix+'-note');
+  if(note) note.textContent=reason||'武器BANとは別に種類ごとBANできます。';
+  ['cat','sub','special'].forEach(type=>{
+    const select=document.getElementById(prefix+'-'+type);
+    if(select) select.disabled=!!reason;
+  });
+}
 function updateBanGenreRowVisibility(){
-  const row=document.getElementById('ban-genre-row'); if(!row) return;
   const pm=document.getElementById('pick-mode')?.value||'individual';
   const bm=document.getElementById('ban-mode')?.value||'individual';
-  // 個人ピック×個人BAN以外＝実効的に代表者BAN。ただし相手ピック（enemy）ではジャンルBANを扱わない。
-  const show = !(pm==='individual' && bm==='individual') && pm!=='enemy';
-  row.style.display = show ? '' : 'none';
+  const memberFirst=document.getElementById('member-draft-enabled')?.checked
+    && document.getElementById('member-draft-timing')?.value==='after';
+  let reason='';
+  if(memberFirst) reason='「全員が武器ピック → チーム分け」ではBANがないため使えません。設定値は適用されません。';
+  else if(pm==='enemy') reason='相手ピックでは使えません。設定値は適用されません。';
+  else if(pm==='individual' && bm==='individual') reason='個人BANでは使えません。代表者BANに変更してください。設定値は適用されません。';
+  renderGenreBanAvailability('ban-genre',reason);
 }
 
 // ===== 武器絞り込み（武器種/サブ/スペシャル） =====
@@ -3672,7 +3814,8 @@ const CAT_REP_KEY = {
 // カテゴリ代表画像 = 指定の代表ブキ（無ければそのカテゴリの先頭武器）のアイコン
 function catRepImgUrl(cat){
   const key=CAT_REP_KEY[cat];
-  const w=(key&&WEAPONS.find(x=>x.key===key)) || WEAPONS.find(x=>x.cat===cat);
+  ensureWeaponIndex();
+  const w=(key&&weaponByKey(key)) || _firstWeaponByCategory.get(cat);
   return w?w.imgUrl:'';
 }
 // ジャンルBANオブジェクトを生成（banType: 'cat'|'sub'|'special'）
@@ -3844,12 +3987,19 @@ const CHALLENGES = [
 function challengeDefById(id){ return CHALLENGES.find(c=>c.id===id)||null; }
 function pickRandomChallenge(){ const c=CHALLENGES[Math.floor(Math.random()*CHALLENGES.length)]; return {id:c.id,label:c.label,desc:c.desc}; }
 // picks には key/name/imgUrl/cat のみ格納されるため、お題判定の前に WEAPONS から sub/special を補完する。
-let _weaponByKey=null;
+let _weaponIndexSource=null, _weaponByKey=new Map(), _firstWeaponByCategory=new Map();
+function ensureWeaponIndex(){
+  if(_weaponIndexSource===WEAPONS) return;
+  _weaponIndexSource=WEAPONS;
+  _weaponByKey=new Map(); _firstWeaponByCategory=new Map();
+  WEAPONS.forEach(w=>{
+    _weaponByKey.set(w.key,w);
+    if(!_firstWeaponByCategory.has(w.cat)) _firstWeaponByCategory.set(w.cat,w);
+  });
+}
 function weaponByKey(key){
-  if(!_weaponByKey && Array.isArray(WEAPONS) && WEAPONS.length){
-    _weaponByKey=new Map(); WEAPONS.forEach(w=>_weaponByKey.set(w.key,w));
-  }
-  return _weaponByKey ? (_weaponByKey.get(key)||null) : null;
+  ensureWeaponIndex();
+  return _weaponByKey.get(key)||null;
 }
 function enrichPickForChallenge(w){
   if(!w) return w;
@@ -3978,7 +4128,7 @@ function getLobbySettings(){
     bn:  document.getElementById('n-b')?.value||'ブラボー',
     ts:  parseInt(document.getElementById('sz')?.value||4),
     bc:  parseInt(document.getElementById('bc')?.value||3),
-    ft:  document.getElementById('ft')?.value||'alpha',
+    ft:  document.getElementById('ft')?.value||'random',
     po:  document.getElementById('pick-order')?.value||'snake',
     rule: document.getElementById('rm')?.value||'random',
     stageJa: document.getElementById('sm')?.value||'random',
@@ -3989,6 +4139,7 @@ function getLobbySettings(){
     seriesMode: document.getElementById('series-mode')?.value||'bo3',
     seriesLockout: document.getElementById('series-lockout')?.checked||false,
     seriesLoserRules: document.getElementById('series-loser-rules')?.checked||false,
+    stageDraftEnabled: document.getElementById('stage-draft-enabled')?.checked||false, stagePool:readStagePool(''),
     memberDraftEnabled: document.getElementById('member-draft-enabled')?.checked||false,
     memberDraftTiming: document.getElementById('member-draft-timing')?.value||'before',
     pickMode: document.getElementById('pick-mode')?.value||'individual',
@@ -4063,10 +4214,12 @@ window.onSoloTimeLimitChange = function(){
 // 連戦トグル: シリーズ長セレクトの表示制御（マルチは lobby 同期も発火）
 window.onSeriesToggle = function(){
   showSeriesRows('',document.getElementById('series-enabled')?.checked);
+  updateStageSettingsUI('');
   onSettingChange();
 };
 window.onSoloSeriesToggle = function(){
   showSeriesRows('solo-',document.getElementById('solo-series-enabled')?.checked);
+  updateStageSettingsUI('solo-');
 };
 
 window.onTimeLimitChange = function(){
@@ -4074,8 +4227,116 @@ window.onTimeLimitChange = function(){
   onSettingChange();
 };
 
+// ステージ候補と、おすすめ設定
+function initStagePoolUI(prefix){
+  const el=document.getElementById(prefix+'stage-pool'); if(!el) return;
+  el.innerHTML=STAGES_DATA.map((name,i)=>`<label><input type="checkbox" data-stage-index="${i}" checked onchange="onStageSettingsChange('${prefix}')"> ${esc(name)}</label>`).join('');
+  updateStageSettingsUI(prefix);
+}
+function readStagePool(prefix){
+  return Array.from(document.querySelectorAll('#'+prefix+'stage-pool input[data-stage-index]:checked')).map(el=>STAGES_DATA[Number(el.dataset.stageIndex)]).filter(Boolean);
+}
+function setStagePool(prefix,pool){
+  if(!Array.isArray(pool)) return;
+  document.querySelectorAll('#'+prefix+'stage-pool input[data-stage-index]').forEach(el=>{el.checked=pool.includes(STAGES_DATA[Number(el.dataset.stageIndex)]);});
+}
+function validStagePool(pool){
+  return Array.isArray(pool) && new Set(pool.filter(n=>STAGES_DATA.includes(n))).size>=5 && pool.every(n=>STAGES_DATA.includes(n));
+}
+function updateStageSettingsUI(prefix){
+  const enabled=!!document.getElementById(prefix+'series-enabled')?.checked && !!document.getElementById(prefix+'stage-draft-enabled')?.checked;
+  const wrap=document.getElementById(prefix+'stage-pool-wrap'); if(wrap) wrap.style.display=enabled?'':'none';
+  const count=document.getElementById(prefix+'stage-pool-count'); if(count) count.textContent=`候補: ${readStagePool(prefix).length}ステージ（最低5）`;
+}
+window.onStageSettingsChange=function(prefix){ updateStageSettingsUI(prefix); if(!prefix) onSettingChange(); };
+function validateStageSettings(prefix){
+  if(!document.getElementById(prefix+'series-enabled')?.checked || !document.getElementById(prefix+'stage-draft-enabled')?.checked) return true;
+  if(document.getElementById(prefix+'series-mode')?.value!=='bo3'){ alert('ステージBAN / PICKはBO3で利用できます。'); return false; }
+  if(!validStagePool(readStagePool(prefix))){ alert('ステージ候補を5つ以上選択してください。'); return false; }
+  if(!prefix && document.getElementById('member-draft-enabled')?.checked && document.getElementById('member-draft-timing')?.value==='after'){
+    alert('「全員が武器ピック → チーム分け」では連戦とステージBAN / PICKを利用できません。'); return false;
+  }
+  return true;
+}
+// ホストを単一ライターとして、他の代表者から選択意図を受け取る。
+function stageDraftPending(S){ return !!(S?.series?.stageDraft && (S.series.stageDraft.actions||[]).length<4); }
+function stageDraftTurn(d){
+  const i=(d.actions||[]).length;
+  return {index:i,team:i%2===0?d.first:(d.first==='alpha'?'bravo':'alpha'),kind:i<2?'BAN':'PICK'};
+}
+function applyStageDraftAction(S,action,random=Math.random){
+  const d=S?.series?.stageDraft; if(!d || !stageDraftPending(S) || !action) return false;
+  const turn=stageDraftTurn(d), used=(d.actions||[]).map(x=>x.stage);
+  if(action.token!==d.token || action.index!==turn.index || action.team!==turn.team || !d.pool.includes(action.stage) || used.includes(action.stage)) return false;
+  if(!Array.isArray(d.actions)) d.actions=[];
+  d.actions.push({team:turn.team,kind:turn.kind,stage:action.stage});
+  if(d.actions.length===4){
+    const remaining=d.pool.filter(n=>!d.actions.some(a=>a.stage===n));
+    d.games=[d.actions[2].stage,d.actions[3].stage,remaining[Math.floor(random()*remaining.length)]];
+    S.stageJa=d.games[0]; S.deadline=null;
+  }
+  return true;
+}
+function isStageOperator(S,team){
+  if(!isMulti) return true;
+  const rep=repIdOf(S,team);
+  return rep ? rep===myMemberId : isHost;
+}
+function renderStageDraft(){
+  const S=state,d=S.series.stageDraft, turn=stageDraftTurn(d), name=turn.team==='alpha'?S.an:S.bn;
+  if(stageDraftSent && (stageDraftSent.token!==d.token || stageDraftSent.index!==turn.index)) stageDraftSent=null;
+  if(stageDraftSelection && (stageDraftSelection.token!==d.token || stageDraftSelection.index!==turn.index)) stageDraftSelection=null;
+  const used=(d.actions||[]).map(x=>x.stage), can=isStageOperator(S,turn.team) && !stageDraftSent;
+  document.getElementById('pbadge').textContent='STAGE '+turn.kind;
+  document.getElementById('tctr').textContent=`${turn.index+1} / 4`;
+  document.getElementById('stage-draft-panel').innerHTML=`<h3>🗺️ ステージ BAN / PICK</h3><p>${esc(name)} の ${turn.kind} ${stageDraftSent?'— 送信済み。反映を待っています':can?'— ステージを選択してください':'— 代表者の選択を待っています'}</p>`+
+    `<p class="setting-hint">同じステージを2回押すと確定します。先攻BAN → 後攻BAN → 先攻PICK → 後攻PICK。3戦目は残りから抽選。制限時間は武器ドラフトから適用されます。</p>`+
+    `<p>${(d.actions||[]).map(a=>`${esc(a.team==='alpha'?S.an:S.bn)} ${a.kind}: ${esc(a.stage)}`).join(' / ')}</p>`+
+    `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px">${d.pool.map((name,i)=>`<button type="button" class="btn-re" aria-pressed="${stageDraftSelection?.stage===name}" ${stageDraftSelection?.stage===name?'style="border-color:var(--y);color:var(--y)"':''} ${!can||used.includes(name)?'disabled':''} onclick="chooseStageDraft(${i})">${esc(name)}${used.includes(name)?' ✓':stageDraftSelection?.stage===name?' — もう一度押して確定':''}</button>`).join('')}</div>`;
+}
+let stageDraftSubmitting=false, stageDraftSent=null, stageDraftSelection=null;
+window.chooseStageDraft=async function(index){
+  if(stageDraftSubmitting || stageDraftSent || !stageDraftPending(state)) return;
+  const d=state.series.stageDraft,turn=stageDraftTurn(d), stage=d.pool[index];
+  if(!isStageOperator(state,turn.team) || !stage || (d.actions||[]).some(a=>a.stage===stage)) return;
+  if(!stageDraftSelection || stageDraftSelection.token!==d.token || stageDraftSelection.index!==turn.index || stageDraftSelection.stage!==stage){
+    stageDraftSelection={token:d.token,index:turn.index,stage}; renderStageDraft(); return;
+  }
+  stageDraftSelection=null;
+  const action={token:d.token,index:turn.index,team:turn.team,stage};
+  stageDraftSubmitting=true;
+  try{
+    if(isMulti && !isHost){
+      stageDraftSent={token:d.token,index:turn.index}; renderStageDraft();
+      await set(ref(db,`rooms/${roomId}/stage_draft_action`),action);
+    }
+    else applyStageDraftAndRender(action);
+  }catch(e){ stageDraftSent=null; if(stageDraftPending(state)) renderStageDraft(); alert('送信できませんでした。通信を確認して再度お試しください。'); }
+  finally{stageDraftSubmitting=false;}
+};
+function applyStageDraftAndRender(action){
+  if(!applyStageDraftAction(state,action)) return;
+  if(isMulti) pushState();
+  renderDraft();
+}
+function subscribeStageDraft(){
+  if(fbStageDraftUnsub) fbStageDraftUnsub();
+  let processing=false;
+  fbStageDraftUnsub=onValue(ref(db,`rooms/${roomId}/stage_draft_action`),async snap=>{
+    if(!isHost || !snap.exists() || processing) return;
+    const action=snap.val();
+    processing=true;
+    try{
+      await remove(ref(db,`rooms/${roomId}/stage_draft_action`));
+      applyStageDraftAndRender(action);
+    }catch(e){ console.error('ステージ選択の受信に失敗しました',e); }
+    finally{ processing=false; }
+  });
+}
+
 // ===== ドラフト開始 (ホスト) =====
 window.startDraft = function(){
+  if(!validateStageSettings('')) return;
   // メンバードラフト有効＆未完了 → 先頭フェーズを開始（武器ドラフトはその後）
   const mdEnabled = document.getElementById('member-draft-enabled')?.checked;
   const mdDone = lobbyMemberDraft && lobbyMemberDraft.done;
@@ -4095,9 +4356,9 @@ window.startDraft = function(){
     membersForState[id]={name:m.name,team:m.team,isHost:m.isHost,joinedAt:m.joinedAt||0};
   });
   buildAndStartDraft({
-    an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:s.ft, po:s.po,
+    an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:(s.ft==='random' && mdDone ? (lobbyMemberDraft.firstTeam||'random') : s.ft), po:s.po,
     rm:s.rule, sm:s.stageJa, stdOnly:s.stdOnly, challengeEnabled:s.challengeEnabled,
-    tradeEnabled:s.tradeEnabled, seriesEnabled:s.seriesEnabled, seriesMode:s.seriesMode, seriesLockout:s.seriesLockout, seriesLoserRules:s.seriesLoserRules,
+    tradeEnabled:s.tradeEnabled, seriesEnabled:s.seriesEnabled, seriesMode:s.seriesMode, seriesLockout:s.seriesLockout, seriesLoserRules:s.seriesLoserRules, stageDraftEnabled:s.stageDraftEnabled, stagePool:s.stagePool,
     pickMode:s.pickMode, banMode:s.banMode, banGenres:s.banGenres,
     pickOrderAlpha:s.pickOrderAlpha, pickOrderBravo:s.pickOrderBravo,
     members:membersForState,
@@ -4204,7 +4465,8 @@ function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec, simOrder
   return seq;
 }
 
-function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tradeEnabled,seriesEnabled,seriesMode,seriesLockout,seriesLoserRules,series,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls}){
+// 初期状態の構築と、Firebaseへの送信・画面遷移を分離する。
+function createInitialDraftState({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tradeEnabled,seriesEnabled,seriesMode,seriesLockout,seriesLoserRules,stageDraftEnabled,stagePool,series,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls}, multi){
   // 連戦シリーズ: 既存シリーズ（次戦）があれば引き継ぎ、無ければ有効時に初期化（後方互換で追加のみ）
   let seriesObj = series || null;
   if(!seriesObj && seriesEnabled){
@@ -4221,10 +4483,14 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tr
   // ルール: 連戦時は進行ロジック（BO5固定順 / 負けチーム指定）で決定、それ以外は設定どおり
   const rmEff   = seriesObj ? seriesRuleForGame(seriesObj) : rm;
   const rule    = rmEff==='random'?RULES[Math.floor(Math.random()*RULES.length)]:rmEff;
-  const stageJa = sm==='random'?STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)]:sm;
+  let stageJa = seriesObj?.stageDraft?.games?.[seriesObj.game-1] || (sm==='random'?STAGES_DATA[Math.floor(Math.random()*STAGES_DATA.length)]:sm);
   const challenge = challengeEnabled ? pickRandomChallenge() : null;
-  const first   = ft==='random'?(Math.random()<.5?'alpha':'bravo'):ft;
+  const first   = resolveFirstTeam(ft);
   const sec     = first==='alpha'?'bravo':'alpha';
+  if(seriesObj && !series && stageDraftEnabled && seriesObj.mode==='bo3' && validStagePool(stagePool)){
+    seriesObj.stageDraft={pool:[...new Set(stagePool)],first,actions:[],games:[],token:Date.now().toString(36)+Math.random().toString(36).slice(2)};
+    stageJa='選択中';
+  }
   const pMode   = pickMode||'team';
   const pickOrder = po||'snake';
   const bMode   = banMode||'representative';
@@ -4290,7 +4556,7 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tr
   // 代表者BANの代表者IDを計算（マルチ・代表者BANモード時のみ）
   let representativeAlpha = null;
   let representativeBravo = null;
-  if(isMulti && (pMode==='gacha' || tradeEnabled || seriesEnabled || (bMode==='representative' && bc>0) || genreTotal>0)){
+  if(multi && (pMode==='gacha' || tradeEnabled || seriesEnabled || (bMode==='representative' && bc>0) || genreTotal>0)){
     // 代表者＝各チームの「1ピック目」（ピック順の先頭・無ければ最古参）。
     // ホストがどちらのチームでも、必ず各チームからちょうど1人ずつ選ばれる。
     // ガチャ/トレード/連戦は代表者が操作するため、BANモード/BAN数に関わらず解決する。
@@ -4298,7 +4564,7 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tr
     representativeBravo = resolveRepresentative('bravo', members, pickOrderBravo);
   }
 
-  state={
+  return {
     an, bn, ts, bc, rule, stageJa, seq, idx:0,
     bans:{alpha:[],bravo:[]},
     picks:{alpha:[],bravo:[]},
@@ -4325,6 +4591,11 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tr
     pickOrderBravo: [...(pickOrderBravo||[])],
     series: seriesObj,
   };
+}
+
+function buildAndStartDraft(options){
+  state=createInitialDraftState(options,isMulti);
+  const {pickMode:pMode,banMode:bMode,tradeEnabled,series:seriesObj}=state;
   // 一時状態を全リセット（連戦の次戦でガチャ/トレード/お題ルーレットのフラグも確実にクリア）
   resetTransientDraftState();
   banActiveTeam='alpha'; activeBanGran='weapon';
@@ -4349,14 +4620,14 @@ function buildAndStartDraft({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tr
 function showDraftUI(){
   const info=document.getElementById('draft-room-info');
   info.style.display=isMulti?'flex':'none';
-  if(isMulti) document.getElementById('draft-room-id').textContent=roomId;
+  if(isMulti) renderRoomPrivacy();
   // Feature-1: ホスト専用ロビー戻りボタンの表示制御
   const backWrap = document.getElementById('btn-back-to-lobby-wrap');
   if(backWrap) backWrap.style.display = (isMulti && isHost) ? '' : 'none';
   renderFxToggles();
   renderDraft();
   showScreen('draft');
-  maybePlayChallengeRoulette();
+  if(!stageDraftPending(state)) maybePlayChallengeRoulette();
 }
 
 // ===== お題 縛りルーレット 演出 =====
@@ -4408,7 +4679,7 @@ function pushState(){
   if(!isMulti||!roomId) return;
   _lastPushedIdx=state.idx;
   // 制限時間が有効なら新しいステップの開始時刻としてdeadlineをセット
-  if(state.timeLimitEnabled && state.idx < state.seq.length){
+  if(!stageDraftPending(state) && state.timeLimitEnabled && state.idx < state.seq.length){
     state.deadline = serverNow() + state.timeLimitSec * 1000;
   } else {
     state.deadline = null;
@@ -4420,6 +4691,7 @@ function pushState(){
 // 初期化する。ロビー復帰・再ドラフト・state削除受信で同一のフルリセットが必要なため集約。
 // state 自体の null 化や clearTimer・prevIdx 等の文脈依存処理は呼び出し側で行う。
 function resetTransientDraftState(){
+  stageDraftSent=null; stageDraftSelection=null; stageDraftSubmitting=false;
   banPending = {alpha:[], bravo:[]};
   banActiveTeam = 'alpha';
   alphaBanSubmitted = false;
@@ -4500,6 +4772,7 @@ function renderFxToggles(){
 }
 
 function subscribeRoom(){
+  if(isHost && stageDraftPending(state)) subscribeStageDraft();
   if(fbUnsub){fbUnsub();fbUnsub=null;}
   let prevIdx=-1;
   fbUnsub=onValue(ref(db,`rooms/${roomId}/state`),snap=>{
@@ -4524,9 +4797,10 @@ function subscribeRoom(){
     if(isHost && remote.idx===_lastPushedIdx && _lastPushedIdx>=0){
       _lastPushedIdx=-1; return;
     }
+    const previousGame=state?.series?.game;
     state=normalizeState(remote);
     // 既にリザルト画面 かつ 完了状態の更新（＝トレード成立など picks 変更）→ ドラフトへ戻さずリザルトのみ再描画
-    if(document.getElementById('s-result').classList.contains('active') && !state.seq[state.idx]){
+    if(document.getElementById('s-result').classList.contains('active') && !state.seq[state.idx] && !stageDraftPending(state) && previousGame===state.series?.game){
       showResult();
       return;
     }
@@ -4677,6 +4951,37 @@ function onSimPickSnap(team, snap){
   }
 }
 
+// ===== 部屋の監視と一時データの後片付け =====
+// 再開・退出で同じ購読を必ず解除し、ロビー自体は消さない。
+function unsubscribeRoomListeners(lobbyFirst=false){
+  const stopLobby=()=>{ if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;} };
+  if(lobbyFirst) stopLobby();
+  [fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub,fbTradeUnsub,fbSeriesUnsub,fbStageDraftUnsub].forEach(f=>{if(f) f();});
+  fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=fbTradeUnsub=fbSeriesUnsub=fbStageDraftUnsub=null;
+  if(!lobbyFirst) stopLobby();
+}
+function stopLobbyPhases(){
+  stopWpTimer(); stopWpCountdown(); _wpPhaseActive=false; lobbyWeaponPick=null;
+  stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; _mdAutoStarted=false; lobbyMemberDraft=null;
+}
+function clearDraftRoomData(rid){
+  const paths=['state','pending_alpha_bans','pending_bravo_bans','pending_bans',
+    'pending_alpha_pick','pending_bravo_pick','gacha','pending_trade','series_rule','stage_draft_action'];
+  return Promise.all(paths.map(path=>remove(ref(db,`rooms/${rid}/${path}`))));
+}
+async function restoreHostLobby(rid){
+  const lobbySnap=await get(ref(db,`rooms/${rid}/lobby`));
+  if(lobbySnap.exists()){
+    const lobby=lobbySnap.val();
+    lobbyMembers=lobby.members||{};
+    const settings=lobby.settings||{};
+    if(settings.pickOrderAlpha) lobbyPickOrderAlpha=settings.pickOrderAlpha;
+    if(settings.pickOrderBravo) lobbyPickOrderBravo=settings.pickOrderBravo;
+  }
+  subscribeLobby();
+  showLobbyHost();
+}
+
 // ===== ドラフト中にホストがロビーへ戻る（Feature-1） =====
 window.backToLobby = async function(){
   if(!isMulti || !isHost || !roomId) return;
@@ -4685,54 +4990,31 @@ window.backToLobby = async function(){
   // タイマー停止
   clearTimer();
   // メンバードラフトの一時状態も片付ける（ロビー復帰時に選抜画面が残らないように）
-  stopWpTimer(); stopWpCountdown(); _wpPhaseActive=false; lobbyWeaponPick=null; stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; _mdAutoStarted=false; lobbyMemberDraft=null;
+  stopLobbyPhases();
   await Promise.all([
     remove(ref(db,`rooms/${roomId}/lobby/memberDraft`)),
     remove(ref(db,`rooms/${roomId}/lobby/weaponPick`)),
   ]);
 
   // 全Firebase購読を解除（lobby監視は後で再登録）
-  [fbUnsub, fbBanUnsub, fbSimPickUnsub, fbIndividualBanUnsub, fbGachaUnsub, fbTradeUnsub, fbSeriesUnsub].forEach(f=>{if(f){f();}});
-  fbUnsub = fbBanUnsub = fbSimPickUnsub = fbIndividualBanUnsub = fbGachaUnsub = fbTradeUnsub = fbSeriesUnsub = null;
-  if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
+  unsubscribeRoomListeners();
 
   // Firebaseのドラフトデータを全削除（lobby/members は残す）
   // state を null にすることで参加者が subscribeRoom() 経由でロビーへ自動遷移する
-  await Promise.all([
-    remove(ref(db, `rooms/${roomId}/state`)),
-    remove(ref(db, `rooms/${roomId}/pending_alpha_bans`)),
-    remove(ref(db, `rooms/${roomId}/pending_bravo_bans`)),
-    remove(ref(db, `rooms/${roomId}/pending_bans`)),
-    remove(ref(db, `rooms/${roomId}/pending_alpha_pick`)),
-    remove(ref(db, `rooms/${roomId}/pending_bravo_pick`)),
-    remove(ref(db, `rooms/${roomId}/gacha`)),
-    remove(ref(db, `rooms/${roomId}/pending_trade`)),
-    remove(ref(db, `rooms/${roomId}/series_rule`)),
-  ]);
+  await clearDraftRoomData(roomId);
 
   // ローカルの全一時変数をリセット
   state = null;
   resetTransientDraftState();
 
   // Firebase からメンバー情報を最新取得してロビーへ戻る
-  const lobbySnap = await get(ref(db, `rooms/${roomId}/lobby`));
-  if(lobbySnap.exists()){
-    const lobby = lobbySnap.val();
-    lobbyMembers = lobby.members || {};
-    const s = lobby.settings || {};
-    if(s.pickOrderAlpha) lobbyPickOrderAlpha = s.pickOrderAlpha;
-    if(s.pickOrderBravo) lobbyPickOrderBravo = s.pickOrderBravo;
-  }
-
-  subscribeLobby();
-  showLobbyHost();
+  await restoreHostLobby(roomId);
 };
 
 // ===== 退出 =====
-window.leaveLobby = function(){
-  stopWpTimer(); stopWpCountdown(); _wpPhaseActive=false; lobbyWeaponPick=null; stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; _mdAutoStarted=false; lobbyMemberDraft=null;
-  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub,fbTradeUnsub,fbSeriesUnsub].forEach(f=>{if(f){f();} });
-  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=fbTradeUnsub=fbSeriesUnsub=null;
+function leaveRoom(){
+  stopLobbyPhases();
+  unsubscribeRoomListeners(true);
   if(isMulti&&!isHost&&myMemberId&&roomId){
     remove(ref(db,`rooms/${roomId}/lobby/members/${myMemberId}`));
     clearSavedMemberId(roomId); // 意図的な退出: 再アタッチ情報を破棄
@@ -4740,21 +5022,9 @@ window.leaveLobby = function(){
   roomId=null; isMulti=false; isHost=false; myMemberId=null;
   lobbyMembers={}; lobbyPickOrderAlpha=[]; lobbyPickOrderBravo=[];
   showScreen('mode');
-};
-window.goHome = function(){
-  stopWpTimer(); stopWpCountdown(); _wpPhaseActive=false; lobbyWeaponPick=null; stopMdTimer(); stopMdCountdown(); _mdPhaseActive=false; _mdAutoStarted=false; lobbyMemberDraft=null;
-  [fbLobbyUnsub,fbUnsub,fbBanUnsub,fbSimPickUnsub,fbIndividualBanUnsub,fbGachaUnsub,fbTradeUnsub,fbSeriesUnsub].forEach(f=>{if(f){f();}});
-  fbLobbyUnsub=fbUnsub=fbBanUnsub=fbSimPickUnsub=fbIndividualBanUnsub=fbGachaUnsub=fbTradeUnsub=fbSeriesUnsub=null;
-  // 参加者がモード選択に戻る際も Firebase lobby から自分を削除する
-  // （再ドラフト時にホストが古いメンバー情報を取得してしまうのを防ぐ）
-  if(isMulti&&!isHost&&myMemberId&&roomId){
-    remove(ref(db,`rooms/${roomId}/lobby/members/${myMemberId}`));
-    clearSavedMemberId(roomId); // 意図的な退出: 再アタッチ情報を破棄
-  }
-  roomId=null; isMulti=false; isHost=false; myMemberId=null;
-  lobbyMembers={}; lobbyPickOrderAlpha=[]; lobbyPickOrderBravo=[];
-  showScreen('mode');
-};
+}
+window.leaveLobby=leaveRoom;
+window.goHome=leaveRoom;
 
 // state の null/undefined フィールドを正規化（Firebase は空配列を保存しない）
 function normalizeState(s){
@@ -4875,6 +5145,14 @@ function renderPickFlow(){
 function renderDraft(){
   // ※ pendingSelect は仮選択状態を保持するため、ここでは絶対にリセットしない
   normalizeState(state);
+  const pendingStage=stageDraftPending(state);
+  document.getElementById('stage-draft-panel').style.display=pendingStage?'block':'none';
+  document.getElementById('weapon-draft-content').style.display=pendingStage?'none':'';
+  if(pendingStage){ clearTimer(); renderStageDraft(); return; }
+  if(state.series?.stageDraft) maybePlayChallengeRoulette();
+  const sd=state.series?.stageDraft, summary=document.getElementById('stage-draft-summary');
+  summary.style.display=sd?.games?.length?'':'none';
+  if(sd?.games?.length) summary.textContent=`ステージ予定: ${sd.games.map((name,i)=>`${i+1}戦目 ${name}`).join(' / ')}`;
   const S=state, step=S.seq[S.idx], done=!step, isBan=!done&&step.phase==='ban';
   const isSimPick=!done&&step.phase==='pick'&&step.team==='both';
   // ガチャ: BAN 後（seq 終端）かつ両チーム未確定の間は専用フェーズ
@@ -5005,7 +5283,8 @@ function renderDraft(){
     document.getElementById('tia').style.display=step.team==='alpha'?'':'none';
     document.getElementById('tib').style.display=step.team==='bravo'?'':'none';
   }
-  renderSlots('alpha'); renderSlots('bravo'); renderGrid();
+  renderSlots('alpha'); renderSlots('bravo');
+  if(!gachaPhase) renderGrid(); // ガチャ中は非表示の候補グリッドを作り直さない
   if(pendingSelect && pendingSelect.phase==='pick') renderSlotsWithPending();
   renderPickFlow();
 
@@ -5088,8 +5367,7 @@ function myTeamOf(S){
 function isRepBanRepresentative(S){
   if(!isMulti) return true;
   if(S.pickMode==='individual' && S.banMode==='individual') return true; // 個人BAN
-  if(S.banMode!=='representative') return true;
-
+  // 個人ピック以外はBANモードの保存値に関係なく代表者BAN。
   const myTeam = myTeamOf(S);
   const repId  = repIdOf(S, myTeam);
 
@@ -5184,7 +5462,7 @@ function renderBanPanel(){
   // 各チームの代表者（＝BAN操作の担当者）を常に明記する
   const repRow=document.getElementById('ban-reps');
   if(repRow){
-    if(isMulti && (S.banMode||'representative')==='representative' && !(S.pickMode==='individual'&&S.banMode==='individual')){
+    if(isMulti && !(S.pickMode==='individual'&&S.banMode==='individual')){
       const meId=myMemberId;
       const one=(team,name)=>{
         const id=repIdOf(S,team);
@@ -5612,7 +5890,7 @@ function renderGrid(){
     btn.dataset.gridId=banIdOf(w);
     btn.className='wb'+(isBanW?' is-bn':'')+(isTeamBanW?' is-teamban':'')+(isPickW?' is-pk':'')+(isLockW&&!isBanW&&!isPickW&&!isTeamBanW?' is-locked':'')+(unavail?' has-rs':'');
     btn.disabled=unavail||!clickable;
-    btn.innerHTML=`<img src="${esc(w.imgUrl)}" alt="${esc(w.name)}" onerror="this.style.height='38px';this.style.opacity='.2'">
+    btn.innerHTML=`<img src="${esc(w.imgUrl)}" alt="${esc(w.name)}" loading="lazy" decoding="async" onerror="this.style.height='38px';this.style.opacity='.2'">
       <div class="wn">${esc(w.name)}</div>
       ${reason?`<span class="wrs ${reason.cls}">${reason.label}</span>`:''}`;
     if(clickable&&!unavail){
@@ -5647,7 +5925,7 @@ function renderBanGenreTiles(S, gran, repIt, repEligible, grid, basePool, select
     btn.dataset.gridId=id;
     btn.className='wb'+(isBanned?' is-bn':'')+(isSel?' is-sel':'');
     btn.disabled=!clickable;
-    btn.innerHTML=`<img src="${esc(g.imgUrl)}" alt="${esc(val)}" onerror="this.style.height='38px';this.style.opacity='.2'">
+    btn.innerHTML=`<img src="${esc(g.imgUrl)}" alt="${esc(val)}" loading="lazy" decoding="async" onerror="this.style.height='38px';this.style.opacity='.2'">
       <div class="wn">${esc(val)}<span style="color:var(--mu);font-size:9px"> ${cnt}種</span></div>
       ${isBanned?'<span class="wst b">BAN</span>':''}`;
     if(clickable) selectable.set(id,g);
@@ -6432,23 +6710,10 @@ window.redraftWithSameMembers = async function(){
   clearTimer();
 
   // ② 全Firebase購読を解除
-  [fbUnsub, fbBanUnsub, fbSimPickUnsub, fbIndividualBanUnsub, fbGachaUnsub, fbTradeUnsub, fbSeriesUnsub].forEach(f=>{if(f){f();}});
-  fbUnsub = fbBanUnsub = fbSimPickUnsub = fbIndividualBanUnsub = fbGachaUnsub = fbTradeUnsub = fbSeriesUnsub = null;
-  // fbLobbyUnsub はここでは解除しない（再開後に subscribeLobby で張り直す）
-  if(fbLobbyUnsub){fbLobbyUnsub();fbLobbyUnsub=null;}
+  unsubscribeRoomListeners();
 
   // ③ Firebaseのドラフトデータを全削除（lobby/members は残す）
-  await Promise.all([
-    remove(ref(db, `rooms/${roomId}/state`)),
-    remove(ref(db, `rooms/${roomId}/pending_alpha_bans`)),
-    remove(ref(db, `rooms/${roomId}/pending_bravo_bans`)),
-    remove(ref(db, `rooms/${roomId}/pending_bans`)),
-    remove(ref(db, `rooms/${roomId}/pending_alpha_pick`)),
-    remove(ref(db, `rooms/${roomId}/pending_bravo_pick`)),
-    remove(ref(db, `rooms/${roomId}/gacha`)),
-    remove(ref(db, `rooms/${roomId}/pending_trade`)),
-    remove(ref(db, `rooms/${roomId}/series_rule`)),
-  ]);
+  await clearDraftRoomData(roomId);
 
   // ④ ローカルの全一時変数をリセット（前回ドラフトのデータが混入しないように）
   state = null;
@@ -6456,19 +6721,7 @@ window.redraftWithSameMembers = async function(){
 
   // ⑤ lobbyメンバー情報を再取得してロビー画面へ戻る
   // lobbyMembers は既にキャッシュされているが、Firebase から最新を取り直す
-  const lobbySnap = await get(ref(db, `rooms/${roomId}/lobby`));
-  if(lobbySnap.exists()){
-    const lobby = lobbySnap.val();
-    lobbyMembers = lobby.members || {};
-    // ピック順を復元
-    const s = lobby.settings || {};
-    if(s.pickOrderAlpha) lobbyPickOrderAlpha = s.pickOrderAlpha;
-    if(s.pickOrderBravo) lobbyPickOrderBravo = s.pickOrderBravo;
-  }
-
-  // ⑥ ロビー監視を再開（参加者はstateがnullになったことを検知してロビーへ戻る）
-  subscribeLobby();
-  showLobbyHost();
+  await restoreHostLobby(roomId);
 };
 
 // ===== ページ離脱時クリーンアップ =====

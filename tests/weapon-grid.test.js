@@ -30,6 +30,18 @@ test('ジャンル候補は重複を除き、武器種は決められた順序�
   assert.equal(subs.length,7);
 });
 
+test('武器インデックスはデータ差し替え後に更新される', () => {
+  const first=fixtureWeapons();
+  app.__set({WEAPONS:first});
+  assert.equal(app.weaponByKey('w1'),first[0]);
+  assert.equal(app.catRepImgUrl('シューター'),first[0].imgUrl);
+  const second=[{key:'new',cat:'シューター',imgUrl:'new.png'}];
+  app.__set({WEAPONS:second});
+  assert.equal(app.weaponByKey('w1'),null);
+  assert.equal(app.weaponByKey('new'),second[0]);
+  assert.equal(app.catRepImgUrl('シューター'),'new.png');
+});
+
 test('候補はBAN、取得、ロック、味方BANを判定し、BANを優先表示する', () => {
   const status=app.weaponGridStatus(weapon,context({
     bannedKeys:new Set(['w1']), pickedKeys:new Set(['w1']),

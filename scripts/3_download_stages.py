@@ -1,70 +1,34 @@
-"""
-Step 3: ステージ画像を Inkipedia から一括ダウンロードする
+"""Sendou.ink の公開リポジトリからステージ画像を取得する。
+
+画像の再利用許諾や任天堂の権利が解決済みであることを意味しません。
 実行: python scripts/3_download_stages.py
 """
-import os
 import time
 import urllib.request
 from pathlib import Path
 
-INKIPEDIA_BASE = "https://splatoonwiki.org/wiki/Special:FilePath/S3_Stage_"
-OUT_DIR = Path("images/stages")
+BASE = "https://raw.githubusercontent.com/sendou-ink/assets/main/assets/img/stages"
+OUT_DIR = Path("images/sendou-stages")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# HTMLファイルの STAGES_DATA と一致させる
-STAGES = [
-    ("ユノハナ大渓谷",            "Scorch_Gorge"),
-    ("ゴンズイ地区",              "Eeltail_Alley"),
-    ("ヤガラ市場",                "Hagglefish_Market"),
-    ("マテガイ放水路",            "Undertow_Spillway"),
-    ("ナメロウ金属",              "Um%27ami_Ruins"),
-    ("クサヤ温泉",                "Mincemeat_Metalworks"),
-    ("ヒラメが丘団地",            "Flounder_Heights"),
-    ("マサバ海峡大橋",            "Hammerhead_Bridge"),
-    ("スメーシーワールド",        "Barnacle_%26_Dime"),
-    ("キンメダイ美術館",          "Crableg_Capital"),
-    ("マヒマヒリゾート＆スパ",    "Mahi-Mahi_Resort"),
-    ("海女美術大学",              "Inkblot_Art_Academy"),
-    ("バイガイ亭",                "Brinewater_Springs"),
-    ("チョウザメ造船",            "Sturgeon_Shipyard"),
-    ("ザトウマーケット",          "Museum_d%27Alfonsino"),
-    ("タラポートショッピングパーク", "Wahoo_World"),
-    ("ネギトロ炭鉱",              "Gone_Fission_Hydroplant"),
-    ("カジキ空港",                "MakoMart"),
-    ("リュウグウターミナル",      "Bluefin_Depot"),
-    ("グランドスプラットランドボウル", "Grand_Splatlands_Bowl"),
-]
-
-ok = 0
-skip = 0
-fail = 0
-
-for i, (ja, en) in enumerate(STAGES, 1):
-    # ファイル名は URLエンコードを解除した英語名 + .png
-    safe_en = en.replace("%27", "'").replace("%26", "&")
-    fname = f"{safe_en}.png"
-    dest = OUT_DIR / fname
-
-    if dest.exists() and dest.stat().st_size > 0:
-        print(f"[{i:>2}/{len(STAGES)}] SKIP {ja}")
-        skip += 1
+failed = []
+for stage_id in range(25):
+    dest = OUT_DIR / f"{stage_id}.avif"
+    if dest.exists() and dest.stat().st_size:
+        print(f"SKIP {dest}")
         continue
-
-    url = f"{INKIPEDIA_BASE}{en}.png"
     try:
-        # Inkipedia はリダイレクトするので follow_redirects が必要
-        req = urllib.request.Request(url, headers={"User-Agent": "SplatoonDraftTool/1.0"})
-        with urllib.request.urlopen(req, timeout=30) as res:
-            data = res.read()
-        with open(dest, "wb") as f:
-            f.write(data)
-        size_kb = len(data) // 1024
-        print(f"[{i:>2}/{len(STAGES)}] ✓  {ja}  ({size_kb} KB)")
-        ok += 1
-    except Exception as e:
-        print(f"[{i:>2}/{len(STAGES)}] ✗  {ja}  ERROR: {e}")
-        fail += 1
+        request = urllib.request.Request(f"{BASE}/{stage_id}.avif", headers={"User-Agent": "SplatoonDraftTool/1.0"})
+        with urllib.request.urlopen(request, timeout=30) as response:
+            data = response.read()
+        if not data or b"ftypavif" not in data[:32]:
+            raise ValueError("AVIF 画像ではありません")
+        dest.write_bytes(data)
+        print(f"OK {dest} ({len(data)} bytes)")
+    except Exception as exc:
+        print(f"ERROR {dest}: {exc}")
+        failed.append(stage_id)
+    time.sleep(0.1)
 
-    time.sleep(0.3)  # Inkipedia は少し多めに待つ
-
-print(f"\n完了: 取得 {ok} / スキップ {skip} / 失敗 {fail}")
+if failed:
+    raise SystemExit(f"取得失敗: {failed}")

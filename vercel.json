@@ -1,0 +1,4 @@
+{
+  "buildCommand": "mkdir -p public && cp index.html manifest.json public/ && cp -R data images public/",
+  "outputDirectory": "public"
+}

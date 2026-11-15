@@ -29,8 +29,12 @@ const EXPORT_NAMES = [
   'resolveRepresentative','repIdOf','repNameOf','myTeamOf',
   'isRepBanRepresentative','isSeriesChooserOperator','gachaCanOperate','isTradeOperator',
   'statKey','buildStatsUpdates','buildStatsRanking',
-  'filterWeaponPool','genreValuesFromPool','weaponGridStatus','canSelectGridWeapon',
-  'RULES','CATEGORY_ORDER','CHALLENGES',
+  'filterWeaponPool','genreValuesFromPool','weaponGridStatus','canSelectGridWeapon','weaponByKey','catRepImgUrl',
+  'startTimer','clearTimer','startMdTimer','stopMdTimer','startWpTimer','stopWpTimer',
+  'unsubscribeRoomListeners','clearDraftRoomData',
+  'createInitialDraftState',
+  'validStagePool','stageDraftPending','stageDraftTurn','applyStageDraftAction','isStageOperator','buildRoomPresetSettings','ROOM_PRESETS',
+  'RULES','CATEGORY_ORDER','CHALLENGES','STAGES_DATA',
 ];
 
 let cached = null;
@@ -63,10 +67,20 @@ function loadApp(){
     + '  if("bravoPickSubmitted" in o) bravoPickSubmitted = o.bravoPickSubmitted;'
     + '  if("banPendingIndividual" in o) banPendingIndividual = o.banPendingIndividual;'
     + '  if("simPickPending" in o) simPickPending = o.simPickPending;'
+    + '  if("fbLobbyUnsub" in o) fbLobbyUnsub = o.fbLobbyUnsub;'
+    + '  if("fbUnsub" in o) fbUnsub = o.fbUnsub;'
+    + '  if("fbBanUnsub" in o) fbBanUnsub = o.fbBanUnsub;'
+    + '  if("fbSimPickUnsub" in o) fbSimPickUnsub = o.fbSimPickUnsub;'
+    + '  if("fbIndividualBanUnsub" in o) fbIndividualBanUnsub = o.fbIndividualBanUnsub;'
+    + '  if("fbGachaUnsub" in o) fbGachaUnsub = o.fbGachaUnsub;'
+    + '  if("fbTradeUnsub" in o) fbTradeUnsub = o.fbTradeUnsub;'
+    + '  if("fbSeriesUnsub" in o) fbSeriesUnsub = o.fbSeriesUnsub;'
+    + '  if("fbStageDraftUnsub" in o) fbStageDraftUnsub = o.fbStageDraftUnsub;'
     + '}'
-    + ',__get(){ return { WEAPONS, banPending, pendingSelect, state, isMulti, isHost, myMemberId }; }'
+    + ',__get(){ return { WEAPONS, banPending, pendingSelect, state, isMulti, isHost, myMemberId, timerIntervalId, timerDeadline:startTimer._deadline, mdTimerInterval, wpTimerInterval }; }'
     + '};';
 
+  const removedPaths=[];
   const sandbox = {
     console, setTimeout, setInterval, clearTimeout, clearInterval,
     URLSearchParams, Promise, Math, Date, JSON,
@@ -93,16 +107,18 @@ function loadApp(){
     ref(db, p){ return { path: p }; },
     set(){ return Promise.resolve(); },
     update(){ return Promise.resolve(); },
-    remove(){ return Promise.resolve(); },
+    remove(reference){ removedPaths.push(reference.path); return Promise.resolve(); },
     get(){ return Promise.resolve({ exists: () => false, val: () => null }); },
     onValue(){ return () => {}; },
     increment(n){ return { __increment: n }; },
     signInAnonymously(){ return Promise.resolve({ user: { uid: 'test-uid' } }); },
   };
   sandbox.window = sandbox;
+  sandbox.__removedPaths = removedPaths;
   vm.createContext(sandbox);
   vm.runInContext(src + appendix, sandbox, { filename: 'index-app.js' });
   cached = sandbox.__app;
+  cached.__removedPaths = removedPaths;
   return cached;
 }
 

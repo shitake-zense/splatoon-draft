@@ -120,3 +120,16 @@ test('個人ピック×個人BANでは全員がBAN操作可（代表者制では
     assert.equal(app.isRepBanRepresentative(S), true, id);
   });
 });
+
+
+test('代表者ピック・ガチャのBANは以前の個人BAN設定が残っても代表者だけ操作できる', () => {
+  const S = hostOnBravoState();
+  S.banMode = 'individual';
+  for (const mode of ['team', 'gacha']) {
+    S.pickMode = mode;
+    for (const id of ['a1','a2','h1','b2']) {
+      asClient(id, id==='h1', S);
+      assert.equal(app.isRepBanRepresentative(S), id==='a1'||id==='h1', `${mode}: ${id}`);
+    }
+  }
+});
