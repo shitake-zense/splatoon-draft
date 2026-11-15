@@ -146,6 +146,13 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .preset-card h3{margin:0 0 5px;font-size:15px;color:var(--y);}
 .preset-card p{margin:0;color:var(--tx);font-size:12px;line-height:1.6;}
 .preset-card .btn-re{margin-top:10px;}
+.stage-pool{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px;max-height:220px;overflow:auto;}
+.stage-pool label{display:flex;align-items:center;gap:6px;padding:7px;background:#0f1724;border:1px solid #405064;border-radius:7px;cursor:pointer;font-size:12px;}
+.stage-pool-actions{display:flex;gap:8px;margin:8px 0;}
+.stage-pool-actions button{padding:6px 10px;border:1px solid #405064;border-radius:6px;background:#0f1724;color:var(--tx);cursor:pointer;}
+.stage-choice{min-height:88px;display:flex;align-items:end;text-align:left;color:white!important;text-shadow:0 1px 4px #000,0 1px 8px #000;background-size:cover;background-position:center;border:2px solid #405064;font-weight:bold;line-height:1.35;}
+.stage-choice[aria-pressed="true"]{border-color:var(--y);box-shadow:0 0 0 2px var(--y);}
+.stage-choice:disabled{opacity:.48;cursor:not-allowed;}
 .guide-wrap{max-width:560px;margin:24px auto 0;}
 .guide-tabs{display:flex;gap:6px;margin-bottom:14px;}
 .guide-tab{flex:1;padding:9px 4px;background:var(--s1);border:1.5px solid #2a2a4a;border-radius:8px;color:var(--mu);font-size:12px;cursor:pointer;font-family:inherit;}
@@ -670,7 +677,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
         <p class="guide-note">担当者の名前は<b>BANパネル</b>と<b>結果画面のルール選択</b>に常に表示されます（自分が担当のときは「あなた」バッジが付きます）。</p>
       </div>
       <div class="guide-card">
-        <h3>ステージ BAN / PICK とプリセット</h3><p>部屋を作るときに5種類のプリセットから選べます。選んだ設定はロビーで変更できます。BO3のステージBAN / PICKでは候補を5つ以上選び、先攻BAN → 後攻BAN → 先攻PICK → 後攻PICK。1・2戦目はPICK順、3戦目はBAN・PICK以外から抽選します。各チームの代表者が操作します。ステージ選択中に制限時間はありません。</p><h3>設定項目の説明（特に分かりにくいもの）</h3>
+        <h3>ステージ BAN / PICK とプリセット</h3><p>部屋を作るときに5種類のプリセットから選べます。選んだ設定はロビーで変更できます。ステージ方式は通常・おまかせロスト・カウンターピック・BAN / PICKから選べます。候補数は最大試合数に合わせて表示されます。カウンターは初戦ランダム、次戦以降は敗者が未使用ステージを選択。BAN / PICKは各1 BAN後に先攻から交互にPICKし、最終戦は残りから抽選します（1試合では先攻がPICK）。代表者は画像を2回押して確定します。ステージ選択中に制限時間はありません。</p><h3>設定項目の説明（特に分かりにくいもの）</h3>
         <dl class="guide-dl">
           <dt>人数 / BAN数</dt>
           <dd>人数は 1v1〜4v4。<b>BAN数</b>は各チームがBANする武器の数（なし〜各8・既定は各4）。両チーム同じ数です。</dd>
@@ -703,7 +710,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
           <dd>ONにすると、武器ドラフトの前に<b>チーム分けをキャプテン選抜で</b>行えます。チーム割り当てで<b>各チームのキャプテンを1名ずつ</b>（α／β）に置き、残りは<b>未割り当て（プール）</b>に。両チーム代表者が揃い<b>人数が足りていれば（2v2以上・合計2×人数以上）</b>「メンバードラフト開始」が押せます。開始後は2人のキャプテンが<b>交互にプールから1人ずつ指名</b>（先攻チームが先）。制限時間ONなら<b>時間切れでランダム自動指名</b>。<br><b>タイミング</b>を選べます：<br>・<b>「チーム分け→ドラフト」</b>＝選抜が終わると<b>そのまま武器ドラフト（BAN/PICK）へ自動で進み、指名した順番がそのままピック順</b>になります（各チーム、キャプテンが先頭→指名順）。<br>・<b>「全員が武器ピック→チーム分け」</b>＝先に<b>全員（キャプテン含む）がランダム順で1人ずつ武器を選び（すでに選ばれた武器は選べません）</b>、その後にキャプテンがチーム分け。BANはなし。各自が選んだ武器を持ったまま結果に進みます。</dd>
 
           <dt>連戦モード（シリーズ）</dt>
-          <dd>1ルームで<b>複数試合を連続</b>で行います。<b>シリーズ長</b>＝BO3（先取2）／BO5（先取3）。各試合のドラフトが終わったら結果画面で<b>ホストが勝者を入力</b>すると、ステージが変わって次の試合のドラフトが始まります。先取数に達するとシリーズ終了で、<b>戦績ボード</b>（各試合の勝者・ルール・ステージ・両チームの編成一覧）が表示され、<b>「🖼️ シリーズ画像を保存」</b>で全試合を1枚のPNGにまとめて保存できます。</dd>
+          <dd>1ルームで<b>複数試合を連続</b>で行います。<b>シリーズ長</b>＝BO3（先取2）／BO5（先取3）／BO7（先取4）／BO9（先取5）。各試合のドラフトが終わったら結果画面で<b>ホストが勝者を入力</b>すると、ステージが変わって次の試合のドラフトが始まります。先取数に達するとシリーズ終了で、<b>戦績ボード</b>（各試合の勝者・ルール・ステージ・両チームの編成一覧）が表示され、<b>「🖼️ シリーズ画像を保存」</b>で全試合を1枚のPNGにまとめて保存できます。</dd>
 
           <dt>連戦のガチルール進行</dt>
           <dd><b>BO3</b>＝毎試合ガチルールをランダム。<b>BO5</b>＝1〜4試合目を<b>ガチエリア→ヤグラ→ホコ→アサリ</b>の固定順、5試合目はランダム。<br><b>⚖️ 負けチームがルール設定</b>をONにすると、各試合の<b>敗者が次の試合のガチルールを選びます</b>（2試合目以降。1試合目は上記の自動進行）。<b>選ぶのは「敗者チームの代表者＝そのチームの1ピック目」1人だけ</b>で、その人の名前が結果画面に🎯付きで表示されます（自分が担当なら「あなた」バッジ）。ソロでは操作者が選びます。<br>担当者が席を外しているなど操作できないときは、<b>ホストが代理で決める</b>ボタンからも進められます。</dd>
@@ -732,7 +739,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
         <p class="guide-note">部屋番号は初期状態で伏せられ、「部屋番号を非表示中」で切り替えられます。ブラウザのアドレス欄や共有URLには番号が含まれます。配信時はアドレス欄を映さないでください。</p>
         <p class="guide-note">制限時間が設定されている場合は時間内に送信してください。時間切れ時は<b>確定済み→仮選択→ランダム</b>の順で自動送信されます。</p>
         <p class="guide-note">ドラフト後トレードがONのときは、結果画面で<b>各チームの代表者</b>が武器の交換を提案・承認できます（提案が届くと結果画面に表示されます）。</p>
-        <p class="guide-note">ステージ BAN / PICK がONのBO3では、武器ドラフトの前に各チームの代表者が交互に1つずつBANし、次に1つずつPICKします。画面に表示される自チームの手番で選択してください。</p>
+        <p class="guide-note">ステージ BAN / PICK では、武器ドラフトの前に各チームの代表者が交互にBANしてからPICKします。カウンターピックでは、2試合目以降、前試合の敗者の代表者が未使用のステージを選びます。画像を2回押すと確定します。</p>
       </div>
     </div>
 
@@ -742,7 +749,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
         <h3>1ドラフトの進行</h3>
         <ol class="guide-list">
           <li><b>ロビー</b> … メンバー集合・チーム割り当て・ピック順の確認。</li>
-          <li><b>ステージ BAN / PICK</b>（BO3で有効な場合） … 先攻から各チームが交互に1つBANし、続けて1つPICK。同じステージを2回押すと確定します。1・2戦目はPICK順、3戦目は残りから抽選します。</li>
+          <li><b>ステージ BAN / PICK</b>（選択時） … 両チームが各1 BANし、先攻から交互にPICK。同じステージを2回押すと確定します。最終戦は残りから抽選します（1試合では先攻がPICK）。</li>
           <li><b>BANフェーズ</b> … 使えない武器を決めます。代表者BANは両チーム同時送信で相手の選択が伏せられます（個人BANも選択可）。武器・武器種・サブ・スペシャル単位でBANできます。<b>個人BANでは味方が送信したBANがグリッドに「味方」マークで共有表示</b>され、チーム内でのBAN重複を避けられます（相手のBANは揃うまで伏せたまま）。</li>
           <li><b>PICKフェーズ</b> … ピック順（交互／スネーク等）に沿って武器を選びます。同時ピックは両チームが選び一斉公開します。<b>🎲ガチャ</b>の場合はBAN後に人数分の武器がランダム配布され、各チームが引き直し→「確定」するだけで完了します。</li>
           <li><b>リザルト</b> … 両チームの編成・ステージ／ルール・お題の達成（○／×）が表示されます。<b>ドラフト後トレード</b>がONなら、ここで武器の交換を提案→相手代表者の承認で成立します。</li>
@@ -750,7 +757,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
         </ol>
         <p class="guide-note">メンバードラフト（マルチ専用）がONのときは、ロビーでホストが各チームのキャプテンを1名ずつ選ぶと「メンバードラフト開始」が押せます（2v2以上・人数が揃っているときのみ）。開始後は2人のキャプテンが交互にプールから1人ずつ指名し、両チームが埋まると武器ドラフトへ進みます（制限時間ONなら時間切れでランダム指名）。</p>
         <p class="guide-note">お題カードをONにすると開始時に縛りを1枚抽選します（両チーム共通・非強制で、達成は結果に○×表示）。</p>
-        <p class="guide-note">連戦モード（シリーズ）がONのときは、結果画面でホストが各試合の勝者を入力すると次の試合へ進みます。先取数（BO3=2／BO5=3）に達するとシリーズ終了で、戦績ボード（各試合の編成一覧）とシリーズ画像の保存ができます。ガチルールは BO3=毎回ランダム／BO5=エリア→ヤグラ→ホコ→アサリ→ランダム。「負けチームがルール設定」ONなら2試合目以降は<b>敗者チームの代表者（1ピック目の人）</b>が次のガチルールを選びます。誰が選ぶかは結果画面に🎯付きで名前が出ます（担当者が操作できない場合はホストが代理決定できます）。</p>
+        <p class="guide-note">連戦モード（シリーズ）がONのときは、結果画面でホストが各試合の勝者を入力すると次の試合へ進みます。先取数（BO3=2／BO5=3／BO7=4／BO9=5）に達するとシリーズ終了で、戦績ボード（各試合の編成一覧）とシリーズ画像の保存ができます。ガチルールは BO3・BO7・BO9=毎回ランダム／BO5=エリア→ヤグラ→ホコ→アサリ→ランダム。「負けチームがルール設定」ONなら2試合目以降は<b>敗者チームの代表者（1ピック目の人）</b>が次のガチルールを選びます。誰が選ぶかは結果画面に🎯付きで名前が出ます（担当者が操作できない場合はホストが代理決定できます）。</p>
         <p class="guide-note"><b>武器の選び方</b>：タイルを1回タップすると仮選択、<b>同じタイルをもう一度タップ</b>すると確定します。別の武器をタップすると選び直せます。BANと同時ピックは、選択後にパネルの送信ボタンを押してください。</p>
         <p class="guide-note"><b>グリッドの見やすさ設定</b>（端末ごとに保存）：<b>「選べる武器だけ」</b>にチェックすると使用不可の武器を隠せます。<b>［大］［中］［小］</b>でタイルの大きさを切替でき、<b>大</b>なら武器名が省略されずに全部読めます。選べない武器にはタイル下に理由（<b>BAN済み／取得済み／🔒 連戦ロック／味方がBAN</b>）が出ます。</p>
         <p class="guide-note">ドラフト画面 右上の <b>🔊</b>＝確定音（既定OFF）、<b>🗣️</b>＝武器読み上げ（既定OFF）のトグルです。BAN/PICKを確定するたびに効果音が鳴り、読み上げONなら確定した武器名を読み上げます（端末ごとの設定・音は自動生成で外部ファイルなし）。</p>
@@ -921,6 +928,22 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
         <label>ステージ</label>
         <select id="sm" onchange="onSettingChange()"><option value="random">ランダム</option></select>
       </div>
+      <div id="series-stage-row" style="margin:14px 0">
+        <div class="row"><label for="stage-mode">ステージ方式</label>
+          <select id="stage-mode" onchange="onStageSettingsChange('')">
+            <option value="normal">通常（指定／ランダム）</option>
+            <option value="loss">おまかせロスト</option>
+            <option value="counter">カウンターピック</option>
+            <option value="banpick">BAN / PICK</option>
+          </select>
+        </div>
+        <p id="stage-mode-help" class="setting-hint"></p>
+        <div id="stage-pool-wrap" style="display:none">
+          <div class="stage-pool-actions"><button type="button" onclick="setAllStagePool('',true)">すべて選択</button><button type="button" onclick="setAllStagePool('',false)">すべて解除</button></div>
+          <div id="stage-pool" class="stage-pool"></div>
+          <p id="stage-pool-count" class="setting-hint" aria-live="polite"></p>
+        </div>
+      </div>
       <div class="div"></div>
       <div class="toggle-row">
         <div class="toggle-label">
@@ -1040,15 +1063,12 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       </div>
       <div class="row" id="series-mode-row" style="display:none">
         <label>シリーズ長</label>
-        <select id="series-mode" onchange="onSettingChange()">
+        <select id="series-mode" onchange="onStageSettingsChange('')">
           <option value="bo3">BO3（先取2）</option>
           <option value="bo5">BO5（先取3）</option>
+          <option value="bo7">BO7（先取4）</option>
+          <option value="bo9">BO9（先取5）</option>
         </select>
-      </div>
-      <div id="series-stage-row" style="display:none;margin:10px 0">
-        <label><input type="checkbox" id="stage-draft-enabled" onchange="onStageSettingsChange('')"> 🗺️ ステージ BAN / PICK（BO3）</label>
-        <div id="stage-pool-wrap" style="display:none"><p class="setting-hint">候補を5つ以上選択。先攻・後攻が各1 BAN、各1 PICK。3戦目は残りから抽選。</p>
-        <div id="stage-pool" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px;max-height:220px;overflow:auto"></div><p id="stage-pool-count" class="setting-hint" aria-live="polite"></p></div>
       </div>
       <div class="toggle-row" id="series-lockout-row" style="display:none">
         <div class="toggle-label">
@@ -1291,6 +1311,22 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
         <label>ステージ</label>
         <select id="solo-sm"><option value="random">ランダム</option></select>
       </div>
+      <div id="solo-series-stage-row" style="margin:14px 0">
+        <div class="row"><label for="solo-stage-mode">ステージ方式</label>
+          <select id="solo-stage-mode" onchange="onStageSettingsChange('solo-')">
+            <option value="normal">通常（指定／ランダム）</option>
+            <option value="loss">おまかせロスト</option>
+            <option value="counter">カウンターピック</option>
+            <option value="banpick">BAN / PICK</option>
+          </select>
+        </div>
+        <p id="solo-stage-mode-help" class="setting-hint"></p>
+        <div id="solo-stage-pool-wrap" style="display:none">
+          <div class="stage-pool-actions"><button type="button" onclick="setAllStagePool('solo-',true)">すべて選択</button><button type="button" onclick="setAllStagePool('solo-',false)">すべて解除</button></div>
+          <div id="solo-stage-pool" class="stage-pool"></div>
+          <p id="solo-stage-pool-count" class="setting-hint" aria-live="polite"></p>
+        </div>
+      </div>
       <details class="advanced-settings">
       <summary>追加ルール</summary>
       <div class="row genre-ban-row" id="solo-ban-genre-row">
@@ -1333,15 +1369,12 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       </div>
       <div class="row" id="solo-series-mode-row" style="display:none">
         <label>シリーズ長</label>
-        <select id="solo-series-mode">
+        <select id="solo-series-mode" onchange="onStageSettingsChange('solo-')">
           <option value="bo3">BO3（先取2）</option>
           <option value="bo5">BO5（先取3）</option>
+          <option value="bo7">BO7（先取4）</option>
+          <option value="bo9">BO9（先取5）</option>
         </select>
-      </div>
-      <div id="solo-series-stage-row" style="display:none;margin:10px 0">
-        <label><input type="checkbox" id="solo-stage-draft-enabled" onchange="onStageSettingsChange('solo-')"> 🗺️ ステージ BAN / PICK（BO3）</label>
-        <div id="solo-stage-pool-wrap" style="display:none"><p class="setting-hint">候補を5つ以上選択。先攻・後攻が各1 BAN、各1 PICK。3戦目は残りから抽選。</p>
-        <div id="solo-stage-pool" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px;max-height:220px;overflow:auto"></div><p id="solo-stage-pool-count" class="setting-hint" aria-live="polite"></p></div>
       </div>
       <div class="toggle-row" id="solo-series-lockout-row" style="display:none">
         <div class="toggle-label">
@@ -1643,7 +1676,7 @@ function showSettingRows(enabled, ids){
   ids.forEach(id=>{ const row=document.getElementById(id); if(row) row.style.display=enabled?'':'none'; });
 }
 function showSeriesRows(prefix, enabled){
-  showSettingRows(enabled,['mode','lockout','loser-rules','stage'].map(name=>`${prefix}series-${name}-row`));
+  showSettingRows(enabled,['mode','lockout','loser-rules'].map(name=>`${prefix}series-${name}-row`));
 }
 
 // 保存済み設定をホストの設定フォームへ復元（ホスト再参加時の設定上書き事故を防ぐ）
@@ -1661,7 +1694,7 @@ function applyLobbySettingsToForm(s){
   setVal('member-draft-timing',s.memberDraftTiming||'before');
   showSettingRows(s.memberDraftEnabled,['member-draft-timing-row']);
   showSeriesRows('',s.seriesEnabled);
-  setChk('stage-draft-enabled',s.stageDraftEnabled); setStagePool('',s.stagePool); updateStageSettingsUI('');
+  setVal('stage-mode',s.stageMode||(s.stageDraftEnabled?'banpick':'normal')); setStagePool('',s.stagePool); updateStageSettingsUI('');
   setVal('pick-mode',s.pickMode); setVal('ban-mode',s.banMode);
   if(s.gachaRerolls!==undefined) setVal('gacha-rerolls',s.gachaRerolls);
   setChk('time-limit-enabled',s.timeLimitEnabled); setVal('time-limit-sec',s.timeLimitSec);
@@ -1986,7 +2019,7 @@ window.startSoloDraft = function(){
     seriesMode: document.getElementById('solo-series-mode')?.value||'bo3',
     seriesLockout: document.getElementById('solo-series-lockout')?.checked||false,
     seriesLoserRules: document.getElementById('solo-series-loser-rules')?.checked||false,
-    stageDraftEnabled: document.getElementById('solo-stage-draft-enabled')?.checked||false, stagePool:readStagePool('solo-'),
+    stageMode: document.getElementById('solo-stage-mode')?.value||'normal', stagePool:readStagePool('solo-'),
     timeLimitEnabled: document.getElementById('solo-time-limit-enabled')?.checked||false,
     timeLimitSec: clampTimeLimit(document.getElementById('solo-time-limit-sec')?.value),
     gachaRerolls: parseInt(document.getElementById('solo-gacha-rerolls')?.value||2)||0,
@@ -2016,7 +2049,7 @@ const ROOM_PRESETS=[
   {id:'team',title:'代表者どうしで気軽に',description:'4対4・各2武器BAN。各チームの代表者がBANと味方全員の武器選択を担当します。',settings:{bc:2,pickMode:'team',banMode:'representative'}},
   {id:'simultaneous',title:'同時ピック',description:'4対4・各2武器BAN。各プレイヤーが相手と同時に武器を選び、4回に分けて公開します。',settings:{bc:2,pickMode:'individual',banMode:'representative',po:'sim'}},
   {id:'gacha',title:'お題付きガチャ',description:'4対4・武器BANなし。各チームにランダムで武器を配り、共通のお題の達成にも挑戦します。',settings:{bc:0,pickMode:'gacha',banMode:'representative',challengeEnabled:true}},
-  {id:'stage-bo3',title:'BO3 ステージ BAN / PICK',description:'4対4・各2武器BANの先取2勝。最初に各チームがステージをBAN・PICKし、3戦目は残りから抽選します。',settings:{bc:2,pickMode:'team',banMode:'representative',seriesEnabled:true,stageDraftEnabled:true}},
+  {id:'stage-bo3',title:'BO3 ステージ BAN / PICK',description:'4対4・各2武器BANの先取2勝。最初に各チームがステージをBAN・PICKし、3戦目は残りから抽選します。',settings:{bc:2,pickMode:'team',banMode:'representative',seriesEnabled:true,stageMode:'banpick',stageDraftEnabled:true}},
 ];
 function buildRoomPresetSettings(id){
   const selected=id==='custom'?null:ROOM_PRESETS.find(p=>p.id===id);
@@ -2024,7 +2057,7 @@ function buildRoomPresetSettings(id){
   return {
     an:'アルファ',bn:'ブラボー',ts:4,bc:4,ft:'random',po:'snake',rule:'random',stageJa:'random',
     stdOnly:false,challengeEnabled:false,tradeEnabled:false,seriesEnabled:false,seriesMode:'bo3',
-    seriesLockout:false,seriesLoserRules:false,stageDraftEnabled:false,stagePool:[...STAGES_DATA],
+    seriesLockout:false,seriesLoserRules:false,stageMode:'normal',stageDraftEnabled:false,stagePool:[...STAGES_DATA],
     memberDraftEnabled:false,memberDraftTiming:'before',pickMode:'individual',banMode:'individual',
     banGenres:{cat:0,sub:0,special:0},pickOrderAlpha:[],pickOrderBravo:[],
     timeLimitEnabled:false,timeLimitSec:30,gachaRerolls:2,excludeFilter:{cats:[],subs:[],specials:[]},
@@ -3272,11 +3305,13 @@ window.gachaConfirm = function(team){
 };
 
 // ===== マルチ: ガチャ同期（rooms/{room}/gacha を真実の源とする） =====
+// 同じルームで次戦へ進む際、前のガチャ確定状態を新しいドラフトに使わない。
+function gachaMatchesDraft(S,g){ return !!S && !!g && (S.draftId ? g.draftId===S.draftId : !g.draftId); }
 function subscribeGacha(){
   if(fbGachaUnsub){fbGachaUnsub();fbGachaUnsub=null;}
   fbGachaUnsub=onValue(ref(db,`rooms/${roomId}/gacha`),snap=>{
     const g = snap.exists()? snap.val() : null;
-    if(g){
+    if(gachaMatchesDraft(state,g)){
       const norm = t => ({hand:(g[t]&&g[t].hand)||[], used:(g[t]&&g[t].used)||0, confirmed:!!(g[t]&&g[t].confirmed)});
       state.gacha = {alpha:norm('alpha'), bravo:norm('bravo')};
     } else {
@@ -3290,7 +3325,7 @@ function subscribeGacha(){
 function maybeHostGachaInit(){
   if(!isHost||!isMulti) return;
   const S=state; if(!S) return;
-  const inGacha = !S.seq[S.idx] && S.pickMode==='gacha';
+  const inGacha = !stageDraftPending(S) && !S.seq[S.idx] && S.pickMode==='gacha';
   if(!inGacha || S.gacha) return;
   if(_gachaInitInProgress) return;
   _gachaInitInProgress=true;
@@ -3298,13 +3333,14 @@ function maybeHostGachaInit(){
     alpha:{hand:drawGachaHand(S,S.ts), used:0, confirmed:false},
     bravo:{hand:drawGachaHand(S,S.ts), used:0, confirmed:false},
   };
+  if(S.draftId) g.draftId=S.draftId;
   set(ref(db,`rooms/${roomId}/gacha`), g).finally(()=>{_gachaInitInProgress=false;});
 }
 // ホスト: 両チーム確定したら picks に反映して state を push（→ 全員リザルトへ）
 function maybeHostGachaFinalize(){
   if(!isHost||!isMulti) return;
   const S=state;
-  if(!gachaAllConfirmed(S)) return;
+  if(!S || stageDraftPending(S) || S.seq[S.idx] || !gachaAllConfirmed(S)) return;
   if(_gachaFinalized) return;
   _gachaFinalized=true;
   finalizeGacha(S);
@@ -3560,6 +3596,7 @@ function isSeriesChooserOperator(sr){
 function advanceSeries(sr, chosenRule){
   const cfg=sr.config;
   const nextSeries={...sr, game:sr.game+1, awaitingRule:false, ruleChooser:null, nextRule:(chosenRule||null)};
+  nextSeries.stageDraft=prepareNextStageDraft(sr);
   buildAndStartDraft({
     ...cfg,
     rm:'random', sm:'random', // rule は series 進行(seriesRuleForGame)で決まる。stage は毎戦ランダム
@@ -3567,6 +3604,20 @@ function advanceSeries(sr, chosenRule){
     seriesEnabled:true, seriesMode:sr.mode, seriesLockout:sr.lockout, seriesLoserRules:sr.loserSetsRules,
     series:nextSeries,
   });
+}
+// シリーズ確定時にのみ次戦を準備する。履歴に入った使用済みステージは再選択しない。
+function prepareNextStageDraft(sr,random=Math.random){
+  const d=sr.stageDraft;
+  if(!d || (d.mode!=='loss' && d.mode!=='counter')) return d||null;
+  const next={...d,games:[...(d.games||[])]};
+  if(d.mode==='loss') next.games.push(randomUnusedStage(d.pool,next.games,random));
+  else {
+    const last=(sr.history||[])[(sr.history||[]).length-1];
+    next.chooser=last?.winner==='alpha'?'bravo':'alpha';
+    next.gameTarget=sr.game+1; next.pending=true;
+    next.token=Date.now().toString(36)+Math.random().toString(36).slice(2);
+  }
+  return next;
 }
 // 勝者を記録し、次戦へ進む（または終了／敗者のルール選択待ち）
 function recordSeriesWinnerAndAdvance(winner){
@@ -3669,7 +3720,7 @@ function renderSeriesArea(){
   if(!S || !S.series){ area.style.display='none'; area.innerHTML=''; return; }
   area.style.display='';
   const sr=S.series;
-  const modeLabel = sr.mode==='bo5'?'BO5（先取3）':'BO3（先取2）';
+  const modeLabel = `BO${seriesMaxGames(sr.mode)}（先取${sr.target}）`;
   const score=`<div class="series-score"><span class="a">${esc(S.an)} ${sr.scoreA}</span> － <span class="b">${sr.scoreB} ${esc(S.bn)}</span></div>`;
   const hist=renderSeriesHistory(sr,S);
   let body;
@@ -3717,9 +3768,10 @@ function renderSeriesArea(){
         + `<span style="color:var(--b)">${esc(S.bn)}</span>: <b class="who-name">${esc(repNameOf(S,'bravo'))}</b></div>`
       : '';
     if(seriesIsOperator()){
+      const stageNote=sr.stageDraft?.mode==='counter'?'敗者が次のステージを選びます':sr.stageDraft?.mode==='loss'?'次戦のステージを未使用から抽選します':sr.stageDraft?'次戦は決定済みステージで行います':'ステージは自動で変わります';
       const note = sr.loserSetsRules
-        ? 'この試合の勝者を選んでください（負けたチームの代表者が次のガチルールを選びます）。'
-        : 'この試合の勝者を選ぶと次の試合へ進みます（ステージ／ルールは自動で変わります）。';
+        ? `この試合の勝者を選んでください（敗者が次のガチルールを選び、${stageNote}）。`
+        : `この試合の勝者を選ぶと次の試合へ進みます（${stageNote}）。`;
       body=head + nextChooser
         + `<div class="series-note">${note}</div>`
         + `<div class="series-actions">`
@@ -4139,7 +4191,7 @@ function getLobbySettings(){
     seriesMode: document.getElementById('series-mode')?.value||'bo3',
     seriesLockout: document.getElementById('series-lockout')?.checked||false,
     seriesLoserRules: document.getElementById('series-loser-rules')?.checked||false,
-    stageDraftEnabled: document.getElementById('stage-draft-enabled')?.checked||false, stagePool:readStagePool(''),
+    stageMode: document.getElementById('stage-mode')?.value||'normal', stageDraftEnabled: document.getElementById('stage-mode')?.value==='banpick', stagePool:readStagePool(''),
     memberDraftEnabled: document.getElementById('member-draft-enabled')?.checked||false,
     memberDraftTiming: document.getElementById('member-draft-timing')?.value||'before',
     pickMode: document.getElementById('pick-mode')?.value||'individual',
@@ -4240,39 +4292,73 @@ function setStagePool(prefix,pool){
   if(!Array.isArray(pool)) return;
   document.querySelectorAll('#'+prefix+'stage-pool input[data-stage-index]').forEach(el=>{el.checked=pool.includes(STAGES_DATA[Number(el.dataset.stageIndex)]);});
 }
-function validStagePool(pool){
-  return Array.isArray(pool) && new Set(pool.filter(n=>STAGES_DATA.includes(n))).size>=5 && pool.every(n=>STAGES_DATA.includes(n));
+function seriesMaxGames(mode){ return ({bo3:3,bo5:5,bo7:7,bo9:9})[mode]||3; }
+function requiredStageCount(mode,maxGames){ return mode==='banpick' ? maxGames+2 : mode==='loss'||mode==='counter' ? maxGames : 0; }
+function validStagePool(pool,min=5){
+  return Array.isArray(pool) && new Set(pool.filter(n=>STAGES_DATA.includes(n))).size>=min && pool.every(n=>STAGES_DATA.includes(n));
+}
+function stageSettings(prefix){
+  const mode=document.getElementById(prefix+'stage-mode')?.value||'normal';
+  const maxGames=document.getElementById(prefix+'series-enabled')?.checked ? seriesMaxGames(document.getElementById(prefix+'series-mode')?.value) : 1;
+  return {mode,maxGames,min:requiredStageCount(mode,maxGames)};
 }
 function updateStageSettingsUI(prefix){
-  const enabled=!!document.getElementById(prefix+'series-enabled')?.checked && !!document.getElementById(prefix+'stage-draft-enabled')?.checked;
-  const wrap=document.getElementById(prefix+'stage-pool-wrap'); if(wrap) wrap.style.display=enabled?'':'none';
-  const count=document.getElementById(prefix+'stage-pool-count'); if(count) count.textContent=`候補: ${readStagePool(prefix).length}ステージ（最低5）`;
+  const {mode,maxGames,min}=stageSettings(prefix);
+  const normalSelect=document.getElementById(prefix+'sm'); if(normalSelect) normalSelect.disabled=mode!=='normal';
+  const wrap=document.getElementById(prefix+'stage-pool-wrap'); if(wrap) wrap.style.display=mode!=='normal'?'':'none';
+  const count=document.getElementById(prefix+'stage-pool-count');
+  if(count){ const n=readStagePool(prefix).length; count.textContent=`候補: ${n}ステージ（最低${min}）`; count.style.color=n<min?'var(--bn)':''; }
+  const help=document.getElementById(prefix+'stage-mode-help');
+  if(help) help.textContent=({
+    normal:'通常のステージ設定を使用。連戦では各試合ランダムです。',
+    loss:'候補からランダムに選び、使用済みステージをシリーズ中の候補から除外します。',
+    counter:'1試合目はランダム。2試合目以降は前試合の敗者が未使用ステージを選びます。',
+    banpick:maxGames===1?'両チームが各1 BANし、先攻が1試合目のステージをPICKします。':`両チームが各1 BANし、先攻から${maxGames-1}ステージを交互にPICK。最終戦は残りから抽選します。`,
+  })[mode]||'';
 }
+window.setAllStagePool=function(prefix,checked){ setStagePool(prefix,checked?STAGES_DATA:[]); onStageSettingsChange(prefix); };
 window.onStageSettingsChange=function(prefix){ updateStageSettingsUI(prefix); if(!prefix) onSettingChange(); };
 function validateStageSettings(prefix){
-  if(!document.getElementById(prefix+'series-enabled')?.checked || !document.getElementById(prefix+'stage-draft-enabled')?.checked) return true;
-  if(document.getElementById(prefix+'series-mode')?.value!=='bo3'){ alert('ステージBAN / PICKはBO3で利用できます。'); return false; }
-  if(!validStagePool(readStagePool(prefix))){ alert('ステージ候補を5つ以上選択してください。'); return false; }
+  const {mode,min}=stageSettings(prefix);
+  if(mode==='normal') return true;
+  if(!validStagePool(readStagePool(prefix),min)){ alert(`ステージ候補を${min}つ以上選択してください。`); return false; }
   if(!prefix && document.getElementById('member-draft-enabled')?.checked && document.getElementById('member-draft-timing')?.value==='after'){
-    alert('「全員が武器ピック → チーム分け」では連戦とステージBAN / PICKを利用できません。'); return false;
+    alert('「全員が武器ピック → チーム分け」ではこのステージ方式を利用できません。'); return false;
   }
   return true;
 }
 // ホストを単一ライターとして、他の代表者から選択意図を受け取る。
-function stageDraftPending(S){ return !!(S?.series?.stageDraft && (S.series.stageDraft.actions||[]).length<4); }
+function stageDraftOf(S){ return S?.series?.stageDraft || S?.stageDraft || null; }
+function stageDraftPending(S){
+  const d=stageDraftOf(S); if(!d) return false;
+  if(d.mode==='counter') return !!d.pending;
+  if(d.mode==='loss') return false;
+  return (d.actions||[]).length < 2+((d.maxGames||3)===1?1:(d.maxGames||3)-1);
+}
 function stageDraftTurn(d){
+  if(d.mode==='counter') return {index:d.gameTarget-1,team:d.chooser,kind:'PICK'};
   const i=(d.actions||[]).length;
   return {index:i,team:i%2===0?d.first:(d.first==='alpha'?'bravo':'alpha'),kind:i<2?'BAN':'PICK'};
 }
+function stageUsedStages(d){ return d.mode==='counter' ? (d.games||[]).filter(Boolean) : (d.actions||[]).map(x=>x.stage); }
+function randomUnusedStage(pool,used,random=Math.random){
+  const remaining=pool.filter(name=>!used.includes(name));
+  return remaining.length ? remaining[Math.floor(random()*remaining.length)] : null;
+}
 function applyStageDraftAction(S,action,random=Math.random){
-  const d=S?.series?.stageDraft; if(!d || !stageDraftPending(S) || !action) return false;
-  const turn=stageDraftTurn(d), used=(d.actions||[]).map(x=>x.stage);
+  const d=stageDraftOf(S); if(!d || !stageDraftPending(S) || !action) return false;
+  const turn=stageDraftTurn(d), used=stageUsedStages(d);
   if(action.token!==d.token || action.index!==turn.index || action.team!==turn.team || !d.pool.includes(action.stage) || used.includes(action.stage)) return false;
+  if(d.mode==='counter'){
+    if(!Array.isArray(d.games)) d.games=[];
+    d.games[d.gameTarget-1]=action.stage; d.pending=false; S.stageJa=action.stage; S.deadline=null; return true;
+  }
   if(!Array.isArray(d.actions)) d.actions=[];
   d.actions.push({team:turn.team,kind:turn.kind,stage:action.stage});
-  if(d.actions.length===4){
-    const remaining=d.pool.filter(n=>!d.actions.some(a=>a.stage===n));
-    d.games=[d.actions[2].stage,d.actions[3].stage,remaining[Math.floor(random()*remaining.length)]];
+  const maxGames=d.maxGames||3, total=2+(maxGames===1?1:maxGames-1);
+  if(d.actions.length===total){
+    d.games=d.actions.slice(2).map(a=>a.stage);
+    if(maxGames>1) d.games.push(randomUnusedStage(d.pool,d.actions.map(a=>a.stage),random));
     S.stageJa=d.games[0]; S.deadline=null;
   }
   return true;
@@ -4283,22 +4369,27 @@ function isStageOperator(S,team){
   return rep ? rep===myMemberId : isHost;
 }
 function renderStageDraft(){
-  const S=state,d=S.series.stageDraft, turn=stageDraftTurn(d), name=turn.team==='alpha'?S.an:S.bn;
+  const S=state,d=stageDraftOf(S), turn=stageDraftTurn(d), name=turn.team==='alpha'?S.an:S.bn;
   if(stageDraftSent && (stageDraftSent.token!==d.token || stageDraftSent.index!==turn.index)) stageDraftSent=null;
   if(stageDraftSelection && (stageDraftSelection.token!==d.token || stageDraftSelection.index!==turn.index)) stageDraftSelection=null;
-  const used=(d.actions||[]).map(x=>x.stage), can=isStageOperator(S,turn.team) && !stageDraftSent;
+  const used=stageUsedStages(d), can=isStageOperator(S,turn.team) && !stageDraftSent;
   document.getElementById('pbadge').textContent='STAGE '+turn.kind;
-  document.getElementById('tctr').textContent=`${turn.index+1} / 4`;
-  document.getElementById('stage-draft-panel').innerHTML=`<h3>🗺️ ステージ BAN / PICK</h3><p>${esc(name)} の ${turn.kind} ${stageDraftSent?'— 送信済み。反映を待っています':can?'— ステージを選択してください':'— 代表者の選択を待っています'}</p>`+
-    `<p class="setting-hint">同じステージを2回押すと確定します。先攻BAN → 後攻BAN → 先攻PICK → 後攻PICK。3戦目は残りから抽選。制限時間は武器ドラフトから適用されます。</p>`+
-    `<p>${(d.actions||[]).map(a=>`${esc(a.team==='alpha'?S.an:S.bn)} ${a.kind}: ${esc(a.stage)}`).join(' / ')}</p>`+
-    `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px">${d.pool.map((name,i)=>`<button type="button" class="btn-re" aria-pressed="${stageDraftSelection?.stage===name}" ${stageDraftSelection?.stage===name?'style="border-color:var(--y);color:var(--y)"':''} ${!can||used.includes(name)?'disabled':''} onclick="chooseStageDraft(${i})">${esc(name)}${used.includes(name)?' ✓':stageDraftSelection?.stage===name?' — もう一度押して確定':''}</button>`).join('')}</div>`;
+  document.getElementById('pbadge').className='ph '+(turn.kind==='BAN'?'ph-ban':'ph-pick');
+  const total=2+((d.maxGames||3)===1?1:(d.maxGames||3)-1);
+  document.getElementById('tctr').textContent=d.mode==='counter'?`第${d.gameTarget}試合`:`${turn.index+1} / ${total}`;
+  const history=d.mode==='counter' ? (d.games||[]).map((stage,i)=>`${i+1}戦目: ${esc(stage)}`).join(' / ')
+    : (d.actions||[]).map(a=>`${esc(a.team==='alpha'?S.an:S.bn)} ${a.kind}: ${esc(a.stage)}`).join(' / ');
+  const note=d.mode==='counter'?'前の試合の敗者が、まだ使っていないステージを選びます。':'両チームが各1 BANし、先攻から交互にPICKします。最終戦は残りから抽選します（1試合のみの場合はPICK）。';
+  document.getElementById('stage-draft-panel').innerHTML=`<h3>🗺️ ${d.mode==='counter'?'カウンターピック':'ステージ BAN / PICK'}</h3><p>${esc(name)} の ${turn.kind} ${stageDraftSent?'— 送信済み。反映を待っています':can?'— ステージを選択してください':'— 代表者の選択を待っています'}</p>`+
+    `<p class="setting-hint">同じステージを2回押すと確定します。${note} 制限時間は武器ドラフトから適用されます。</p>`+
+    `<p>${history}</p>`+
+    `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px">${d.pool.map((name,i)=>`<button type="button" class="btn-re stage-choice" aria-pressed="${stageDraftSelection?.stage===name}" style="background-image:linear-gradient(transparent,rgba(0,0,0,.9)),url('${esc(stageImgUrl(name))}')" ${!can||used.includes(name)?'disabled':''} onclick="chooseStageDraft(${i})">${esc(name)}${used.includes(name)?' ✓':stageDraftSelection?.stage===name?' — もう一度押して確定':''}</button>`).join('')}</div>`;
 }
 let stageDraftSubmitting=false, stageDraftSent=null, stageDraftSelection=null;
 window.chooseStageDraft=async function(index){
   if(stageDraftSubmitting || stageDraftSent || !stageDraftPending(state)) return;
-  const d=state.series.stageDraft,turn=stageDraftTurn(d), stage=d.pool[index];
-  if(!isStageOperator(state,turn.team) || !stage || (d.actions||[]).some(a=>a.stage===stage)) return;
+  const d=stageDraftOf(state),turn=stageDraftTurn(d), stage=d.pool[index];
+  if(!isStageOperator(state,turn.team) || !stage || stageUsedStages(d).includes(stage)) return;
   if(!stageDraftSelection || stageDraftSelection.token!==d.token || stageDraftSelection.index!==turn.index || stageDraftSelection.stage!==stage){
     stageDraftSelection={token:d.token,index:turn.index,stage}; renderStageDraft(); return;
   }
@@ -4358,7 +4449,7 @@ window.startDraft = function(){
   buildAndStartDraft({
     an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:(s.ft==='random' && mdDone ? (lobbyMemberDraft.firstTeam||'random') : s.ft), po:s.po,
     rm:s.rule, sm:s.stageJa, stdOnly:s.stdOnly, challengeEnabled:s.challengeEnabled,
-    tradeEnabled:s.tradeEnabled, seriesEnabled:s.seriesEnabled, seriesMode:s.seriesMode, seriesLockout:s.seriesLockout, seriesLoserRules:s.seriesLoserRules, stageDraftEnabled:s.stageDraftEnabled, stagePool:s.stagePool,
+    tradeEnabled:s.tradeEnabled, seriesEnabled:s.seriesEnabled, seriesMode:s.seriesMode, seriesLockout:s.seriesLockout, seriesLoserRules:s.seriesLoserRules, stageMode:s.stageMode, stageDraftEnabled:s.stageDraftEnabled, stagePool:s.stagePool,
     pickMode:s.pickMode, banMode:s.banMode, banGenres:s.banGenres,
     pickOrderAlpha:s.pickOrderAlpha, pickOrderBravo:s.pickOrderBravo,
     members:membersForState,
@@ -4466,11 +4557,11 @@ function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec, simOrder
 }
 
 // 初期状態の構築と、Firebaseへの送信・画面遷移を分離する。
-function createInitialDraftState({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tradeEnabled,seriesEnabled,seriesMode,seriesLockout,seriesLoserRules,stageDraftEnabled,stagePool,series,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls}, multi){
+function createInitialDraftState({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tradeEnabled,seriesEnabled,seriesMode,seriesLockout,seriesLoserRules,stageMode,stageDraftEnabled,stagePool,series,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls}, multi){
   // 連戦シリーズ: 既存シリーズ（次戦）があれば引き継ぎ、無ければ有効時に初期化（後方互換で追加のみ）
   let seriesObj = series || null;
   if(!seriesObj && seriesEnabled){
-    const target = seriesMode==='bo5' ? 3 : 2;
+    const target = (seriesMaxGames(seriesMode)+1)/2;
     seriesObj = {
       mode: seriesMode||'bo3', target, game:1, scoreA:0, scoreB:0, history:[], done:false,
       lockout: !!seriesLockout, lockedKeys: [], // 武器ロックアウト（過去試合で使われた key の累積）
@@ -4487,10 +4578,16 @@ function createInitialDraftState({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabl
   const challenge = challengeEnabled ? pickRandomChallenge() : null;
   const first   = resolveFirstTeam(ft);
   const sec     = first==='alpha'?'bravo':'alpha';
-  if(seriesObj && !series && stageDraftEnabled && seriesObj.mode==='bo3' && validStagePool(stagePool)){
-    seriesObj.stageDraft={pool:[...new Set(stagePool)],first,actions:[],games:[],token:Date.now().toString(36)+Math.random().toString(36).slice(2)};
-    stageJa='選択中';
+  let singleStageDraft=null;
+  const mode=stageMode||(stageDraftEnabled?'banpick':'normal');
+  const maxGames=seriesObj?seriesMaxGames(seriesObj.mode):1;
+  if(!series && mode!=='normal' && validStagePool(stagePool,requiredStageCount(mode,maxGames))){
+    const d={mode,pool:[...new Set(stagePool)],first,maxGames,actions:[],games:[],token:Date.now().toString(36)+Math.random().toString(36).slice(2)};
+    if(mode==='banpick') stageJa='選択中';
+    else { stageJa=randomUnusedStage(d.pool,[]); d.games=[stageJa]; }
+    if(seriesObj) seriesObj.stageDraft=d; else singleStageDraft=d;
   }
+  if(seriesObj?.stageDraft?.mode==='counter' && seriesObj.stageDraft.pending) stageJa='選択中';
   const pMode   = pickMode||'team';
   const pickOrder = po||'snake';
   const bMode   = banMode||'representative';
@@ -4556,7 +4653,7 @@ function createInitialDraftState({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabl
   // 代表者BANの代表者IDを計算（マルチ・代表者BANモード時のみ）
   let representativeAlpha = null;
   let representativeBravo = null;
-  if(multi && (pMode==='gacha' || tradeEnabled || seriesEnabled || (bMode==='representative' && bc>0) || genreTotal>0)){
+  if(multi && (pMode==='gacha' || tradeEnabled || seriesEnabled || mode==='banpick' || (bMode==='representative' && bc>0) || genreTotal>0)){
     // 代表者＝各チームの「1ピック目」（ピック順の先頭・無ければ最古参）。
     // ホストがどちらのチームでも、必ず各チームからちょうど1人ずつ選ばれる。
     // ガチャ/トレード/連戦は代表者が操作するため、BANモード/BAN数に関わらず解決する。
@@ -4566,6 +4663,7 @@ function createInitialDraftState({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabl
 
   return {
     an, bn, ts, bc, rule, stageJa, seq, idx:0,
+    draftId: Date.now().toString(36)+Math.random().toString(36).slice(2),
     bans:{alpha:[],bravo:[]},
     picks:{alpha:[],bravo:[]},
     stdOnly:!!stdOnly,
@@ -4590,6 +4688,7 @@ function createInitialDraftState({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabl
     pickOrderAlpha: [...(pickOrderAlpha||[])],
     pickOrderBravo: [...(pickOrderBravo||[])],
     series: seriesObj,
+    stageDraft: singleStageDraft,
   };
 }
 
@@ -5149,10 +5248,10 @@ function renderDraft(){
   document.getElementById('stage-draft-panel').style.display=pendingStage?'block':'none';
   document.getElementById('weapon-draft-content').style.display=pendingStage?'none':'';
   if(pendingStage){ clearTimer(); renderStageDraft(); return; }
-  if(state.series?.stageDraft) maybePlayChallengeRoulette();
-  const sd=state.series?.stageDraft, summary=document.getElementById('stage-draft-summary');
+  if(stageDraftOf(state)) maybePlayChallengeRoulette();
+  const sd=stageDraftOf(state), summary=document.getElementById('stage-draft-summary');
   summary.style.display=sd?.games?.length?'':'none';
-  if(sd?.games?.length) summary.textContent=`ステージ予定: ${sd.games.map((name,i)=>`${i+1}戦目 ${name}`).join(' / ')}`;
+  if(sd?.games?.length) summary.textContent=`${sd.mode==='banpick'||!sd.mode?'ステージ予定':'決定済みステージ'}: ${sd.games.map((name,i)=>`${i+1}戦目 ${name}`).join(' / ')}`;
   const S=state, step=S.seq[S.idx], done=!step, isBan=!done&&step.phase==='ban';
   const isSimPick=!done&&step.phase==='pick'&&step.team==='both';
   // ガチャ: BAN 後（seq 終端）かつ両チーム未確定の間は専用フェーズ
@@ -6634,7 +6733,7 @@ window.downloadSeriesImage = async function(){
     ctx.fillText('SERIES COMPLETE', W/2, 54);
     ctx.fillStyle=aWin?'#4A90E2':'#E8630A'; ctx.font="bold 24px 'M PLUS Rounded 1c', sans-serif";
     ctx.fillText('🏆 '+_wmTruncate(ctx, champ, W-120)+' 制覇', W/2, 96);
-    const modeLabel = sr.mode==='bo5'?'BO5（先取3）':'BO3（先取2）';
+    const modeLabel = `BO${seriesMaxGames(sr.mode)}（先取${sr.target}）`;
     ctx.fillStyle='#e0e0e0'; ctx.font="18px 'M PLUS Rounded 1c', sans-serif";
     ctx.fillText(`${modeLabel}　${_wmTruncate(ctx,an,140)} ${sr.scoreA} － ${sr.scoreB} ${_wmTruncate(ctx,bn,140)}`, W/2, 128);
 

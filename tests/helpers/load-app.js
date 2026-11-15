@@ -34,6 +34,7 @@ const EXPORT_NAMES = [
   'unsubscribeRoomListeners','clearDraftRoomData',
   'createInitialDraftState',
   'validStagePool','stageDraftPending','stageDraftTurn','applyStageDraftAction','isStageOperator','buildRoomPresetSettings','ROOM_PRESETS',
+  'seriesMaxGames','requiredStageCount','stageDraftOf','stageUsedStages','randomUnusedStage','prepareNextStageDraft','stageImgUrl','gachaMatchesDraft',
   'RULES','CATEGORY_ORDER','CHALLENGES','STAGES_DATA',
 ];
 
