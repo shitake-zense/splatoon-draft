@@ -146,6 +146,12 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .preset-card h3{margin:0 0 5px;font-size:15px;color:var(--y);}
 .preset-card p{margin:0;color:var(--tx);font-size:12px;line-height:1.6;}
 .preset-card .btn-re{margin-top:10px;}
+.my-preset-tools{margin:16px 0;padding:14px;border:1px solid #405064;border-radius:12px;background:#0f1724;}
+.my-preset-tools h3{font-size:14px;margin:0 0 6px;color:var(--y);}
+.my-preset-tools p{font-size:12px;line-height:1.6;color:var(--mu);}
+.my-preset-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.my-preset-actions .btn-re{width:auto;flex:1;min-width:125px;margin-top:8px;}
+.my-preset-actions input{flex:1;min-width:150px;}
 .stage-pool{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px;max-height:220px;overflow:auto;}
 .stage-pool label{display:flex;align-items:center;gap:6px;padding:7px;background:#0f1724;border:1px solid #405064;border-radius:7px;cursor:pointer;font-size:12px;}
 .stage-pool-actions{display:flex;gap:8px;margin:8px 0;}
@@ -700,6 +706,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <h3 class="guide-section-title">設定を詳しく調べる</h3>
       <p class="guide-section-caption">気になる項目を押すと説明が開きます。</p>
       <details class="guide-card guide-disclosure"><summary>ステージ方式とプリセット</summary><div class="guide-detail-body"><p>部屋を作るときに5種類のプリセットから選べます。選んだ設定はロビーで変更できます。</p><p>ステージ方式は通常・おまかせロスト・カウンターピック・BAN / PICKから選べます。候補数は最大試合数に合わせて表示されます。</p><p>カウンターは初戦ランダム、次戦以降は敗者が未使用ステージを選択。BAN / PICKは各1 BAN後に先攻から交互にPICKし、最終戦は残りから抽選します（1試合では先攻がPICK）。</p><p>代表者は画像を2回押して確定します。ステージ選択中に制限時間はありません。</p></div></details>
+      <details class="guide-card guide-disclosure"><summary>マイプリセットの保存・移行</summary><div class="guide-detail-body"><p>ロビーで設定した後、「マイプリセット」に名前を入れて保存します。次回は「部屋を作る」→「プリセットから選ぶ」の一覧から使えます。</p><p>保存した設定から部屋を作り、ロビーで変更して「上書き保存」できます。一覧では名前変更・削除・ファイルの書き出し／読み込みもできます。</p><p>保存先はこのブラウザです。別の端末やブラウザへ自動同期されないため、移行する場合はファイルを書き出してください。ブラウザのデータ削除でも消えることがあります。部屋番号や参加者は保存されません。</p></div></details>
       <h3 class="guide-section-title">基本の設定</h3>
       <details class="guide-card guide-disclosure"><summary>人数 / BAN数</summary><div class="guide-detail-body">人数は 1v1〜4v4。<b>BAN数</b>は各チームがBANする武器の数（なし〜各8・既定は各4）。両チーム同じ数です。</div></details>
       <details class="guide-card guide-disclosure"><summary>ピック順</summary><div class="guide-detail-body">誰が何番目に選ぶかの並び。<b>交互</b>＝1枚ずつ交互。<b>スネーク</b>＝折り返しで偏りを抑える競技寄りの既定。クラシック／ミドルは折り返し幅違い。<b>バランス／前重ね</b>は 1-2-1 等の固定配分。<b>同時ピック</b>はマルチ専用で、ペアが同時に選んで一斉公開（チーム間は被りOK）。</div></details>
@@ -759,7 +766,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <details class="guide-card guide-disclosure"><summary>武器の選び方</summary><div class="guide-detail-body"><b>武器の選び方</b>：タイルを1回タップすると仮選択、<b>同じタイルをもう一度タップ</b>すると確定します。別の武器をタップすると選び直せます。BANと同時ピックは、選択後にパネルの送信ボタンを押してください。</div></details>
       <details class="guide-card guide-disclosure"><summary>武器一覧の表示設定</summary><div class="guide-detail-body"><b>グリッドの見やすさ設定</b>（端末ごとに保存）：<b>「選べる武器だけ」</b>にチェックすると使用不可の武器を隠せます。<b>［大］［中］［小］</b>でタイルの大きさを切替でき、<b>大</b>なら武器名が省略されずに全部読めます。選べない武器にはタイル下に理由（<b>BAN済み／取得済み／🔒 連戦ロック／味方がBAN</b>）が出ます。</div></details>
       <details class="guide-card guide-disclosure"><summary>効果音・読み上げ</summary><div class="guide-detail-body">ドラフト画面 右上の <b>🔊</b>＝確定音（既定OFF）、<b>🗣️</b>＝武器読み上げ（既定OFF）のトグルです。BAN/PICKを確定するたびに効果音が鳴り、読み上げONなら確定した武器名を読み上げます（端末ごとの設定・音は自動生成で外部ファイルなし）。</div></details>
-      <details class="guide-card guide-disclosure"><summary>武器統計</summary><div class="guide-detail-body">モード選択画面の<b>「📊 武器統計」</b>から、全ルーム累計の PICK／BAN／ジャンルBAN ランキングを見られます（マルチプレイで完了したドラフトのみの匿名集計。武器と回数だけが記録され、ルームIDやプレイヤー名は残りません）。</div></details>
+      <details class="guide-card guide-disclosure"><summary>武器統計</summary><div class="guide-detail-body">モード選択画面の<b>「📊 武器統計」</b>から、全ルーム累計の PICK／BAN／ジャンルBAN ランキングを見られます（マルチプレイで完了したドラフトのみの匿名集計）。「この端末」では、このブラウザで参加したソロ・マルチの両チームを集計します。結果を初めて表示した時点の集計で、トレード後の変更は反映しません。ブラウザのデータ削除で消えることがあります。</div></details>
     </div>
 
     <button class="btn-re" onclick="showScreen('mode')">← モード選択へ戻る</button>
@@ -768,18 +775,22 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
 
 <!-- STATS (武器統計・匿名集計ビューア) -->
 <div id="s-stats" class="screen">
-  <div class="logo"><h1>SPLATOON DRAFT</h1><p>武器統計（全ルーム累計・匿名）</p></div>
+  <div class="logo"><h1>SPLATOON DRAFT</h1><p>武器統計</p></div>
   <div class="guide-wrap">
     <div class="stats-summary" id="stats-summary">読み込み中…</div>
+    <div class="guide-tabs" aria-label="統計の範囲">
+      <button class="guide-tab on" id="stats-scope-global" aria-pressed="true" onclick="setStatsScope('global')">🌐 全体</button>
+      <button class="guide-tab" id="stats-scope-local" aria-pressed="false" onclick="setStatsScope('local')">📱 この端末</button>
+    </div>
     <div class="guide-tabs">
-      <button class="guide-tab on" data-st="picks" onclick="showStatsTab('picks')">🔫 PICK</button>
-      <button class="guide-tab" data-st="bans" onclick="showStatsTab('bans')">🚫 BAN</button>
-      <button class="guide-tab" data-st="genres" onclick="showStatsTab('genres')">🧩 ジャンルBAN</button>
+      <button class="guide-tab on" aria-pressed="true" data-st="picks" onclick="showStatsTab('picks')">🔫 PICK</button>
+      <button class="guide-tab" aria-pressed="false" data-st="bans" onclick="showStatsTab('bans')">🚫 BAN</button>
+      <button class="guide-tab" aria-pressed="false" data-st="genres" onclick="showStatsTab('genres')">🧩 ジャンルBAN</button>
     </div>
     <div class="guide-card">
       <div id="stats-body"><div class="stat-empty">読み込み中…</div></div>
     </div>
-    <p class="guide-note">マルチプレイのドラフト完了時に集計される匿名データです（武器と回数のみ。ルームID・プレイヤー名は記録されません）。</p>
+    <p class="guide-note" id="stats-scope-note">全体はマルチプレイ完了時の匿名集計です。武器と回数のみを記録します。</p>
     <button class="btn-re" onclick="showStatsScreen()">🔄 最新に更新</button>
     <button class="btn-re" onclick="showScreen('mode')">← モード選択へ戻る</button>
   </div>
@@ -1124,6 +1135,13 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
     </div>
   </div>
 
+  <div class="my-preset-tools">
+    <h3>💾 マイプリセット</h3>
+    <p>現在の部屋の設定をこのブラウザに保存します。参加者や部屋番号は保存されません。</p>
+    <div class="my-preset-actions"><input type="text" id="my-preset-save-name" maxlength="40" placeholder="プリセット名" aria-label="保存するプリセット名"><button type="button" class="btn-re" onclick="saveCurrentPreset(false)">新しく保存</button></div>
+    <button type="button" class="btn-re" id="my-preset-overwrite" style="display:none" onclick="saveCurrentPreset(true)">このマイプリセットを上書き保存</button>
+    <p id="my-preset-save-status" aria-live="polite"></p>
+  </div>
   <button class="btn-start" id="btn-start-draft" onclick="startDraft()">▶ ドラフト開始</button>
   <div id="start-btn-info" style="text-align:center;font-size:11px;color:var(--mu);margin-top:6px;min-height:16px;"></div>
   <div id="lobby-rejoin-info" style="display:none;text-align:center;font-size:10px;color:#4a5a7a;margin-top:8px;line-height:1.6;">
@@ -2062,18 +2080,148 @@ function buildRoomPresetSettings(id){
     ...(selected?.settings||{}),
   };
 }
+// 保存対象は再利用できるルール設定だけ。参加者ID・部屋番号・ドラフト結果は含めない。
+const MY_PRESETS_KEY='splatoon-draft-my-presets-v1', MY_PRESET_LIMIT=50, PRESET_FILE_LIMIT=262144;
+let activeMyPresetId=null, myPresetDeleteId=null;
+function normalizePresetSettings(raw){
+  if(!raw || typeof raw!=='object' || Array.isArray(raw)) throw new Error('設定の形式が正しくありません。');
+  const base=buildRoomPresetSettings('custom');
+  const enums={ft:['random','alpha','bravo'],po:['alt','snake','snake_classic','snake_mid','a121','a211','sim'],
+    rule:['random','ナワバリバトル',...RULES],stageJa:['random',...STAGES_DATA],
+    seriesMode:['bo3','bo5','bo7','bo9'],stageMode:['normal','loss','counter','banpick'],
+    memberDraftTiming:['before','after'],pickMode:['individual','team','enemy','gacha'],banMode:['individual','representative']};
+  const integers={ts:[1,4],bc:[0,8],timeLimitSec:[5,100],gachaRerolls:[0,9]};
+  const bools=['stdOnly','challengeEnabled','tradeEnabled','seriesEnabled','seriesLockout','seriesLoserRules','memberDraftEnabled','timeLimitEnabled'];
+  for(const [key,values] of Object.entries(enums)) if(raw[key]!==undefined){
+    if(!values.includes(raw[key])) throw new Error(`「${key}」の値を読み込めません。`); base[key]=raw[key];
+  }
+  for(const [key,[min,max]] of Object.entries(integers)) if(raw[key]!==undefined){
+    if(!Number.isInteger(raw[key]) || raw[key]<min || raw[key]>max) throw new Error(`「${key}」の値を読み込めません。`); base[key]=raw[key];
+  }
+  for(const key of bools) if(raw[key]!==undefined){
+    if(typeof raw[key]!=='boolean') throw new Error(`「${key}」の値を読み込めません。`); base[key]=raw[key];
+  }
+  for(const key of ['an','bn']) if(raw[key]!==undefined){
+    if(typeof raw[key]!=='string'||raw[key].length>40) throw new Error('チーム名の形式が正しくありません。'); base[key]=raw[key];
+  }
+  if(raw.stagePool!==undefined){
+    if(!Array.isArray(raw.stagePool)||raw.stagePool.length>STAGES_DATA.length||raw.stagePool.some(x=>!STAGES_DATA.includes(x))) throw new Error('ステージ候補を読み込めません。');
+    base.stagePool=[...new Set(raw.stagePool)];
+  }
+  if(raw.banGenres!==undefined){
+    if(!raw.banGenres||typeof raw.banGenres!=='object'||Array.isArray(raw.banGenres)) throw new Error('ジャンルBANの形式が正しくありません。');
+    for(const key of ['cat','sub','special']){
+      const n=raw.banGenres[key]; if(!Number.isInteger(n)||n<0||n>4) throw new Error('ジャンルBANの値を読み込めません。'); base.banGenres[key]=n;
+    }
+  }
+  if(raw.excludeFilter!==undefined){
+    if(!raw.excludeFilter||typeof raw.excludeFilter!=='object'||Array.isArray(raw.excludeFilter)) throw new Error('武器の絞り込みを読み込めません。');
+    for(const key of ['cats','subs','specials']){
+      const values=raw.excludeFilter[key];
+      if(!Array.isArray(values)||values.length>100||values.some(x=>typeof x!=='string'||!x||x.length>100)) throw new Error('武器の絞り込みを読み込めません。');
+      base.excludeFilter[key]=[...new Set(values)];
+    }
+  }
+  const games=base.seriesEnabled?seriesMaxGames(base.seriesMode):1;
+  if(base.stageMode!=='normal' && !validStagePool(base.stagePool,requiredStageCount(base.stageMode,games))) throw new Error('ステージ候補が不足しています。');
+  if(base.memberDraftEnabled && base.memberDraftTiming==='after' && base.stageMode!=='normal') throw new Error('チーム分けとステージ方式の組み合わせを確認してください。');
+  base.stageDraftEnabled=base.stageMode==='banpick';
+  delete base.pickOrderAlpha; delete base.pickOrderBravo;
+  return base;
+}
+function normalizeMyPresetName(name){
+  if(typeof name!=='string'||!name.trim()||name.trim().length>40) throw new Error('プリセット名は1〜40文字で入力してください。');
+  return name.trim();
+}
+function decodePresetFile(value){
+  if(!value||typeof value!=='object'||value.format!=='splatoon-draft-presets'||value.version!==1||!Array.isArray(value.presets)||value.presets.length>MY_PRESET_LIMIT) throw new Error('対応していないプリセットファイルです。');
+  return value.presets.map(item=>{
+    if(!item||typeof item!=='object'||Array.isArray(item)) throw new Error('プリセットの形式が正しくありません。');
+    return {name:normalizeMyPresetName(item.name),settings:normalizePresetSettings(item.settings)};
+  });
+}
+function newMyPresetId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,12); }
+function readMyPresets(){
+  const text=localStorage.getItem(MY_PRESETS_KEY); if(text===null) return [];
+  const data=JSON.parse(text);
+  if(!Array.isArray(data)||data.length>MY_PRESET_LIMIT) throw new Error('保存済みプリセットの形式が正しくありません。');
+  return data.map(item=>{
+    if(!item||typeof item.id!=='string'||!/^[a-z0-9]{1,40}$/.test(item.id)) throw new Error('保存済みプリセットを読み込めません。');
+    return {id:item.id,name:normalizeMyPresetName(item.name),settings:normalizePresetSettings(item.settings)};
+  });
+}
+function writeMyPresets(items){ localStorage.setItem(MY_PRESETS_KEY,JSON.stringify(items)); }
+function presetFileDocument(items){ return {format:'splatoon-draft-presets',version:1,presets:items.map(p=>({name:p.name,settings:normalizePresetSettings(p.settings)}))}; }
+function presetDescription(s){
+  const modes={normal:'通常',loss:'おまかせロスト',counter:'カウンターピック',banpick:'ステージBAN / PICK'};
+  const picks={individual:'個人ピック',team:'代表者ピック',enemy:'相手ピック',gacha:'ガチャ'};
+  return `${s.ts}v${s.ts}・武器BAN各${s.bc}・${picks[s.pickMode]}・${s.seriesEnabled?s.seriesMode.toUpperCase():'1試合'}・${modes[s.stageMode]}`;
+}
+function getMyPreset(id){ return readMyPresets().find(p=>p.id===id)||null; }
+function renderMyPresetList(){
+  const el=document.getElementById('my-preset-list'); if(!el) return;
+  let items;
+  try{items=readMyPresets();}catch(e){el.innerHTML=`<p class="setting-hint">読み込みに失敗しました：${esc(e.message)}</p>`;return;}
+  el.innerHTML=items.length?items.map(p=>`<div class="preset-card"><h3>${esc(p.name)}</h3><p>${esc(presetDescription(p.settings))}</p><p>部屋を作った後、設定を変更して上書き保存できます。</p><button type="button" class="btn-re" onclick="enterMultiCreate('my:${p.id}')">この設定で部屋を作る・編集</button><div class="my-preset-actions"><input type="text" id="my-preset-rename-${p.id}" value="${esc(p.name)}" maxlength="40" aria-label="${esc(p.name)} の新しい名前"><button type="button" class="btn-re" onclick="renameMyPreset('${p.id}')">名前を変更</button>${myPresetDeleteId===p.id?`<button type="button" class="btn-re" onclick="deleteMyPreset('${p.id}')">削除を確定</button><button type="button" class="btn-re" onclick="cancelDeleteMyPreset()">キャンセル</button>`:`<button type="button" class="btn-re" onclick="askDeleteMyPreset('${p.id}')">削除</button>`}</div>${myPresetDeleteId===p.id?'<p>このプリセットを削除しますか？</p>':''}</div>`).join(''):'<p class="setting-hint">まだ保存したプリセットはありません。ロビーの設定から保存できます。</p>';
+}
+window.saveCurrentPreset=function(overwrite){
+  const status=document.getElementById('my-preset-save-status');
+  try{
+    const name=normalizeMyPresetName(document.getElementById('my-preset-save-name').value), settings=normalizePresetSettings(getLobbySettings()), items=readMyPresets();
+    const idx=overwrite?items.findIndex(p=>p.id===activeMyPresetId):-1;
+    let savedId=activeMyPresetId;
+    if(overwrite && idx<0) throw new Error('上書きするプリセットが見つかりません。新しく保存してください。');
+    if(idx>=0) items[idx]={...items[idx],name,settings};
+    else {if(items.length>=MY_PRESET_LIMIT) throw new Error(`保存できるのは${MY_PRESET_LIMIT}件までです。`);savedId=newMyPresetId();items.push({id:savedId,name,settings});}
+    writeMyPresets(items); activeMyPresetId=savedId; document.getElementById('my-preset-overwrite').style.display=''; status.textContent=`「${name}」をこのブラウザに保存しました。`;
+  }catch(e){ status.textContent=`保存できませんでした：${e.message}`; }
+};
+window.renameMyPreset=function(id){
+  try{const items=readMyPresets(),item=items.find(p=>p.id===id);if(!item) throw new Error('プリセットが見つかりません。'); item.name=normalizeMyPresetName(document.getElementById('my-preset-rename-'+id).value);writeMyPresets(items);renderMyPresetList();}
+  catch(e){alert('名前を変更できませんでした：'+e.message);}
+};
+window.askDeleteMyPreset=function(id){myPresetDeleteId=id;renderMyPresetList();};
+window.cancelDeleteMyPreset=function(){myPresetDeleteId=null;renderMyPresetList();};
+window.deleteMyPreset=function(id){
+  try{if(myPresetDeleteId!==id) return;const items=readMyPresets(),item=items.find(p=>p.id===id);if(!item) return;writeMyPresets(items.filter(p=>p.id!==id));myPresetDeleteId=null;renderMyPresetList();}
+  catch(e){alert('削除できませんでした：'+e.message);}
+};
+window.exportMyPresets=function(){
+  try{
+    const items=readMyPresets();if(!items.length) throw new Error('保存済みのプリセットがありません。');
+    const blob=new Blob([JSON.stringify(presetFileDocument(items),null,2)],{type:'application/json'}), url=URL.createObjectURL(blob), link=document.createElement('a');
+    link.href=url;link.download='splatoon-draft-presets.json';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }catch(e){alert('書き出せませんでした：'+e.message);}
+};
+window.importMyPresets=async function(input){
+  const status=document.getElementById('my-preset-import-status');
+  try{
+    const file=input.files?.[0];if(!file) return;
+    if(file.size>PRESET_FILE_LIMIT) throw new Error('ファイルが大きすぎます。');
+    const imported=decodePresetFile(JSON.parse(await file.text())),items=readMyPresets();
+    if(items.length+imported.length>MY_PRESET_LIMIT) throw new Error(`保存できるのは合計${MY_PRESET_LIMIT}件までです。`);
+    const merged=items.concat(imported.map(p=>({id:newMyPresetId(),...p})));writeMyPresets(merged);renderMyPresetList();status.textContent=`${imported.length}件を追加しました。`;
+  }catch(e){status.textContent=`読み込めませんでした：${e.message}`;}
+  finally{input.value='';}
+};
 window.showCreatePresets=function(){
   const panel=document.getElementById('create-presets');
-  panel.innerHTML='<div class="preset-list">'+ROOM_PRESETS.map(p=>
+  panel.innerHTML='<h3 class="guide-section-title">マイプリセット</h3><p class="setting-hint">このブラウザに保存されます。別端末へはファイルで移せます。</p><div class="my-preset-actions"><button type="button" class="btn-re" onclick="exportMyPresets()">書き出し</button><button type="button" class="btn-re" onclick="document.getElementById(\'my-preset-import-file\').click()">読み込み</button><input id="my-preset-import-file" type="file" accept=".json,application/json" style="display:none" onchange="importMyPresets(this)"></div><p id="my-preset-import-status" aria-live="polite" class="setting-hint"></p><div id="my-preset-list" class="preset-list"></div><h3 class="guide-section-title">おすすめプリセット</h3><div class="preset-list">'+ROOM_PRESETS.map(p=>
     `<div class="preset-card"><h3>${esc(p.title)}</h3><p>${esc(p.description)}</p><button type="button" class="btn-re" onclick="enterMultiCreate('${p.id}')">この設定で部屋を作る</button></div>`
   ).join('')+'</div>';
-  panel.style.display='';
+  panel.style.display=''; renderMyPresetList();
 };
 let creatingRoom=false;
 window.enterMultiCreate = async function(presetId='custom'){
   if(creatingRoom) return;
-  const settings=buildRoomPresetSettings(presetId); if(!settings) return;
+  let saved=null;
+  try{if(presetId.startsWith('my:')) saved=getMyPreset(presetId.slice(3));}catch(e){alert('プリセットを読み込めませんでした：'+e.message);return;}
+  const settings=saved?saved.settings:buildRoomPresetSettings(presetId); if(!settings) return;
   creatingRoom=true;
+  activeMyPresetId=saved?.id||null;
+  document.getElementById('my-preset-save-name').value=saved?.name||'';
+  document.getElementById('my-preset-overwrite').style.display=saved?'':'none';
+  document.getElementById('my-preset-save-status').textContent='';
   lobbyPickOrderAlpha=[]; lobbyPickOrderBravo=[];
   applyLobbySettingsToForm(settings);
   isMulti=true; isHost=true;
@@ -2747,6 +2895,7 @@ function finishAfterPickMode(lobby){
   Object.entries(members).forEach(([id,m])=>{ membersForState[id]={name:m.name,team:m.team,isHost:m.isHost,joinedAt:m.joinedAt||0}; });
   state={
     an, bn, ts, bc:0, rule, stageJa, seq:[], idx:0,
+    draftId:Date.now().toString(36)+Math.random().toString(36).slice(2),
     bans:{alpha:[],bravo:[]},
     picks:{alpha:buildPicks(orderA), bravo:buildPicks(orderB)},
     stdOnly:!!s.stdOnly, pickMode:'individual', pickOrder:'snake', banMode:'representative',
@@ -6337,7 +6486,7 @@ function statKey(s){
   const k=String(s==null?'':s).replace(/[.#$/\[\]]/g,'');
   return k||null;
 }
-function buildStatsUpdates(S){
+function buildStatsCounts(S){
   const counts={};
   const bump=p=>{ counts[p]=(counts[p]||0)+1; };
   ['alpha','bravo'].forEach(t=>{
@@ -6348,9 +6497,12 @@ function buildStatsUpdates(S){
       else { const k=statKey(b.key); if(k) bump(`stats/weapons/${k}/bans`); }
     });
   });
-  const updates={};
+  counts['stats/meta/drafts']=1;
+  return counts;
+}
+function buildStatsUpdates(S){
+  const counts=buildStatsCounts(S), updates={};
   Object.entries(counts).forEach(([p,n])=>{ updates[p]=increment(n); });
-  updates['stats/meta/drafts']=increment(1);
   return updates;
 }
 function recordDraftStats(){
@@ -6361,6 +6513,43 @@ function recordDraftStats(){
   S.statsRecorded=true;
   update(ref(db), buildStatsUpdates(S)).catch(()=>{});
   pushState();                                  // statsRecorded を同期し、ホスト再入場時の再計上も防ぐ
+}
+
+// このブラウザで参加したドラフトをローカルに集計。Firebaseの全体集計とは独立。
+const LOCAL_STATS_KEY='splatoon-draft-local-stats-v1', LOCAL_STATS_SEEN_LIMIT=5000;
+function emptyLocalStats(){ return {version:1,seen:[],stats:{meta:{drafts:0},weapons:{},genreBans:{}}}; }
+function applyLocalDraftStats(stored,S,participant){
+  if(!participant||!S||!S.draftId||typeof S.draftId!=='string'||S.draftId.length>80||S.seq?.[S.idx]||stageDraftPending(S)||(S.pickMode==='gacha'&&!gachaAllConfirmed(S))) return null;
+  const data=stored||emptyLocalStats();
+  if(data.version!==1||!Array.isArray(data.seen)||!data.stats||typeof data.stats!=='object') throw new Error('統計の形式が正しくありません。');
+  if(data.seen.includes(S.draftId)) return null;
+  const copy=JSON.parse(JSON.stringify(data));
+  const stats=copy.stats;
+  if(!stats.meta||!stats.weapons||!stats.genreBans||typeof stats.weapons!=='object'||typeof stats.genreBans!=='object') throw new Error('統計の形式が正しくありません。');
+  const safeKey=s=>s&&!['__proto__','constructor','prototype'].includes(s);
+  for(const [path,n] of Object.entries(buildStatsCounts(S))){
+    const parts=path.split('/');
+    if(parts[1]==='meta'){
+      stats.meta.drafts=(Number.isSafeInteger(stats.meta.drafts)&&stats.meta.drafts>=0?stats.meta.drafts:0)+n;
+    }else if(parts[1]==='weapons' && safeKey(parts[2]) && ['picks','bans'].includes(parts[3])){
+      const w=Object.hasOwn(stats.weapons,parts[2])?stats.weapons[parts[2]]:(stats.weapons[parts[2]]={});
+      w[parts[3]]=(Number.isSafeInteger(w[parts[3]])&&w[parts[3]]>=0?w[parts[3]]:0)+n;
+    }else if(parts[1]==='genreBans' && ['cat','sub','special'].includes(parts[2]) && safeKey(parts[3])){
+      const g=Object.hasOwn(stats.genreBans,parts[2])?stats.genreBans[parts[2]]:(stats.genreBans[parts[2]]={});
+      g[parts[3]]=(Number.isSafeInteger(g[parts[3]])&&g[parts[3]]>=0?g[parts[3]]:0)+n;
+    }
+  }
+  copy.seen.push(S.draftId);
+  if(copy.seen.length>LOCAL_STATS_SEEN_LIMIT) copy.seen=copy.seen.slice(-LOCAL_STATS_SEEN_LIMIT);
+  return copy;
+}
+function readLocalDraftStats(){ const raw=localStorage.getItem(LOCAL_STATS_KEY);return raw?JSON.parse(raw):emptyLocalStats(); }
+function recordLocalDraftStats(){
+  const S=state,participant=!isMulti || !!(myMemberId&&S?.members&&Object.hasOwn(S.members,myMemberId));
+  try{
+    const next=applyLocalDraftStats(readLocalDraftStats(),S,participant);
+    if(next) localStorage.setItem(LOCAL_STATS_KEY,JSON.stringify(next));
+  }catch(e){ console.warn('この端末の統計を保存できませんでした',e); }
 }
 
 // ===== 武器統計ビューア（ホーム画面「📊 武器統計」） =====
@@ -6388,21 +6577,39 @@ function buildStatsRanking(stats, kind){
 
 let _statsTab='picks';
 let _statsData=null;
+let _statsScope='global';
+let _statsRequestId=0;
+window.setStatsScope=function(scope){
+  _statsScope=scope==='local'?'local':'global';
+  ['global','local'].forEach(s=>{const el=document.getElementById('stats-scope-'+s);if(el){el.classList.toggle('on',s===_statsScope);el.setAttribute('aria-pressed',String(s===_statsScope));}});
+  showStatsScreen();
+};
 window.showStatsTab=function(t){
   _statsTab=t;
-  document.querySelectorAll('#s-stats .guide-tab').forEach(b=>b.classList.toggle('on',b.dataset.st===t));
+  document.querySelectorAll('#s-stats .guide-tab[data-st]').forEach(b=>{const active=b.dataset.st===t;b.classList.toggle('on',active);b.setAttribute('aria-pressed',String(active));});
   renderStatsBody();
 };
 window.showStatsScreen=async function(){
+  const requestId=++_statsRequestId;
   showScreen('stats');
   const sum=document.getElementById('stats-summary');
   const body=document.getElementById('stats-body');
+  const note=document.getElementById('stats-scope-note');
+  if(_statsScope==='local'){
+    if(note) note.textContent='このブラウザで参加したソロ・マルチの両チームを集計します。結果を初めて表示した時点で保存し、トレード後の変更は反映しません。ブラウザのデータ削除で消えることがあります。';
+    try{_statsData=readLocalDraftStats().stats;sum.textContent=`この端末で完了したドラフト: ${Number(_statsData?.meta?.drafts)||0} 回`;renderStatsBody();}
+    catch(e){_statsData=null;sum.textContent='この端末の統計を読み込めませんでした。';body.textContent='保存データを確認できません。';}
+    return;
+  }
+  if(note) note.textContent='全体はマルチプレイ完了時の匿名集計です。武器と回数のみを記録します。';
   sum.textContent='読み込み中…';
   body.innerHTML='<div class="stat-empty">読み込み中…</div>';
   try{
     const snap=await get(ref(db,'stats'));
+    if(requestId!==_statsRequestId || _statsScope!=='global') return;
     _statsData=snap.exists()?snap.val():null;
   }catch(e){
+    if(requestId!==_statsRequestId || _statsScope!=='global') return;
     _statsData=null;
     sum.textContent='統計を読み込めませんでした（通信状態を確認して「🔄 最新に更新」を押してください）';
     body.innerHTML='';
@@ -6417,7 +6624,7 @@ function renderStatsBody(){
   if(!body) return;
   const list=buildStatsRanking(_statsData,_statsTab);
   if(!list.length){
-    body.innerHTML='<div class="stat-empty">まだデータがありません。<br>マルチプレイのドラフトが完了すると貯まっていきます。</div>';
+    body.innerHTML=`<div class="stat-empty">まだデータがありません。<br>${_statsScope==='local'?'このブラウザでドラフトを完了すると貯まります。':'マルチプレイのドラフトが完了すると貯まっていきます。'}</div>`;
     return;
   }
   const max=list[0].count;
@@ -6438,6 +6645,7 @@ function renderStatsBody(){
 
 function showResult(){
   const S=state;
+  recordLocalDraftStats();
   recordDraftStats();
   document.getElementById('r-rule').textContent=S.rule;
   document.getElementById('r-stage').textContent='📍 '+S.stageJa;

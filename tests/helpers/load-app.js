@@ -35,6 +35,8 @@ const EXPORT_NAMES = [
   'createInitialDraftState',
   'validStagePool','stageDraftPending','stageDraftTurn','applyStageDraftAction','isStageOperator','buildRoomPresetSettings','ROOM_PRESETS',
   'seriesMaxGames','requiredStageCount','stageDraftOf','stageUsedStages','randomUnusedStage','prepareNextStageDraft','stageImgUrl','gachaMatchesDraft',
+  'normalizePresetSettings','normalizeMyPresetName','decodePresetFile','presetFileDocument','presetDescription',
+  'emptyLocalStats','applyLocalDraftStats','buildStatsCounts','recordLocalDraftStats',
   'RULES','CATEGORY_ORDER','CHALLENGES','STAGES_DATA',
 ];
 
@@ -60,6 +62,8 @@ function loadApp(){
     + '  if("isMulti" in o) isMulti = o.isMulti;'
     + '  if("isHost" in o) isHost = o.isHost;'
     + '  if("myMemberId" in o) myMemberId = o.myMemberId;'
+    + '  if("localStorage" in o) localStorage = o.localStorage;'
+    + '  if("document" in o) document = o.document;'
     + '  if("banActiveTeam" in o) banActiveTeam = o.banActiveTeam;'
     + '  if("myBanSubmitted" in o) myBanSubmitted = o.myBanSubmitted;'
     + '  if("alphaBanSubmitted" in o) alphaBanSubmitted = o.alphaBanSubmitted;'
@@ -119,6 +123,7 @@ function loadApp(){
   vm.createContext(sandbox);
   vm.runInContext(src + appendix, sandbox, { filename: 'index-app.js' });
   cached = sandbox.__app;
+  cached.__window = sandbox;
   cached.__removedPaths = removedPaths;
   return cached;
 }
