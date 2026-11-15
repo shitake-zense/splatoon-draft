@@ -37,6 +37,7 @@ const EXPORT_NAMES = [
   'seriesMaxGames','requiredStageCount','stageDraftOf','stageUsedStages','randomUnusedStage','prepareNextStageDraft','stageImgUrl','gachaMatchesDraft',
   'normalizePresetSettings','normalizeMyPresetName','decodePresetFile','presetFileDocument','presetDescription',
   'emptyLocalStats','applyLocalDraftStats','buildStatsCounts','recordLocalDraftStats',
+  'draftStartIssues','lobbyStartIssues','soloStartIssues','updateStartButton','updateSoloStartButton',
   'RULES','CATEGORY_ORDER','CHALLENGES','STAGES_DATA',
 ];
 
@@ -62,6 +63,9 @@ function loadApp(){
     + '  if("isMulti" in o) isMulti = o.isMulti;'
     + '  if("isHost" in o) isHost = o.isHost;'
     + '  if("myMemberId" in o) myMemberId = o.myMemberId;'
+    + '  if("roomId" in o) roomId = o.roomId;'
+    + '  if("lobbyMembers" in o) lobbyMembers = o.lobbyMembers;'
+    + '  if("lobbyMemberDraft" in o) lobbyMemberDraft = o.lobbyMemberDraft;'
     + '  if("localStorage" in o) localStorage = o.localStorage;'
     + '  if("document" in o) document = o.document;'
     + '  if("banActiveTeam" in o) banActiveTeam = o.banActiveTeam;'

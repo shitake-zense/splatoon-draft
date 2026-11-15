@@ -683,7 +683,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
           <li>表示された<b>部屋番号（6桁）</b>か<b>共有URL</b>を参加者に渡します。</li>
           <li>ロビーで参加者が揃ったら、<b>チーム（アルファ／ブラボー）への割り当て</b>と<b>ピック順</b>を決めます。</li>
           <li>人数・BAN数・ピック方法・ルール／ステージを設定します。武器の絞り込みやお題カードは<b>「追加ルール・武器の絞り込み」</b>から設定できます。</li>
-          <li><b>「ドラフト開始」</b>で全員の画面が一斉にドラフトへ進みます。</li>
+          <li>両チームの人数やステージ候補などが揃うと<b>「ドラフト開始」</b>を押せます。不足があるときはボタンの下に理由が表示されます。</li>
         </ol>
       </div>
       <details class="guide-card guide-disclosure"><summary>部屋番号と配信の注意</summary><div class="guide-detail-body">部屋番号は初期状態で伏せられます。「部屋番号を非表示中」で表示を切り替えられ、ID・URLのコピーは非表示中も使えます。<b>ブラウザのアドレス欄やコピーしたURLには部屋番号が含まれます。</b>配信時はアドレス欄を映さず、URLを参加者だけに共有してください。この機能は画面表示を隠すもので、入室制限ではありません。</div></details>
@@ -719,7 +719,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <h3 class="guide-section-title">追加ルール</h3>
       <details class="guide-card guide-disclosure"><summary>お題カード / 制限時間</summary><div class="guide-detail-body"><b>お題カード</b>＝開始時に<b>全32種</b>から縛りを1枚抽選（両チーム共通・<b>非強制</b>で、結果に達成○×を表示）。武器種・サブ・スペシャル・人数など色々な角度のお題があります。<b>制限時間</b>＝5〜100秒。時間切れは「確定済み→仮選択中→ランダム」の順で自動送信します。</div></details>
       <details class="guide-card guide-disclosure"><summary>ドラフト後トレード</summary><div class="guide-detail-body">ONにすると<b>結果画面</b>で武器の交換ができます。自チームの武器1枚と相手チームの武器1枚を選んで<b>交換を提案</b>→<b>相手チームの代表者が承認</b>すると成立（拒否も可）。回数は無制限です。マルチでは<b>各チームの代表者だけ</b>が提案・承認でき、ソロではアルファ⇄ブラボーをその場で入れ替えられます。</div></details>
-      <details class="guide-card guide-disclosure"><summary>メンバードラフト（キャプテン選抜・マルチ専用）</summary><div class="guide-detail-body">ONにすると、武器ドラフトの前に<b>チーム分けをキャプテン選抜で</b>行えます。チーム割り当てで<b>各チームのキャプテンを1名ずつ</b>（α／β）に置き、残りは<b>未割り当て（プール）</b>に。両チーム代表者が揃い<b>人数が足りていれば（2v2以上・合計2×人数以上）</b>「メンバードラフト開始」が押せます。開始後は2人のキャプテンが<b>交互にプールから1人ずつ指名</b>（先攻チームが先）。制限時間ONなら<b>時間切れでランダム自動指名</b>。<br><b>タイミング</b>を選べます：<br>・<b>「チーム分け→ドラフト」</b>＝選抜が終わると<b>そのまま武器ドラフト（BAN/PICK）へ自動で進み、指名した順番がそのままピック順</b>になります（各チーム、キャプテンが先頭→指名順）。<br>・<b>「全員が武器ピック→チーム分け」</b>＝先に<b>全員（キャプテン含む）がランダム順で1人ずつ武器を選び（すでに選ばれた武器は選べません）</b>、その後にキャプテンがチーム分け。BANはなし。各自が選んだ武器を持ったまま結果に進みます。</div></details>
+      <details class="guide-card guide-disclosure"><summary>メンバードラフト（キャプテン選抜・マルチ専用）</summary><div class="guide-detail-body">ONにすると、武器ドラフトの前に<b>チーム分けをキャプテン選抜で</b>行えます。チーム割り当てで<b>各チームのキャプテンを1名ずつ</b>（α／β）に置き、残りは<b>未割り当て（プール）</b>に。両チーム代表者が揃い<b>人数が足りていれば（2v2以上・合計2×人数以上。全員が武器ピックする方式ではちょうど2×人数）</b>「メンバードラフト開始」が押せます。開始後は2人のキャプテンが<b>交互にプールから1人ずつ指名</b>（先攻チームが先）。制限時間ONなら<b>時間切れでランダム自動指名</b>。<br><b>タイミング</b>を選べます：<br>・<b>「チーム分け→ドラフト」</b>＝選抜が終わると<b>そのまま武器ドラフト（BAN/PICK）へ自動で進み、指名した順番がそのままピック順</b>になります（各チーム、キャプテンが先頭→指名順）。<br>・<b>「全員が武器ピック→チーム分け」</b>＝先に<b>全員（キャプテン含む）がランダム順で1人ずつ武器を選び（すでに選ばれた武器は選べません）</b>、その後にキャプテンがチーム分け。BANはなし。連戦モードや通常以外のステージ方式は使えません。各自が選んだ武器を持ったまま結果に進みます。</div></details>
       <h3 class="guide-section-title">連戦の設定</h3>
       <details class="guide-card guide-disclosure"><summary>連戦モード（シリーズ）</summary><div class="guide-detail-body">1ルームで<b>複数試合を連続</b>で行います。<b>シリーズ長</b>＝BO3（先取2）／BO5（先取3）／BO7（先取4）／BO9（先取5）。各試合のドラフトが終わったら結果画面で<b>ホストが勝者を入力</b>すると、ステージが変わって次の試合のドラフトが始まります。先取数に達するとシリーズ終了で、<b>戦績ボード</b>（各試合の勝者・ルール・ステージ・両チームの編成一覧）が表示され、<b>「🖼️ シリーズ画像を保存」</b>で全試合を1枚のPNGにまとめて保存できます。</div></details>
       <details class="guide-card guide-disclosure"><summary>連戦のガチルール進行</summary><div class="guide-detail-body"><b>BO3・BO7・BO9</b>＝毎試合ガチルールをランダム。<b>BO5</b>＝1〜4試合目を<b>ガチエリア→ヤグラ→ホコ→アサリ</b>の固定順、5試合目はランダム。<br><b>⚖️ 負けチームがルール設定</b>をONにすると、各試合の<b>敗者が次の試合のガチルールを選びます</b>（2試合目以降。1試合目は上記の自動進行）。<b>選ぶのは「敗者チームの代表者＝そのチームの1ピック目」1人だけ</b>で、その人の名前が結果画面に🎯付きで表示されます（自分が担当なら「あなた」バッジ）。ソロでは操作者が選びます。<br>担当者が席を外しているなど操作できないときは、<b>ホストが代理で決める</b>ボタンからも進められます。</div></details>
@@ -1143,7 +1143,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
     <p id="my-preset-save-status" aria-live="polite"></p>
   </div>
   <button class="btn-start" id="btn-start-draft" onclick="startDraft()">▶ ドラフト開始</button>
-  <div id="start-btn-info" style="text-align:center;font-size:11px;color:var(--mu);margin-top:6px;min-height:16px;"></div>
+  <div id="start-btn-info" aria-live="polite" style="text-align:center;font-size:11px;color:var(--mu);margin-top:6px;min-height:16px;"></div>
   <div id="lobby-rejoin-info" style="display:none;text-align:center;font-size:10px;color:#4a5a7a;margin-top:8px;line-height:1.6;">
     💡 参加者が離脱しても、同じ端末・同じブラウザで再参加すれば元のチーム枠に復帰します（改名も可）
   </div>
@@ -1253,7 +1253,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <div class="div"></div>
       <div class="toggle-row">
         <div class="toggle-label">標準武器のみ<small>各武器の基本形のみ（例：スプラシューター）</small></div>
-        <label class="tgl"><input type="checkbox" id="solo-std-only" aria-label="標準武器のみ"><span class="tgl-sl"></span></label>
+        <label class="tgl"><input type="checkbox" id="solo-std-only" onchange="updateSoloStartButton()" aria-label="標準武器のみ"><span class="tgl-sl"></span></label>
       </div>
       <div class="toggle-row">
         <div class="toggle-label">⏱ 制限時間あり<small>時間切れ時は仮選択を優先し、残りは自動で選択</small></div>
@@ -1414,7 +1414,8 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       </details>
     </div>
   </div>
-  <button class="btn-start" onclick="startSoloDraft()">▶ ドラフト開始</button>
+  <button class="btn-start" id="btn-start-solo" onclick="startSoloDraft()">▶ ドラフト開始</button>
+  <div id="solo-start-info" aria-live="polite" style="text-align:center;font-size:11px;color:var(--mu);margin-top:6px;min-height:16px;"></div>
   <button class="btn-re" onclick="showScreen('mode')">← 戻る</button>
 </div>
 
@@ -2007,11 +2008,12 @@ async function loadData(){
 // ===== ソロモード =====
 window.enterSolo = function(){
   isMulti=false; isHost=false; roomId=null;
+  updateSoloStartButton();
   showScreen('setup');
 };
 window.startSoloDraft = function(){
   isMulti=false;
-  if(!validateStageSettings('solo-')) return;
+  if(soloStartIssues().length){ updateSoloStartButton(); return; }
   buildAndStartDraft({
     an: document.getElementById('solo-n-a').value||'アルファ',
     bn: document.getElementById('solo-n-b').value||'ブラボー',
@@ -2415,7 +2417,7 @@ function renderLobbyMembers(members){
 function renderTeamAssign(members){
   const card=document.getElementById('team-assign-card');
   const ids=Object.keys(members);
-  if(ids.length<=1){ card.style.display='none'; renderPickOrderUI(); return; }
+  if(ids.length<=1){ card.style.display='none'; renderPickOrderUI(); updateStartButton(); return; }
   card.style.display='block';
 
   const an=document.getElementById('n-a').value||'アルファ';
@@ -2490,7 +2492,7 @@ function startMemberDraft(){
   if(!isHost || !roomId) return;
   const ts=parseInt(document.getElementById('sz')?.value||4);
   if(ts < 2) return;                                     // 1v1はメンバードラフト不要
-  const entries=Object.entries(lobbyMembers);
+  const entries=Object.entries(lobbyMembers).filter(([,m])=>m && !m.kicked);
   const alpha=entries.filter(([,m])=>m.team==='alpha').map(([id])=>id);
   const bravo=entries.filter(([,m])=>m.team==='bravo').map(([id])=>id);
   if(alpha.length!==1 || bravo.length!==1) return;       // 代表者1名ずつ
@@ -2716,11 +2718,11 @@ function startWeaponPick(){
   if(!isHost || !roomId) return;
   const ts=parseInt(document.getElementById('sz')?.value||4);
   if(ts<2) return;
-  const entries=Object.entries(lobbyMembers);
+  const entries=Object.entries(lobbyMembers).filter(([,m])=>m && !m.kicked);
   const alpha=entries.filter(([,m])=>m.team==='alpha').map(([id])=>id);
   const bravo=entries.filter(([,m])=>m.team==='bravo').map(([id])=>id);
   if(alpha.length!==1 || bravo.length!==1) return;
-  if(entries.length < 2*ts) return;
+  if(entries.length !== 2*ts) return;
   const order=entries.map(([id])=>id);
   for(let i=order.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [order[i],order[j]]=[order[j],order[i]]; }
   const node={ active:true, done:false, order, idx:0, picks:{} };
@@ -4357,54 +4359,69 @@ function getLobbySettings(){
   };
 }
 
-// ===== ドラフト開始ボタンの活性制御（Feature-2） =====
+// 開始条件をボタン表示と開始処理で共有する。
+function draftStartIssues({multi=false,members={},ts=4,memberDraftEnabled=false,memberDraftDone=false,memberDraftTiming='before',seriesEnabled=false,stageMode='normal',stagePool=[],maxGames=1,weaponCount=0}){
+  const issues=[];
+  if(multi){
+    const active=Object.values(members).filter(m=>m && !m.kicked);
+    const alpha=active.filter(m=>m.team==='alpha').length;
+    const bravo=active.filter(m=>m.team==='bravo').length;
+    if(memberDraftEnabled && !memberDraftDone){
+      if(ts<2) issues.push('メンバードラフトは2v2以上で利用できます。');
+      if(active.length<2*ts) issues.push(`メンバー不足：${active.length} / ${2*ts}人`);
+      if(memberDraftTiming==='after' && active.length>2*ts) issues.push(`全員が武器ピックする方式では参加者を${2*ts}人にしてください（現在${active.length}人）。`);
+      if(alpha!==1 || bravo!==1) issues.push(`各チームのキャプテンを1人ずつ割り当ててください（アルファ ${alpha}/1、ブラボー ${bravo}/1）。`);
+    }else if(alpha!==ts || bravo!==ts){
+      issues.push(`チームの人数を揃えてください（アルファ ${alpha}/${ts}人、ブラボー ${bravo}/${ts}人）。`);
+    }
+  }
+  const min=requiredStageCount(stageMode,maxGames);
+  if(stageMode!=='normal' && !validStagePool(stagePool,min)){
+    const count=new Set(stagePool.filter(n=>STAGES_DATA.includes(n))).size;
+    issues.push(`ステージ候補が不足しています（${count}/${min}ステージ）。`);
+  }
+  if(multi && memberDraftEnabled && memberDraftTiming==='after'){
+    if(seriesEnabled) issues.push('「全員が武器ピック → チーム分け」では連戦モードを利用できません。');
+    if(stageMode!=='normal') issues.push('「全員が武器ピック → チーム分け」ではステージ方式を「通常」にしてください。');
+    if(weaponCount<2*ts) issues.push(`武器候補が不足しています（${weaponCount}/${2*ts}種類）。`);
+  }else if(weaponCount<1){
+    issues.push('武器候補がありません。武器の絞り込みを見直してください。');
+  }
+  return issues;
+}
+function lobbyStartIssues(){
+  const stage=stageSettings('');
+  return draftStartIssues({multi:true,members:lobbyMembers,ts:parseInt(document.getElementById('sz')?.value||4),
+    memberDraftEnabled:!!document.getElementById('member-draft-enabled')?.checked,
+    memberDraftDone:!!lobbyMemberDraft?.done,memberDraftTiming:document.getElementById('member-draft-timing')?.value||'before',
+    seriesEnabled:!!document.getElementById('series-enabled')?.checked,
+    stageMode:stage.mode,stagePool:readStagePool(''),maxGames:stage.maxGames,
+    weaponCount:filterWeaponPool(WEAPONS,!!document.getElementById('std-only')?.checked,lobbyExcludeFilter).length});
+}
+function soloStartIssues(){
+  const stage=stageSettings('solo-');
+  return draftStartIssues({stageMode:stage.mode,stagePool:readStagePool('solo-'),maxGames:stage.maxGames,
+    weaponCount:filterWeaponPool(WEAPONS,!!document.getElementById('solo-std-only')?.checked,null).length});
+}
 function updateStartButton(){
-  const btn = document.getElementById('btn-start-draft');
-  const info = document.getElementById('start-btn-info');
+  const btn=document.getElementById('btn-start-draft'), info=document.getElementById('start-btn-info');
   if(!btn || !info) return;
-  const pickMode = document.getElementById('pick-mode')?.value || 'individual';
-  const ts = parseInt(document.getElementById('sz')?.value || 4);
-  const alphaCount = Object.values(lobbyMembers).filter(m=>m.team==='alpha').length;
-  const bravoCount = Object.values(lobbyMembers).filter(m=>m.team==='bravo').length;
-
-  // メンバードラフト有効 かつ 未完了 → ボタンは「メンバードラフト開始」（代表者1名ずつ＋人数充足が条件）
-  const mdEnabled = document.getElementById('member-draft-enabled')?.checked;
-  const mdDone = lobbyMemberDraft && lobbyMemberDraft.done;
-  if(mdEnabled && !mdDone){
-    const total = Object.keys(lobbyMembers).length;
-    const mdTiming = document.getElementById('member-draft-timing')?.value||'before';
-    btn.textContent = mdTiming==='after' ? '▶ 武器ピック開始' : '▶ メンバードラフト開始';
-    if(ts < 2){
-      btn.disabled = true;
-      info.textContent = 'メンバードラフトは 2v2 以上でご利用ください（1v1は不要）';
-      info.style.color = 'var(--mu)';
-      return;
-    }
-    const ready = alphaCount===1 && bravoCount===1 && total>=2*ts;
-    btn.disabled = !ready;
-    if(total < 2*ts){
-      info.textContent = `メンバー不足：${total} / ${2*ts}人（${ts}v${ts}には${2*ts}人必要です）`;
-    } else {
-      info.textContent = `各チームのキャプテンを1名ずつ：アルファ ${alphaCount}/1、ブラボー ${bravoCount}/1`;
-    }
-    info.style.color = ready ? 'var(--pk)' : 'var(--mu)';
-    return;
-  }
-  btn.textContent = '▶ ドラフト開始';
-
-  // 個人ピック・相手ピックは選手ごとの割当が必要なため、両チーム人数が揃うまで開始不可
-  if(pickMode !== 'individual' && pickMode !== 'enemy'){
-    btn.disabled = false;
-    info.textContent = '';
-    return;
-  }
-  const ready = alphaCount === ts && bravoCount === ts;
-  btn.disabled = !ready;
-  const label = pickMode==='enemy' ? '相手ピックモード' : '個人ピックモード';
-  info.textContent = `${label}：アルファ ${alphaCount}/${ts}人、ブラボー ${bravoCount}/${ts}人`;
-  info.style.color = ready ? 'var(--pk)' : 'var(--mu)';
+  const md=document.getElementById('member-draft-enabled')?.checked && !lobbyMemberDraft?.done;
+  btn.textContent=md ? (document.getElementById('member-draft-timing')?.value==='after' ? '▶ 武器ピック開始' : '▶ メンバードラフト開始') : '▶ ドラフト開始';
+  const issues=lobbyStartIssues();
+  btn.disabled=issues.length>0;
+  info.textContent=issues.join(' ');
+  info.style.color='var(--mu)';
+}
+function updateSoloStartButton(){
+  const btn=document.getElementById('btn-start-solo'),info=document.getElementById('solo-start-info');
+  if(!btn || !info) return;
+  const issues=soloStartIssues();
+  btn.disabled=issues.length>0;
+  info.textContent=issues.join(' ');
 }
 window.updateStartButton = updateStartButton;
+window.updateSoloStartButton = updateSoloStartButton;
 
 window.onSoloTimeLimitChange = function(){
   showSettingRows(document.getElementById('solo-time-limit-enabled')?.checked,['solo-time-limit-row']);
@@ -4419,6 +4436,7 @@ window.onSeriesToggle = function(){
 window.onSoloSeriesToggle = function(){
   showSeriesRows('solo-',document.getElementById('solo-series-enabled')?.checked);
   updateStageSettingsUI('solo-');
+  updateSoloStartButton();
 };
 
 window.onTimeLimitChange = function(){
@@ -4464,16 +4482,7 @@ function updateStageSettingsUI(prefix){
   })[mode]||'';
 }
 window.setAllStagePool=function(prefix,checked){ setStagePool(prefix,checked?STAGES_DATA:[]); onStageSettingsChange(prefix); };
-window.onStageSettingsChange=function(prefix){ updateStageSettingsUI(prefix); if(!prefix) onSettingChange(); };
-function validateStageSettings(prefix){
-  const {mode,min}=stageSettings(prefix);
-  if(mode==='normal') return true;
-  if(!validStagePool(readStagePool(prefix),min)){ alert(`ステージ候補を${min}つ以上選択してください。`); return false; }
-  if(!prefix && document.getElementById('member-draft-enabled')?.checked && document.getElementById('member-draft-timing')?.value==='after'){
-    alert('「全員が武器ピック → チーム分け」ではこのステージ方式を利用できません。'); return false;
-  }
-  return true;
-}
+window.onStageSettingsChange=function(prefix){ updateStageSettingsUI(prefix); if(!prefix) onSettingChange(); else updateSoloStartButton(); };
 // ホストを単一ライターとして、他の代表者から選択意図を受け取る。
 function stageDraftOf(S){ return S?.series?.stageDraft || S?.stageDraft || null; }
 function stageDraftPending(S){
@@ -4574,7 +4583,12 @@ function subscribeStageDraft(){
 
 // ===== ドラフト開始 (ホスト) =====
 window.startDraft = function(){
-  if(!validateStageSettings('')) return;
+  if(!isHost || !roomId) return;
+  if(lobbyStartIssues().length){
+    updateStartButton();
+    if(document.getElementById('s-member-draft')?.classList.contains('active')) showScreen('lobby');
+    return;
+  }
   // メンバードラフト有効＆未完了 → 先頭フェーズを開始（武器ドラフトはその後）
   const mdEnabled = document.getElementById('member-draft-enabled')?.checked;
   const mdDone = lobbyMemberDraft && lobbyMemberDraft.done;
@@ -4590,7 +4604,7 @@ window.startDraft = function(){
   const s=getLobbySettings();
   // メンバー情報をstateに含める（表示名やピック順に使用）
   const membersForState={};
-  Object.entries(lobbyMembers).forEach(([id,m])=>{
+  Object.entries(lobbyMembers).filter(([,m])=>m && !m.kicked).forEach(([id,m])=>{
     membersForState[id]={name:m.name,team:m.team,isHost:m.isHost,joinedAt:m.joinedAt||0};
   });
   buildAndStartDraft({
