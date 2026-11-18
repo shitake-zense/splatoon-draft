@@ -37,6 +37,7 @@ const EXPORT_NAMES = [
   'seriesMaxGames','requiredStageCount','stageDraftOf','stageUsedStages','randomUnusedStage','prepareNextStageDraft','stageImgUrl','gachaMatchesDraft',
   'normalizePresetSettings','normalizeMyPresetName','decodePresetFile','presetFileDocument','presetDescription',
   'emptyLocalStats','applyLocalDraftStats','buildStatsCounts','recordLocalDraftStats',
+  'obsRoomId','obsLink','obsMarkup',
   'draftStartIssues','lobbyStartIssues','soloStartIssues','updateStartButton','updateSoloStartButton',
   'RULES','CATEGORY_ORDER','CHALLENGES','STAGES_DATA',
 ];
