@@ -621,10 +621,6 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
 .advanced-settings .advanced-note{color:var(--mu);font-size:12px;margin:2px 0 10px;}
 @media(max-width:640px){body{padding:16px 12px 36px}.mode-hero{padding:25px 21px;margin-top:4px}.mode-hero p{font-size:13px}.mode-section-head{display:block}.mode-section-head p{margin-top:3px}.mode-wrap{grid-template-columns:1fr;gap:9px}.mode-btn{min-height:0;display:grid;grid-template-columns:42px 1fr 20px;column-gap:13px;align-items:center;padding:14px}.mode-btn .mode-icon{grid-row:1 / span 2;margin:0}.mode-btn h3{font-size:15px;margin:0}.mode-btn p{grid-column:2;font-size:12px}.mode-btn .mode-arrow{grid-column:3;grid-row:1 / span 2;align-self:center}.mode-links{flex-wrap:wrap}.mode-links .btn-re{min-width:140px}.mode-flow{gap:8px}.card,.members-card,.team-assign-card,.guide-card{padding:16px}.row label{min-width:74px}.join-wrap{padding:20px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important;}}
-/* OBS browser source */
-.obs-generator{margin:12px 0;color:var(--mu);font-size:12px}.obs-generator summary{cursor:pointer;color:var(--tx);font-weight:bold}.obs-generator p{margin:8px 0;line-height:1.6}.obs-form{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.obs-form input{background:var(--s1);color:var(--tx);border:1px solid #53617d;border-radius:6px;padding:8px;font:inherit}.obs-form input:first-child{width:120px}.obs-form .obs-url{flex:1;min-width:180px}.obs-status{min-height:1.5em}
-body.obs-mode{background:transparent;padding:0;min-height:0}body.obs-mode .app{max-width:none;margin:0}body.obs-mode .site-notice{display:none}body.obs-mode #loading{background:rgba(15,20,38,.94);padding:18px;border-radius:12px}
-.obs-overlay{padding:16px}.obs-panel{max-width:1100px;margin:auto;background:rgba(17,23,43,.94);border:2px solid #465270;border-radius:16px;padding:18px;color:#fff;box-shadow:0 4px 20px #0008}.obs-heading{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px;font-size:14px;color:#d0d7ea}.obs-heading strong{color:var(--y);font-family:'Zen Dots',sans-serif}.obs-teams{display:grid;grid-template-columns:1fr 1fr;gap:12px}.obs-team{background:#ffffff0b;border-top:4px solid var(--a);border-radius:8px;padding:12px;min-width:0}.obs-team.bravo{border-color:var(--o)}.obs-team h2{font-family:inherit;font-size:20px;overflow-wrap:anywhere}.obs-label{font-weight:bold;font-size:12px;letter-spacing:1px;color:#aeb8d1;margin:10px 0 5px}.obs-items{display:flex;flex-wrap:wrap;gap:6px}.obs-item{display:flex;align-items:center;gap:5px;background:#ffffff12;border-radius:6px;padding:4px 7px;min-width:0;max-width:100%;font-size:13px;overflow-wrap:anywhere}.obs-item img{width:42px;height:32px;object-fit:contain}.obs-item small{display:block;color:#b9c7df}.obs-empty{color:#9da8be;font-size:12px}.obs-wait{text-align:center;color:#d0d7ea;font-size:16px}.obs-meta{overflow-wrap:anywhere;text-align:right}@media(max-width:500px){.obs-overlay{padding:8px}.obs-panel{padding:10px}.obs-teams{gap:6px}.obs-team{padding:8px}.obs-team h2{font-size:15px}.obs-item{font-size:11px}.obs-item img{width:30px;height:25px}}
 </style>
 </head>
 <body>
@@ -661,20 +657,11 @@ body.obs-mode{background:transparent;padding:0;min-height:0}body.obs-mode .app{m
   </div>
   <div class="privacy-note"><button class="btn-copy room-privacy-toggle" onclick="toggleRoomPrivacy()" aria-pressed="true">🔒 部屋番号を非表示中</button></div>
   <div class="mode-flow"><strong>ドラフトの流れ</strong><span>部屋に集まる</span><span>BAN：使えない武器を決める</span><span>PICK：使う武器を選ぶ</span><span>結果を確認</span></div>
-  <details class="obs-generator">
-    <summary>📺 OBS配信用リンクを作る</summary>
-    <p>マルチの部屋番号を入力し、生成したURLをOBSの「ブラウザ」ソースに設定します（推奨 1280×720）。確定済みのBAN・PICKが自動更新されます。URLには部屋番号が含まれるため、配信に映さず共有にも注意してください。</p>
-    <div class="obs-form"><input id="obs-room-input" type="password" maxlength="6" autocomplete="off" aria-label="OBS用の部屋番号" placeholder="部屋番号（6桁）" oninput="clearObsLink()"><button class="btn-copy" type="button" onclick="generateObsLink()">リンクを生成</button><input id="obs-url" class="obs-url" type="password" readonly aria-label="OBS配信用URL" placeholder="生成したURL"><button class="btn-copy" type="button" onclick="copyObsLink()">コピー</button></div>
-    <p id="obs-link-status" class="obs-status" aria-live="polite"></p>
-  </details>
   <div class="mode-links">
     <button class="btn-re" onclick="showScreen('guide')">📖 使い方を見る</button>
     <button class="btn-re" onclick="showStatsScreen()">📊 武器の統計を見る</button>
   </div>
 </div>
-
-<!-- OBS (表示専用) -->
-<div id="s-obs" class="screen obs-overlay"><div id="obs-content" class="obs-panel obs-wait" aria-live="polite">部屋のドラフト開始を待っています</div></div>
 
 <!-- GUIDE (使い方) -->
 <div id="s-guide" class="screen">
@@ -716,7 +703,6 @@ body.obs-mode{background:transparent;padding:0;min-height:0}body.obs-mode .app{m
         <p class="guide-note">担当者の名前は<b>BANパネル</b>と<b>結果画面のルール選択</b>に常に表示されます（自分が担当のときは「あなた」バッジが付きます）。</p>
         </div>
       </details>
-      <details class="guide-card guide-disclosure"><summary>OBS配信用の表示</summary><div class="guide-detail-body">ホーム画面の「OBS配信用リンクを作る」にマルチの部屋番号を入力し、生成したURLをOBSのブラウザソースに設定します。推奨サイズは1280×720です。背景は透明で、確定済みのBAN・PICKが自動更新されます。部屋番号を含むURLは配信に映さず、共有にも注意してください。ソロモードには対応していません。</div></details>
       <h3 class="guide-section-title">設定を詳しく調べる</h3>
       <p class="guide-section-caption">気になる項目を押すと説明が開きます。</p>
       <details class="guide-card guide-disclosure"><summary>ステージ方式とプリセット</summary><div class="guide-detail-body"><p>部屋を作るときに5種類のプリセットから選べます。選んだ設定はロビーで変更できます。</p><p>ステージ方式は通常・おまかせロスト・カウンターピック・BAN / PICKから選べます。候補数は最大試合数に合わせて表示されます。</p><p>カウンターは初戦ランダム、次戦以降は敗者が未使用ステージを選択。BAN / PICKは各1 BAN後に先攻から交互にPICKし、最終戦は残りから抽選します（1試合では先攻がPICK）。</p><p>代表者は画像を2回押して確定します。ステージ選択中に制限時間はありません。</p></div></details>
@@ -1892,7 +1878,7 @@ function clampTimeLimit(v){
 }
 
 function showScreen(n){
-  ['mode','obs','guide','stats','create','join','lobby','lobby-wait','member-draft','weapon-pick','setup','draft','result'].forEach(s=>
+  ['mode','guide','stats','create','join','lobby','lobby-wait','member-draft','weapon-pick','setup','draft','result'].forEach(s=>
     document.getElementById('s-'+s).classList.toggle('active',s===n)
   );
   if(n==='guide') window.scrollTo?.(0,0);
@@ -1948,60 +1934,6 @@ function flashBtn(ids, orig, msg){
     el.textContent=msg; el.classList.add('copied');
     setTimeout(()=>{el.textContent=orig; el.classList.remove('copied');},1800);
   });
-}
-
-// OBS は state のみを購読し、未公開の pending_* やガチャの手札には触れない。
-function obsRoomId(value){
-  const id=String(value||'').trim().toUpperCase();
-  return /^[A-Z0-9]{6}$/.test(id)?id:null;
-}
-function obsLink(id){ return `${location.origin}${location.pathname}?obs=${encodeURIComponent(id)}`; }
-window.clearObsLink=function(){
-  const out=document.getElementById('obs-url'); out.value=''; out.type='password';
-  document.getElementById('obs-link-status').textContent='';
-};
-window.generateObsLink=function(){
-  const id=obsRoomId(document.getElementById('obs-room-input').value);
-  const out=document.getElementById('obs-url'), status=document.getElementById('obs-link-status');
-  out.value=id?obsLink(id):'';
-  out.type='password';
-  status.textContent=id?'リンクを生成しました。コピーしてOBSに設定してください。':'部屋番号を半角英数字6文字で入力してください。';
-};
-window.copyObsLink=async function(){
-  const out=document.getElementById('obs-url'), status=document.getElementById('obs-link-status');
-  if(!out.value){ status.textContent='先に部屋番号を入力してリンクを生成してください。'; return; }
-  try{ await navigator.clipboard.writeText(out.value); status.textContent='リンクをコピーしました。'; }
-  catch(e){ status.textContent='コピーできませんでした。生成したURL欄を選択してコピーしてください。'; out.type='text'; out.select(); }
-};
-function obsItems(items, members, isBan){
-  if(!Array.isArray(items)||!items.length) return '<span class="obs-empty">—</span>';
-  return items.filter(Boolean).map(w=>{
-    // 画像はアプリ同梱の相対パスだけを許可する。
-    const src=typeof w.imgUrl==='string' && /^images\/(weapons|subspe)\/[A-Za-z0-9_.-]+$/.test(w.imgUrl)?w.imgUrl:'';
-    const player=w.memberId && members && members[w.memberId]?.name;
-    return `<div class="obs-item">${src?`<img src="${esc(src)}" alt="">`:''}<span>${player?`<small>${esc(player)}</small>`:''}${esc(isBan?banDispName(w):w.name||'')}</span></div>`;
-  }).join('');
-}
-function obsMarkup(S){
-  if(!S) return '<div class="obs-wait">部屋のドラフト開始を待っています</div>';
-  const step=(S.seq||[])[S.idx||0];
-  const phase=stageDraftPending(S)?'STAGE SELECT':step?.phase==='ban'?'BAN PHASE':step?'PICK PHASE':S.pickMode==='gacha'&&!gachaAllConfirmed(S)?'GACHA PICK':'COMPLETE';
-  const teams=['alpha','bravo'].map(t=>`<section class="obs-team ${t}"><h2>${esc((t==='alpha'?S.an:S.bn)||(t==='alpha'?'アルファ':'ブラボー'))}</h2><div class="obs-label">BAN</div><div class="obs-items">${obsItems(S.bans?.[t],S.members,true)}</div><div class="obs-label">PICK</div><div class="obs-items">${obsItems(S.picks?.[t],S.members,false)}</div></section>`).join('');
-  const score=S.series?` · ${Number(S.series.scoreA)||0} - ${Number(S.series.scoreB)||0} · 第${Number(S.series.game)||1}戦`:'';
-  return `<div class="obs-heading"><strong>${phase}</strong><span class="obs-meta">${esc(S.rule||'ルール未定')} / ${esc(S.stageJa||'ステージ未定')}${score}</span></div><div class="obs-teams">${teams}</div>`;
-}
-async function startObs(rawId){
-  document.body.classList.add('obs-mode');
-  const content=document.getElementById('obs-content');
-  document.getElementById('loading').style.display='none';
-  document.getElementById('s-obs').classList.add('active');
-  const id=obsRoomId(rawId);
-  if(!id){ content.textContent='部屋番号が正しくありません。ホーム画面からリンクを作り直してください。'; return; }
-  try{
-    content.textContent='接続しています…';
-    await initAuth();
-    onValue(ref(db,`rooms/${id}/state`),snap=>{ content.classList.remove('obs-wait'); content.innerHTML=obsMarkup(snap.exists()?snap.val():null); },()=>{ content.textContent='接続できませんでした。OBSのブラウザソースを再読み込みしてください。'; });
-  }catch(e){ content.textContent='認証できませんでした。OBSのブラウザソースを再読み込みしてください。'; }
 }
 
 // ===== データ読み込み（認証と武器データを並行して準備） =====
@@ -7128,9 +7060,7 @@ window.addEventListener('beforeunload',()=>{
   }
 });
 
-const obsParam=new URLSearchParams(location.search);
-if(obsParam.has('obs')) startObs(obsParam.get('obs'));
-else loadData();
+loadData();
 </script>
 </body>
 </html>
