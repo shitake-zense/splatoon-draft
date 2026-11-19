@@ -5101,6 +5101,7 @@ function subscribeRoom(){
       subscribeSimPick();
       if(state.pickMode==='gacha') subscribeGacha();
       if(state.tradeEnabled) subscribeTrade();
+      prevIdx=remote.idx;
       showDraftUI();
     } else {
       // idxが進んだ → ローカルの一時状態を全リセット
@@ -5861,9 +5862,7 @@ window.confirmBans = function(){
     renderBanPanel(); renderGrid();
   });
   if(myTeam==='alpha') alphaBanSubmitted=true; else bravoBanSubmitted=true;
-  // 確定処理はホストの checkBothBansReady が Firebase から読み直して行うため、
-  // ホスト以外は送信済みの手元コピーを捨てる（重複カウント防止）
-  if(!isHost) banPending[myTeam]=[];
+  // 参加者側も自分の送信内容を表示し続ける。フェーズ移行時に一時状態を消す。
   renderBanPanel(); renderGrid();
   // ホスト側はcheckBothBansReadyが自動確定する
 };

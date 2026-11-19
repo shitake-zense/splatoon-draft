@@ -69,6 +69,37 @@ test('代表者BAN: 必要数が揃うまで送信せず最後の確定でチー
   assert.equal(s.alphaBanSubmitted,true);
 });
 
+test('非ホスト代表者は送信後も自分が選んだBANを表示できる',()=>{
+  const {s,writes}=setup({multi:true});
+  s.isHost=false;
+  const a=weapon(1),b=weapon(2);
+  s.pickWeapon(a);s.pickWeapon(a);s.pickWeapon(b);s.pickWeapon(b);
+  assert.equal(writes.length,1);
+  assert.deepEqual(Array.from(s.banPending.alpha,x=>x.key),['w1','w2']);
+});
+
+test('参加者の最初のフェーズ移行で送信済みBANなどの一時状態を消す',()=>{
+  let listener, onDraft=false;
+  const s={isHost:false,roomId:'test',db:{},fbUnsub:null,fbLobbyUnsub:null,
+    state:null,_lastPushedIdx:-1,banPending:{alpha:[],bravo:[]},
+    alphaBanSubmitted:false,bravoBanSubmitted:false,
+    ref:(db,p)=>p,onValue(ref,callback){listener=callback;return ()=>{};},
+    document:{getElementById:id=>({classList:{contains:()=>id==='s-draft'&&onDraft}})},
+    normalizeState:x=>x,stageDraftPending:()=>false,resetTransientDraftState(){},
+    subscribePendingBravoBans(){},subscribeSimPick(){},
+    showDraftUI(){onDraft=true;},renderDraft(){},
+  };
+  vm.createContext(s);
+  vm.runInContext(part('function subscribeRoom(){','function subscribePendingBravoBans(){'),s);
+  s.subscribeRoom();
+  const snapshot=idx=>({exists:()=>true,val:()=>({idx,seq:[{phase:'ban'},{phase:'pick'}],pickMode:'team'})});
+  listener(snapshot(0));
+  s.banPending.alpha.push(weapon(1));s.alphaBanSubmitted=true;
+  listener(snapshot(1));
+  assert.equal(s.banPending.alpha.length,0);
+  assert.equal(s.alphaBanSubmitted,false);
+});
+
 test('代表者BAN: 武器種などのジャンルBANも最後の確定で送信する',()=>{
   const {s,writes}=setup({multi:true});
   s.state.bc=0; s.state.banGenres.cat=1;
