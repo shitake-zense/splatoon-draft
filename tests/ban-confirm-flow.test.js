@@ -25,6 +25,7 @@ function setup({multi=false, individual=false, fail=false}={}){
     sfx:{ban(){}}, renderBanPanel(){},renderGrid(){},
     soloAdvance(){s.state.idx++;},
     myTeamOf(){return 'alpha';},isRepBanRepresentative(){return true;},
+    usesIndividualBan(pm,bm){return bm==='individual' && (pm==='individual'||pm==='banonly');},
     banTypeOf(w){return w.banType||'weapon';},
     banIdOf(w){return w.banType?`${w.banType}:${w.value}`:`w:${w.key}`;},
     banTotalLimit(S){return S.bc+Object.values(S.banGenres).reduce((a,b)=>a+b,0);},
@@ -80,7 +81,7 @@ test('非ホスト代表者は送信後も自分が選んだBANを表示でき�
 
 test('参加者の最初のフェーズ移行で送信済みBANなどの一時状態を消す',()=>{
   let listener, onDraft=false;
-  const s={isHost:false,roomId:'test',db:{},fbUnsub:null,fbLobbyUnsub:null,
+  const s={usesIndividualBan:(pm,bm)=>bm==='individual'&&(pm==='individual'||pm==='banonly'),isHost:false,roomId:'test',db:{},fbUnsub:null,fbLobbyUnsub:null,
     state:null,_lastPushedIdx:-1,banPending:{alpha:[],bravo:[]},
     alphaBanSubmitted:false,bravoBanSubmitted:false,
     ref:(db,p)=>p,onValue(ref,callback){listener=callback;return ()=>{};},

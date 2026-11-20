@@ -60,7 +60,7 @@ test('結果画像のダウンロード開始と生成失敗を画面に知ら�
         createElement:tag=>tag==='canvas'?canvas:anchor,body:{appendChild(){}}},
       Image:class {set src(value){this.onerror();}},
       URL:{createObjectURL:()=> 'blob:test',revokeObjectURL(){}},
-      stageImgUrl:()=>'',banTotalLimit:()=>0,banDispName:x=>x.name,
+      usesIndividualBan:(pm,bm)=>bm==='individual'&&(pm==='individual'||pm==='banonly'),stageImgUrl:()=>'',banTotalLimit:()=>0,banDispName:x=>x.name,
       setTimeout(){},alert(){},console:{error(){}},
     };
     s.window=s;vm.createContext(s);vm.runInContext(html.slice(start,end),s);

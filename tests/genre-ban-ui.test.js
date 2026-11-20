@@ -10,7 +10,7 @@ function setup(){
   const ids=['pick-mode','ban-mode','member-draft-enabled','member-draft-timing','ban-genre-note','ban-genre-cat','ban-genre-sub','ban-genre-special','solo-pick-mode','solo-pick-order-row','solo-pick-order-desc','solo-gacha-row','solo-ban-genre-note','solo-ban-genre-cat','solo-ban-genre-sub','solo-ban-genre-special'];
   const els=Object.fromEntries(ids.map(id=>[id,{value:'0',checked:false,disabled:false,style:{},textContent:''}]));
   els['pick-mode'].value='individual';els['ban-mode'].value='individual';els['member-draft-timing'].value='before';els['solo-pick-mode'].value='team';
-  const ctx={document:{getElementById:id=>els[id]},updatePickModeHelp(){},window:{}};
+  const ctx={applyPickModeUI(){},usesIndividualBan:(pm,bm)=>bm==='individual'&&(pm==='individual'||pm==='banonly'),document:{getElementById:id=>els[id]},updatePickModeHelp(){},window:{}};
   vm.createContext(ctx);
   vm.runInContext(snippet('function renderGenreBanAvailability(', '// ===== 武器絞り込み')+snippet('window.onSoloPickModeChange = function(){','window.onSettingChange = function(){'),ctx);
   return {ctx,els};
@@ -25,6 +25,8 @@ test('マルチのジャンルBANは使用できない理由を示し設定値�
  check('enemy','representative',false,'before',true,/相手ピック/);
  check('team','representative',true,'after',true,/BANがない/);
  check('team','representative',false,'after',false,/武器BANとは別/);
+ check('banonly','individual',false,'before',true,/個人BAN/);
+ check('banonly','representative',false,'before',false,/武器BANとは別/);
 });
 test('ソロの相手ピックではジャンルBANを無効にし、切り替え後に戻す',()=>{
  const {ctx,els}=setup();els['solo-pick-mode'].value='enemy';ctx.window.onSoloPickModeChange();assert.equal(els['solo-ban-genre-cat'].disabled,true);assert.match(els['solo-ban-genre-note'].textContent,/相手ピック/);
