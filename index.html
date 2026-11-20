@@ -101,6 +101,29 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .btn-shuffle{padding:6px 12px;border:1.5px solid var(--y);border-radius:6px;background:transparent;color:var(--y);font-size:11px;font-family:inherit;font-weight:700;cursor:pointer;letter-spacing:.5px;white-space:nowrap;transition:background .1s,color .1s;}
 .btn-shuffle:hover{background:var(--y);color:#1a1a2e;}
 /* メンバードラフト（キャプテン選抜） */
+.tag-panel{margin-bottom:10px;border:1px solid #2a3a5a;border-radius:8px;padding:6px 10px;background:#111a2e;}
+.tag-panel summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--tx);}
+.tag-panel .tag-help{font-size:10px;color:var(--mu);line-height:1.6;margin:6px 0;}
+.tag-def{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+.tag-def input{flex:1;min-width:0;padding:4px 6px;font-size:12px;}
+.tag-def select{width:auto;padding:4px 6px;font-size:11px;}
+.tag-dot{width:12px;height:12px;border-radius:50%;flex:0 0 12px;}
+.tag-chip{display:inline-flex;align-items:center;gap:3px;margin-right:6px;padding:1px 7px;border-radius:999px;border:1px dashed #4a5a7a;background:transparent;color:var(--mu);font-size:10px;font-family:inherit;cursor:pointer;white-space:nowrap;max-width:9em;overflow:hidden;text-overflow:ellipsis;}
+.tag-chip.on{border-style:solid;color:#0c101b;font-weight:700;}
+.assignee-name{display:flex;align-items:center;min-width:0;}
+.assignee-name span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn-tag-clear{padding:3px 8px;border:1px solid #4a5a7a;border-radius:6px;background:transparent;color:var(--mu);font-size:10px;font-family:inherit;cursor:pointer;}
+.split-preview{border:1.5px solid var(--y);border-radius:8px;padding:8px 10px;margin-bottom:10px;background:#1a1a10;}
+.split-preview h4{font-size:12px;color:var(--y);margin:0 0 6px;}
+.split-preview .sp-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.split-preview .sp-col div{font-size:11px;padding:2px 0;display:flex;align-items:center;gap:4px;}
+.split-preview .sp-head{font-weight:700;font-size:11px;margin-bottom:2px;}
+.split-preview .sp-un{font-size:10px;color:var(--mu);margin-top:6px;}
+.split-preview .sp-warn{font-size:10px;color:var(--bn);margin-top:6px;line-height:1.5;}
+.split-preview .sp-btns{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.split-preview .sp-btns button{flex:1;padding:6px 8px;border-radius:6px;font-size:11px;font-family:inherit;font-weight:700;cursor:pointer;border:1.5px solid var(--y);background:transparent;color:var(--y);}
+.split-preview .sp-btns button.sp-ok{background:var(--y);color:#1a1a2e;}
+.split-preview .sp-btns button.sp-cancel{border-color:#4a5a7a;color:var(--mu);}
 .md-cap-hint{background:#0f1f1a;border:1px solid #2a6a4a;border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:#8fe0b0;line-height:1.6;}
 .md-turn{text-align:center;font-size:14px;font-weight:800;margin:8px 0 4px;letter-spacing:.5px;}
 .md-turn .a{color:var(--a);}.md-turn .b{color:var(--b);}
@@ -719,6 +742,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <h3 class="guide-section-title">追加ルール</h3>
       <details class="guide-card guide-disclosure"><summary>お題カード / 制限時間</summary><div class="guide-detail-body"><b>お題カード</b>＝開始時に<b>全32種</b>から縛りを1枚抽選（両チーム共通・<b>非強制</b>で、結果に達成○×を表示）。武器種・サブ・スペシャル・人数など色々な角度のお題があります。<b>制限時間</b>＝5〜100秒。時間切れは「確定済み→仮選択中→ランダム」の順で自動送信します。</div></details>
       <details class="guide-card guide-disclosure"><summary>ドラフト後トレード</summary><div class="guide-detail-body">ONにすると<b>結果画面</b>で武器の交換ができます。自チームの武器1枚と相手チームの武器1枚を選んで<b>交換を提案</b>→<b>相手チームの代表者が承認</b>すると成立（拒否も可）。回数は無制限です。マルチでは<b>各チームの代表者だけ</b>が提案・承認でき、ソロではアルファ⇄ブラボーをその場で入れ替えられます。</div></details>
+      <details class="guide-card guide-disclosure"><summary>ランダム振り分けとタグ</summary><div class="guide-detail-body">チーム割り当て欄の<b>「🎲 ランダム振り分け」</b>を押すと、まず<b>プレビュー</b>が出ます。「もう一回」で引き直し、「この分け方で確定」で反映します。各チームは設定人数まで入り、あふれた人は未割り当てに残ります。<br><b>🏷️ タグ</b>＝ホストがメンバーに付ける目印（最大4種類・1人1つ）。メンバー名の左のタグをタップすると切り替わり、名前と振り分け方は「タグで振り分け」欄で決めます。<b>分ける</b>タグの人は両チームに均等に（例: 長射程2人→1人ずつ、つよい4人→2人ずつ）、<b>まとめる</b>タグの人は同じチームに入ります。タグの無い人は残りの枠にランダムに入り、人数があふれるときはタグの無い人から未割り当てになります。タグはホストにだけ表示されます。</div></details>
       <details class="guide-card guide-disclosure"><summary>メンバードラフト（キャプテン選抜・マルチ専用）</summary><div class="guide-detail-body">ONにすると、武器ドラフトの前に<b>チーム分けをキャプテン選抜で</b>行えます。チーム割り当てで<b>各チームのキャプテンを1名ずつ</b>（α／β）に置き、残りは<b>未割り当て（プール）</b>に。両チーム代表者が揃い<b>人数が足りていれば（2v2以上・合計2×人数以上。全員が武器ピックする方式ではちょうど2×人数）</b>「メンバードラフト開始」が押せます。開始後は2人のキャプテンが<b>交互にプールから1人ずつ指名</b>（先攻チームが先）。制限時間ONなら<b>時間切れでランダム自動指名</b>。<br><b>タイミング</b>を選べます：<br>・<b>「チーム分け→ドラフト」</b>＝選抜が終わると<b>そのまま武器ドラフト（BAN/PICK）へ自動で進み、指名した順番がそのままピック順</b>になります（各チーム、キャプテンが先頭→指名順）。<br>・<b>「全員が武器ピック→チーム分け」</b>＝先に<b>全員（キャプテン含む）がランダム順で1人ずつ武器を選び（すでに選ばれた武器は選べません）</b>、その後にキャプテンがチーム分け。BANはなし。連戦モードや通常以外のステージ方式は使えません。各自が選んだ武器を持ったまま結果に進みます。</div></details>
       <h3 class="guide-section-title">連戦の設定</h3>
       <details class="guide-card guide-disclosure"><summary>連戦モード（シリーズ）</summary><div class="guide-detail-body">1ルームで<b>複数試合を連続</b>で行います。<b>シリーズ長</b>＝BO3（先取2）／BO5（先取3）／BO7（先取4）／BO9（先取5）。各試合のドラフトが終わったら結果画面で<b>ホストが勝者を入力</b>すると、ステージが変わって次の試合のドラフトが始まります。先取数に達するとシリーズ終了で、<b>戦績ボード</b>（各試合の勝者・ルール・ステージ・両チームの編成一覧）が表示され、<b>「🖼️ シリーズ画像を保存」</b>で全試合を1枚のPNGにまとめて保存できます。</div></details>
@@ -863,6 +887,13 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <h3 id="team-assign-title">⚔️ TEAM ASSIGNMENT</h3>
       <button class="btn-shuffle" id="btn-shuffle-teams" onclick="shuffleTeams()">🎲 ランダム振り分け</button>
     </div>
+    <details class="tag-panel" id="tag-panel">
+      <summary>🏷️ タグで振り分け（最大4つ）</summary>
+      <p class="tag-help">メンバー名の左のタグをタップして付け替えます（1人1つまで・あなたにだけ表示）。「分ける」タグの人は両チームに均等に、「まとめる」タグの人は同じチームに入ります。タグの無い人は残りの枠にランダムに入ります。</p>
+      <div id="tag-defs"></div>
+      <button class="btn-tag-clear" onclick="clearAllTags()">タグを全部外す</button>
+    </details>
+    <div class="split-preview" id="split-preview" style="display:none"></div>
     <div class="md-cap-hint" id="md-cap-hint" style="display:none">🧑‍🤝‍🧑 メンバードラフト：各チームの<b>キャプテンを1名ずつ</b>（α/β）に割り当て、残りは<b>未割り当て（プール）</b>のままにしてください。揃ったら「メンバードラフト開始」が押せます。</div>
     <div class="team-cols">
       <div class="team-col">
@@ -1853,7 +1884,9 @@ let _fxSeen    = {};   // {team:{ban,pick}} 入場アニメ済み件数（差分
 let _audioCtx  = null; // Web Audio（遅延生成・ユーザー操作後に resume）
 
 // --- ロビーローカルキャッシュ ---
-let lobbyMembers        = {};   // {memberId: {name,team,isHost,...}}
+let lobbyMembers        = {};   // {memberId: {name,team,isHost,tag?,...}}
+let lobbyTagDefs        = {};   // lobby/tagDefs = {t1:{name,mode:'split'|'group'},...}（ホストのみ使用）
+let teamSplitPreview    = null; // ランダム振り分けのプレビュー（ホスト端末内のみ・未確定）
 let lobbyPickOrderAlpha = [];   // memberIdの配列（アルファチームのピック順）
 let lobbyPickOrderBravo = [];   // memberIdの配列（ブラボーチームのピック順）
 // --- メンバードラフト（キャプテン選抜・lobby/memberDraft に同期） ---
@@ -2394,6 +2427,7 @@ function subscribeLobby(){
       const s=lobby.settings||{};
       if(s.pickOrderAlpha) lobbyPickOrderAlpha=s.pickOrderAlpha;
       if(s.pickOrderBravo) lobbyPickOrderBravo=s.pickOrderBravo;
+      lobbyTagDefs=normalizeTagDefs(lobby.tagDefs);
       renderTeamAssign(members);
     } else {
       // 参加者: kicked フラグを確認
@@ -2479,6 +2513,10 @@ function renderTeamAssign(members){
   const mdActive=mdOn && !(lobbyMemberDraft && lobbyMemberDraft.done);
   const capHint=document.getElementById('md-cap-hint'); if(capHint) capHint.style.display=mdActive?'':'none';
   const shuffleBtn=document.getElementById('btn-shuffle-teams'); if(shuffleBtn) shuffleBtn.style.display=mdActive?'none':'';
+  const tagPanel=document.getElementById('tag-panel'); if(tagPanel) tagPanel.style.display=mdActive?'none':'';
+  if(mdActive) teamSplitPreview=null;
+  renderTagDefs();
+  renderSplitPreview(members);
   const taTitle=document.getElementById('team-assign-title'); if(taTitle) taTitle.textContent=mdActive?'🧑‍🤝‍🧑 CAPTAIN SELECTION':'⚔️ TEAM ASSIGNMENT';
 
   ['alpha','bravo','unassigned'].forEach(team=>{
@@ -2490,6 +2528,9 @@ function renderTeamAssign(members){
       // 名前はtextContent、ボタンはクロージャで束縛（onclick属性への文字列埋め込み＝XSS経路を排除）
       const nameSpan=document.createElement('span');
       nameSpan.textContent=m.name+(m.isHost?' 👑':'');
+      const nameWrap=document.createElement('div'); nameWrap.className='assignee-name';
+      if(!mdActive) nameWrap.appendChild(makeTagChip(id,m));
+      nameWrap.appendChild(nameSpan);
       const btns=document.createElement('div'); btns.className='assign-btns';
       const mkBtn=(label,cls,fn)=>{const b=document.createElement('button');b.className='btn-assign'+(cls?' '+cls:'');b.textContent=label;b.onclick=fn;return b;};
       if(team!=='alpha') btns.appendChild(mkBtn('α','to-a',()=>window.assignMember(id,'alpha')));
@@ -2500,7 +2541,7 @@ function renderTeamAssign(members){
         kb.style.cssText='color:#e06060;border-color:#e06060;margin-left:4px;';
         btns.appendChild(kb);
       }
-      div.appendChild(nameSpan); div.appendChild(btns);
+      div.appendChild(nameWrap); div.appendChild(btns);
       el.appendChild(div);
     });
   });
@@ -2962,25 +3003,163 @@ function finishAfterPickMode(lobby){
   showResult();
 }
 
-// ===== チームのランダム振り分け（ホスト操作・再振り分けも同ボタン） =====
-window.shuffleTeams = async function(){
-  if(!isHost) return;
-  const snap = await get(ref(db,`rooms/${roomId}/lobby/members`));
-  const members = snap.val()||{};
-  const ids = Object.keys(members);
-  if(ids.length<=1) return;
-  // 既割り当て・未割り当てを問わず全員を対象にシャッフル
-  for(let i=ids.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [ids[i],ids[j]]=[ids[j],ids[i]];
-  }
-  // できるだけ均等に二分（奇数なら先頭のアルファが1人多くなる）
-  const half=Math.ceil(ids.length/2);
-  const updates={};
-  ids.forEach((id,i)=>{
-    updates[`rooms/${roomId}/lobby/members/${id}/team`] = i<half?'alpha':'bravo';
+// ===== チームのランダム振り分け（タグ対応・プレビュー → 確定） =====
+// タグ: 1人1つまで・最大4種類。split＝両チームに均等に分ける、group＝同じチームにまとめる。
+const TAG_IDS=['t1','t2','t3','t4'];
+const TAG_COLORS={t1:'#ff6b9d',t2:'#5ad1ff',t3:'#ffd54a',t4:'#9be15d'};
+const TAG_NAME_MAX=10;
+function normalizeTagDefs(raw){
+  const out={};
+  TAG_IDS.forEach(id=>{
+    const d=(raw&&typeof raw==='object'&&raw[id])||{};
+    out[id]={name:String(d.name||'').slice(0,TAG_NAME_MAX), mode:d.mode==='group'?'group':'split'};
   });
+  return out;
+}
+function tagLabel(defs,tag){
+  if(!TAG_IDS.includes(tag)) return '';
+  return (defs?.[tag]?.name||'').trim() || `タグ${TAG_IDS.indexOf(tag)+1}`;
+}
+function nextTagId(cur){
+  const i=TAG_IDS.indexOf(cur);
+  return i<0 ? TAG_IDS[0] : (TAG_IDS[i+1]||null);
+}
+// 純粋関数: タグを考慮して2チームに振り分ける。各チーム最大 ts 人、入りきらない人は未割り当て。
+// entries=[{id,tag}]。戻り値 {alpha:[],bravo:[],unassigned:[],warnings:[]}
+function splitTeamsWithTags(entries, defs, ts, random=Math.random){
+  defs=normalizeTagDefs(defs);
+  const shuffle=a=>{ a=[...a]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+  const res={alpha:[],bravo:[],unassigned:[],warnings:[]};
+  const room=t=>ts-res[t].length;
+  const coin=()=>random()<.5?'alpha':'bravo';
+  // 空きが多いチーム（同数ならランダム）
+  const roomier=()=>room('alpha')===room('bravo') ? coin() : (room('alpha')>room('bravo')?'alpha':'bravo');
+  const place=(id,team)=>{
+    const other=team==='alpha'?'bravo':'alpha';
+    if(room(team)>0){ res[team].push(id); return team; }
+    if(room(other)>0){ res[other].push(id); return other; }
+    res.unassigned.push(id); return null;
+  };
+  const groups={};
+  TAG_IDS.forEach(t=>groups[t]=[]);
+  const untagged=[];
+  (entries||[]).forEach(e=>{ if(e && TAG_IDS.includes(e.tag)) groups[e.tag].push(e.id); else if(e) untagged.push(e.id); });
+  // ① まとめるタグ（制約が強い順＝人数の多い順）: 空きの多いチームへ丸ごと
+  TAG_IDS.filter(t=>defs[t].mode==='group' && groups[t].length).sort((a,b)=>groups[b].length-groups[a].length).forEach(t=>{
+    const team=roomier();
+    if(groups[t].length>room(team)) res.warnings.push(`「${tagLabel(defs,t)}」は${groups[t].length}人いて1チームに入りきらないため、一部を別のチームに入れました。`);
+    shuffle(groups[t]).forEach(id=>place(id,team));
+  });
+  // ② 分けるタグ（人数の多い順）: そのタグの人数が少ないチームへ交互に。端数は全体の空きで調整
+  TAG_IDS.filter(t=>defs[t].mode==='split' && groups[t].length).sort((a,b)=>groups[b].length-groups[a].length).forEach(t=>{
+    const cnt={alpha:0,bravo:0};
+    let uneven=false;
+    shuffle(groups[t]).forEach(id=>{
+      let team = cnt.alpha===cnt.bravo ? roomier() : (cnt.alpha<cnt.bravo?'alpha':'bravo');
+      const got=place(id,team);
+      if(got) cnt[got]++;
+      if(got && got!==team) uneven=true;
+    });
+    if(uneven || Math.abs(cnt.alpha-cnt.bravo)>1) res.warnings.push(`「${tagLabel(defs,t)}」は空き枠の都合で均等に分けられませんでした（${cnt.alpha}人 / ${cnt.bravo}人）。`);
+  });
+  // ③ タグ無し: 残りの枠へランダムに。あふれた人は未割り当て
+  shuffle(untagged).forEach(id=>place(id,roomier()));
+  return res;
+}
+function activeLobbyEntries(members){
+  return Object.entries(members||{}).filter(([,m])=>m && !m.kicked).map(([id,m])=>({id,tag:m.tag||null}));
+}
+function previewMemberKey(members){
+  return activeLobbyEntries(members).map(e=>e.id).sort().join(',');
+}
+window.shuffleTeams = function(){
+  if(!isHost) return;
+  const ts=parseInt(document.getElementById('sz')?.value||4);
+  const entries=activeLobbyEntries(lobbyMembers);
+  if(entries.length<=1) return;
+  teamSplitPreview={...splitTeamsWithTags(entries,lobbyTagDefs,ts), key:previewMemberKey(lobbyMembers), ts};
+  renderSplitPreview(lobbyMembers);
+};
+window.confirmTeamSplit = async function(){
+  if(!isHost || !teamSplitPreview) return;
+  const p=teamSplitPreview;
+  if(p.key!==previewMemberKey(lobbyMembers)){ window.shuffleTeams(); return; } // 参加者が変わったら作り直す
+  const updates={};
+  ['alpha','bravo','unassigned'].forEach(team=>p[team].forEach(id=>{ updates[`rooms/${roomId}/lobby/members/${id}/team`]=team; }));
+  teamSplitPreview=null;
+  renderSplitPreview(lobbyMembers);
   await update(ref(db), updates);
+};
+window.cancelTeamSplit = function(){ teamSplitPreview=null; renderSplitPreview(lobbyMembers); };
+function renderSplitPreview(members){
+  const el=document.getElementById('split-preview'); if(!el) return;
+  const p=teamSplitPreview;
+  if(!p){ el.style.display='none'; el.innerHTML=''; return; }
+  const ts=parseInt(document.getElementById('sz')?.value||4);
+  if(p.key!==previewMemberKey(members) || p.ts!==ts){
+    // 参加者や人数設定が変わった: 古い結果は確定させず、作り直しを促す
+    el.style.display='';
+    el.innerHTML=`<h4>🎲 振り分けのプレビュー</h4><div class="sp-warn">参加者または人数が変わりました。もう一度振り分けてください。</div>`
+      +`<div class="sp-btns"><button onclick="shuffleTeams()">🎲 振り分け直す</button><button class="sp-cancel" onclick="cancelTeamSplit()">✕ やめる</button></div>`;
+    return;
+  }
+  const an=document.getElementById('n-a')?.value||'アルファ', bn=document.getElementById('n-b')?.value||'ブラボー';
+  const row=id=>{
+    const m=members[id]||{}; const tag=TAG_IDS.includes(m.tag)?m.tag:null;
+    const dot=tag?`<span class="tag-dot" style="background:${TAG_COLORS[tag]}" title="${esc(tagLabel(lobbyTagDefs,tag))}"></span>`:'';
+    return `<div>${dot}<span>${esc(m.name||'')}</span>${tag?`<small style="color:var(--mu)">${esc(tagLabel(lobbyTagDefs,tag))}</small>`:''}</div>`;
+  };
+  el.style.display='';
+  el.innerHTML=`<h4>🎲 振り分けのプレビュー（まだ確定していません）</h4>`
+    +`<div class="sp-cols"><div class="sp-col"><div class="sp-head" style="color:var(--a)">${esc(an)}（${p.alpha.length}）</div>${p.alpha.map(row).join('')}</div>`
+    +`<div class="sp-col"><div class="sp-head" style="color:var(--b)">${esc(bn)}（${p.bravo.length}）</div>${p.bravo.map(row).join('')}</div></div>`
+    +(p.unassigned.length?`<div class="sp-un">未割り当て（枠外）: ${p.unassigned.map(id=>esc(members[id]?.name||'')).join('、')}</div>`:'')
+    +(p.warnings.length?`<div class="sp-warn">${p.warnings.map(esc).join('<br>')}</div>`:'')
+    +`<div class="sp-btns"><button onclick="shuffleTeams()">🎲 もう一回</button><button class="sp-ok" onclick="confirmTeamSplit()">✓ この分け方で確定</button><button class="sp-cancel" onclick="cancelTeamSplit()">✕ やめる</button></div>`;
+}
+// タグ定義の編集欄（入力中のフォーカスを奪わないよう、値の差し替えは非フォーカス時だけ）
+function renderTagDefs(){
+  const wrap=document.getElementById('tag-defs'); if(!wrap) return;
+  if(!wrap.dataset.built){
+    wrap.innerHTML=TAG_IDS.map((t,i)=>`<div class="tag-def"><span class="tag-dot" style="background:${TAG_COLORS[t]}"></span>`
+      +`<input type="text" id="tag-name-${t}" maxlength="${TAG_NAME_MAX}" placeholder="タグ${i+1}（例: 長射程）" aria-label="タグ${i+1}の名前" onchange="onTagDefChange('${t}')">`
+      +`<select id="tag-mode-${t}" aria-label="タグ${i+1}の振り分け方" onchange="onTagDefChange('${t}')"><option value="split">分ける</option><option value="group">まとめる</option></select></div>`).join('');
+    wrap.dataset.built='1';
+  }
+  TAG_IDS.forEach(t=>{
+    const name=document.getElementById('tag-name-'+t), mode=document.getElementById('tag-mode-'+t);
+    if(name && document.activeElement!==name) name.value=lobbyTagDefs[t]?.name||'';
+    if(mode && document.activeElement!==mode) mode.value=lobbyTagDefs[t]?.mode||'split';
+  });
+}
+window.onTagDefChange = function(t){
+  if(!isHost || !roomId || !TAG_IDS.includes(t)) return;
+  const name=String(document.getElementById('tag-name-'+t)?.value||'').trim().slice(0,TAG_NAME_MAX);
+  const mode=document.getElementById('tag-mode-'+t)?.value==='group'?'group':'split';
+  lobbyTagDefs={...lobbyTagDefs,[t]:{name,mode}};
+  set(ref(db,`rooms/${roomId}/lobby/tagDefs/${t}`),{name,mode});
+};
+function makeTagChip(id,m){
+  const b=document.createElement('button');
+  const tag=TAG_IDS.includes(m.tag)?m.tag:null;
+  b.className='tag-chip'+(tag?' on':'');
+  b.textContent=tag?tagLabel(lobbyTagDefs,tag):'＋タグ';
+  if(tag) b.style.background=TAG_COLORS[tag], b.style.borderColor=TAG_COLORS[tag];
+  b.title='タップでタグを切り替え';
+  b.setAttribute('aria-label',`${m.name||''}のタグ: ${tag?tagLabel(lobbyTagDefs,tag):'なし'}（タップで切り替え）`);
+  b.onclick=()=>window.cycleMemberTag(id);
+  return b;
+}
+window.cycleMemberTag = function(id){
+  if(!isHost || !roomId || !lobbyMembers[id]) return;
+  const next=nextTagId(lobbyMembers[id].tag);
+  set(ref(db,`rooms/${roomId}/lobby/members/${id}/tag`), next);
+};
+window.clearAllTags = function(){
+  if(!isHost || !roomId) return;
+  const updates={};
+  Object.entries(lobbyMembers).forEach(([id,m])=>{ if(m && m.tag) updates[`rooms/${roomId}/lobby/members/${id}/tag`]=null; });
+  if(Object.keys(updates).length) update(ref(db), updates);
 };
 
 // ===== 参加者キック（ホスト操作） =====
