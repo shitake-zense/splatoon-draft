@@ -704,7 +704,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
         <ol class="guide-list">
           <li><b>「👑 部屋を作る」</b>から名前を入れ、自由に作るかプリセットを選んで部屋を作成します。設定はロビーで変更できます。</li>
           <li>表示された<b>部屋番号（6桁）</b>か<b>共有URL</b>を参加者に渡します。</li>
-          <li>ロビーで参加者が揃ったら、<b>チーム（アルファ／ブラボー）への割り当て</b>と<b>ピック順</b>を決めます。</li>
+          <li>ロビーで参加者が揃ったら、<b>チーム（アルファ／ブラボー）への割り当て</b>と<b>ピック順</b>を決めます。「🎲 ランダム振り分け」はプレビューを確認してから確定でき、<b>🏷️ タグ</b>を付けると「長射程は分ける」「友達はまとめる」のように振り分けられます。</li>
           <li>人数・BAN数・ピック方法・ルール／ステージを設定します。武器の絞り込みやお題カードは<b>「追加ルール・武器の絞り込み」</b>から設定できます。</li>
           <li>両チームの人数やステージ候補などが揃うと<b>「ドラフト開始」</b>を押せます（個人ピック・相手ピックは各チームの設定人数ちょうど、代表者ピック・ガチャは各チーム1人以上）。不足があるときはボタンの下に理由が表示されます。</li>
         </ol>
@@ -777,11 +777,11 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
     <div class="guide-sec" data-gt="flow">
       <h3 class="guide-section-title">試合までの流れ</h3>
       <p class="guide-section-caption">有効にした設定に合わせて進みます。</p>
-      <div class="guide-card guide-step"><span class="guide-step-num">1</span><div><h3>ロビー </h3><p>メンバー集合・チーム割り当て・ピック順の確認。</p></div></div>
+      <div class="guide-card guide-step"><span class="guide-step-num">1</span><div><h3>ロビー </h3><p>メンバー集合・チーム割り当て（ランダム振り分けはタグで分ける／まとめる指定が可能）・ピック順の確認。</p></div></div>
       <div class="guide-card guide-step"><span class="guide-step-num">2</span><div><h3>ステージ BAN / PICK （選択時）</h3><p>両チームが各1 BANし、先攻から交互にPICK。同じステージを2回押すと確定します。最終戦は残りから抽選します（1試合では先攻がPICK）。</p></div></div>
       <div class="guide-card guide-step"><span class="guide-step-num">3</span><div><h3>BANフェーズ </h3><p>使えない武器を決めます。代表者BANは両チーム同時送信で相手の選択が伏せられます（個人BANも選択可）。武器・武器種・サブ・スペシャル単位でBANできます。<b>個人BANでは味方が送信したBANがグリッドに「味方」マークで共有表示</b>され、チーム内でのBAN重複を避けられます（相手のBANは揃うまで伏せたまま）。</p></div></div>
-      <div class="guide-card guide-step"><span class="guide-step-num">4</span><div><h3>PICKフェーズ </h3><p>ピック順（交互／スネーク等）に沿って武器を選びます。同時ピックは両チームが選び一斉公開します。<b>🎲ガチャ</b>の場合はBAN後に人数分の武器がランダム配布され、各チームが引き直し→「確定」するだけで完了します。</p></div></div>
-      <div class="guide-card guide-step"><span class="guide-step-num">5</span><div><h3>リザルト </h3><p>両チームの編成・ステージ／ルール・お題の達成（○／×）が表示されます。<b>ドラフト後トレード</b>がONなら、ここで武器の交換を提案→相手代表者の承認で成立します。</p></div></div>
+      <div class="guide-card guide-step"><span class="guide-step-num">4</span><div><h3>PICKフェーズ </h3><p>ピック順（交互／スネーク等）に沿って武器を選びます。同時ピックは両チームが選び一斉公開します。<b>🎲ガチャ</b>の場合はBAN後に人数分の武器がランダム配布され、各チームが引き直し→「確定」するだけで完了します。<b>🚫BANのみ</b>の場合はPICKフェーズがなく、BANが揃うとそのまま結果へ進みます。</p></div></div>
+      <div class="guide-card guide-step"><span class="guide-step-num">5</span><div><h3>リザルト </h3><p>両チームの編成・ステージ／ルール・お題の達成（○／×）が表示されます。<b>ドラフト後トレード</b>がONなら、ここで武器の交換を提案→相手代表者の承認で成立します。BANのみの場合はPICK欄の代わりに、試合で使える武器の数が表示されます。</p></div></div>
       <div class="guide-card guide-step"><span class="guide-step-num">6</span><div><h3>結果画像を保存 </h3><p>端末内で1枚のPNGを生成してダウンロードできます。</p></div></div>
       <h3 class="guide-section-title">便利な機能・詳しい操作</h3>
       <details class="guide-card guide-disclosure"><summary>メンバードラフト</summary><div class="guide-detail-body">メンバードラフト（マルチ専用）がONのときは、ロビーでホストが各チームのキャプテンを1名ずつ選ぶと「メンバードラフト開始」が押せます（2v2以上・人数が揃っているときのみ）。開始後は2人のキャプテンが交互にプールから1人ずつ指名し、両チームが埋まると武器ドラフトへ進みます（制限時間ONなら時間切れでランダム指名）。</div></details>
@@ -6196,7 +6196,8 @@ function renderSlots(team){
       :`<span class="sl">BAN${i+1}</span><span class="sn">未選択</span>`;
     c.appendChild(d);
   }
-  for(let i=0;i<S.ts;i++){
+  const pickSlots=S.pickMode==='banonly' ? 0 : S.ts; // BANのみは PICK 枠を出さない
+  for(let i=0;i<pickSlots;i++){
     const w=(S.picks[team]||[])[i], d=document.createElement('div');
     d.className='ws '+(w?'picked':'empty')+(w&&i>=seen.pick?' is-new':'');
     d.innerHTML=w

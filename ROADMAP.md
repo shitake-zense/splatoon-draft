@@ -190,6 +190,13 @@ Codex で 11/2〜11/19 に開発。ROADMAP は更新されていなかったた�
 - `b68e5db`（11/20）: `.gitattributes`（LF 統一）と `.gitignore` を追加。Codex のコミットが CRLF で全行差分になっていた問題の再発防止。
 - **未確認**: 11/19 の BAN 操作変更は、マルチ2クライアント（個人BAN・代表者BAN、ホストがブラボー側の構成を含む）の実機スモークを試験環境で行うこと（smoke `S22`）。
 
+### ✅ 2026-11-20 開始条件の修正・BANのみモード・タグ振り分け
+- **バグ修正**: 11/15 の開始条件共通化で全ピックモードに「各チーム ts 人ちょうど」を課していた → 人数必須は個人ピック・相手ピックのみ、代表者ピック・ガチャ・BANのみは各チーム1人以上（ts 以下）に戻した（`draftStartIssues` の `pickModeNeedsFullTeams`）。
+- **BANのみモード**（`pickMode:'banonly'`・マルチ/ソロ）: seq は BAN のみで、BAN 完了＝done で結果へ。代表者BAN／個人BAN両対応（個人BAN判定は `usesIndividualBan(pickMode,banMode)` に集約）。BAN 1つ以上必須・全員武器ピック方式とは併用不可。お題・トレード・ロックアウトは `createInitialDraftState` で無効化し設定行も隠す（`pickModeUiFlags`/`applyPickModeUI`）。ドラフト画面は P 枠を出さず、結果画面/画像は PICK 欄なし＋使用可能武器数を表示。
+- **タグ振り分け**: `lobby/members/{id}/tag`（t1〜t4）と `lobby/tagDefs`（`{name,mode:'split'|'group'}`）を追加（後方互換）。「🎲 ランダム振り分け」はホスト端末内のプレビュー（`teamSplitPreview`）→確定で `members[].team` を一括更新。純粋関数 `splitTeamsWithTags`（まとめる→分ける→タグ無しの順・各チーム ts まで・あふれはタグ無しから未割り当て・分けきれない場合は警告）。タグはホストにだけ表示。
+- 検証: 単体テスト追加（`tests/ban-only.test.js`・`tests/tag-split.test.js`）、Firebase を差し替えたローカルブラウザでソロ/ホスト画面を確認、試験環境（GitHub Pages）で複数端末の BANのみ動作をオーナーが確認。smoke `S23`。
+- **次の候補**: メンバードラフトONでチームが揃っているときの開始不可の分かりにくさ（メッセージ改善 or スキップ）、タグ定義のマイプリセット保存、メンバー固定。
+
 ---
 
 ## 再開メモ（次に開く人へ）
