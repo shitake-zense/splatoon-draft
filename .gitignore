@@ -1,0 +1,4 @@
+# ローカル専用
+.claude/settings.local.json
+.preview-server.cjs
+__pycache__/
