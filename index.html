@@ -124,6 +124,21 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .split-preview .sp-btns button{flex:1;padding:6px 8px;border-radius:6px;font-size:11px;font-family:inherit;font-weight:700;cursor:pointer;border:1.5px solid var(--y);background:transparent;color:var(--y);}
 .split-preview .sp-btns button.sp-ok{background:var(--y);color:#1a1a2e;}
 .split-preview .sp-btns button.sp-cancel{border-color:#4a5a7a;color:var(--mu);}
+.bot-card{border:1.5px dashed var(--y);border-radius:10px;padding:10px 12px;margin-bottom:12px;background:#17170e;}
+.bot-card h3{font-size:12px;color:var(--y);margin:0 0 6px;}
+.bot-card p{font-size:10px;color:var(--mu);line-height:1.6;margin:0 0 8px;}
+.bot-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px;}
+.bot-row button{padding:6px 10px;border-radius:6px;border:1.5px solid var(--y);background:transparent;color:var(--y);font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;}
+.bot-row button:disabled{opacity:.4;cursor:not-allowed;}
+.bot-row select{width:auto;min-height:0;height:auto;padding:4px 6px;font-size:11px;}
+.bot-row label{font-size:11px;color:var(--tx);display:flex;align-items:center;gap:5px;}
+.solo-bot-entry{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1.5px dashed var(--y);border-radius:10px;padding:10px 12px;margin-bottom:12px;background:#17170e;}
+.solo-bot-entry p{font-size:11px;color:var(--mu);line-height:1.6;margin:0;}
+.solo-bot-entry b{color:var(--y);}
+.solo-bot-entry button{flex:0 0 auto;padding:8px 12px;border-radius:8px;border:1.5px solid var(--y);background:var(--y);color:#1a1a2e;font-weight:700;font-size:12px;font-family:inherit;cursor:pointer;}
+.fx-btn.bot-auto{display:none;font-size:12px;}
+.fx-btn.bot-auto.show{display:inline-block;}
+.fx-btn.bot-auto[aria-pressed="true"]{background:var(--y);color:#1a1a2e;border-color:var(--y);}
 .md-cap-hint{background:#0f1f1a;border:1px solid #2a6a4a;border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:#8fe0b0;line-height:1.6;}
 .md-turn{text-align:center;font-size:14px;font-weight:800;margin:8px 0 4px;letter-spacing:.5px;}
 .md-turn .a{color:var(--a);}.md-turn .b{color:var(--b);}
@@ -742,6 +757,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <h3 class="guide-section-title">追加ルール</h3>
       <details class="guide-card guide-disclosure"><summary>お題カード / 制限時間</summary><div class="guide-detail-body"><b>お題カード</b>＝開始時に<b>全32種</b>から縛りを1枚抽選（両チーム共通・<b>非強制</b>で、結果に達成○×を表示）。武器種・サブ・スペシャル・人数など色々な角度のお題があります。<b>制限時間</b>＝5〜100秒。時間切れは「確定済み→仮選択中→ランダム」の順で自動送信します。</div></details>
       <details class="guide-card guide-disclosure"><summary>ドラフト後トレード</summary><div class="guide-detail-body">ONにすると<b>結果画面</b>で武器の交換ができます。自チームの武器1枚と相手チームの武器1枚を選んで<b>交換を提案</b>→<b>相手チームの代表者が承認</b>すると成立（拒否も可）。回数は無制限です。マルチでは<b>各チームの代表者だけ</b>が提案・承認でき、ソロではアルファ⇄ブラボーをその場で入れ替えられます。</div></details>
+      <details class="guide-card guide-disclosure"><summary>🤖 botと試す（1人で動作確認）</summary><div class="guide-detail-body">「ひとりで試す」の<b>「🤖 botと試す」</b>で、botを参加者にしたテスト部屋を作れます。中身は通常のマルチの部屋と同じなので、チーム分け・タグ・個人ピック・同時ピック・メンバードラフト・連戦・ステージ方式などを1人で確かめられます。botは自分の番が来ると自動でランダムに選びます（トレードの提案にもランダムに応答）。ロビーの「BOTテスト部屋」欄でbotの追加・削除・速さを変えられ、<b>完全オート</b>をONにすると、あなたの番や連戦の勝者入力も自動で進みます（ドラフト画面右上の「🤖 オート」でも切替）。botの入った部屋のドラフトは武器統計に記録されません。</div></details>
       <details class="guide-card guide-disclosure"><summary>ランダム振り分けとタグ</summary><div class="guide-detail-body">チーム割り当て欄の<b>「🎲 ランダム振り分け」</b>を押すと、まず<b>プレビュー</b>が出ます。「もう一回」で引き直し、「この分け方で確定」で反映します。各チームは設定人数まで入り、あふれた人は未割り当てに残ります。<br><b>🏷️ タグ</b>＝ホストがメンバーに付ける目印（最大4種類・1人1つ）。メンバー名の左のタグをタップすると切り替わり、名前と振り分け方は「タグで振り分け」欄で決めます。<b>分ける</b>タグの人は両チームに均等に（例: 長射程2人→1人ずつ、つよい4人→2人ずつ）、<b>まとめる</b>タグの人は同じチームに入ります。タグの無い人は残りの枠にランダムに入り、人数があふれるときはタグの無い人から未割り当てになります。タグはホストにだけ表示されます。</div></details>
       <details class="guide-card guide-disclosure"><summary>メンバードラフト（キャプテン選抜・マルチ専用）</summary><div class="guide-detail-body">ONにすると、武器ドラフトの前に<b>チーム分けをキャプテン選抜で</b>行えます。チーム割り当てで<b>各チームのキャプテンを1名ずつ</b>（α／β）に置き、残りは<b>未割り当て（プール）</b>に。両チーム代表者が揃い<b>人数が足りていれば（2v2以上・合計2×人数以上。全員が武器ピックする方式ではちょうど2×人数）</b>「メンバードラフト開始」が押せます。開始後は2人のキャプテンが<b>交互にプールから1人ずつ指名</b>（先攻チームが先）。制限時間ONなら<b>時間切れでランダム自動指名</b>。<br><b>タイミング</b>を選べます：<br>・<b>「チーム分け→ドラフト」</b>＝選抜が終わると<b>そのまま武器ドラフト（BAN/PICK）へ自動で進み、指名した順番がそのままピック順</b>になります（各チーム、キャプテンが先頭→指名順）。<br>・<b>「全員が武器ピック→チーム分け」</b>＝先に<b>全員（キャプテン含む）がランダム順で1人ずつ武器を選び（すでに選ばれた武器は選べません）</b>、その後にキャプテンがチーム分け。BANはなし。連戦モードや通常以外のステージ方式は使えません。各自が選んだ武器を持ったまま結果に進みます。</div></details>
       <h3 class="guide-section-title">連戦の設定</h3>
@@ -879,6 +895,20 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
     <h3>👥 MEMBERS</h3>
     <div class="member-list" id="member-list">
       <span style="font-size:12px;color:var(--mu)">参加待ち <span class="dot-anim"><span></span><span></span><span></span></span></span>
+    </div>
+  </div>
+
+  <div class="bot-card" id="bot-card" style="display:none">
+    <h3>🤖 BOTテスト部屋</h3>
+    <p>botは自分の番が来ると自動でランダムに選びます。<b>完全オート</b>をONにすると、あなたの番や連戦の勝者入力も自動で進みます。この部屋のドラフトは武器統計に記録されません。</p>
+    <div class="bot-row">
+      <button id="btn-bot-add" onclick="addBots(1)">＋ bot</button>
+      <button id="btn-bot-remove" onclick="removeBot()">－ bot</button>
+      <button id="btn-bot-fill" onclick="fillBots()">人数分まで追加</button>
+    </div>
+    <div class="bot-row">
+      <label>速さ <select id="bot-speed" onchange="setBotSpeed(this.value)"><option value="fast">速い</option><option value="normal" selected>普通</option><option value="slow">ゆっくり</option></select></label>
+      <label><input type="checkbox" id="bot-autoplay" onchange="setBotAutoplay(this.checked)"> 完全オート（自分の番も自動）</label>
     </div>
   </div>
 
@@ -1264,6 +1294,10 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
 <!-- SETUP (ソロ) -->
 <div id="s-setup" class="screen">
   <div class="logo"><h1>SPLATOON DRAFT</h1><p>ソロモード — 設定</p></div>
+  <div class="solo-bot-entry">
+    <p><b>🤖 botと試す</b><br>botを参加者にしたテスト部屋を作り、マルチの流れ（チーム分け・個人ピック・メンバードラフト・連戦など）を1人で確かめます。</p>
+    <button onclick="enterBotTest()">🤖 botと試す</button>
+  </div>
   <div class="lobby-grid">
     <div class="card">
       <h3>チーム設定</h3>
@@ -1466,6 +1500,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
     <div class="fx-toggles">
       <button id="fx-sfx" class="fx-btn" onclick="toggleSfx()" title="確定音">🔊</button>
       <button id="fx-tts" class="fx-btn" onclick="toggleTts()" title="武器読み上げ">🗣️</button>
+      <button id="fx-bot-auto" class="fx-btn bot-auto" onclick="setBotAutoplay(!botAutoplay)" aria-pressed="false" title="完全オート（自分の番も自動）">🤖 オート</button>
     </div>
   </div>
   <div id="btn-back-to-lobby-wrap" style="display:none;margin-bottom:10px;">
@@ -2280,7 +2315,7 @@ window.showCreatePresets=function(){
   panel.style.display=''; renderMyPresetList();
 };
 let creatingRoom=false;
-window.enterMultiCreate = async function(presetId='custom'){
+window.enterMultiCreate = async function(presetId='custom', opts={}){
   if(creatingRoom) return;
   let saved=null;
   try{if(presetId.startsWith('my:')) saved=getMyPreset(presetId.slice(3));}catch(e){alert('プリセットを読み込めませんでした：'+e.message);return;}
@@ -2303,11 +2338,16 @@ window.enterMultiCreate = async function(presetId='custom'){
   }
   myMemberId = generateMemberId();
   try{
-  await set(ref(db,`rooms/${roomId}/lobby`),{
-    status:'waiting',
-    settings: getLobbySettings(),
-    members:{ [myMemberId]:{ name:(document.getElementById('host-name-input')?.value.trim()||'ホスト'), team:'alpha', isHost:true, joinedAt:Date.now() } }
-  });
+  const hostMember={ name:(document.getElementById('host-name-input')?.value.trim()||'ホスト'), team:'alpha', isHost:true, joinedAt:Date.now() };
+  const lobbyNode={ status:'waiting', settings: getLobbySettings(), members:{ [myMemberId]:hostMember } };
+  if(opts.botTest){
+    // botテスト部屋: 設定人数ぶん bot を入れて、すぐ開始できる状態にする
+    lobbyNode.botTest=true;
+    const ts=parseInt(document.getElementById('sz')?.value||4)||4;
+    Object.assign(lobbyNode.members, makeBotMembers(2*ts-1, lobbyNode.members, ts));
+  }
+  botTestRoom=!!opts.botTest;
+  await set(ref(db,`rooms/${roomId}/lobby`), lobbyNode);
   // ルーム作成時刻を明示保存（cleanup-rooms.js が members 推定に頼らず正確に判定できるように）
   set(ref(db,`rooms/${roomId}/createdAt`), Date.now());
   saveMemberId(roomId, myMemberId); // 同一デバイス再参加のため保存
@@ -2428,6 +2468,8 @@ function subscribeLobby(){
       if(s.pickOrderAlpha) lobbyPickOrderAlpha=s.pickOrderAlpha;
       if(s.pickOrderBravo) lobbyPickOrderBravo=s.pickOrderBravo;
       lobbyTagDefs=normalizeTagDefs(lobby.tagDefs);
+      botTestRoom=!!lobby.botTest;
+      renderBotCard();
       renderTeamAssign(members);
     } else {
       // 参加者: kicked フラグを確認
@@ -3161,6 +3203,248 @@ window.clearAllTags = function(){
   Object.entries(lobbyMembers).forEach(([id,m])=>{ if(m && m.tag) updates[`rooms/${roomId}/lobby/members/${id}/tag`]=null; });
   if(Object.keys(updates).length) update(ref(db), updates);
 };
+
+// ===== botテスト（ホスト端末だけで bot を動かす） =====
+// bot は lobby/members の "bot_N" という ID の参加者。ホストの端末が bot の代わりに、
+// 本物の参加者と同じ経路（pending_* や state への書き込み）で操作する。完全オート時はホスト自身の番も自動。
+const BOT_ID_PREFIX='bot_';
+const BOT_SPEEDS={fast:[250,500],normal:[700,1500],slow:[1500,3000]};
+let botTestRoom=false;
+let botAutoplay=false, botSpeed='normal';
+let botLoopId=null;
+const botSeen=new Map();   // action key -> 初めて必要になった時刻
+const botDone=new Map();   // action key -> 実行した時刻（反映待ちの再実行防止）
+function isBotId(id){ return typeof id==='string' && id.startsWith(BOT_ID_PREFIX); }
+function stateHasBots(S){ return !!S && Object.keys(S.members||{}).some(isBotId); }
+// 純粋関数: 既存メンバーに足す bot を作る。チーム枠（各 ts 人）が空いていれば順に割り当て、満員なら未割り当て。
+function makeBotMembers(count, existing, ts, now=Date.now()){
+  const out={};
+  const all={...(existing||{})};
+  let n=0;
+  for(let added=0; added<count; ){
+    n++;
+    const id=BOT_ID_PREFIX+n;
+    if(all[id]) continue;
+    const alpha=Object.values(all).filter(m=>m && !m.kicked && m.team==='alpha').length;
+    const bravo=Object.values(all).filter(m=>m && !m.kicked && m.team==='bravo').length;
+    const team = alpha<ts && alpha<=bravo ? 'alpha' : (bravo<ts ? 'bravo' : (alpha<ts ? 'alpha' : 'unassigned'));
+    const m={name:`🤖bot${n}`, team, isHost:false, joinedAt:now+n, bot:true};
+    out[id]=m; all[id]=m; added++;
+  }
+  return out;
+}
+window.enterBotTest = function(){
+  const nameEl=document.getElementById('host-name-input');
+  if(nameEl && !nameEl.value.trim()) nameEl.value='あなた';
+  window.enterMultiCreate('custom',{botTest:true});
+};
+window.addBots = function(count){
+  if(!isHost || !roomId || !botTestRoom) return;
+  const active=Object.values(lobbyMembers).filter(m=>m && !m.kicked).length;
+  const n=Math.max(0, Math.min(count, 8-active));
+  if(!n) return;
+  const ts=parseInt(document.getElementById('sz')?.value||4)||4;
+  const updates={};
+  Object.entries(makeBotMembers(n, lobbyMembers, ts)).forEach(([id,m])=>{ updates[`rooms/${roomId}/lobby/members/${id}`]=m; });
+  update(ref(db), updates);
+};
+window.fillBots = function(){
+  const ts=parseInt(document.getElementById('sz')?.value||4)||4;
+  const active=Object.values(lobbyMembers).filter(m=>m && !m.kicked).length;
+  window.addBots(2*ts-active);
+};
+window.removeBot = function(){
+  if(!isHost || !roomId) return;
+  const ids=Object.keys(lobbyMembers).filter(isBotId).sort((a,b)=>parseInt(b.slice(4))-parseInt(a.slice(4)));
+  if(ids.length) remove(ref(db,`rooms/${roomId}/lobby/members/${ids[0]}`));
+};
+window.setBotSpeed = function(v){ botSpeed=BOT_SPEEDS[v]?v:'normal'; };
+window.setBotAutoplay = function(on){
+  botAutoplay=!!on;
+  const cb=document.getElementById('bot-autoplay'); if(cb) cb.checked=botAutoplay;
+  const b=document.getElementById('fx-bot-auto'); if(b) b.setAttribute('aria-pressed',botAutoplay?'true':'false');
+};
+function renderBotCard(){
+  const card=document.getElementById('bot-card');
+  const show=isHost && botTestRoom;
+  if(card) card.style.display=show?'':'none';
+  const fx=document.getElementById('fx-bot-auto'); if(fx) fx.classList.toggle('show', isMulti && isHost && botTestRoom);
+  if(show){
+    const active=Object.values(lobbyMembers).filter(m=>m && !m.kicked).length;
+    const ts=parseInt(document.getElementById('sz')?.value||4)||4;
+    document.getElementById('btn-bot-add').disabled=active>=8;
+    document.getElementById('btn-bot-fill').disabled=active>=2*ts;
+    document.getElementById('btn-bot-remove').disabled=!Object.keys(lobbyMembers).some(isBotId);
+  }
+  if(show && !botLoopId) botLoopId=setInterval(botTick, 200);
+  if(!show && botLoopId && !(isMulti && isHost && botTestRoom)){ clearInterval(botLoopId); botLoopId=null; }
+}
+// id の操作を自動で行うか（bot、または完全オート時の自分）
+function botControls(id){ return isBotId(id) || (botAutoplay && !!id && id===myMemberId); }
+// key の操作が必要になってから所定の時間が経ったら fn を1回だけ実行。反映されないまま残れば 6 秒後に再実行。
+function botAct(key, fn, slow=1){
+  const now=Date.now();
+  const done=botDone.get(key);
+  if(done && now-done<6000) return;
+  if(!botSeen.has(key)){
+    const [a,b]=BOT_SPEEDS[botSpeed]||BOT_SPEEDS.normal;
+    botSeen.set(key, now+(a+Math.random()*(b-a))*slow);
+    return;
+  }
+  if(now<botSeen.get(key)) return;
+  botDone.set(key, now);
+  try{ fn(); }catch(e){ console.error('[bot]',key,e); }
+}
+function botReset(){ botSeen.clear(); botDone.clear(); }
+function botRandom(arr){ return arr && arr.length ? arr[Math.floor(Math.random()*arr.length)] : null; }
+function botTick(){
+  if(!isMulti || !isHost || !roomId || !botTestRoom) return;
+  if(botSeen.size>500){ botReset(); }
+  const screen=[...document.querySelectorAll('.screen.active')].map(e=>e.id)[0];
+  if(screen==='s-lobby' || screen==='s-member-draft' || screen==='s-weapon-pick') return botTickLobby();
+  const S=state; if(!S || !Array.isArray(S.seq)) return;
+  const tag=(S.draftId||'')+':'+(S.series?S.series.game:0);
+  // ステージ BAN / PICK・カウンターピック
+  if(stageDraftPending(S)){
+    const d=stageDraftOf(S), turn=stageDraftTurn(d);
+    if(!botControls(repIdOf(S,turn.team))) return;
+    return botAct(`${tag}:stage:${d.token}:${turn.index}`, ()=>{
+      const d2=stageDraftOf(state); if(!d2) return;
+      const t2=stageDraftTurn(d2), used=stageUsedStages(d2);
+      const stage=botRandom(d2.pool.filter(n=>!used.includes(n)));
+      if(stage) applyStageDraftAndRender({token:d2.token,index:t2.index,team:t2.team,stage});
+    });
+  }
+  const step=S.seq[S.idx];
+  if(step && step.phase==='ban') return botTickBan(S,tag);
+  if(step && step.phase==='pick' && step.team==='both') return botTickSimPick(S,step,tag);
+  if(step && step.phase==='pick') return botTickPick(S,step,tag);
+  if(!step && S.pickMode==='gacha' && S.gacha && !gachaAllConfirmed(S)) return botTickGacha(S,tag);
+  if(screen==='s-result') return botTickResult(S,tag);
+}
+function botTickBan(S,tag){
+  if(usesIndividualBan(S.pickMode,S.banMode)){
+    const banners=S.bannerIds||{alpha:[],bravo:[]};
+    ['alpha','bravo'].forEach(team=>(banners[team]||[]).forEach((id,i)=>{
+      const k=`${id}_${i}`;
+      if(!botControls(id) || banPendingIndividual[k]) return;
+      botAct(`${tag}:iban:${S.idx}:${k}`, ()=>{
+        if(banPendingIndividual[k]) return;
+        const taken=new Set(Object.values(banPendingIndividual).map(b=>b&&b.key));
+        const w=botRandom(getAvailableWeapons(state).filter(x=>!taken.has(x.key)));
+        if(!w) return;
+        if(id===myMemberId) pendingSelect=null;
+        set(ref(db,`rooms/${roomId}/pending_bans/${k}`),{key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat});
+      });
+    }));
+    return;
+  }
+  ['alpha','bravo'].forEach(team=>{
+    if(!botControls(repIdOf(S,team))) return;
+    const sent=team==='alpha'?alphaBanSubmitted:bravoBanSubmitted;
+    if(sent || (banPending[team]||[]).length>=banTotalLimit(S)-(S.bans[team]||[]).length) return;
+    botAct(`${tag}:rban:${S.idx}:${team}`, async ()=>{
+      const snap=await get(ref(db,`rooms/${roomId}/pending_${team}_bans`));
+      if(snap.exists() && Array.isArray(snap.val()) && snap.val().length) return;
+      autoCompleteBanPending(state, team);
+      await set(ref(db,`rooms/${roomId}/pending_${team}_bans`), banPending[team].map(serializeBan));
+      if(team==='alpha') alphaBanSubmitted=true; else bravoBanSubmitted=true;
+      checkBothBansReady();
+    });
+  });
+}
+function botTickSimPick(S,step,tag){
+  const overlay=document.getElementById('sim-reveal-overlay');
+  if(overlay && overlay.style.display==='flex'){
+    if(botAutoplay) botAct(`${tag}:simnext:${S.idx}`, ()=>window.closeSimReveal(), 1.5);
+    return;
+  }
+  ['alpha','bravo'].forEach(team=>{
+    const actor=step[team+'MemberId'] || repIdOf(S,team);
+    const sent=team==='alpha'?alphaPickSubmitted:bravoPickSubmitted;
+    if(!botControls(actor) || sent) return;
+    botAct(`${tag}:sim:${S.idx}:${team}`, ()=>{
+      const w=botRandom(getAvailableWeapons(state));
+      if(!w) return;
+      if(actor===myMemberId) pendingSelect=null;
+      set(ref(db,`rooms/${roomId}/pending_${team}_pick`),{key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat});
+    });
+  });
+}
+function botTickPick(S,step,tag){
+  const actor=(S.pickMode==='individual'||S.pickMode==='enemy') && step.memberId ? step.memberId : repIdOf(S,step.team);
+  if(!botControls(actor)) return;
+  const idx=S.idx;
+  botAct(`${tag}:pick:${idx}`, ()=>{
+    const S2=state; if(S2.idx!==idx) return;
+    const st=S2.seq[idx]; if(!st || st.phase!=='pick' || st.team==='both') return;
+    const w=botRandom(getAvailableWeapons(S2)); if(!w) return;
+    const pickObj={key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat};
+    const owner=pickOwnerId(S2,st); if(owner) pickObj.memberId=owner;
+    const store=pickStoreTeam(S2,st.team);
+    (S2.picks[store]=S2.picks[store]||[]).push(pickObj);
+    pendingSelect=null;
+    S2.idx++; pushState(); renderDraft();
+  });
+}
+function botTickGacha(S,tag){
+  ['alpha','bravo'].forEach(team=>{
+    const g=S.gacha[team];
+    if(!g || g.confirmed || !botControls(repIdOf(S,team))) return;
+    botAct(`${tag}:gacha:${team}:${g.used}`, ()=>{
+      const g2=state.gacha&&state.gacha[team]; if(!g2 || g2.confirmed) return;
+      const canReroll=g2.used < (state.gachaRerolls||0);
+      if(canReroll && Math.random()<0.4){
+        set(ref(db,`rooms/${roomId}/gacha/${team}`),{hand:drawGachaHand(state,state.ts),used:g2.used+1,confirmed:false});
+      }else{
+        set(ref(db,`rooms/${roomId}/gacha/${team}`),{hand:g2.hand,used:g2.used,confirmed:true});
+      }
+    });
+  });
+}
+function botTickResult(S,tag){
+  // トレード提案を受けた側が bot なら、ランダムに承認／拒否
+  const p=tradePending;
+  if(p && p.status==='proposed'){
+    const toTeam=p.from==='alpha'?'bravo':'alpha';
+    if(botControls(repIdOf(S,toTeam))){
+      botAct(`${tag}:trade:${p.ts}`, ()=>{
+        if(Math.random()<0.6) hostApplyTrade(tradePending);
+        else remove(ref(db,`rooms/${roomId}/pending_trade`));
+      }, 2);
+    }
+  }
+  const sr=S.series;
+  if(!sr || sr.done) return;
+  if(sr.awaitingRule){
+    if(botControls(repIdOf(S,sr.ruleChooser))) botAct(`${tag}:rule`, ()=>applyChosenRuleAndAdvance(botRandom(RULES)), 2);
+    return;
+  }
+  if(botAutoplay) botAct(`${tag}:winner`, ()=>window.seriesWinner(Math.random()<0.5?'alpha':'bravo'), 3);
+}
+function botTickLobby(){
+  const md=lobbyMemberDraft;
+  if(md && md.active && !md.done && !md.pick){
+    const cap=md.turn==='alpha'?md.capAlpha:md.capBravo;
+    if(!botControls(cap)) return;
+    const pool=Object.entries(lobbyMembers).filter(([,m])=>m && !m.kicked && m.team==='unassigned').map(([id])=>id);
+    return botAct(`md:${md.capAlpha}:${md.turn}:${pool.length}`, ()=>{
+      const pick=botRandom(pool); if(!pick) return;
+      set(ref(db,`rooms/${roomId}/lobby/memberDraft/pick`),{memberId:pick,team:md.turn,ts:Date.now()});
+    });
+  }
+  const wp=lobbyWeaponPick;
+  if(wp && wp.active && !wp.done && !wp.pick){
+    const cur=(wp.order||[])[wp.idx];
+    if(!botControls(cur)) return;
+    return botAct(`wp:${(wp.order||[]).join(',')}:${wp.idx}`, ()=>{
+      const taken=new Set(Object.values(wp.picks||{}).map(w=>w.key));
+      const s=getLobbySettings();
+      const w=botRandom(wpBasePool(s.stdOnly,s.excludeFilter).filter(x=>!taken.has(x.key)));
+      if(w) set(ref(db,`rooms/${roomId}/lobby/weaponPick/pick`),{memberId:cur,weaponKey:w.key,ts:Date.now()});
+    });
+  }
+}
 
 // ===== 参加者キック（ホスト操作） =====
 window.kickMember = function(memberId, memberName){
@@ -6750,6 +7034,7 @@ function recordDraftStats(){
   const S=state;
   if(!isMulti || !isHost) return;              // 記録はホストのみ（ソロは試行が多くノイズになるため対象外）
   if(!S || S.statsRecorded) return;            // 二重計上防止（トレード等での結果画面再描画・再入場）
+  if(stateHasBots(S)) return;                  // botテストは統計に入れない
   if(S.seq && S.seq[S.idx]) return;            // ドラフト完了時のみ
   S.statsRecorded=true;
   update(ref(db), buildStatsUpdates(S)).catch(()=>{});
@@ -6786,6 +7071,7 @@ function applyLocalDraftStats(stored,S,participant){
 }
 function readLocalDraftStats(){ const raw=localStorage.getItem(LOCAL_STATS_KEY);return raw?JSON.parse(raw):emptyLocalStats(); }
 function recordLocalDraftStats(){
+  if(stateHasBots(state)) return; // botテストは端末内統計にも入れない
   const S=state,participant=!isMulti || !!(myMemberId&&S?.members&&Object.hasOwn(S.members,myMemberId));
   try{
     const next=applyLocalDraftStats(readLocalDraftStats(),S,participant);

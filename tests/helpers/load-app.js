@@ -38,7 +38,7 @@ const EXPORT_NAMES = [
   'normalizePresetSettings','normalizeMyPresetName','decodePresetFile','presetFileDocument','presetDescription',
   'emptyLocalStats','applyLocalDraftStats','buildStatsCounts','recordLocalDraftStats',
   'draftStartIssues','lobbyStartIssues','soloStartIssues','updateStartButton','updateSoloStartButton',
-  'splitTeamsWithTags','normalizeTagDefs','tagLabel','nextTagId','TAG_IDS','usesIndividualBan',
+  'makeBotMembers','stateHasBots','isBotId','splitTeamsWithTags','normalizeTagDefs','tagLabel','nextTagId','TAG_IDS','usesIndividualBan',
   'RULES','CATEGORY_ORDER','CHALLENGES','STAGES_DATA',
 ];
 
