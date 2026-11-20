@@ -187,7 +187,7 @@ BO3のステージ候補は初期状態では全ステージです。個人ピ�
 
 - **Firebase 匿名認証** — サイトを開くと自動でログイン（入力不要）。未認証からの読み書きをブロック
 - **Database Rules** — 認証済みユーザーのみ・6文字英数字のルームIDのみアクセス可能（想定形は [`database.rules.json`](./database.rules.json)）
-- **ルーム自動削除** — 24時間以上経過したルームをGitHub Actionsで毎日深夜0時（JST）に自動削除
+- **ルーム自動削除** — 24時間以上経過したルームをGitHub Actionsで毎週月曜の深夜0時（JST）に自動削除（手動実行も可）
 - **XSS対策** — プレイヤー名・チーム名など Firebase 経由の文字列は表示時にすべてHTMLエスケープ
 
 ## 統計（匿名集計）
@@ -203,8 +203,8 @@ BO3のステージ候補は初期状態では全ステージです。個人ピ�
 - **フロントエンド**: HTML / CSS / Vanilla JS（単一ファイル構成）
 - **リアルタイム同期**: Firebase Realtime Database
 - **認証**: Firebase Authentication（匿名ログイン）
-- **ホスティング**: Vercel
-- **自動削除**: GitHub Actions（毎日実行）
+- **ホスティング**: Vercel（本番）／ GitHub Pages（試験用）
+- **自動削除**: GitHub Actions（毎週実行）
 
 ---
 
@@ -233,7 +233,7 @@ splatoon-draft/
 │   └── cleanup-rooms.js
 └── .github/
     └── workflows/
-        ├── cleanup.yml    # ルーム自動削除（毎日）
+        ├── cleanup.yml    # ルーム自動削除（毎週）
         └── test.yml       # push/PR ごとに構文チェック＋単体テスト
 ```
 

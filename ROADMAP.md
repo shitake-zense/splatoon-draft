@@ -7,8 +7,9 @@
 ## 不可侵の前提（全フェーズ共通）
 - **単一 `index.html` / Vanilla JS**。外部ライブラリ・CDN・実行時fetchを増やさない（静的・自己完結）。
 - Firebase RTDB 無料枠（同時接続〜50）。スキーマは**追加のみ**で後方互換厳守。既存武器エントリ不変。
-- GitHub Pages サブパス配信 → **相対パス**。デプロイは **main へ push**（実機確認＝本番反映）。
-- 自動テスト基盤なし。検証は「`node --check` 構文 + 純粋ロジックのnode単体テスト + ローカル配信 + 手動スモーク（`docs/manual-smoke-checklist.md`）」。
+- 本番は **Vercel**（main へ push＝本番反映）、試験は **GitHub Pages**（`codex/pages-preview` ブランチ・サブパス配信 → **相対パス**）。詳細は CLAUDE.md「配信と開発フロー」。
+- 改行は LF（`.gitattributes`）。
+- 検証は「`node --check` 構文 + 純粋ロジックのnode単体テスト + ローカル配信 + 手動スモーク（`docs/manual-smoke-checklist.md`）」。単体テストは `node --test tests/*.test.js`（2026-11-20 時点 173件）で、CI でも実行。
 
 ## オーナーの方針（draft-ideas.md 各節への判断・2026-06 時点）
 - §1 ジャンルBAN: **採用**（代表者BAN限定）。個人BAN対応はしない。
@@ -80,7 +81,7 @@
 - リザルト常駐対策: `subscribeRoom` で「**リザルト表示中 かつ done の state 更新**」は `showDraftUI` に戻さず `showResult` のみ再描画（トレード成立を全員へ反映）。
 - コードの居場所（行番号変動・周辺を読む）: ロジック `applyTradeSwap`/`isTradeOperator`/`myTradeTeam`/`tradeTeams`/`hostApplyTrade`、同期 `subscribeTrade`、UI `renderTradeArea`/`renderTradePicker`/`renderTradePending`、操作 `window.submitTrade`/`respondTrade`/`cancelTrade`/`toggleTradePanel`/`selectTradeChip`。設定 `#trade-enabled`/`#solo-trade-enabled`→`getLobbySettings`/`startSoloDraft`/`buildAndStartDraft`/`normalizeState`/`applyLobbySettingsToForm`。代表者解決条件に `tradeEnabled` を追加。退出/再ドラフトで `fbTradeUnsub` 解除＋`pending_trade` 削除（再ドラフトの gacha ノード削除漏れも同時修正）。
 - 検証: `node --check` OK／`applyTradeSwap` 単体7件パス（`scratchpad/trade.test.mjs` 相当）／ローカル実機でソロ・トレードE2E（.52⇄.96 入替）確認／使い方ガイド更新済み／smoke `S16` 追記。
-- **未決/次**: マルチ2クライアントE2Eは本番（GitHub Pages）で要スモーク。Phase 3 はこれで完了 → 次は **Phase 4（シリーズ/連戦）**。
+- **未決/次**: マルチ2クライアントE2Eは試験環境（GitHub Pages）で要スモーク。Phase 3 はこれで完了 → 次は **Phase 4（シリーズ/連戦）**。
 
 ### Phase 4 — シリーズ/連戦（§4）★目玉・最後（最大リスク）
 - BO3/BO5 フレームを先に → 武器ロックアウト → 勝者ペナルティ/敗者特権 → **負けチームがルール設定** → 戦績ボード。
@@ -176,10 +177,23 @@
 - 使い方ガイド（流れタブ）・smoke `S20`〜`S22` 追記。
 - **見送り（次に効きそうな候補）**: B=手番の強調（自分の番バナー／他人の番はグリッドを薄く）、C=武器名の検索ボックス（ROADMAP §6）、リスト表示切替。
 
+### 🤖 2026-11 Codex 期間の変更（Claude 不在時・2026-11-20 に整理して main 統合）
+Codex で 11/2〜11/19 に開発。ROADMAP は更新されていなかったため、コミットから要点をまとめる。詳細仕様は README・使い方ガイドが正。
+- `98f33b7` / `1d5d6e8`（11/2）: ドラフト画面とナビゲーションの改善、武器グリッドのリファクタ（`tests/weapon-grid.test.js`）。
+- `a760114`（11/15）: ステージ画像を sendou.ink 由来の `images/sendou-stages/*.avif` に差し替え（旧 `images/stages/*.png` は削除）、部屋作成プリセット、`vercel.json` 追加、画像出典の調査 `docs/image-rights-review.md`。
+- `070b173`（11/15）: **ステージ方式**（通常／おまかせロスト／カウンターピック／ステージ BAN・PICK）と **BO7・BO9**。
+- `8ba5776`（11/15）: 使い方ガイドを折りたたみ（`details`）で整理。
+- `d65f431`（11/15）: **マイプリセット**（localStorage・最大50件・JSON 書き出し/読み込み）と**端末内の個人統計**。
+- `60718c3`（11/15）: ドラフト開始前の条件チェックを強化（`tests/draft-start-validation.test.js`）。
+- `baae201` → `c9e9721`（11/18）: OBS ブラウザソース用オーバーレイを追加 → 同日に取り消し（未採用）。
+- `a3e17da` / `73028a4`（11/19・`codex/pages-preview` で試験後に統合）: **BAN 確定の簡略化**＝「BANを送信」ボタン廃止。個人BANは2タップで確定＝送信、代表者BANは必要数が揃うと自動送信、ソロは両チーム揃うと自動で次へ。送信失敗時は仮選択に戻す。代表者の送信済みBANを表示し続ける。参加者ロビーに自チーム表示、結果画像の生成状況表示、「標準武器のみ」の説明を具体化。
+- `b68e5db`（11/20）: `.gitattributes`（LF 統一）と `.gitignore` を追加。Codex のコミットが CRLF で全行差分になっていた問題の再発防止。
+- **未確認**: 11/19 の BAN 操作変更は、マルチ2クライアント（個人BAN・代表者BAN、ホストがブラボー側の構成を含む）の実機スモークを試験環境で行うこと（smoke `S22`）。
+
 ---
 
 ## 再開メモ（次に開く人へ）
-- まず `git log --oneline -8` と本ファイルで現在地を確認。`git status` がクリーンか確認。
+- まず `git log --oneline -8` と本ファイルで現在地を確認。`git status` がクリーンか、`main` が `origin/main` と揃っているか確認（別ツールの worktree やブランチで作業が残っていないかも `git worktree list` / `git branch -a` で見る）。
 - ローカル配信: `python -m http.server 8000` → http://localhost:8000/ （`file://` 不可）。Firebaseは本番DBに繋がるのでテスト用ルームIDで。
 - 検証の型: `node --check`（構文）→ 純粋ロジックは index.html から関数抽出してnodeで単体テスト → ローカル配信で手動スモーク（`docs/manual-smoke-checklist.md`、ジャンルBANは S13）。
 - ジャンルBAN関連コードの居場所（行番号は変動・周辺を読む）:
