@@ -7,7 +7,7 @@ const stages=Array.from(app.STAGES_DATA);
 const members={a:{team:'alpha'},b:{team:'bravo'},c:{team:'alpha'},d:{team:'bravo'}};
 const check=(over={})=>Array.from(app.draftStartIssues({multi:true,members,ts:2,weaponCount:20,...over}));
 
-test('全ピックモード共通で各チームの人数不足・超過とキック済みを検出',()=>{
+test('個人ピック・相手ピックは各チームの人数不足・超過とキック済みを検出',()=>{
   assert.deepEqual(check(),[]);
   for(const team of ['alpha','bravo']){
     const reduced=Object.fromEntries(Object.entries(members).filter(([,m])=>m.team!==team || m!==members[team==='alpha'?'a':'b']));
@@ -16,6 +16,22 @@ test('全ピックモード共通で各チームの人数不足・超過とキ�
   }
   assert.match(check({members:{...members,a:{team:'alpha',kicked:true}}})[0],/人数/);
   assert.deepEqual(check({members:{...members,x:{team:'unassigned'}}}),[]);
+});
+
+test('相手ピックも各チームちょうどの人数が必要',()=>{
+  assert.match(check({pickMode:'enemy',members:{a:members.a,b:members.b}}).join(),/人数を揃えて/);
+  assert.deepEqual(check({pickMode:'enemy'}),[]);
+});
+
+test('代表者ピック・ガチャは各チーム1人以上で開始でき、超過と空チームは止める',()=>{
+  const two={a:{team:'alpha'},b:{team:'bravo'}};
+  for(const pickMode of ['team','gacha']){
+    assert.deepEqual(check({pickMode,ts:4,members:two}),[],`${pickMode} 4v4 を2人で開始`);
+    assert.deepEqual(check({pickMode,ts:4,members}),[]);
+    assert.match(check({pickMode,members:{a:two.a}}).join(),/1人以上/);
+    assert.match(check({pickMode,members:{...two,c:{team:'alpha'},d:{team:'alpha'}}}).join(),/超えて/);
+    assert.match(check({pickMode,members:{a:{team:'alpha',kicked:true},b:two.b}}).join(),/1人以上/);
+  }
 });
 
 test('メンバードラフトは1v1不可、両代表と必要人数を確認',()=>{

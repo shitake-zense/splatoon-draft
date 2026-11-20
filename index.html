@@ -683,7 +683,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
           <li>表示された<b>部屋番号（6桁）</b>か<b>共有URL</b>を参加者に渡します。</li>
           <li>ロビーで参加者が揃ったら、<b>チーム（アルファ／ブラボー）への割り当て</b>と<b>ピック順</b>を決めます。</li>
           <li>人数・BAN数・ピック方法・ルール／ステージを設定します。武器の絞り込みやお題カードは<b>「追加ルール・武器の絞り込み」</b>から設定できます。</li>
-          <li>両チームの人数やステージ候補などが揃うと<b>「ドラフト開始」</b>を押せます。不足があるときはボタンの下に理由が表示されます。</li>
+          <li>両チームの人数やステージ候補などが揃うと<b>「ドラフト開始」</b>を押せます（個人ピック・相手ピックは各チームの設定人数ちょうど、代表者ピック・ガチャは各チーム1人以上）。不足があるときはボタンの下に理由が表示されます。</li>
         </ol>
       </div>
       <details class="guide-card guide-disclosure"><summary>部屋番号と配信の注意</summary><div class="guide-detail-body">部屋番号は初期状態で伏せられます。「部屋番号を非表示中」で表示を切り替えられ、ID・URLのコピーは非表示中も使えます。<b>ブラウザのアドレス欄やコピーしたURLには部屋番号が含まれます。</b>配信時はアドレス欄を映さず、URLを参加者だけに共有してください。この機能は画面表示を隠すもので、入室制限ではありません。</div></details>
@@ -4378,7 +4378,8 @@ function getLobbySettings(){
 }
 
 // 開始条件をボタン表示と開始処理で共有する。
-function draftStartIssues({multi=false,members={},ts=4,memberDraftEnabled=false,memberDraftDone=false,memberDraftTiming='before',seriesEnabled=false,stageMode='normal',stagePool=[],maxGames=1,weaponCount=0}){
+function pickModeNeedsFullTeams(pickMode){ return pickMode==='individual' || pickMode==='enemy'; }
+function draftStartIssues({multi=false,members={},ts=4,pickMode='individual',memberDraftEnabled=false,memberDraftDone=false,memberDraftTiming='before',seriesEnabled=false,stageMode='normal',stagePool=[],maxGames=1,weaponCount=0}){
   const issues=[];
   if(multi){
     const active=Object.values(members).filter(m=>m && !m.kicked);
@@ -4389,8 +4390,14 @@ function draftStartIssues({multi=false,members={},ts=4,memberDraftEnabled=false,
       if(active.length<2*ts) issues.push(`メンバー不足：${active.length} / ${2*ts}人`);
       if(memberDraftTiming==='after' && active.length>2*ts) issues.push(`全員が武器ピックする方式では参加者を${2*ts}人にしてください（現在${active.length}人）。`);
       if(alpha!==1 || bravo!==1) issues.push(`各チームのキャプテンを1人ずつ割り当ててください（アルファ ${alpha}/1、ブラボー ${bravo}/1）。`);
-    }else if(alpha!==ts || bravo!==ts){
-      issues.push(`チームの人数を揃えてください（アルファ ${alpha}/${ts}人、ブラボー ${bravo}/${ts}人）。`);
+    }else if(pickModeNeedsFullTeams(pickMode)){
+      // 個人ピック・相手ピックは選手ごとにピック順を割り当てるため、各チームちょうど ts 人が必要
+      if(alpha!==ts || bravo!==ts) issues.push(`チームの人数を揃えてください（アルファ ${alpha}/${ts}人、ブラボー ${bravo}/${ts}人）。`);
+    }else if(alpha<1 || bravo<1){
+      // 代表者ピック・ガチャなどは各チームに代表者が1人いれば開始できる
+      issues.push(`各チームに1人以上割り当ててください（アルファ ${alpha}人、ブラボー ${bravo}人）。`);
+    }else if(alpha>ts || bravo>ts){
+      issues.push(`チームの人数が${ts}人を超えています（アルファ ${alpha}人、ブラボー ${bravo}人）。`);
     }
   }
   const min=requiredStageCount(stageMode,maxGames);
@@ -4410,6 +4417,7 @@ function draftStartIssues({multi=false,members={},ts=4,memberDraftEnabled=false,
 function lobbyStartIssues(){
   const stage=stageSettings('');
   return draftStartIssues({multi:true,members:lobbyMembers,ts:parseInt(document.getElementById('sz')?.value||4),
+    pickMode:document.getElementById('pick-mode')?.value||'individual',
     memberDraftEnabled:!!document.getElementById('member-draft-enabled')?.checked,
     memberDraftDone:!!lobbyMemberDraft?.done,memberDraftTiming:document.getElementById('member-draft-timing')?.value||'before',
     seriesEnabled:!!document.getElementById('series-enabled')?.checked,
