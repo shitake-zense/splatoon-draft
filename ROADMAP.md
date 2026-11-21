@@ -214,6 +214,10 @@ Codex で 11/2〜11/19 に開発。ROADMAP は更新されていなかったた�
 - 追加: L3リールガン／D／箔、H3リールガン／D／SNAK、スプラスピナーPYTN、ハイドラント圧、PETシューター レプリカ（`_replica`＝既定で非表示、レプリカは14種に）。
 - 出典: Leanny/splat3 の `data/mush/1200/WeaponInfoMain.json`（Type=Versus）でサブ・スペシャル・画像名を確認し、`images/weapon_flat` から画像を同梱。stat.ink はこの作業環境から接続できなかったため、**key は stat.ink の命名に合わせた推定**（次に `1_fetch_weapons.py` を実行したら key の一致を確認すること。ずれると武器統計が別集計になる）。
 
+### ✅ 2026-11-21 同時ピックの送信ボタンを廃止
+- 同時ピックも BAN・通常ピックと同じく「1タップ目＝仮選択、同じ武器の2タップ目＝確定＝送信」に統一。`pickWeapon` の simpick 2タップ目から `confirmSimPick()` を直接呼ぶ。ソロは両チーム揃った時点で公開オーバーレイ。`#sim-pick-confirm-btn` と CSS を削除。ホストの公開→「次へ」は従来どおり。
+- 検証: `tests/sim-pick-confirm.test.js`（マルチ送信・担当外・ソロ公開）、smoke `S3` 追記。
+
 ---
 
 ## 再開メモ（次に開く人へ）

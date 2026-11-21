@@ -434,9 +434,6 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .spsl.pending{border-color:#00c9ff;color:#00c9ff;}
 .spsl.hidden{border-color:#555;color:#555;}
 .sim-pick-hint{font-size:11px;color:var(--mu);text-align:center;margin-top:8px;}
-.sim-pick-confirm{width:100%;margin-top:10px;padding:9px;background:#1a3d2a;border:1.5px solid var(--pk);border-radius:8px;color:var(--pk);font-family:'Zen Dots',sans-serif;font-size:12px;cursor:pointer;}
-.sim-pick-confirm:hover:not(:disabled){background:#2a5a3a;}
-.sim-pick-confirm:disabled{opacity:.35;cursor:not-allowed;}
 /* ===== ガチャ/運命ピック（Phase 3a） ===== */
 .gacha-panel{background:var(--s1);border:1.5px solid var(--y);border-radius:var(--r);padding:14px;margin-bottom:12px;}
 .gacha-title{font-family:'Zen Dots',sans-serif;font-size:11px;color:var(--y);margin-bottom:10px;letter-spacing:1px;}
@@ -803,7 +800,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <details class="guide-card guide-disclosure"><summary>メンバードラフト</summary><div class="guide-detail-body">メンバードラフト（マルチ専用）がONのときは、ロビーでホストが各チームのキャプテンを1名ずつ選ぶと「メンバードラフト開始」が押せます（2v2以上・人数が揃っているときのみ）。開始後は2人のキャプテンが交互にプールから1人ずつ指名し、両チームが埋まると武器ドラフトへ進みます（制限時間ONなら時間切れでランダム指名）。</div></details>
       <details class="guide-card guide-disclosure"><summary>お題カード</summary><div class="guide-detail-body">お題カードをONにすると開始時に縛りを1枚抽選します（両チーム共通・非強制で、達成は結果に○×表示）。</div></details>
       <details class="guide-card guide-disclosure"><summary>連戦とルールの進行</summary><div class="guide-detail-body">連戦モード（シリーズ）がONのときは、結果画面でホストが各試合の勝者を入力すると次の試合へ進みます。先取数（BO3=2／BO5=3／BO7=4／BO9=5）に達するとシリーズ終了で、戦績ボード（各試合の編成一覧）とシリーズ画像の保存ができます。ガチルールは BO3・BO7・BO9=毎回ランダム／BO5=エリア→ヤグラ→ホコ→アサリ→ランダム。「負けチームがルール設定」ONなら2試合目以降は<b>敗者チームの代表者（1ピック目の人）</b>が次のガチルールを選びます。誰が選ぶかは結果画面に🎯付きで名前が出ます（担当者が操作できない場合はホストが代理決定できます）。</div></details>
-      <details class="guide-card guide-disclosure"><summary>武器の選び方</summary><div class="guide-detail-body"><b>武器の選び方</b>：タイルを1回タップすると仮選択、<b>同じタイルをもう一度タップ</b>すると確定します。仮選択中は別の武器をタップして選び直せます。個人BANは2回目で送信、代表者BANは必要数が揃うと自動送信されます。ソロは両チームのBANが揃うと自動で次へ進みます。同時ピックは選択後にパネルの送信ボタンを押してください。</div></details>
+      <details class="guide-card guide-disclosure"><summary>武器の選び方</summary><div class="guide-detail-body"><b>武器の選び方</b>：タイルを1回タップすると仮選択、<b>同じタイルをもう一度タップ</b>すると確定します。仮選択中は別の武器をタップして選び直せます。個人BANは2回目で送信、代表者BANは必要数が揃うと自動送信されます。ソロは両チームのBANが揃うと自動で次へ進みます。同時ピックも2回目のタップでそのまま送信されます（送信ボタンはありません）。</div></details>
       <details class="guide-card guide-disclosure"><summary>武器一覧の表示設定</summary><div class="guide-detail-body"><b>グリッドの見やすさ設定</b>（端末ごとに保存）：<b>「選べる武器だけ」</b>にチェックすると使用不可の武器を隠せます。<b>［大］［中］［小］</b>でタイルの大きさを切替でき、<b>大</b>なら武器名が省略されずに全部読めます。選べない武器にはタイル下に理由（<b>BAN済み／取得済み／🔒 連戦ロック／味方がBAN</b>）が出ます。</div></details>
       <details class="guide-card guide-disclosure"><summary>効果音・読み上げ</summary><div class="guide-detail-body">ドラフト画面 右上の <b>🔊</b>＝確定音（既定OFF）、<b>🗣️</b>＝武器読み上げ（既定OFF）のトグルです。BAN/PICKを確定するたびに効果音が鳴り、読み上げONなら確定した武器名を読み上げます（端末ごとの設定・音は自動生成で外部ファイルなし）。</div></details>
       <details class="guide-card guide-disclosure"><summary>武器統計</summary><div class="guide-detail-body">モード選択画面の<b>「📊 武器統計」</b>から、全ルーム累計の PICK／BAN／ジャンルBAN ランキングを見られます（マルチプレイで完了したドラフトのみの匿名集計）。「この端末」では、このブラウザで参加したソロ・マルチの両チームを集計します。結果を初めて表示した時点の集計で、トレード後の変更は反映しません。ブラウザのデータ削除で消えることがあります。</div></details>
@@ -1557,7 +1554,6 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       </div>
     </div>
     <div class="sim-pick-hint" id="sim-pick-hint"></div>
-    <button class="sim-pick-confirm" id="sim-pick-confirm-btn" onclick="confirmSimPick()" disabled>PICKを確定する</button>
   </div>
 
   <!-- ガチャ/運命ピック（Phase 3a） -->
@@ -1636,7 +1632,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <div class="cf" id="cf"></div>
     </div>
     <div class="d-lockout" id="d-lockout" style="display:none"></div>
-    <p class="weapon-help">項目を1回タップで仮選択、もう一度タップで確定します。同時ピックは選択後に上のボタンを押してください。</p>
+    <p class="weapon-help">項目を1回タップで仮選択、もう一度タップで確定します。同時ピックも同じタイルをもう一度タップすると送信されます。</p>
     <div class="wg" id="wg"></div>
     <div class="wg-empty" id="wg-empty" style="display:none"></div>
   </div>
@@ -6031,7 +6027,7 @@ function renderDraft(){
   } else if(isSimPick){
     renderSimPickPanel();
     const roundNum=(S.picks.alpha||[]).length+1;
-    const simNote = S.pickMode==='enemy' ? '（相手に使わせる武器を選択）' : '（送信後に公開）';
+    const simNote = S.pickMode==='enemy' ? '（相手に使わせる武器を選択・2回タップで送信）' : '（2回タップで送信・揃ったら公開）';
     document.getElementById('tprompt').innerHTML=`<strong style="color:var(--pk)">ROUND ${roundNum} — 両チーム同時にピックしてください${simNote}</strong>`;
     document.getElementById('tia').style.display='none';
     document.getElementById('tib').style.display='none';
@@ -6813,6 +6809,8 @@ function pickWeapon(w){
         }
         pendingSelect=null;
         sfx.confirm(); speakWeapon(w.name); // 演出: 同時ピックのロックSE＋読み上げ
+        // 送信ボタンは廃止: 2タップ目の確定でそのまま送信（ソロは両チーム揃った時点で公開）
+        confirmSimPick();
         renderSimPickPanel(); renderGrid();
         return;
       }
@@ -6905,7 +6903,6 @@ function renderSimPickPanel(){
   });
 
   const hint=document.getElementById('sim-pick-hint');
-  const btn=document.getElementById('sim-pick-confirm-btn');
   // このラウンドで自分が担当する側（観戦者は null）
   const myTeamM    = myPickTeam;
   const otherTeamM = myTeamM==='alpha'?'bravo':(myTeamM==='bravo'?'alpha':null);
@@ -6916,8 +6913,7 @@ function renderSimPickPanel(){
     const aReady=!!simPickPending.alpha, bReady=!!simPickPending.bravo;
     if(!aReady) hint.innerHTML=`<strong style="color:var(--a)">${esc(S.an)}</strong> の武器を選択してください`;
     else if(!bReady) hint.innerHTML=`<strong style="color:var(--b)">${esc(S.bn)}</strong> の武器を選択してください`;
-    else hint.innerHTML=`<span style="color:var(--pk)">両チームの選択が完了しました！確定してください</span>`;
-    btn.textContent='PICKを確定する'; btn.disabled=!(simPickPending.alpha&&simPickPending.bravo);
+    else hint.innerHTML=`<span style="color:var(--pk)">両チームの選択が完了しました！</span>`;
     return;
   }
 
@@ -6926,25 +6922,21 @@ function renderSimPickPanel(){
     const aPicker = step&&step.alphaMemberId ? (S.members||{})[step.alphaMemberId]?.name : S.an;
     const bPicker = step&&step.bravoMemberId ? (S.members||{})[step.bravoMemberId]?.name : S.bn;
     hint.innerHTML=`<span style="color:var(--mu)">このラウンドは <strong style="color:var(--a)">${esc(aPicker||S.an)}</strong> と <strong style="color:var(--b)">${esc(bPicker||S.bn)}</strong> がピック中です。お待ちください</span>`;
-    btn.textContent='担当外'; btn.disabled=true;
     return;
   }
 
   if(mySubmitted && !otherPick){
     hint.innerHTML=`<span style="color:var(--pk)">✓ PICKを送信しました。相手チームを待っています…</span>`;
   } else if(!mySubmitted && otherPick){
-    hint.innerHTML=`<span style="color:var(--y)">相手チームの選択が届いています。武器を選んで送信してください</span>`;
+    hint.innerHTML=`<span style="color:var(--y)">相手チームの選択が届いています。武器を選んでください（同じ武器をもう一度タップで送信）</span>`;
   } else if(mySubmitted && otherPick){
     hint.innerHTML=`<span style="color:var(--pk)">✓ 両チームの選択が揃いました！まもなく公開されます…</span>`;
   } else {
     const myName=myTeamM==='alpha'?S.an:S.bn;
     const myCol=myTeamM==='alpha'?'var(--a)':'var(--b)';
-    hint.innerHTML=`<strong style="color:${myCol}">${esc(myName)}</strong> — ピックする武器を選択して送信してください`;
+    hint.innerHTML=`<strong style="color:${myCol}">${esc(myName)}</strong> — 武器をタップで仮選択、もう一度タップで送信`;
   }
 
-  const myReady=!!simPickPending[myTeamM];
-  btn.textContent=mySubmitted?'送信済み ✓':'PICKを送信する';
-  btn.disabled=mySubmitted||!myReady;
 }
 
 window.confirmSimPick = function(){
