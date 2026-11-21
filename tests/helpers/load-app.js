@@ -29,7 +29,7 @@ const EXPORT_NAMES = [
   'resolveRepresentative','repIdOf','repNameOf','myTeamOf',
   'isRepBanRepresentative','isSeriesChooserOperator','gachaCanOperate','isTradeOperator',
   'statKey','buildStatsUpdates','buildStatsRanking',
-  'filterWeaponPool','genreValuesFromPool','weaponGridStatus','canSelectGridWeapon','weaponByKey','catRepImgUrl',
+  'filterWeaponPool','isReplicaWeapon','genreValuesFromPool','weaponGridStatus','canSelectGridWeapon','weaponByKey','catRepImgUrl',
   'startTimer','clearTimer','startMdTimer','stopMdTimer','startWpTimer','stopWpTimer',
   'unsubscribeRoomListeners','clearDraftRoomData',
   'createInitialDraftState',

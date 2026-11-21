@@ -753,7 +753,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <details class="guide-card guide-disclosure"><summary>ジャンルBAN（武器BANとは別枠）</summary><div class="guide-detail-body">武器単位とは<b>別の枠</b>で、<b>武器種・サブ・スペシャル単位</b>でまとめてBANできます（例: 「サブ=2」ならサブを2種類まるごと禁止＝そのサブを持つ武器が全て消える）。設定した数は<b>必ずその数だけBAN</b>します。個人ピックでは<b>BANモードを代表者BANにした場合</b>に使えます。代表者ピック・ガチャでも使えます。<b>相手ピック</b>と、メンバードラフトの<b>「全員が武器ピック → チーム分け」</b>では使えません。使えない設定に切り替えた間、設定した数は適用されません。</div></details>
       <details class="guide-card guide-disclosure"><summary>ピックモード（5種・最重要）</summary><div class="guide-detail-body"><b>個人ピック</b>＝各自が自分の番に自分の武器を選ぶ。<b>代表者ピック</b>＝チーム代表が全員分をまとめて選ぶ。<b>相手ピック</b>＝対になる相手選手の武器を<b>自分が決めて押し付ける</b>（アルファ[N]↔ブラボー[N]がペア）。普段使わない武器を持たされる遊びです。<b>🎲 ガチャ（運命ピック）</b>＝BAN後に各チームへ人数分の武器が<b>ランダムで一括配布</b>され、引き直して「確定」するだけ。選ぶ自由のないお祭りモードです。<b>🚫 BANのみ</b>＝BANだけを行い、PICKはせずに結果へ。試合ではBANされた武器以外から各自が自由に選びます。BANは代表者BAN・個人BANのどちらも選べます（個人BANはピック順の上位が担当し、人数が少なければ1人が複数枠を担当。ジャンルBANは代表者BANのときだけ）。各チーム1人以上で開始でき、BANを1つ以上設定する必要があります。お題・トレード・武器ロックアウトは使えません。<br><span style="color:var(--mu)">※ソロでは「通常ピック（＝代表者ピック相当）」「相手ピック」「ガチャ」「BANのみ」の4つ。</span></div></details>
       <details class="guide-card guide-disclosure"><summary>リロール回数（ガチャ専用）</summary><div class="guide-detail-body">ガチャで配られた手札を<b>引き直せる回数</b>（チームごと・既定2回）。0にすると引き直し不可＝完全に運だけの配布になります。両チームが「確定」すると即リザルトへ進みます。</div></details>
-      <details class="guide-card guide-disclosure"><summary>標準武器のみ / 武器の絞り込み</summary><div class="guide-detail-body"><b>標準武器のみ</b>＝各武器の基本形のみを候補にし、コラボなどの別モデルは除外（例：スプラシューターは○、スプラシューターコラボは✕）。<b>武器の絞り込み</b>＝指定した武器種・サブ・スペシャルを<b>持つ武器を候補から消す</b>（例: 強いスペシャルを外してエンジョイ寄りに調整）。どちらも候補が減り、残り数が表示されます。</div></details>
+      <details class="guide-card guide-disclosure"><summary>標準武器のみ / レプリカ / 武器の絞り込み</summary><div class="guide-detail-body"><b>標準武器のみ</b>＝各武器の基本形のみを候補にし、コラボなどの別モデルは除外（例：スプラシューターは○、スプラシューターコラボは✕）。<b>レプリカを非表示</b>（既定ON）＝ヒーローシューター レプリカ・オクタシューター レプリカ・オーダー系など、元ブキと性能が同じで見た目だけ違う13種を候補から外す。OFFにするとレプリカも選べます。<b>武器の絞り込み</b>＝指定した武器種・サブ・スペシャルを<b>持つ武器を候補から消す</b>（例: 強いスペシャルを外してエンジョイ寄りに調整）。どちらも候補が減り、残り数が表示されます。</div></details>
       <h3 class="guide-section-title">追加ルール</h3>
       <details class="guide-card guide-disclosure"><summary>お題カード / 制限時間</summary><div class="guide-detail-body"><b>お題カード</b>＝開始時に<b>全32種</b>から縛りを1枚抽選（両チーム共通・<b>非強制</b>で、結果に達成○×を表示）。武器種・サブ・スペシャル・人数など色々な角度のお題があります。<b>制限時間</b>＝5〜100秒。時間切れは「確定済み→仮選択中→ランダム」の順で自動送信します。</div></details>
       <details class="guide-card guide-disclosure"><summary>ドラフト後トレード</summary><div class="guide-detail-body">ONにすると<b>結果画面</b>で武器の交換ができます。自チームの武器1枚と相手チームの武器1枚を選んで<b>交換を提案</b>→<b>相手チームの代表者が承認</b>すると成立（拒否も可）。回数は無制限です。マルチでは<b>各チームの代表者だけ</b>が提案・承認でき、ソロではアルファ⇄ブラボーをその場で入れ替えられます。</div></details>
@@ -1035,6 +1035,10 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <div class="toggle-row">
       <div class="toggle-label">標準武器のみ<small>基本形のみ（例：スプラシューター ○／スプラシューターコラボ ✕）</small></div>
         <label class="tgl"><input type="checkbox" id="std-only" onchange="onSettingChange()" aria-label="標準武器のみ"><span class="tgl-sl"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label">レプリカを非表示<small>ヒーロー/オクタ/オーダー系のレプリカ13種（元ブキと性能が同じで見た目違い）を候補から外す</small></div>
+        <label class="tgl"><input type="checkbox" id="hide-replica" checked onchange="onSettingChange()" aria-label="レプリカを非表示"><span class="tgl-sl"></span></label>
       </div>
       <div class="toggle-row">
         <div class="toggle-label">⏱ 制限時間あり<small>時間切れ時は仮選択を優先し、残りは自動で選択</small></div>
@@ -1321,6 +1325,10 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <div class="toggle-row">
       <div class="toggle-label">標準武器のみ<small>基本形のみ（例：スプラシューター ○／スプラシューターコラボ ✕）</small></div>
         <label class="tgl"><input type="checkbox" id="solo-std-only" onchange="updateSoloStartButton()" aria-label="標準武器のみ"><span class="tgl-sl"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label">レプリカを非表示<small>ヒーロー/オクタ/オーダー系のレプリカ13種（元ブキと性能が同じで見た目違い）を候補から外す</small></div>
+        <label class="tgl"><input type="checkbox" id="solo-hide-replica" checked onchange="updateSoloStartButton()" aria-label="レプリカを非表示"><span class="tgl-sl"></span></label>
       </div>
       <div class="toggle-row">
         <div class="toggle-label">⏱ 制限時間あり<small>時間切れ時は仮選択を優先し、残りは自動で選択</small></div>
@@ -1804,7 +1812,7 @@ function applyLobbySettingsToForm(s){
   const setChk = (id,v)=>{ const el=document.getElementById(id); if(el) el.checked=!!v; };
   setVal('n-a',s.an); setVal('n-b',s.bn); setVal('sz',s.ts); setVal('bc',s.bc);
   setVal('ft',s.ft); setVal('pick-order',s.po); setVal('rm',s.rule); setVal('sm',s.stageJa);
-  setChk('std-only',s.stdOnly); setChk('challenge-enabled',s.challengeEnabled);
+  setChk('std-only',s.stdOnly); setChk('hide-replica',!s.showReplica); setChk('challenge-enabled',s.challengeEnabled);
   setChk('trade-enabled',s.tradeEnabled);
   setChk('series-enabled',s.seriesEnabled); setVal('series-mode',s.seriesMode||'bo3');
   setChk('series-lockout',s.seriesLockout); setChk('series-loser-rules',s.seriesLoserRules);
@@ -2132,6 +2140,7 @@ window.startSoloDraft = function(){
     rm: document.getElementById('solo-rm').value,
     sm: document.getElementById('solo-sm').value,
     stdOnly: document.getElementById('solo-std-only')?.checked||false,
+    showReplica: !(document.getElementById('solo-hide-replica')?.checked ?? true),
     challengeEnabled: document.getElementById('solo-challenge-enabled')?.checked||false,
     tradeEnabled: document.getElementById('solo-trade-enabled')?.checked||false,
     seriesEnabled: document.getElementById('solo-series-enabled')?.checked||false,
@@ -2175,7 +2184,7 @@ function buildRoomPresetSettings(id){
   if(id!=='custom' && !selected) return null;
   return {
     an:'アルファ',bn:'ブラボー',ts:4,bc:4,ft:'random',po:'snake',rule:'random',stageJa:'random',
-    stdOnly:false,challengeEnabled:false,tradeEnabled:false,seriesEnabled:false,seriesMode:'bo3',
+    stdOnly:false,showReplica:false,challengeEnabled:false,tradeEnabled:false,seriesEnabled:false,seriesMode:'bo3',
     seriesLockout:false,seriesLoserRules:false,stageMode:'normal',stageDraftEnabled:false,stagePool:[...STAGES_DATA],
     memberDraftEnabled:false,memberDraftTiming:'before',pickMode:'individual',banMode:'individual',
     banGenres:{cat:0,sub:0,special:0},pickOrderAlpha:[],pickOrderBravo:[],
@@ -2194,7 +2203,7 @@ function normalizePresetSettings(raw){
     seriesMode:['bo3','bo5','bo7','bo9'],stageMode:['normal','loss','counter','banpick'],
     memberDraftTiming:['before','after'],pickMode:['individual','team','enemy','gacha','banonly'],banMode:['individual','representative']};
   const integers={ts:[1,4],bc:[0,8],timeLimitSec:[5,100],gachaRerolls:[0,9]};
-  const bools=['stdOnly','challengeEnabled','tradeEnabled','seriesEnabled','seriesLockout','seriesLoserRules','memberDraftEnabled','timeLimitEnabled'];
+  const bools=['stdOnly','showReplica','challengeEnabled','tradeEnabled','seriesEnabled','seriesLockout','seriesLoserRules','memberDraftEnabled','timeLimitEnabled'];
   for(const [key,values] of Object.entries(enums)) if(raw[key]!==undefined){
     if(!values.includes(raw[key])) throw new Error(`「${key}」の値を読み込めません。`); base[key]=raw[key];
   }
@@ -2511,7 +2520,8 @@ function subscribeLobby(){
         `<span style="color:var(--a)">チーム: ${esc(s.an||'アルファ')} vs ${esc(s.bn||'ブラボー')}</span><br>`+
         `${s.ts||4}v${s.ts||4} ｜ ${s.bc===0?'BANなし':'BAN×'+(s.bc||3)} ｜ ${esc(ruleStr)} ｜ ${esc(stageStr)}<br>`+
         `<span style="color:var(--pk)">${modeStr}</span>`+
-        (s.stdOnly?'<br><span style="color:var(--pk)">⚙ 標準武器のみ</span>':'');
+        (s.stdOnly?'<br><span style="color:var(--pk)">⚙ 標準武器のみ</span>':'')+
+        (s.showReplica?'<br><span style="color:var(--pk)">⚙ レプリカも表示</span>':'');
     }
   });
 
@@ -2838,12 +2848,16 @@ let wpTimerDeadline   = null;
 let wpCountdownInterval = null;
 let wpActiveCat       = 'すべて';
 // 設定による候補の絞り込みを、全ドラフト画面で共通化する。
-function filterWeaponPool(weapons, stdOnly, excludeFilter){
+// レプリカ（ヒーロー/オクタ/オーダー系）は元ブキと性能が同じで見た目だけ違う。key が _replica で終わる13種。
+function isReplicaWeapon(w){ return !!(w && typeof w.key==='string' && w.key.endsWith('_replica')); }
+// showReplica 未指定（旧データ含む）はレプリカ非表示＝既定。
+function filterWeaponPool(weapons, stdOnly, excludeFilter, showReplica=false){
   return weapons.filter(w => (!stdOnly || (w.imgFile && w.imgFile.includes('_00.')))
+    && (showReplica || !isReplicaWeapon(w))
     && !isWeaponExcluded(w, excludeFilter));
 }
-function wpBasePool(stdOnly, ef){
-  return filterWeaponPool(WEAPONS, stdOnly, ef);
+function wpBasePool(stdOnly, ef, showReplica=false){
+  return filterWeaponPool(WEAPONS, stdOnly, ef, showReplica);
 }
 // ホスト: 武器ピック開始（全員をランダム順に並べる）
 function startWeaponPick(){
@@ -2924,7 +2938,7 @@ function startWpTimer(wp){
       const curId=(wp2.order||[])[wp2.idx];
       const taken=new Set(Object.values(wp2.picks||{}).map(w=>w.key));
       const s=getLobbySettings();
-      const pool=wpBasePool(s.stdOnly, s.excludeFilter).filter(w=>!taken.has(w.key));
+      const pool=wpBasePool(s.stdOnly, s.excludeFilter, s.showReplica).filter(w=>!taken.has(w.key));
       if(curId && pool.length){
         const w=pool[Math.floor(Math.random()*pool.length)];
         set(ref(db,`rooms/${roomId}/lobby/weaponPick/pick`), {memberId:curId, weaponKey:w.key, ts:Date.now(), auto:true});
@@ -2995,7 +3009,7 @@ function renderWeaponPickScreen(lobby){
   wrap.style.display = isMyTurn ? '' : 'none';
   if(isMyTurn){
     const taken=new Set(Object.values(picks).map(w=>w.key));
-    const base=wpBasePool(!!s.stdOnly, s.excludeFilter);
+    const base=wpBasePool(!!s.stdOnly, s.excludeFilter, !!s.showReplica);
     const cats=['すべて',...new Set(base.map(w=>w.cat))];
     if(!cats.includes(wpActiveCat)) wpActiveCat='すべて';
     const cf=document.getElementById('wp-cf'); cf.innerHTML='';
@@ -3032,7 +3046,7 @@ function finishAfterPickMode(lobby){
     draftId:Date.now().toString(36)+Math.random().toString(36).slice(2),
     bans:{alpha:[],bravo:[]},
     picks:{alpha:buildPicks(orderA), bravo:buildPicks(orderB)},
-    stdOnly:!!s.stdOnly, pickMode:'individual', pickOrder:'snake', banMode:'representative',
+    stdOnly:!!s.stdOnly, showReplica:!!s.showReplica, pickMode:'individual', pickOrder:'snake', banMode:'representative',
     banGenres:{cat:0,sub:0,special:0}, members:membersForState, bannerIds:null,
     representativeAlpha:null, representativeBravo:null,
     timeLimitEnabled:false, timeLimitSec:30, deadline:null,
@@ -3440,7 +3454,7 @@ function botTickLobby(){
     return botAct(`wp:${(wp.order||[]).join(',')}:${wp.idx}`, ()=>{
       const taken=new Set(Object.values(wp.picks||{}).map(w=>w.key));
       const s=getLobbySettings();
-      const w=botRandom(wpBasePool(s.stdOnly,s.excludeFilter).filter(x=>!taken.has(x.key)));
+      const w=botRandom(wpBasePool(s.stdOnly,s.excludeFilter,s.showReplica).filter(x=>!taken.has(x.key)));
       if(w) set(ref(db,`rooms/${roomId}/lobby/weaponPick/pick`),{memberId:cur,weaponKey:w.key,ts:Date.now()});
     });
   }
@@ -3896,7 +3910,7 @@ function getAvailableWeapons(S){
   const usedKeys   = new Set([...bannedKeys,...pickedKeys,...lockedKeys]);
   const ef = S.excludeFilter;
   const genreBans  = [...(S.bans.alpha||[]),...(S.bans.bravo||[])].filter(b=>b&&b.banType);
-  return filterWeaponPool(WEAPONS, S.stdOnly, ef)
+  return filterWeaponPool(WEAPONS, S.stdOnly, ef, S.showReplica)
     .filter(w=>!usedKeys.has(w.key) && !weaponBannedByGenres(w, genreBans));
 }
 
@@ -4573,7 +4587,7 @@ function genreValuesFromPool(pool, gran){
     : [...values].sort((a,b)=>a.localeCompare(b,'ja'));
 }
 function genreValuesFor(S, gran){
-  return genreValuesFromPool(filterWeaponPool(WEAPONS,S.stdOnly,S.excludeFilter),gran);
+  return genreValuesFromPool(filterWeaponPool(WEAPONS,S.stdOnly,S.excludeFilter,S.showReplica),gran);
 }
 // タイマー切れ時: banPending[team] を全種別の上限まで自動補完（仮選択を最優先・重複回避）
 function autoCompleteBanPending(S, team){
@@ -4810,7 +4824,8 @@ function updateWeaponFilterSummary(){
     : 'チェックした要素を持つ武器を除外';
   const cnt=document.getElementById('weapon-filter-count');
   if(cnt && WEAPONS.length){
-    const remain=WEAPONS.filter(w=>!isWeaponExcluded(w,ef)).length;
+    const showRep=!document.getElementById('hide-replica')?.checked;
+    const remain=WEAPONS.filter(w=>(showRep||!isReplicaWeapon(w))&&!isWeaponExcluded(w,ef)).length;
     cnt.textContent=`ピック可能: ${remain} / ${WEAPONS.length} 種`;
     cnt.style.color = remain<8 ? 'var(--bn)' : 'var(--pk)';
   }
@@ -4839,6 +4854,7 @@ function getLobbySettings(){
     rule: document.getElementById('rm')?.value||'random',
     stageJa: document.getElementById('sm')?.value||'random',
     stdOnly: document.getElementById('std-only')?.checked||false,
+    showReplica: !(document.getElementById('hide-replica')?.checked ?? true),
     challengeEnabled: document.getElementById('challenge-enabled')?.checked||false,
     tradeEnabled: document.getElementById('trade-enabled')?.checked||false,
     seriesEnabled: document.getElementById('series-enabled')?.checked||false,
@@ -4922,7 +4938,7 @@ function lobbyStartIssues(){
     memberDraftDone:!!lobbyMemberDraft?.done,memberDraftTiming:document.getElementById('member-draft-timing')?.value||'before',
     seriesEnabled:!!document.getElementById('series-enabled')?.checked,
     stageMode:stage.mode,stagePool:readStagePool(''),maxGames:stage.maxGames,
-    weaponCount:filterWeaponPool(WEAPONS,!!document.getElementById('std-only')?.checked,lobbyExcludeFilter).length});
+    weaponCount:filterWeaponPool(WEAPONS,!!document.getElementById('std-only')?.checked,lobbyExcludeFilter,!document.getElementById('hide-replica')?.checked).length});
 }
 function soloStartIssues(){
   const stage=stageSettings('solo-');
@@ -4930,7 +4946,7 @@ function soloStartIssues(){
   return draftStartIssues({pickMode:document.getElementById('solo-pick-mode')?.value||'team',
     bc:n('solo-bc'),banGenres:{cat:n('solo-ban-genre-cat'),sub:n('solo-ban-genre-sub'),special:n('solo-ban-genre-special')},
     stageMode:stage.mode,stagePool:readStagePool('solo-'),maxGames:stage.maxGames,
-    weaponCount:filterWeaponPool(WEAPONS,!!document.getElementById('solo-std-only')?.checked,null).length});
+    weaponCount:filterWeaponPool(WEAPONS,!!document.getElementById('solo-std-only')?.checked,null,!document.getElementById('solo-hide-replica')?.checked).length});
 }
 function updateStartButton(){
   const btn=document.getElementById('btn-start-draft'), info=document.getElementById('start-btn-info');
@@ -5138,7 +5154,7 @@ window.startDraft = function(){
   });
   buildAndStartDraft({
     an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:(s.ft==='random' && mdDone ? (lobbyMemberDraft.firstTeam||'random') : s.ft), po:s.po,
-    rm:s.rule, sm:s.stageJa, stdOnly:s.stdOnly, challengeEnabled:s.challengeEnabled,
+    rm:s.rule, sm:s.stageJa, stdOnly:s.stdOnly, showReplica:!!s.showReplica, challengeEnabled:s.challengeEnabled,
     tradeEnabled:s.tradeEnabled, seriesEnabled:s.seriesEnabled, seriesMode:s.seriesMode, seriesLockout:s.seriesLockout, seriesLoserRules:s.seriesLoserRules, stageMode:s.stageMode, stageDraftEnabled:s.stageDraftEnabled, stagePool:s.stagePool,
     pickMode:s.pickMode, banMode:s.banMode, banGenres:s.banGenres,
     pickOrderAlpha:s.pickOrderAlpha, pickOrderBravo:s.pickOrderBravo,
@@ -5247,7 +5263,7 @@ function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec, simOrder
 }
 
 // 初期状態の構築と、Firebaseへの送信・画面遷移を分離する。
-function createInitialDraftState({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tradeEnabled,seriesEnabled,seriesMode,seriesLockout,seriesLoserRules,stageMode,stageDraftEnabled,stagePool,series,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls}, multi){
+function createInitialDraftState({an,bn,ts,bc,ft,po,rm,sm,stdOnly,showReplica,challengeEnabled,tradeEnabled,seriesEnabled,seriesMode,seriesLockout,seriesLoserRules,stageMode,stageDraftEnabled,stagePool,series,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls}, multi){
   // BANのみ: PICK が無いので、ピック結果を前提にする機能（お題・トレード・ロックアウト）は無効化する
   if(pickMode==='banonly'){ challengeEnabled=false; tradeEnabled=false; seriesLockout=false; }
   // 連戦シリーズ: 既存シリーズ（次戦）があれば引き継ぎ、無ければ有効時に初期化（後方互換で追加のみ）
@@ -5259,7 +5275,7 @@ function createInitialDraftState({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabl
       lockout: !!seriesLockout, lockedKeys: [], // 武器ロックアウト（過去試合で使われた key の累積）
       loserSetsRules: !!seriesLoserRules, nextRule:null, awaitingRule:false, ruleChooser:null,
       // 次戦を組み立てるための設定スナップショット（members は state.members を使う）
-      config: {an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabled,tradeEnabled,pickMode,banMode,
+      config: {an,bn,ts,bc,ft,po,rm,sm,stdOnly,showReplica,challengeEnabled,tradeEnabled,pickMode,banMode,
         banGenres,pickOrderAlpha,pickOrderBravo,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls,seriesLockout,seriesLoserRules},
     };
   }
@@ -5360,6 +5376,7 @@ function createInitialDraftState({an,bn,ts,bc,ft,po,rm,sm,stdOnly,challengeEnabl
     bans:{alpha:[],bravo:[]},
     picks:{alpha:[],bravo:[]},
     stdOnly:!!stdOnly,
+    showReplica:!!showReplica,
     pickMode: pMode,
     pickOrder: pickOrder,
     banMode:  bMode,
@@ -5831,6 +5848,7 @@ function normalizeState(s){
   if(!s.picks.bravo) s.picks.bravo=[];
   if(!s.seq) s.seq=[];
   if(s.stdOnly===undefined) s.stdOnly=false;
+  if(s.showReplica===undefined) s.showReplica=false;
   if(!s.pickMode) s.pickMode='team';
   if(!s.banMode)  s.banMode='representative';
   if(!s.banGenres) s.banGenres={cat:0,sub:0,special:0};
@@ -6553,7 +6571,7 @@ function canSelectGridWeapon(S, step){
 function renderGrid(){
   const S=state, step=S.seq[S.idx], isBan=step&&step.phase==='ban';
   const ef=S.excludeFilter;
-  const basePool2=filterWeaponPool(WEAPONS,S.stdOnly,ef);
+  const basePool2=filterWeaponPool(WEAPONS,S.stdOnly,ef,S.showReplica);
   const cats=['すべて',...new Set(basePool2.map(w=>w.cat))];
   const cf=document.getElementById('cf'); cf.innerHTML='';
   const grid=document.getElementById('wg');
@@ -7369,6 +7387,7 @@ window.downloadResultImage = async function(){
     const parts=[`${S.ts}vs${S.ts}`, PM_LABELS[S.pickMode], poLabel, banLabel];
     if(S.timeLimitEnabled) parts.push(`制限${S.timeLimitSec}秒`);
     if(S.stdOnly) parts.push('標準のみ');
+    if(S.showReplica && !S.stdOnly) parts.push('レプリカ含む');
     if(efc>0) parts.push(`絞り込み${efc}件`);
     const settingsLine=parts.filter(Boolean).join('  ・  ');
     ctx.fillStyle='#9aa3bd'; ctx.font="12px 'M PLUS Rounded 1c', sans-serif";

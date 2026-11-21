@@ -128,3 +128,28 @@ test('banDispName: ジャンルBANは種別を前置して表示', () => {
   assert.equal(app.banDispName({ banType:'special', name:'ナイスダマ' }), 'スペ：ナイスダマ');
   assert.equal(app.banDispName(null), '');
 });
+
+test('レプリカ: 既定（showReplica 未指定）は候補から外し、showReplica:true で表示する', () => {
+  const ws = [
+    { key:'sshooter', cat:'シューター', imgFile:'S_00.png' },
+    { key:'heroshooter_replica', cat:'シューター', imgFile:'S_H.png' },
+    { key:'order_roller_replica', cat:'ローラー', imgFile:'R_O.png' },
+  ];
+  assert.equal(app.isReplicaWeapon(ws[1]), true);
+  assert.equal(app.isReplicaWeapon(ws[0]), false);
+  assert.deepEqual(app.filterWeaponPool(ws, false, null).map(w=>w.key), ['sshooter']);
+  assert.deepEqual(app.filterWeaponPool(ws, false, null, true).map(w=>w.key), ['sshooter','heroshooter_replica','order_roller_replica']);
+  app.__set({ WEAPONS: ws });
+  assert.deepEqual(app.getAvailableWeapons(fixtureState({})).map(w=>w.key), ['sshooter']);
+  assert.deepEqual(app.getAvailableWeapons(fixtureState({ showReplica:true })).map(w=>w.key).length, 3);
+});
+
+test('レプリカ: 実データの _replica は13種で、いずれも同じ武器種・サブ・スペシャルの元ブキがある', () => {
+  const data = require('../data/weapons.json');
+  const reps = data.filter(w => app.isReplicaWeapon(w));
+  assert.equal(reps.length, 13);
+  for (const r of reps) {
+    const base = data.find(w => !app.isReplicaWeapon(w) && w.cat===r.cat && w.sub===r.sub && w.special===r.special);
+    assert.ok(base, `${r.name} の元ブキが見つからない`);
+  }
+});
