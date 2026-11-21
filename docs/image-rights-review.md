@@ -4,7 +4,7 @@
 
 | 種類 | 手元のファイル数 | 確認結果 | 状態 |
 |---|---:|---|---|
-| 武器 | 165 | `scripts/2_download_images.py` が Leanny の `images/weapon_flat` を取得。コミット `ae232e4` も追加の13枚を Leanny から取得と記録。初期コミットに含まれる残り各画像の取得履歴・個別同一性は未確認。 | ツール内での利用許諾を確認できていない |
+| 武器 | 174 | `scripts/2_download_images.py` が Leanny の `images/weapon_flat` を取得。コミット `ae232e4` も追加の13枚を Leanny から取得と記録。2026-11-21 にリールガン等9枚を Leanny（GitHub の Leanny/splat3 リポジトリ）から追加。初期コミットに含まれる残り各画像の取得履歴・個別同一性は未確認。 | ツール内での利用許諾を確認できていない |
 | サブ・スペシャル | 33 | `scripts/4_download_subspecial.py` と `ROADMAP.md` が Leanny から取得と記録。 | ツール内での利用許諾を確認できていない |
 | ステージ | 25 | 所有者の希望により、[sendou.ink assets](https://github.com/sendou-ink/assets/tree/main/assets/img/stages) の `0.avif`〜`24.avif` を取得し、`images/sendou-stages/` に同梱。ステージ名とIDの対応は sendou.ink の stage-ids.ts と stat.ink の日英名を照合。以前のファイルは所有者がサイトから直接ダウンロードして名前を変更したものだったが、元サイトは未特定。 | sendou.inkの画像利用許諾・任天堂の許諾は未確認。ピクセルアイコンのライセンスとは別 |
 | サイトアイコン | 1 | `images/icon.png`。コミット `c291639` で追加されたが、作成者・生成方法・元画像・許諾は記録なし。イカの図柄を含む。 | 作成経緯と権利関係を確認する |

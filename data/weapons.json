@@ -256,12 +256,68 @@
     "special": "テイオウイカ"
   },
   {
+    "key": "petshooter_replica",
+    "name": "PETシューター レプリカ",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_Normal_S.png",
+    "sub": "スプラッシュボム",
+    "special": "トリプルトルネード"
+  },
+  {
     "key": "wakaba",
     "name": "わかばシューター",
     "cat": "シューター",
     "imgFile": "Path_Wst_Shooter_First_00.png",
     "sub": "スプラッシュボム",
     "special": "グレートバリア"
+  },
+  {
+    "key": "l3reelgun",
+    "name": "L3リールガン",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_TripleQuick_00.png",
+    "sub": "カーリングボム",
+    "special": "カニタンク"
+  },
+  {
+    "key": "l3reelgun_d",
+    "name": "L3リールガンD",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_TripleQuick_01.png",
+    "sub": "クイックボム",
+    "special": "ウルトラハンコ"
+  },
+  {
+    "key": "l3reelgun_haku",
+    "name": "L3リールガン箔",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_TripleQuick_02.png",
+    "sub": "スプラッシュボム",
+    "special": "ジェットパック"
+  },
+  {
+    "key": "h3reelgun",
+    "name": "H3リールガン",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_TripleMiddle_00.png",
+    "sub": "ポイントセンサー",
+    "special": "エナジースタンド"
+  },
+  {
+    "key": "h3reelgun_d",
+    "name": "H3リールガンD",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_TripleMiddle_01.png",
+    "sub": "スプラッシュシールド",
+    "special": "グレートバリア"
+  },
+  {
+    "key": "h3reelgun_snak",
+    "name": "H3リールガンSNAK",
+    "cat": "シューター",
+    "imgFile": "Path_Wst_Shooter_TripleMiddle_02.png",
+    "sub": "キューバンボム",
+    "special": "トリプルトルネード"
   },
   {
     "key": "clashblaster",
@@ -1232,6 +1288,14 @@
     "special": "グレートバリア"
   },
   {
+    "key": "splaspinner_pytn",
+    "name": "スプラスピナーPYTN",
+    "cat": "スピナー",
+    "imgFile": "Path_Wst_Spinner_Quick_02.png",
+    "sub": "ジャンプビーコン",
+    "special": "ウルトラショット"
+  },
+  {
     "key": "barrelspinner",
     "name": "バレルスピナー",
     "cat": "スピナー",
@@ -1270,6 +1334,14 @@
     "imgFile": "Path_Wst_Spinner_Hyper_01.png",
     "sub": "トラップ",
     "special": "スミナガシート"
+  },
+  {
+    "key": "hydra_atsu",
+    "name": "ハイドラント圧",
+    "cat": "スピナー",
+    "imgFile": "Path_Wst_Spinner_Hyper_02.png",
+    "sub": "スプリンクラー",
+    "special": "グレートバリア"
   },
   {
     "key": "kugelschreiber",

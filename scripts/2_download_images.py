@@ -17,7 +17,7 @@ OUT_DIR      = Path("images/weapons")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 TYPE_NAMES = {
-    "shooter":"シューター","blaster":"ブラスター","roller":"ローラー",
+    "shooter":"シューター","reelgun":"シューター","blaster":"ブラスター","roller":"ローラー",
     "brush":"フデ","charger":"チャージャー","slosher":"スロッシャー",
     "splatling":"スピナー","maneuver":"マニューバー","brella":"シェルター",
     "stringer":"ストリンガー","wiper":"ワイパー",

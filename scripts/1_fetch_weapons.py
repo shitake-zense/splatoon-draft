@@ -9,6 +9,7 @@ STAT_API = "https://stat.ink/api/v3/weapon"
 
 TYPE_NAMES = {
     "shooter":   "シューター",
+    "reelgun":   "シューター",  # stat.ink ではリールガンが別種。アプリではシューターに含める
     "blaster":   "ブラスター",
     "roller":    "ローラー",
     "brush":     "フデ",

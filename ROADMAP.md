@@ -205,9 +205,14 @@ Codex で 11/2〜11/19 に開発。ROADMAP は更新されていなかったた�
 - 検証: Firebase を差し替えたヘッドレスブラウザで、ピックモード×BANモード×ピック順×ガチャ×BANのみ×連戦（敗者ルール・ロックアウト・ステージ BAN/PICK・カウンター）×メンバードラフト（先・後）×制限時間の16通りを完全オートで最後まで実行、完全オートOFFで自分の番を待つこととトレード応答も確認。smoke `S24`。
 
 ### ✅ 2026-11-21 レプリカの非表示（既定ON）
-- ヒーロー/オクタ/オーダー系のレプリカ13種（key が `_replica` で終わる。元ブキと武器種・サブ・スペシャルが同一）を、既定で BAN/PICK 候補から外す。設定「レプリカを非表示」（`#hide-replica` / `#solo-hide-replica`）をOFFで表示。
+- ヒーロー/オクタ/PET/オーダー系のレプリカ14種（key が `_replica` で終わる。元ブキと武器種・サブ・スペシャルが同一）を、既定で BAN/PICK 候補から外す。設定「レプリカを非表示」（`#hide-replica` / `#solo-hide-replica`）をOFFで表示。
 - `isReplicaWeapon(w)` と `filterWeaponPool(weapons, stdOnly, excludeFilter, showReplica=false)` に集約。ロビー設定・state・連戦 config・マイプリセットに `showReplica`（**追加のみ**・未定義=false=非表示）を配線。武器データ（weapons.json）は変更なし。
-- 検証: 単体テスト（`tests/ban-logic.test.js` に実データ13種の元ブキ対応チェック含む）、smoke `S25`。
+- 検証: 単体テスト（`tests/ban-logic.test.js` に実データ14種の元ブキ対応チェック含む）、smoke `S25`。
+
+### ✅ 2026-11-21 未収録ブキ9種を追加（165→174種）
+- 原因: `scripts/1_fetch_weapons.py` が stat.ink の type で絞り込んでおり、`reelgun` が対象外だった（→ シューター扱いで追加済み）。ほかに追加シーズン分が未取得だった。
+- 追加: L3リールガン／D／箔、H3リールガン／D／SNAK、スプラスピナーPYTN、ハイドラント圧、PETシューター レプリカ（`_replica`＝既定で非表示、レプリカは14種に）。
+- 出典: Leanny/splat3 の `data/mush/1200/WeaponInfoMain.json`（Type=Versus）でサブ・スペシャル・画像名を確認し、`images/weapon_flat` から画像を同梱。stat.ink はこの作業環境から接続できなかったため、**key は stat.ink の命名に合わせた推定**（次に `1_fetch_weapons.py` を実行したら key の一致を確認すること。ずれると武器統計が別集計になる）。
 
 ---
 

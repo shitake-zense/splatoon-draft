@@ -144,10 +144,10 @@ test('レプリカ: 既定（showReplica 未指定）は候補から外し、sho
   assert.deepEqual(app.getAvailableWeapons(fixtureState({ showReplica:true })).map(w=>w.key).length, 3);
 });
 
-test('レプリカ: 実データの _replica は13種で、いずれも同じ武器種・サブ・スペシャルの元ブキがある', () => {
+test('レプリカ: 実データの _replica は14種で、いずれも同じ武器種・サブ・スペシャルの元ブキがある', () => {
   const data = require('../data/weapons.json');
   const reps = data.filter(w => app.isReplicaWeapon(w));
-  assert.equal(reps.length, 13);
+  assert.equal(reps.length, 14);
   for (const r of reps) {
     const base = data.find(w => !app.isReplicaWeapon(w) && w.cat===r.cat && w.sub===r.sub && w.special===r.special);
     assert.ok(base, `${r.name} の元ブキが見つからない`);
