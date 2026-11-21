@@ -197,6 +197,13 @@ Codex で 11/2〜11/19 に開発。ROADMAP は更新されていなかったた�
 - 検証: 単体テスト追加（`tests/ban-only.test.js`・`tests/tag-split.test.js`）、Firebase を差し替えたローカルブラウザでソロ/ホスト画面を確認、試験環境（GitHub Pages）で複数端末の BANのみ動作をオーナーが確認。smoke `S23`。
 - **次の候補**: メンバードラフトONでチームが揃っているときの開始不可の分かりにくさ（メッセージ改善 or スキップ）、タグ定義のマイプリセット保存、メンバー固定。
 
+### ✅ 2026-11-20 botと試す（1人でマルチの動作確認）
+- 「ひとりで試す」→「🤖 botと試す」で `lobby.botTest=true` の部屋を作り、`bot_N` の参加者を設定人数ぶん入れる（`makeBotMembers`）。中身は通常のマルチの部屋。
+- **bot はホスト端末が代行**（`botTick` を 200ms ごと）。参加者と同じ経路で書き込む: 代表者BAN＝`pending_{team}_bans`、個人BAN＝`pending_bans/{id}_{slot}`、順番PICK＝state 更新、同時PICK＝`pending_{team}_pick`、ガチャ＝`gacha/{team}`（確率で引き直し）、ステージ＝`applyStageDraftAndRender`、キャプテン指名＝`lobby/memberDraft/pick`、全員武器ピック＝`lobby/weaponPick/pick`、敗者ルール＝`applyChosenRuleAndAdvance`、トレード応答＝`hostApplyTrade`/削除。`botAct` で待ち時間（速さ設定）と重複実行防止（6 秒で再試行）。
+- **完全オート**（端末ローカル）: 自分の番・同時ピック公開の「次へ」・連戦の勝者入力も自動。
+- bot 入りのドラフトは `stateHasBots` で全体統計・端末内統計とも記録しない。
+- 検証: Firebase を差し替えたヘッドレスブラウザで、ピックモード×BANモード×ピック順×ガチャ×BANのみ×連戦（敗者ルール・ロックアウト・ステージ BAN/PICK・カウンター）×メンバードラフト（先・後）×制限時間の16通りを完全オートで最後まで実行、完全オートOFFで自分の番を待つこととトレード応答も確認。smoke `S24`。
+
 ---
 
 ## 再開メモ（次に開く人へ）
