@@ -218,6 +218,14 @@ Codex で 11/2〜11/19 に開発。ROADMAP は更新されていなかったた�
 - 同時ピックも BAN・通常ピックと同じく「1タップ目＝仮選択、同じ武器の2タップ目＝確定＝送信」に統一。`pickWeapon` の simpick 2タップ目から `confirmSimPick()` を直接呼ぶ。ソロは両チーム揃った時点で公開オーバーレイ。`#sim-pick-confirm-btn` と CSS を削除。ホストの公開→「次へ」は従来どおり。
 - 検証: `tests/sim-pick-confirm.test.js`（マルチ送信・担当外・ソロ公開）、smoke `S3` 追記。
 
+### ✅ 2026-11-22 チーム固定・同名の番号付け・ピック順の短縮名・部屋番号まわり
+- **チーム固定**: `lobby/members/{id}/lock`（`alpha`/`bravo`/`spectator`・**追加のみ**）。タグと同じチップ形式（`makeLockChip`/`cycleMemberLock`、`LOCK_IDS`/`nextLockId`）。固定時に空きがあれば即移動。`splitTeamsWithTags` は固定メンバーを先に置き、固定メンバーのタグを「分ける」の均等化・「まとめる」の行き先に数える。
+- **同名**: `uniqueMemberName` で新規参加・再参加時の改名に「(2)」…を付与（同時参加の競合までは防がない）。
+- **ピック順の短縮名**: `shortMemberLabels`＝先頭2文字、被りは3文字、それでも被れば「2文字＋番号」。サロゲートペア安全（`Array.from`）。
+- **部屋番号の非表示**: 既定OFFに変更、端末に記憶（`localStorage` `splatoon-draft-room-hidden`）。
+- **Discord 内ブラウザ→Safari**: 参加画面で `?room=` を消していたのが原因。`showScreen('join')` と入力時に `syncJoinUrl()` で URL に残す。参加済みの枠（memberId）はブラウザごとの localStorage なので移った先では新規参加扱い（URL に memberId を載せると共有時になりすませるため、意図的に引き継がない）。
+- 検証: `tests/lobby-names-locks.test.js`、smoke `S26`。
+
 ---
 
 ## 再開メモ（次に開く人へ）
