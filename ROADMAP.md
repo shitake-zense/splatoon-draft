@@ -226,6 +226,14 @@ Codex で 11/2〜11/19 に開発。ROADMAP は更新されていなかったた�
 - **Discord 内ブラウザ→Safari**: 参加画面で `?room=` を消していたのが原因。`showScreen('join')` と入力時に `syncJoinUrl()` で URL に残す。参加済みの枠（memberId）はブラウザごとの localStorage なので移った先では新規参加扱い（URL に memberId を載せると共有時になりすませるため、意図的に引き継がない）。
 - 検証: `tests/lobby-names-locks.test.js`、smoke `S26`。
 
+### ✅ 2026-11-22 同時ピック自動進行・相手と同じ武器・おまかせロスト再ドラフト・bot停止修正・部屋番号は既定非表示に戻す
+- **メンバードラフト/全員武器ピックが止まる不具合**: ホストの反映 `update()` 完了待ち（`_mdApplying`/`_wpApplying`）の間に次の指名が届くとスナップショットを素通りし、`pick` が残ったまま誰も再処理しなかった（bot は速く再現しやすい）。完了時に最新スナップショット（`_mdLastLobby`/`_wpLastLobby`）を再確認。同じ指名（memberId+ts）の二重適用はしない。
+- **同時ピック**: 両方揃ったら公開オーバーレイを `SIM_REVEAL_MS`(1.8秒) 表示して自動で `closeSimReveal()`。「すぐ次へ」も残す。`closeSimReveal` は pending が空なら何もしない（二重進行防止）。
+- **相手と同じ武器もPICK可**: 設定 `allowMirror`（**追加のみ**・既定false）。`pickBlockedKeys(S, actingTeam)`＝ON時は格納先チーム（`pickStoreTeam`）のピックだけ外す。グリッド・時間切れ・bot は手番チームを渡す。チーム不明時は両チーム分（安全側）。
+- **おまかせロストの再ドラフト継続**: `lobby/lossUsed`（**追加のみ**）に使用済みを記録し、次のドラフトで `stageDraft.excluded` として除外（連戦の次戦も `prepareNextStageDraft` で除外）。残りが試合数に足りなければリセット。ソロはセッション内の `soloLossUsed`。
+- **部屋番号**: 既定を非表示に戻す（端末への記憶は維持）。
+- 検証: `tests/mirror-and-loss.test.js`、ソロ実機で相手と同じ武器の選択可否、smoke `S27`。
+
 ---
 
 ## 再開メモ（次に開く人へ）

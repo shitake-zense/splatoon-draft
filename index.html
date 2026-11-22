@@ -511,6 +511,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:var(--y);}
 .series-save:hover{filter:brightness(1.08);}.series-save:disabled{opacity:.6;cursor:default;}
 /* ロックアウト・ドラフト中バナー */
 .d-lockout{background:#241f08;border:1px solid var(--y);border-radius:8px;padding:7px 10px;margin-bottom:9px;font-size:11px;color:var(--y);line-height:1.5;}
+.sim-reveal-auto{font-size:11px;color:var(--mu);margin:6px 0 2px;text-align:center;}
 .sim-reveal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:999;}
 .sim-reveal-box{background:var(--s1);border:2px solid var(--pk);border-radius:16px;padding:28px 32px;text-align:center;max-width:420px;width:90%;}
 .sim-reveal-box h2{font-family:'Zen Dots',sans-serif;font-size:15px;color:var(--pk);margin-bottom:18px;letter-spacing:1px;}
@@ -690,7 +691,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <span class="mode-arrow" aria-hidden="true">↗</span>
     </button>
   </div>
-  <div class="privacy-note"><button class="btn-copy room-privacy-toggle" onclick="toggleRoomPrivacy()" aria-pressed="false">👁 部屋番号を表示中</button></div>
+  <div class="privacy-note"><button class="btn-copy room-privacy-toggle" onclick="toggleRoomPrivacy()" aria-pressed="true">🔒 部屋番号を非表示中</button></div>
   <div class="mode-flow"><strong>ドラフトの流れ</strong><span>部屋に集まる</span><span>BAN：使えない武器を決める</span><span>PICK：使う武器を選ぶ</span><span>結果を確認</span></div>
   <div class="mode-links">
     <button class="btn-re" onclick="showScreen('guide')">📖 使い方を見る</button>
@@ -721,7 +722,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
           <li>両チームの人数やステージ候補などが揃うと<b>「ドラフト開始」</b>を押せます（個人ピック・相手ピックは各チームの設定人数ちょうど、代表者ピック・ガチャは各チーム1人以上）。不足があるときはボタンの下に理由が表示されます。</li>
         </ol>
       </div>
-      <details class="guide-card guide-disclosure"><summary>部屋番号と配信の注意</summary><div class="guide-detail-body">部屋番号は初期状態で表示されます。配信するときは「👁 部屋番号を表示中」を押すと伏せられます（この端末では次回以降も非表示のまま）。ID・URLのコピーは非表示中も使えます。<b>ブラウザのアドレス欄やコピーしたURLには部屋番号が含まれます。</b>配信時はアドレス欄を映さず、URLを参加者だけに共有してください。この機能は画面表示を隠すもので、入室制限ではありません。</div></details>
+      <details class="guide-card guide-disclosure"><summary>部屋番号と配信の注意</summary><div class="guide-detail-body">部屋番号は初期状態で伏せられます。「🔒 部屋番号を非表示中」を押すと表示され、この端末では次回以降もその設定のままです。ID・URLのコピーは非表示中も使えます。<b>ブラウザのアドレス欄やコピーしたURLには部屋番号が含まれます。</b>配信時はアドレス欄を映さず、URLを参加者だけに共有してください。この機能は画面表示を隠すもので、入室制限ではありません。</div></details>
       <details class="guide-card guide-disclosure">
         <summary>「代表者」とは（誰が操作するのか）</summary>
         <div class="guide-detail-body">
@@ -750,7 +751,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <details class="guide-card guide-disclosure"><summary>ジャンルBAN（武器BANとは別枠）</summary><div class="guide-detail-body">武器単位とは<b>別の枠</b>で、<b>武器種・サブ・スペシャル単位</b>でまとめてBANできます（例: 「サブ=2」ならサブを2種類まるごと禁止＝そのサブを持つ武器が全て消える）。設定した数は<b>必ずその数だけBAN</b>します。個人ピックでは<b>BANモードを代表者BANにした場合</b>に使えます。代表者ピック・ガチャでも使えます。<b>相手ピック</b>と、メンバードラフトの<b>「全員が武器ピック → チーム分け」</b>では使えません。使えない設定に切り替えた間、設定した数は適用されません。</div></details>
       <details class="guide-card guide-disclosure"><summary>ピックモード（5種・最重要）</summary><div class="guide-detail-body"><b>個人ピック</b>＝各自が自分の番に自分の武器を選ぶ。<b>代表者ピック</b>＝チーム代表が全員分をまとめて選ぶ。<b>相手ピック</b>＝対になる相手選手の武器を<b>自分が決めて押し付ける</b>（アルファ[N]↔ブラボー[N]がペア）。普段使わない武器を持たされる遊びです。<b>🎲 ガチャ（運命ピック）</b>＝BAN後に各チームへ人数分の武器が<b>ランダムで一括配布</b>され、引き直して「確定」するだけ。選ぶ自由のないお祭りモードです。<b>🚫 BANのみ</b>＝BANだけを行い、PICKはせずに結果へ。試合ではBANされた武器以外から各自が自由に選びます。BANは代表者BAN・個人BANのどちらも選べます（個人BANはピック順の上位が担当し、人数が少なければ1人が複数枠を担当。ジャンルBANは代表者BANのときだけ）。各チーム1人以上で開始でき、BANを1つ以上設定する必要があります。お題・トレード・武器ロックアウトは使えません。<br><span style="color:var(--mu)">※ソロでは「通常ピック（＝代表者ピック相当）」「相手ピック」「ガチャ」「BANのみ」の4つ。</span></div></details>
       <details class="guide-card guide-disclosure"><summary>リロール回数（ガチャ専用）</summary><div class="guide-detail-body">ガチャで配られた手札を<b>引き直せる回数</b>（チームごと・既定2回）。0にすると引き直し不可＝完全に運だけの配布になります。両チームが「確定」すると即リザルトへ進みます。</div></details>
-      <details class="guide-card guide-disclosure"><summary>標準武器のみ / レプリカ / 武器の絞り込み</summary><div class="guide-detail-body"><b>標準武器のみ</b>＝各武器の基本形のみを候補にし、コラボなどの別モデルは除外（例：スプラシューターは○、スプラシューターコラボは✕）。<b>レプリカを非表示</b>（既定ON）＝ヒーロー・オクタ・PET・オーダー系のシューター レプリカなど、元ブキと性能が同じで見た目だけ違う14種を候補から外す。OFFにするとレプリカも選べます。<b>武器の絞り込み</b>＝指定した武器種・サブ・スペシャルを<b>持つ武器を候補から消す</b>（例: 強いスペシャルを外してエンジョイ寄りに調整）。どちらも候補が減り、残り数が表示されます。</div></details>
+      <details class="guide-card guide-disclosure"><summary>標準武器のみ / レプリカ / 武器の絞り込み</summary><div class="guide-detail-body"><b>標準武器のみ</b>＝各武器の基本形のみを候補にし、コラボなどの別モデルは除外（例：スプラシューターは○、スプラシューターコラボは✕）。<b>レプリカを非表示</b>（既定ON）＝ヒーロー・オクタ・PET・オーダー系のシューター レプリカなど、元ブキと性能が同じで見た目だけ違う14種を候補から外す。OFFにするとレプリカも選べます。<b>相手と同じ武器もPICK可</b>＝相手チームが取った武器も自チームで選べる（チーム内で同じ武器は不可・既定OFF）。<b>武器の絞り込み</b>＝指定した武器種・サブ・スペシャルを<b>持つ武器を候補から消す</b>（例: 強いスペシャルを外してエンジョイ寄りに調整）。どちらも候補が減り、残り数が表示されます。</div></details>
       <h3 class="guide-section-title">追加ルール</h3>
       <details class="guide-card guide-disclosure"><summary>お題カード / 制限時間</summary><div class="guide-detail-body"><b>お題カード</b>＝開始時に<b>全32種</b>から縛りを1枚抽選（両チーム共通・<b>非強制</b>で、結果に達成○×を表示）。武器種・サブ・スペシャル・人数など色々な角度のお題があります。<b>制限時間</b>＝5〜100秒。時間切れは「確定済み→仮選択中→ランダム」の順で自動送信します。</div></details>
       <details class="guide-card guide-disclosure"><summary>ドラフト後トレード</summary><div class="guide-detail-body">ONにすると<b>結果画面</b>で武器の交換ができます。自チームの武器1枚と相手チームの武器1枚を選んで<b>交換を提案</b>→<b>相手チームの代表者が承認</b>すると成立（拒否も可）。回数は無制限です。マルチでは<b>各チームの代表者だけ</b>が提案・承認でき、ソロではアルファ⇄ブラボーをその場で入れ替えられます。</div></details>
@@ -780,7 +781,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
         </ol>
       </div>
       <h3 class="guide-section-title">参加中の操作と注意</h3>
-      <details class="guide-card guide-disclosure"><summary>部屋番号と配信</summary><div class="guide-detail-body">部屋番号は初期状態で表示され、「👁 部屋番号を表示中」を押すと伏せられます（この端末では次回以降も非表示のまま）。ブラウザのアドレス欄や共有URLには番号が含まれます。配信時はアドレス欄を映さないでください。</div></details>
+      <details class="guide-card guide-disclosure"><summary>部屋番号と配信</summary><div class="guide-detail-body">部屋番号は初期状態で伏せられ、「🔒 部屋番号を非表示中」で切り替えられます（この端末では次回以降もその設定のまま）。ブラウザのアドレス欄や共有URLには番号が含まれます。配信時はアドレス欄を映さないでください。</div></details>
       <details class="guide-card guide-disclosure"><summary>制限時間</summary><div class="guide-detail-body">制限時間が設定されている場合は時間内に送信してください。時間切れ時は<b>確定済み→仮選択→ランダム</b>の順で自動送信されます。</div></details>
       <details class="guide-card guide-disclosure"><summary>ドラフト後トレード</summary><div class="guide-detail-body">ドラフト後トレードがONのときは、結果画面で<b>各チームの代表者</b>が武器の交換を提案・承認できます（提案が届くと結果画面に表示されます）。</div></details>
       <details class="guide-card guide-disclosure"><summary>ステージの選択</summary><div class="guide-detail-body">ステージ BAN / PICK では、武器ドラフトの前に各チームの代表者が交互にBANしてからPICKします。カウンターピックでは、2試合目以降、前試合の敗者の代表者が未使用のステージを選びます。画像を2回押すと確定します。</div></details>
@@ -793,7 +794,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <div class="guide-card guide-step"><span class="guide-step-num">1</span><div><h3>ロビー </h3><p>メンバー集合・チーム割り当て（ランダム振り分けはタグで分ける／まとめる指定が可能）・ピック順の確認。</p></div></div>
       <div class="guide-card guide-step"><span class="guide-step-num">2</span><div><h3>ステージ BAN / PICK （選択時）</h3><p>両チームが各1 BANし、先攻から交互にPICK。同じステージを2回押すと確定します。最終戦は残りから抽選します（1試合では先攻がPICK）。</p></div></div>
       <div class="guide-card guide-step"><span class="guide-step-num">3</span><div><h3>BANフェーズ </h3><p>使えない武器を決めます。代表者BANは両チーム同時送信で相手の選択が伏せられます（個人BANも選択可）。武器・武器種・サブ・スペシャル単位でBANできます。<b>個人BANでは味方が送信したBANがグリッドに「味方」マークで共有表示</b>され、チーム内でのBAN重複を避けられます（相手のBANは揃うまで伏せたまま）。</p></div></div>
-      <div class="guide-card guide-step"><span class="guide-step-num">4</span><div><h3>PICKフェーズ </h3><p>ピック順（交互／スネーク等）に沿って武器を選びます。同時ピックは両チームが選び一斉公開します。<b>🎲ガチャ</b>の場合はBAN後に人数分の武器がランダム配布され、各チームが引き直し→「確定」するだけで完了します。<b>🚫BANのみ</b>の場合はPICKフェーズがなく、BANが揃うとそのまま結果へ進みます。</p></div></div>
+      <div class="guide-card guide-step"><span class="guide-step-num">4</span><div><h3>PICKフェーズ </h3><p>ピック順（交互／スネーク等）に沿って武器を選びます。同時ピックは両チームが選び一斉公開し、両方の送信が揃うと自動で次のラウンドへ進みます（ホストの「次へ」操作は不要）。<b>🎲ガチャ</b>の場合はBAN後に人数分の武器がランダム配布され、各チームが引き直し→「確定」するだけで完了します。<b>🚫BANのみ</b>の場合はPICKフェーズがなく、BANが揃うとそのまま結果へ進みます。</p></div></div>
       <div class="guide-card guide-step"><span class="guide-step-num">5</span><div><h3>リザルト </h3><p>両チームの編成・ステージ／ルール・お題の達成（○／×）が表示されます。<b>ドラフト後トレード</b>がONなら、ここで武器の交換を提案→相手代表者の承認で成立します。BANのみの場合はPICK欄の代わりに、試合で使える武器の数が表示されます。</p></div></div>
       <div class="guide-card guide-step"><span class="guide-step-num">6</span><div><h3>結果画像を保存 </h3><p>端末内で1枚のPNGを生成してダウンロードできます。</p></div></div>
       <h3 class="guide-section-title">便利な機能・詳しい操作</h3>
@@ -859,8 +860,8 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <input type="text" id="join-name-input" maxlength="16" placeholder="プレイヤー名" autocomplete="off" style="font-size:16px;text-align:center;">
     </div>
     <label for="room-join-input" style="font-size:11px;color:var(--mu);display:block;margin-bottom:6px;">部屋番号（6桁）</label>
-    <input class="join-input-big" type="text" id="room-join-input" maxlength="6" placeholder="XXXXXX" autocomplete="off" oninput="this.value=this.value.toUpperCase();syncJoinUrl()" onkeydown="if(event.key==='Enter')joinRoom()">
-    <button class="btn-copy room-privacy-toggle" onclick="toggleRoomPrivacy()" aria-pressed="false">👁 部屋番号を表示中</button>
+    <input class="join-input-big" type="password" id="room-join-input" maxlength="6" placeholder="XXXXXX" autocomplete="off" oninput="this.value=this.value.toUpperCase();syncJoinUrl()" onkeydown="if(event.key==='Enter')joinRoom()">
+    <button class="btn-copy room-privacy-toggle" onclick="toggleRoomPrivacy()" aria-pressed="true">🔒 部屋番号を非表示中</button>
     <p class="privacy-note">共有URLやブラウザのアドレス欄には部屋番号が含まれます。配信に映らないようご注意ください。</p>
     <button class="btn-start" onclick="joinRoom()">🚪 参加する</button>
     <div id="join-status" style="text-align:center;margin-top:10px;font-size:12px;color:var(--pk)"></div>
@@ -882,7 +883,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <div class="copy-row">
         <button class="btn-copy" id="btn-copy-url" onclick="copyRoomUrl()">🔗 URLコピー</button>
         <button class="btn-copy" id="btn-copy-id" onclick="copyRoomId()">📋 IDコピー</button>
-        <button class="btn-copy room-privacy-toggle" onclick="toggleRoomPrivacy()" aria-pressed="false">👁 部屋番号を表示中</button>
+        <button class="btn-copy room-privacy-toggle" onclick="toggleRoomPrivacy()" aria-pressed="true">🔒 部屋番号を非表示中</button>
       </div>
     </div>
   </div>
@@ -1038,6 +1039,10 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <div class="toggle-row">
         <div class="toggle-label">レプリカを非表示<small>ヒーロー/オクタ/PET/オーダー系のレプリカ14種（元ブキと性能が同じで見た目違い）を候補から外す</small></div>
         <label class="tgl"><input type="checkbox" id="hide-replica" checked onchange="onSettingChange()" aria-label="レプリカを非表示"><span class="tgl-sl"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label">相手と同じ武器もPICK可<small>相手チームが取った武器も選べる（チーム内の被りは不可）。ガチャ・BANのみには影響なし</small></div>
+        <label class="tgl"><input type="checkbox" id="allow-mirror" onchange="onSettingChange()" aria-label="相手と同じ武器もPICK可"><span class="tgl-sl"></span></label>
       </div>
       <div class="toggle-row">
         <div class="toggle-label">⏱ 制限時間あり<small>時間切れ時は仮選択を優先し、残りは自動で選択</small></div>
@@ -1226,7 +1231,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
     <div class="copy-row">
       <button class="btn-copy" id="btn-copy-url2" onclick="copyRoomUrl()">🔗 URLコピー</button>
       <button class="btn-copy" id="btn-copy-id2" onclick="copyRoomId()">📋 IDコピー</button>
-      <button class="btn-copy room-privacy-toggle" onclick="toggleRoomPrivacy()" aria-pressed="false">👁 部屋番号を表示中</button>
+      <button class="btn-copy room-privacy-toggle" onclick="toggleRoomPrivacy()" aria-pressed="true">🔒 部屋番号を非表示中</button>
     </div>
   </div>
   <p class="privacy-note">アドレス欄とコピーしたURLには部屋番号が含まれます。配信時はアドレス欄を映さないでください。</p>
@@ -1328,6 +1333,10 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
       <div class="toggle-row">
         <div class="toggle-label">レプリカを非表示<small>ヒーロー/オクタ/PET/オーダー系のレプリカ14種（元ブキと性能が同じで見た目違い）を候補から外す</small></div>
         <label class="tgl"><input type="checkbox" id="solo-hide-replica" checked onchange="updateSoloStartButton()" aria-label="レプリカを非表示"><span class="tgl-sl"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label">相手と同じ武器もPICK可<small>相手チームが取った武器も選べる（チーム内の被りは不可）。ガチャ・BANのみには影響なし</small></div>
+        <label class="tgl"><input type="checkbox" id="solo-allow-mirror" onchange="updateSoloStartButton()" aria-label="相手と同じ武器もPICK可"><span class="tgl-sl"></span></label>
       </div>
       <div class="toggle-row">
         <div class="toggle-label">⏱ 制限時間あり<small>時間切れ時は仮選択を優先し、残りは自動で選択</small></div>
@@ -1501,7 +1510,7 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
     <div id="tctr" style="font-size:11px;color:var(--mu)"></div>
     <div class="draft-room-tag" id="draft-room-info" style="display:none">
       ROOM: <span id="draft-room-id">••••••</span>
-      <button class="btn-copy room-privacy-toggle" style="padding:3px 9px;font-size:10px;" onclick="toggleRoomPrivacy()" aria-pressed="false">👁 部屋番号を表示中</button>
+      <button class="btn-copy room-privacy-toggle" style="padding:3px 9px;font-size:10px;" onclick="toggleRoomPrivacy()" aria-pressed="true">🔒 部屋番号を非表示中</button>
       <button class="btn-copy" style="padding:3px 9px;font-size:10px;" id="btn-copy-draft" onclick="copyRoomId()">📋</button>
     </div>
     <div class="fx-toggles">
@@ -1596,7 +1605,8 @@ input[type=text],input[type=number],select{min-height:42px;background:#0f1724;bo
           <div id="sim-reveal-weapons-b"></div>
         </div>
       </div>
-      <button class="btn-reveal-next" onclick="closeSimReveal()">次へ →</button>
+      <div class="sim-reveal-auto">まもなく次のラウンドへ進みます</div>
+      <button class="btn-reveal-next" onclick="closeSimReveal()">すぐ次へ →</button>
     </div>
   </div>
   <div class="tc">
@@ -1810,7 +1820,7 @@ function applyLobbySettingsToForm(s){
   const setChk = (id,v)=>{ const el=document.getElementById(id); if(el) el.checked=!!v; };
   setVal('n-a',s.an); setVal('n-b',s.bn); setVal('sz',s.ts); setVal('bc',s.bc);
   setVal('ft',s.ft); setVal('pick-order',s.po); setVal('rm',s.rule); setVal('sm',s.stageJa);
-  setChk('std-only',s.stdOnly); setChk('hide-replica',!s.showReplica); setChk('challenge-enabled',s.challengeEnabled);
+  setChk('std-only',s.stdOnly); setChk('hide-replica',!s.showReplica); setChk('allow-mirror',s.allowMirror); setChk('challenge-enabled',s.challengeEnabled);
   setChk('trade-enabled',s.tradeEnabled);
   setChk('series-enabled',s.seriesEnabled); setVal('series-mode',s.seriesMode||'bo3');
   setChk('series-lockout',s.seriesLockout); setChk('series-loser-rules',s.seriesLoserRules);
@@ -1899,8 +1909,8 @@ let isMulti    = false;
 let isHost     = false;
 let roomId     = null;
 const ROOM_HIDDEN_KEY='splatoon-draft-room-hidden';
-// 既定は表示。非表示にした端末は次回も非表示（配信者向け）。端末内の表示のみで入室制限ではない。
-let roomHidden = (()=>{ try{ return localStorage.getItem(ROOM_HIDDEN_KEY)==='1'; }catch(e){ return false; } })();
+// 既定は非表示。表示に切り替えた端末は次回も表示（端末に記憶）。端末内の表示のみで入室制限ではない。
+let roomHidden = (()=>{ try{ return localStorage.getItem(ROOM_HIDDEN_KEY)!=='0'; }catch(e){ return true; } })();
 let myMemberId = null;   // 部屋作成時: 'host', 参加時: uid ベースの文字列
 
 // --- Firebase 購読解除関数 ---
@@ -1928,6 +1938,9 @@ let _audioCtx  = null; // Web Audio（遅延生成・ユーザー操作後に re
 
 // --- ロビーローカルキャッシュ ---
 let lobbyMembers        = {};   // {memberId: {name,team,isHost,tag?,...}}
+// おまかせロスト: 同じ部屋の再ドラフトをまたいで使用済みのステージ（lobby/lossUsed）。全部使い切ったら自動でリセット。
+let lobbyLossUsed       = [];
+let soloLossUsed        = [];   // ソロはこの端末のセッション中だけ
 let lobbyTagDefs        = {};   // lobby/tagDefs = {t1:{name,mode:'split'|'group'},...}（ホストのみ使用）
 let teamSplitPreview    = null; // ランダム振り分けのプレビュー（ホスト端末内のみ・未確定）
 let lobbyPickOrderAlpha = [];   // memberIdの配列（アルファチームのピック順）
@@ -1962,6 +1975,8 @@ let timerIntervalId = null;  // setInterval ID
 
 // --- 同時ピックフェーズ ---
 let simPickPending         = {alpha:null, bravo:null};
+const SIM_REVEAL_MS=1800;          // 同時ピック公開を見せてから自動で次ラウンドへ進むまでの時間
+let _simRevealTimer=null;
 let alphaPickSubmitted     = false;
 let bravoPickSubmitted     = false;
 let simPickRound           = 0;
@@ -2155,6 +2170,7 @@ window.startSoloDraft = function(){
     sm: document.getElementById('solo-sm').value,
     stdOnly: document.getElementById('solo-std-only')?.checked||false,
     showReplica: !(document.getElementById('solo-hide-replica')?.checked ?? true),
+    allowMirror: !!document.getElementById('solo-allow-mirror')?.checked,
     challengeEnabled: document.getElementById('solo-challenge-enabled')?.checked||false,
     tradeEnabled: document.getElementById('solo-trade-enabled')?.checked||false,
     seriesEnabled: document.getElementById('solo-series-enabled')?.checked||false,
@@ -2165,6 +2181,7 @@ window.startSoloDraft = function(){
     timeLimitEnabled: document.getElementById('solo-time-limit-enabled')?.checked||false,
     timeLimitSec: clampTimeLimit(document.getElementById('solo-time-limit-sec')?.value),
     gachaRerolls: parseInt(document.getElementById('solo-gacha-rerolls')?.value||2)||0,
+    lossUsed: soloLossUsed,
   });
 };
 
@@ -2198,7 +2215,7 @@ function buildRoomPresetSettings(id){
   if(id!=='custom' && !selected) return null;
   return {
     an:'アルファ',bn:'ブラボー',ts:4,bc:4,ft:'random',po:'snake',rule:'random',stageJa:'random',
-    stdOnly:false,showReplica:false,challengeEnabled:false,tradeEnabled:false,seriesEnabled:false,seriesMode:'bo3',
+    stdOnly:false,showReplica:false,allowMirror:false,challengeEnabled:false,tradeEnabled:false,seriesEnabled:false,seriesMode:'bo3',
     seriesLockout:false,seriesLoserRules:false,stageMode:'normal',stageDraftEnabled:false,stagePool:[...STAGES_DATA],
     memberDraftEnabled:false,memberDraftTiming:'before',pickMode:'individual',banMode:'individual',
     banGenres:{cat:0,sub:0,special:0},pickOrderAlpha:[],pickOrderBravo:[],
@@ -2217,7 +2234,7 @@ function normalizePresetSettings(raw){
     seriesMode:['bo3','bo5','bo7','bo9'],stageMode:['normal','loss','counter','banpick'],
     memberDraftTiming:['before','after'],pickMode:['individual','team','enemy','gacha','banonly'],banMode:['individual','representative']};
   const integers={ts:[1,4],bc:[0,8],timeLimitSec:[5,100],gachaRerolls:[0,9]};
-  const bools=['stdOnly','showReplica','challengeEnabled','tradeEnabled','seriesEnabled','seriesLockout','seriesLoserRules','memberDraftEnabled','timeLimitEnabled'];
+  const bools=['stdOnly','showReplica','allowMirror','challengeEnabled','tradeEnabled','seriesEnabled','seriesLockout','seriesLoserRules','memberDraftEnabled','timeLimitEnabled'];
   for(const [key,values] of Object.entries(enums)) if(raw[key]!==undefined){
     if(!values.includes(raw[key])) throw new Error(`「${key}」の値を読み込めません。`); base[key]=raw[key];
   }
@@ -2499,6 +2516,7 @@ function subscribeLobby(){
       if(s.pickOrderAlpha) lobbyPickOrderAlpha=s.pickOrderAlpha;
       if(s.pickOrderBravo) lobbyPickOrderBravo=s.pickOrderBravo;
       lobbyTagDefs=normalizeTagDefs(lobby.tagDefs);
+      lobbyLossUsed=Array.isArray(lobby.lossUsed)?lobby.lossUsed.filter(n=>STAGES_DATA.includes(n)):[];
       botTestRoom=!!lobby.botTest;
       renderBotCard();
       renderTeamAssign(members);
@@ -2543,7 +2561,8 @@ function subscribeLobby(){
         `${s.ts||4}v${s.ts||4} ｜ ${s.bc===0?'BANなし':'BAN×'+(s.bc||3)} ｜ ${esc(ruleStr)} ｜ ${esc(stageStr)}<br>`+
         `<span style="color:var(--pk)">${modeStr}</span>`+
         (s.stdOnly?'<br><span style="color:var(--pk)">⚙ 標準武器のみ</span>':'')+
-        (s.showReplica?'<br><span style="color:var(--pk)">⚙ レプリカも表示</span>':'');
+        (s.showReplica?'<br><span style="color:var(--pk)">⚙ レプリカも表示</span>':'')+
+        (s.allowMirror?'<br><span style="color:var(--pk)">⚙ 相手と同じ武器もPICK可</span>':'');
     }
   });
 
@@ -2688,12 +2707,15 @@ window.abortMemberDraft = function(){
   remove(ref(db,`rooms/${roomId}/lobby/memberDraft`));
 };
 // ホスト: ピック意図を members[].team へ反映し手番を回す（単一ライター）。スナップショットごとに呼ぶ。
+let _mdLastLobby=null, _wpLastLobby=null;
 function hostApplyMemberDraft(lobby){
   if(!isHost) return;
+  _mdLastLobby=lobby;
   const md=lobby.memberDraft;
   if(!md || !md.active || md.done){ stopMdTimer(); return; }
   if(md.pick && !_mdApplying){
     _mdApplying=true;
+    const appliedPick=md.pick;
     const members=lobby.members||{};
     const {memberId, team}=md.pick;
     const m=members[memberId];
@@ -2721,7 +2743,14 @@ function hostApplyMemberDraft(lobby){
         updates[`rooms/${roomId}/lobby/memberDraft/deadline`]= timed ? serverNow()+sec*1000 : null;
       }
     }
-    update(ref(db), updates).finally(()=>{ _mdApplying=false; });
+    // 反映中に次の指名が届くと、そのスナップショットは素通りして指名が残ったまま止まる
+    // （bot は速いので起きやすい）。反映が終わったら最新のスナップショットで再確認する。
+    update(ref(db), updates).finally(()=>{
+      _mdApplying=false;
+      const last=_mdLastLobby;
+      const p=last && last.memberDraft && last.memberDraft.pick;
+      if(p && !(p.memberId===appliedPick.memberId && p.ts===appliedPick.ts)) hostApplyMemberDraft(last);
+    });
     return;
   }
   startMdTimer(md);
@@ -2917,10 +2946,12 @@ window.abortWeaponPick = function(){
 // ホスト: 武器ピック意図を picks へ反映し手番を送る（単一ライター）
 function hostApplyWeaponPick(lobby){
   if(!isHost) return;
+  _wpLastLobby=lobby;
   const wp=lobby.weaponPick;
   if(!wp || !wp.active || wp.done){ stopWpTimer(); return; }
   if(wp.pick && !_wpApplying){
     _wpApplying=true;
+    const appliedPick=wp.pick;
     const order=wp.order||[];
     const curId=order[wp.idx];
     const {memberId, weaponKey}=wp.pick;
@@ -2942,7 +2973,12 @@ function hostApplyWeaponPick(lobby){
         updates[`rooms/${roomId}/lobby/weaponPick/deadline`]= timed ? serverNow()+sec*1000 : null;
       }
     }
-    update(ref(db), updates).finally(()=>{ _wpApplying=false; });
+    update(ref(db), updates).finally(()=>{
+      _wpApplying=false;
+      const last=_wpLastLobby; // メンバードラフトと同じく、反映中に届いた次の指名を拾い直す
+      const p=last && last.weaponPick && last.weaponPick.pick;
+      if(p && !(p.memberId===appliedPick.memberId && p.ts===appliedPick.ts)) hostApplyWeaponPick(last);
+    });
     return;
   }
   startWpTimer(wp);
@@ -3456,7 +3492,7 @@ function botTickSimPick(S,step,tag){
     const sent=team==='alpha'?alphaPickSubmitted:bravoPickSubmitted;
     if(!botControls(actor) || sent) return;
     botAct(`${tag}:sim:${S.idx}:${team}`, ()=>{
-      const w=botRandom(getAvailableWeapons(state));
+      const w=botRandom(getAvailableWeapons(state, team));
       if(!w) return;
       if(actor===myMemberId) pendingSelect=null;
       set(ref(db,`rooms/${roomId}/pending_${team}_pick`),{key:w.key,name:w.name,imgUrl:w.imgUrl,cat:w.cat});
@@ -3792,7 +3828,7 @@ function handleTimeoutSelf(expectedIdx){
     if(!myTeam) return; // 担当外は何もしない
     const mySubmitted = myTeam==='alpha' ? alphaPickSubmitted : bravoPickSubmitted;
     if(mySubmitted) return;
-    const allWeapons = getAvailableWeapons(S);
+    const allWeapons = getAvailableWeapons(S, myTeam);
     // 確定済み(2タップ・未送信) > 仮選択(1タップ) > ランダム の優先順
     const chosen = simPickPending[myTeam]
       || ((pendingSelect && pendingSelect.phase==='simpick' && pendingSelect.team===myTeam) ? pendingSelect.w : null)
@@ -3979,10 +4015,23 @@ function pickOwnerId(S, step){
   return (S && S.pickMode==='enemy') ? (step.targetMemberId||null) : (step.memberId||null);
 }
 
-// 利用可能な武器リストを返す（BAN済・ピック済を除外）
-function getAvailableWeapons(S){
+// PICK候補から外す「取得済み」武器。通常は両チームのピック。
+// 相手と同じ武器OK（allowMirror）なら、選ぶ人のチーム（相手ピックでは格納先＝相手チーム）のピックだけ。
+// actingTeam 不明時は両チーム分を外す（チーム内で被ることはない安全側）。
+function pickBlockedKeys(S, actingTeam){
+  if(S.allowMirror && (actingTeam==='alpha'||actingTeam==='bravo')){
+    return (S.picks[pickStoreTeam(S, actingTeam)]||[]).map(w=>w.key);
+  }
+  return [...(S.picks.alpha||[]),...(S.picks.bravo||[])].map(w=>w.key);
+}
+// 利用可能な武器リストを返す（BAN済・ピック済を除外）。actingTeam＝選ぶ側（相手と同じ武器OKのときに使う）
+function getAvailableWeapons(S, actingTeam){
   const bannedKeys = [...(S.bans.alpha||[]),...(S.bans.bravo||[])].map(w=>w.key);
-  const pickedKeys = [...(S.picks.alpha||[]),...(S.picks.bravo||[])].map(w=>w.key);
+  if(actingTeam===undefined){
+    const st=S.seq && S.seq[S.idx];
+    if(st && st.phase==='pick' && (st.team==='alpha'||st.team==='bravo')) actingTeam=st.team;
+  }
+  const pickedKeys = pickBlockedKeys(S, actingTeam);
   // 連戦の武器ロックアウト: シリーズの過去試合で使われた武器は次戦以降プールから除外
   const lockedKeys = (S.series && S.series.lockout && Array.isArray(S.series.lockedKeys)) ? S.series.lockedKeys : [];
   const usedKeys   = new Set([...bannedKeys,...pickedKeys,...lockedKeys]);
@@ -4361,7 +4410,7 @@ function prepareNextStageDraft(sr,random=Math.random){
   const d=sr.stageDraft;
   if(!d || (d.mode!=='loss' && d.mode!=='counter')) return d||null;
   const next={...d,games:[...(d.games||[])]};
-  if(d.mode==='loss') next.games.push(randomUnusedStage(d.pool,next.games,random));
+  if(d.mode==='loss') next.games.push(randomUnusedStage(d.pool,[...(d.excluded||[]),...next.games],random));
   else {
     const last=(sr.history||[])[(sr.history||[]).length-1];
     next.chooser=last?.winner==='alpha'?'bravo':'alpha';
@@ -4933,6 +4982,7 @@ function getLobbySettings(){
     stageJa: document.getElementById('sm')?.value||'random',
     stdOnly: document.getElementById('std-only')?.checked||false,
     showReplica: !(document.getElementById('hide-replica')?.checked ?? true),
+    allowMirror: !!document.getElementById('allow-mirror')?.checked,
     challengeEnabled: document.getElementById('challenge-enabled')?.checked||false,
     tradeEnabled: document.getElementById('trade-enabled')?.checked||false,
     seriesEnabled: document.getElementById('series-enabled')?.checked||false,
@@ -5099,7 +5149,7 @@ function updateStageSettingsUI(prefix){
   const help=document.getElementById(prefix+'stage-mode-help');
   if(help) help.textContent=({
     normal:'通常のステージ設定を使用。連戦では各試合ランダムです。',
-    loss:'候補からランダムに選び、使用済みステージをシリーズ中の候補から除外します。',
+    loss:'候補からランダムに選び、使用済みステージを候補から除外します（連戦中も「同じメンバーで再ドラフト」でも続けて除外。全部使ったら最初から）。',
     counter:'1試合目はランダム。2試合目以降は前試合の敗者が未使用ステージを選びます。',
     banpick:maxGames===1?'両チームが各1 BANし、先攻が1試合目のステージをPICKします。':`両チームが各1 BANし、先攻から${maxGames-1}ステージを交互にPICK。最終戦は残りから抽選します。`,
   })[mode]||'';
@@ -5232,7 +5282,7 @@ window.startDraft = function(){
   });
   buildAndStartDraft({
     an:s.an, bn:s.bn, ts:s.ts, bc:s.bc, ft:(s.ft==='random' && mdDone ? (lobbyMemberDraft.firstTeam||'random') : s.ft), po:s.po,
-    rm:s.rule, sm:s.stageJa, stdOnly:s.stdOnly, showReplica:!!s.showReplica, challengeEnabled:s.challengeEnabled,
+    rm:s.rule, sm:s.stageJa, stdOnly:s.stdOnly, showReplica:!!s.showReplica, allowMirror:!!s.allowMirror, challengeEnabled:s.challengeEnabled,
     tradeEnabled:s.tradeEnabled, seriesEnabled:s.seriesEnabled, seriesMode:s.seriesMode, seriesLockout:s.seriesLockout, seriesLoserRules:s.seriesLoserRules, stageMode:s.stageMode, stageDraftEnabled:s.stageDraftEnabled, stagePool:s.stagePool,
     pickMode:s.pickMode, banMode:s.banMode, banGenres:s.banGenres,
     pickOrderAlpha:s.pickOrderAlpha, pickOrderBravo:s.pickOrderBravo,
@@ -5241,6 +5291,7 @@ window.startDraft = function(){
     timeLimitSec:s.timeLimitSec,
     excludeFilter:s.excludeFilter,
     gachaRerolls:s.gachaRerolls,
+    lossUsed:lobbyLossUsed,
   });
 };
 
@@ -5341,7 +5392,7 @@ function buildPickSeq(ts, po, first, sec, pickOrderFirst, pickOrderSec, simOrder
 }
 
 // 初期状態の構築と、Firebaseへの送信・画面遷移を分離する。
-function createInitialDraftState({an,bn,ts,bc,ft,po,rm,sm,stdOnly,showReplica,challengeEnabled,tradeEnabled,seriesEnabled,seriesMode,seriesLockout,seriesLoserRules,stageMode,stageDraftEnabled,stagePool,series,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls}, multi){
+function createInitialDraftState({an,bn,ts,bc,ft,po,rm,sm,stdOnly,showReplica,allowMirror,challengeEnabled,tradeEnabled,seriesEnabled,seriesMode,seriesLockout,seriesLoserRules,stageMode,stageDraftEnabled,stagePool,series,pickMode,banMode,banGenres,pickOrderAlpha,pickOrderBravo,members,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls,lossUsed}, multi){
   // BANのみ: PICK が無いので、ピック結果を前提にする機能（お題・トレード・ロックアウト）は無効化する
   if(pickMode==='banonly'){ challengeEnabled=false; tradeEnabled=false; seriesLockout=false; }
   // 連戦シリーズ: 既存シリーズ（次戦）があれば引き継ぎ、無ければ有効時に初期化（後方互換で追加のみ）
@@ -5353,7 +5404,7 @@ function createInitialDraftState({an,bn,ts,bc,ft,po,rm,sm,stdOnly,showReplica,ch
       lockout: !!seriesLockout, lockedKeys: [], // 武器ロックアウト（過去試合で使われた key の累積）
       loserSetsRules: !!seriesLoserRules, nextRule:null, awaitingRule:false, ruleChooser:null,
       // 次戦を組み立てるための設定スナップショット（members は state.members を使う）
-      config: {an,bn,ts,bc,ft,po,rm,sm,stdOnly,showReplica,challengeEnabled,tradeEnabled,pickMode,banMode,
+      config: {an,bn,ts,bc,ft,po,rm,sm,stdOnly,showReplica,allowMirror,challengeEnabled,tradeEnabled,pickMode,banMode,
         banGenres,pickOrderAlpha,pickOrderBravo,timeLimitEnabled,timeLimitSec,excludeFilter,gachaRerolls,seriesLockout,seriesLoserRules},
     };
   }
@@ -5370,7 +5421,14 @@ function createInitialDraftState({an,bn,ts,bc,ft,po,rm,sm,stdOnly,showReplica,ch
   if(!series && mode!=='normal' && validStagePool(stagePool,requiredStageCount(mode,maxGames))){
     const d={mode,pool:[...new Set(stagePool)],first,maxGames,actions:[],games:[],token:Date.now().toString(36)+Math.random().toString(36).slice(2)};
     if(mode==='banpick') stageJa='選択中';
-    else { stageJa=randomUnusedStage(d.pool,[]); d.games=[stageJa]; }
+    else {
+      // おまかせロスト: 前回までの再ドラフトで使ったステージも除外。残りが試合数に足りなければリセット
+      if(mode==='loss'){
+        const ex=[...new Set((lossUsed||[]).filter(n=>d.pool.includes(n)))];
+        if(d.pool.length-ex.length>=maxGames) d.excluded=ex;
+      }
+      stageJa=randomUnusedStage(d.pool,d.excluded||[]); d.games=[stageJa];
+    }
     if(seriesObj) seriesObj.stageDraft=d; else singleStageDraft=d;
   }
   if(seriesObj?.stageDraft?.mode==='counter' && seriesObj.stageDraft.pending) stageJa='選択中';
@@ -5455,6 +5513,7 @@ function createInitialDraftState({an,bn,ts,bc,ft,po,rm,sm,stdOnly,showReplica,ch
     picks:{alpha:[],bravo:[]},
     stdOnly:!!stdOnly,
     showReplica:!!showReplica,
+    allowMirror:!!allowMirror,
     pickMode: pMode,
     pickOrder: pickOrder,
     banMode:  bMode,
@@ -5480,8 +5539,19 @@ function createInitialDraftState({an,bn,ts,bc,ft,po,rm,sm,stdOnly,showReplica,ch
   };
 }
 
+// おまかせロスト: このドラフトまでの使用済みステージを記録（再ドラフト時に除外する）
+function lossUsedAfter(S){
+  const d=stageDraftOf(S);
+  if(!d || d.mode!=='loss') return null;
+  return [...new Set([...(d.excluded||[]),...(d.games||[])].filter(Boolean))];
+}
 function buildAndStartDraft(options){
   state=createInitialDraftState(options,isMulti);
+  const usedNow=lossUsedAfter(state);
+  if(usedNow){
+    if(isMulti && isHost && roomId){ lobbyLossUsed=usedNow; set(ref(db,`rooms/${roomId}/lobby/lossUsed`), usedNow); }
+    else if(!isMulti) soloLossUsed=usedNow;
+  }
   const {pickMode:pMode,banMode:bMode,tradeEnabled,series:seriesObj}=state;
   // 一時状態を全リセット（連戦の次戦でガチャ/トレード/お題ルーレットのフラグも確実にクリア）
   resetTransientDraftState();
@@ -5578,6 +5648,8 @@ function pushState(){
 // 初期化する。ロビー復帰・再ドラフト・state削除受信で同一のフルリセットが必要なため集約。
 // state 自体の null 化や clearTimer・prevIdx 等の文脈依存処理は呼び出し側で行う。
 function resetTransientDraftState(){
+  clearTimeout(_simRevealTimer); _simRevealTimer=null;
+  const ov=document.getElementById('sim-reveal-overlay'); if(ov) ov.style.display='none';
   stageDraftSent=null; stageDraftSelection=null; stageDraftSubmitting=false;
   banPending = {alpha:[], bravo:[]};
   banActiveTeam = 'alpha';
@@ -5927,6 +5999,7 @@ function normalizeState(s){
   if(!s.seq) s.seq=[];
   if(s.stdOnly===undefined) s.stdOnly=false;
   if(s.showReplica===undefined) s.showReplica=false;
+  if(s.allowMirror===undefined) s.allowMirror=false;
   if(!s.pickMode) s.pickMode='team';
   if(!s.banMode)  s.banMode='representative';
   if(!s.banGenres) s.banGenres={cat:0,sub:0,special:0};
@@ -6750,7 +6823,10 @@ function renderGrid(){
   });
 
   const allBanned=new Set([...(S.bans.alpha||[]),...(S.bans.bravo||[]),...banPending.alpha,...banPending.bravo].map(w=>w.key));
-  const allPicked=new Set([...(S.picks.alpha||[]),...(S.picks.bravo||[])].map(w=>w.key));
+  const gridTeam=!step||step.phase!=='pick' ? null
+    : step.team!=='both' ? step.team
+    : (!isMulti ? (!simPickPending.alpha?'alpha':'bravo') : mySimPickTeam(S, step));
+  const allPicked=new Set(pickBlockedKeys(S, gridTeam));
   // 個人BAN: 味方の送信済みBANをグリッドにも共有表示（相手のBANは伏せたまま）。チーム内の重複BANを避けやすくする。
   const teammateBanSet=new Set();
   if(isBan && usesIndividualBan(S.pickMode,S.banMode) && isMulti){
@@ -7076,11 +7152,16 @@ function showSimRevealOverlay(wA, wB){
   elA.innerHTML=`<div class="sim-reveal-weapon"><img src="${esc(showA.imgUrl)}" alt="${esc(showA.name)}" onerror="this.style.display='none'"><span>${esc(showA.name)}</span></div>`;
   elB.innerHTML=`<div class="sim-reveal-weapon"><img src="${esc(showB.imgUrl)}" alt="${esc(showB.name)}" onerror="this.style.display='none'"><span>${esc(showB.name)}</span></div>`;
   document.getElementById('sim-reveal-overlay').style.display='flex';
+  // 両チームの送信が揃ったら、公開を少し見せて自動で次へ（ホストの「次へ」操作は不要）
+  clearTimeout(_simRevealTimer);
+  _simRevealTimer=setTimeout(()=>window.closeSimReveal(), SIM_REVEAL_MS);
 }
 
 window.closeSimReveal = function(){
+  clearTimeout(_simRevealTimer); _simRevealTimer=null;
   const wA=simPickPending.alpha, wB=simPickPending.bravo;
   document.getElementById('sim-reveal-overlay').style.display='none';
+  if(!wA || !wB) return; // 自動進行と「すぐ次へ」の二重実行を防ぐ
   // 被りOK仕様: 何があっても確定してidxを進める（ホストのみ処理）
   if(isMulti&&!isHost) return;
   const S=state;
@@ -7479,6 +7560,7 @@ window.downloadResultImage = async function(){
     if(S.timeLimitEnabled) parts.push(`制限${S.timeLimitSec}秒`);
     if(S.stdOnly) parts.push('標準のみ');
     if(S.showReplica && !S.stdOnly) parts.push('レプリカ含む');
+    if(S.allowMirror && S.pickMode!=='gacha' && S.pickMode!=='banonly') parts.push('同武器可');
     if(efc>0) parts.push(`絞り込み${efc}件`);
     const settingsLine=parts.filter(Boolean).join('  ・  ');
     ctx.fillStyle='#9aa3bd'; ctx.font="12px 'M PLUS Rounded 1c', sans-serif";
